@@ -24,6 +24,16 @@
 %     filecolor=black,
 %     urlcolor=black
 % }
+\usepackage{lstautogobble}
+\usepackage{color}
+\lstset{
+  autogobble,% remove leading space indentation
+  breaklines=true, % sets automatic line breaking
+  captionpos=b, % sets the caption-position to bottom
+  frame=single, % adds a frame around the code
+  showtabs=false, % show tabs within strings adding particular underscores
+  tabsize=2, % sets default tabsize to 2 spaces
+}
 
 \begin{document}
 
@@ -41,44 +51,21 @@
 
   API on rails : Construction d'API REST avec rails. Copyright © 2014 par Abraham Kuri. Tout le code source du tutoriel est disponible conjointement sous la [licence MIT](http://opensource.org/licenses/MIT) et la [licence Beerware](http://people.freebsd.org/~phk/).
 
-  \begin{scriptsize}[breaklines]
-  \begin{lstlisting}
-  The MIT License
+  \begin{tcolorbox}{The MIT License}
+    Copyright (c) 2018 Alexandre Rousseau
 
-  Copyright (c) 2014 Abraham Kuri
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  \end{tcolorbox}
 
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  THE SOFTWARE.
-  \end{lstlisting}
-  \end{scriptsize}
+  \begin{tcolorbox}{THE BEER-WARE LICENSE}
+   "THE BEER-WARE LICENSE" (Revision 42):
 
-  \begin{scriptsize}
-  \begin{lstlisting}
-  /*
-   * ----------------------------------------------------------------------------
-   * "THE BEER-WARE LICENSE" (Revision 42):
-   * Abraham Kuri wrote this code. As long as you retain this notice you
-   * can do whatever you want with this stuff. If we meet some day, and you think
-   * this stuff is worth it, you can buy me a beer in return.
-   * ----------------------------------------------------------------------------
-   */
- \end{lstlisting}
- \end{scriptsize}
+   Abraham Kuri wrote this code. As long as you retain this notice you can do whatever you want with this stuff. If we meet some day, and you think this stuff is worth it, you can buy me a beer in return.
+  \end{tcolorbox}
 
 \chapter{Introduction}
 
@@ -598,19 +585,99 @@
 
   \section{Planification de l'application}
 
-  Comme nous voulons faure simple avec l'application, elle se composera de 5 modèles (Figure \ref{fig:data_model}). Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
+    Comme nous voulons faure simple avec l'application, elle se composera de 5 modèles (Figure \ref{fig:data_model}). Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
 
-  \begin{figure}
-    \includegraphics[width=\linewidth]{img/data_model.png}
-    % \caption{http://market\_place\_api.dev/}
-    \label{fig:data_model}
-  \end{figure}
+    \begin{figure}
+      \includegraphics[width=\linewidth]{img/data_model.png}
+      % \caption{http://market\_place\_api.dev/}
+      \label{fig:data_model}
+    \end{figure}
 
-  En bref, nous avons l'utilisateur (\verb|User|) qui sera en mesure de passer de nombreuses commandes (\verb|Order|), télécharger de multiples produits (\verb|product|) qui peuvent avoir de nombreuses images (\verb|Image|) ou commentaires (\verb|Comment|) d'autres utilisateurs sur l'application.
+    En bref, nous avons l'utilisateur (\verb|User|) qui sera en mesure de passer de nombreuses commandes (\verb|Order|), télécharger de multiples produits (\verb|product|) qui peuvent avoir de nombreuses images (\verb|Image|) ou commentaires (\verb|Comment|) d'autres utilisateurs sur l'application.
 
-  Nous n'allons pas construire de vues pour l'affichage ou l'interaction avec l'API afin de ne pas surcharger le tutoriel.  Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks javascript (\href{https://angularjs.org/}{Angular}, \href{https://vuejs.org/}{Vue.JS}, \href{https://reactjs.org/}{React}) ou des librairies mobile (\href{https://github.com/AFNetworking/AFNetworking}{AFNetworking}).
+    Nous n'allons pas construire de vues pour l'affichage ou l'interaction avec l'API afin de ne pas surcharger le tutoriel.  Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks javascript (\href{https://angularjs.org/}{Angular}, \href{https://vuejs.org/}{Vue.JS}, \href{https://reactjs.org/}{React}) ou des librairies mobile (\href{https://github.com/AFNetworking/AFNetworking}{AFNetworking}).
 
-  À ce stade, vous devez vous poser la question \textquote{d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire}, et c'est juste. Si vous googlez quelque chose lié à l'exploration d'une API, une application appelée Postman apparaîtra, c'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée sabisu_rails qui est un puissant client de moteur de type facteur pour explorer votre application Rails api's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
+    À ce stade, vous devez vous poser la question \textquote{d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire}, et c'est juste. Si vous googlez quelque chose lié à l'exploration d'une API, vous allez sûremment entendre parler de \href{https://www.getpostman.com/}{Postman}. C'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée  qui est un puissant client de moteur de type facteur pour explorer votre application Rails api's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
+    % TODO keep it?
+
+  \section{Mettre en place l'API}
+
+    Une API est définie par \href{https://fr.wikipedia.org/wiki/Interface_de_programmation}{wikipedia} comme une interface de programmation d'application (API) qui  est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d'autres logiciels. En d'autres termes, il s'agit d'une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON). Il existe d'autres types de protocoles de communication comme SOAP, mais nous n'en parlons pas ici.
+
+    JSON est devenu incontournable en tant sur média Internet en raison de sa lisibilité, de son extensibilité et sa facilité à mettre en œuvre. Beaucoup de frameworks Javascript l'utilisent comme protocole par défault comme \href{https://angularjs.org/}{Angular} ou \href{http://emberjs.com/}{EmberJS}. D'autres grandes bibliothèques en Objective-C l'utilisent  comme \href{https://github.com/AFNetworking/AFNetworking}{AFNetworking} ou \href{http://restkit.org/}{RESTKit}. Il existe probablement de bonnes solutions pour Android, mais en raison de mon manque d'expérience sur cette plate-forme de développement je ne suis peut-être pas la bonne personne pour vous recommander quelque chose.
+
+    Très bien, donc nous construisons notre API avec JSON mais il y a beaucoup de façons d'y parvenir. La première chose qui pourrait vous venir à l'esprit serait de commencer à créer des routes en vrac. Le problème est qu'elles ne seront pas normalisées. Un utilisateur ne pourrait pas deviner qu'elle ressource est renvoyée par une route.
+
+    C'est pourquoi une norme existe: REST \textit{(Representational State Transfer)}. REST impose une norme pour les routes qui doivent créer, lire, mettre à jour ou supprimer des informations sur un serveur en utilisant de simples appels HTTP. C'est une alternative aux mécanismes plus complexes comme SOAP(Listing \ref{lst:soap_example}), CORBA et RPC. Un appel REST est simplement une requête GET HTTP vers le serveur.
+
+    \begin{scriptsize}
+    \begin{lstlisting}[label={lst:soap_example}, caption={Un exemple d'appel SOAP}]
+    aService.getUser("1")
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Et dans REST vous pouvez appeler une URL avec une requête HTTP spécifique, dans ce cas avec une requête GET (Listing \ref{lst:rest_example}):
+
+    \begin{scriptsize}
+    \begin{lstlisting}[label={lst:rest_example}, caption={Un exemple d'appel REST}]
+    http://domain.com/resources_name/uri_pattern
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Les API RESTful doivent suivre aux minimum trois règles:
+
+    \begin{itemize}
+      \item Une URI de base comme \href{http://example.com/resources/}{http://example.com/resources/}
+      \item Un type de média Internet pour représenter les données, il est communément JSON et est communément défini par l'échange d'en-têtes.
+      \item Suivez les méthodes \href{https://fr.wikipedia.org/wiki/Hypertext_Transfer_Protocol}{HTTP} standard telles que GET, POST, PUT, PUT, DELETE.
+    \end{itemize}
+
+    \begin{description}
+      \item[GET] Lit la ou les ressources définies par le modèle URI
+      \item[POST] Crée une nouvelle entrée dans la collection de ressources
+      \item[PUT] Mise à jour d'une collection ou d'un membre des ressources
+      \item[DELETE] Détruit une collection ou un membre des ressources
+    \end{description}
+
+    Cela n'est peut-être pas assez clair ou peut sembler beaucoup d'informations à digérer. Mais à mesure que nous avancerons dans le tutoriel, cela deviendra beaucoup plus facile à comprendre.
+
+    \subsection{Routes, Constraints and Namespaces}
+
+      Avant de commencer à taper du code, nous allons préparer le réprtoire Git. Le \textit{workflow} que nous allons suivre est le suivant. Nous allons créer une branche par chapitre.Une fois terminé, nous le pousserons la branche sur github et nous la fusionnerons avec master.
+
+      Commençons donc par ouvrir le terminal dans le répertoire \verb|market_place_api| et tapez la commande suivante pour créer la branche:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git checkout -b setting-api
+      Switched to a new branch 'setting-api'
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Nous allons seulement travailler sur le fichier \verb|config/routes.rb| (Listing \ref{lst:default_routes}), car nous allons simplement définir les contraintes et le format de réponse par défaut pour chaque requête.
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Le fichier routes.rb par défault}, label={lst:default_routes}]
+      Rails.application.routes.draw do
+        # ...
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Effacez tout le code commenté qui se trouve dans le fichier. Nous n'en aurons pas besoin. Ensuite, faites un \verb|commit|, juste pour s'échauffer:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add config/routes.rb
+      $ git commit -m "Removes comments from the routes file"
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Nous allons isoler les contrôleurs API dans des Namespace. Avec Rails, c'est assez simple. Il suffit de créer un dossier sous l'application/contrôleurs nommé API. Le nom est important car c'est l'espace de noms que nous allons utiliser pour gérer les contrôleurs pour les terminaux api. (Liste 2.4)
+
+
+
+
 
 
 
