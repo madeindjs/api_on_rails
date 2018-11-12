@@ -6,7 +6,9 @@
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
+\usepackage{tikz}
 %\usepackage{listings}
+\usepackage[pdf]{graphviz}
 \usepackage{appendix}
 \usepackage{csquotes}
 \usepackage{tcolorbox}
@@ -577,6 +579,39 @@
     Cela a été un long chemin à travers ce chapitre, si vous arrivez ici, permettez-moi de vous féliciter. Soyez sûr que les choses vont s'améliorer à partir de ce point.
 
     Maintenant, commençons à mettre les mains dans le code!
+
+\chapter{L'API}
+
+  Dans cette section, je vais vous donner les grandes lignes de l'application, vous devriez maintenant avoir le texte de l'application, comme indiqué dans la section 1.3, si vous ne l'avez pas lu, je vous recommande de le faire.
+
+  Vous pouvez cloner le projet jusqu'à ce point avec :
+
+  \begin{scriptsize}
+  \begin{lstlisting}[language=bash, breaklines]
+  $ git clone https://github.com/madeindjs/market_place_api
+  $ cd market_place_api
+  $ git checkout -b chapter1 b98a9a7a328017640482af95beebc1d6e612e0ac
+  \end{lstlisting}
+  \end{scriptsize}
+
+  Et pour résumer, nous avons mis à jour le Gemfile pour ajouter la Gem \verb|active_model_serializers| (voir Listing \ref{listing:gemfile_active _model_serializers} pour plus d'informations).
+
+  \section{Planification de l'application}
+
+  Comme nous voulons faure simple avec l'application, elle se composera de 5 modèles (Figure \ref{fig:data_model}). Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
+
+  \begin{figure}
+    \includegraphics[width=\linewidth]{img/data_model.png}
+    % \caption{http://market\_place\_api.dev/}
+    \label{fig:data_model}
+  \end{figure}
+
+  En bref, nous avons l'utilisateur (\verb|User|) qui sera en mesure de passer de nombreuses commandes (\verb|Order|), télécharger de multiples produits (\verb|product|) qui peuvent avoir de nombreuses images (\verb|Image|) ou commentaires (\verb|Comment|) d'autres utilisateurs sur l'application.
+
+  Nous n'allons pas construire de vues pour l'affichage ou l'interaction avec l'API afin de ne pas surcharger le tutoriel.  Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks javascript (\href{https://angularjs.org/}{Angular}, \href{https://vuejs.org/}{Vue.JS}, \href{https://reactjs.org/}{React}) ou des librairies mobile (\href{https://github.com/AFNetworking/AFNetworking}{AFNetworking}).
+
+  À ce stade, vous devez vous poser la question \textquote{d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire}, et c'est juste. Si vous googlez quelque chose lié à l'exploration d'une API, une application appelée Postman apparaîtra, c'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée sabisu_rails qui est un puissant client de moteur de type facteur pour explorer votre application Rails api's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
+
 
 
 \end{document}
