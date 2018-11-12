@@ -13,6 +13,7 @@
 \usepackage{csquotes}
 \usepackage{tcolorbox}
 \usepackage{listings}
+\usepackage{tabularx}
 
 \showboxdepth=\maxdimen
 
@@ -499,7 +500,7 @@
     \end{lstlisting}
     \end{scriptsize}
 
-    L'étape suivante est d'ignorer certains fichiers que nous ne voulons pas suivre. Votre fichier \verb|.gitignore| devrait ressembler à celui montré ci-dessous (Liste ref{lstlisting:gitignore}):
+    L'étape suivante est d'ignorer certains fichiers que nous ne voulons pas suivre. Votre fichier \verb|.gitignore| devrait ressembler à celui montré ci-dessous (Listing \ref{lstlisting:gitignore}):
 
     \begin{scriptsize}
     \begin{lstlisting}[breaklines, caption={La version modifiée du fichier .gitignore}, label={lstlisting:gitignore}]
@@ -600,7 +601,7 @@
     À ce stade, vous devez vous poser la question \textquote{d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire}, et c'est juste. Si vous googlez quelque chose lié à l'exploration d'une API, vous allez sûremment entendre parler de \href{https://www.getpostman.com/}{Postman}. C'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée  qui est un puissant client de moteur de type facteur pour explorer votre application Rails api's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
     % TODO keep it?
 
-  \section{Mettre en place l'API}
+  \section{Mettre en place l'API}\label{section:setup_api}
 
     Une API est définie par \href{https://fr.wikipedia.org/wiki/Interface_de_programmation}{wikipedia} comme une interface de programmation d'application (API) qui  est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d'autres logiciels. En d'autres termes, il s'agit d'une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON). Il existe d'autres types de protocoles de communication comme SOAP, mais nous n'en parlons pas ici.
 
@@ -673,12 +674,324 @@
       \end{lstlisting}
       \end{scriptsize}
 
-      Nous allons isoler les contrôleurs API dans des Namespace. Avec Rails, c'est assez simple. Il suffit de créer un dossier sous l'application/contrôleurs nommé API. Le nom est important car c'est l'espace de noms que nous allons utiliser pour gérer les contrôleurs pour les terminaux api. (Liste 2.4)
+      Nous allons isoler les contrôleurs API dans des Namespace. Avec Rails, c'est assez simple. Il suffit de créer un dossier sous \verb|app/controllers| nommé \verb|api|. Le nom est important car c'est l'espace de noms que nous allons utiliser pour gérer les contrôleurs pour les terminaux api. (Listing \ref{lst:mkdir_controllers_api})
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash, caption={Commande pour créer le dossier controllers/api}, label={lst:mkdir_controllers_api}]
+      $ mkdir app/controllers/api
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Nous ajoutons ensuite ce \textit{namespace} dans notre fichier routes.rb (Listing \ref{lst:routes_create_namespace}):
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Création d'un Namespace}, label={lst:routes_create_namespace}]
+      Rails.application.routes.draw do
+        # Api definition
+        namespace :api do
+          # We are going to list our resources here
+        end
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      En définissant un \textit{Namespace} dans le fichier \verb|routes.rb|, Rails mappera automatiquement ce \textit{Namespace} à un répertoire correspondant au nom sous le dossier controllers, dans notre cas le répertoire \verb|api/|.
+
+      Rails supporte jusqu'à 35 types de médias différents, vous pouvez les lister en accédant à la classe \verb|SET| sous le module de \verb|Mime|:
 
 
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails c
+      Loading development environment (Rails 5.2.1)
+      irb(main):001:0> Mime::SET.collect(&:to_s)
+      => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip", "application/vnd.web-console.v2"]
+      \end{lstlisting}
+      \end{scriptsize}
+
+      C'est important parce que nous allons travailler avec JSON, l'un des types MIME intégrés par Rails. Ainsi nous avons juste besoin de spécifier ce format comme format par défaut (Listing \ref{lst:routes_create_namespace_with_format}) :
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Création d'un Namespace avec un format par défault}, label={lst:routes_create_namespace_with_format}]
+      Rails.application.routes.draw do
+        # Api definition
+        namespace :api, defaults: { format: :json }  do
+          # We are going to list our resources here
+        end
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Jusqu'à présent, nous n'avons rien fait de fou. Nous voulons maintenant générer une \verb|base_uri| sous un sous-domaine. C'est-à-dire quelque chose comme \verb|api.market_place_api.dev|. Définir l'API sous un sous-domaine est une bonne pratique car cela permet d'adapter l'application à un niveau DNS. Alors, comment y parvenir? (Listing \ref{lst:routes_create_namespace_with_subdomain})
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Création d'un Namespace avec un format par défault}, label={lst:routes_create_namespace_with_subdomain}]
+      Rails.application.routes.draw do
+        # Api definition
+        namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+          # We are going to list our resources here
+        end
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Vous voyez la différence? Nous n'avons pas seulement ajouté un \verb|Hash| de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l'option chemin d'accès, et lui avons donné un \textit{backslash}. Cel indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine (Encadré 2.1), obtenant ce que nous recherchons.
+
+      \begin{tcolorbox}{Les conventions des API}
+        Vous pouvez trouver de nombreuses approches pour configurer la \verb|base_uri| d'une API. En supposant que nous versionnont notre api (Section \ref{section:api_versioning}):
+
+        \begin{description}
+          \item[api.example.com/] Je suis d'avis que c'est la voie à suivre, vous donne une meilleure interface et l'isolement, et à long terme peut vous aider à mettre rapidement à l'échelle \url{http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/}
+          \item[example.com/api/] Ce modèle est très commun. C'est un bon moyen de commencer quand vous ne voulez pas de Namespace de votre API avec sous un sous-domaine
+          \item[example.com/api/v1] Cela semble être une bonne idée. En définissant la version de l'API par l'URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version àl'URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
+        \end{description}
+
+        Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnement lors de la section \ref{section:api_versioning}
+
+      \end{tcolorbox}
+
+      Il est temps de \textit{commiter}:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add config/routes.rb
+      $ git commit -m "Set the routes contraints for the api"
+      \end{lstlisting}
+      \end{scriptsize}
+
+  \section{Versionnement de l'API}\label{section:api_versioning}
+
+    A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l'espacement des noms des requêtes, votre fichier routes.rb devrait ressembler à ceci:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby]
+    Rails.application.routes.draw do
+      # Api definition
+      namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+        # We are going to list our resources here
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Il est maintenant temps de mettre en place d'autres contraintes pour le versioning. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une meilleure structure à votre API. Lorsque des changements interviendrons sur votre API, vous proposer aux développeurs de s'adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées. Il y a un excellent \href{http://railscasts.com/episodes/350-rest-api-versioning}{railscast} qui explique cela.
 
 
+    Votre versionnement de l'API est erroné, c'est pourquoi j'ai décidé de le faire de 3 façons différentes -Troy Hunt
 
+    Afin de définir la version de l'API, nous devons d'abord ajouter un autre répertoire sous l'api que nous avons créé (Section \ref{section:setup_api}):
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ mkdir app/controllers/api/v1
+    \end{lstlisting}
+    \end{scriptsize}
+
+    De cette façon, nous pouvons très facilement définir la portée de notre API dans différentes versions. Il ne nous reste plus qu'à ajouter le code nécessaire dans le fichier \verb|routes.rb| (Listing \ref{lst:add_scope_to_toutes})
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Spécification de la version de l'API}, label={lst:add_scope_to_toutes}]
+    Rails.application.routes.draw do
+      # Api definition
+      namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+        scope module: :v1 do
+          # We are going to list our resources here
+        end
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    L'API est désormais scopée via l'URL. Par exemple, avec la configuration actuelle, la récupération d'un produit via l'API se ferait avec cette url:
+
+    \begin{scriptsize}
+    \begin{lstlisting}
+    http://api.marketplace.dev/v1/products/1
+    \end{lstlisting}
+    \end{scriptsize}
+
+  \section{Améliorer le versionning}\label{section:improve_api_versioning}
+
+    Jusqu'à présent, l'API a été versionnée via l'URL. Mais quelque chose ne va pas? De mon point de vue, le développeur ne devrait pas être au courant de la version qu'il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir ?
+
+    Tout d'abord, nous devons améliorer l'accès à la version de l'API via les \href{http://en.wikipedia.org/wiki/List_of_HTTP_header_fields}{en-têtes HTTP}. Cela présente deux avantages:
+
+    \begin{itemize}
+      \item Removes the version from the URL
+      \item The API description is handle through request headers (Box 2.2)
+    \end{itemize}
+
+
+    \begin{tcolorbox}{Description des en-têtes de requête}
+      Les champs d'en-tête HTTP sont des composants de l'en-tête de demandes et de réponses dans le protocole HTTP. Ils définissent les paramètres de fonctionnement d'une transaction HTTP.
+
+      Une liste commune des en-têtes utilisés est présentée ci-dessous:
+
+      \begin{description}
+        \item[Accept] Types de contenu acceptables pour la réponse. Exemple: \verb|Accept: text/plain|
+        \item[Authorization] Identifiants d'authentification pour l'authentification HTTP. Exemple: \verb|Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==|
+        \item[Content-Type] Le type MIME du corps de la requête (utilisé avec les requêtes POST et PUT). Exemple: \verb|Content-Type: application/x-www-form-urlencoded|
+        \item[Origin] Lance une demande de partage de ressources d'origine croisée (demande au serveur un en-tête de réponse \verb|Accès-Contrôle-Autorisation-Autorisation-Origin|) .. Exemple: \verb|Origin: http://www.example-social-network.com|
+        \item[User-Agent] La chaîne d'agent utilisateur de l'agent utilisateur. Exemple: \verb|User-Agent: Mozilla/5.0|
+      \end{description}
+
+      Il est important que vous vous sentiez à l'aise avec celles-ci et que vous les compreniez.
+
+      Il en existe beaucoup d'autres. La liste complète est disponnible \href{https://en.wikipedia.org/wiki/List_of_HTTP_header_fields}{sur Wikipedia}.
+    \end{tcolorbox}
+
+    Avec Rails, il est très facile d'ajouter ce type de versionnement par le biais d'un en-tête \verb|Accept|. Nous allons créer une classe sous le répertoire \verb|lib| de votre application Rails. N'oubliez pas que nous faisons du TDD donc nous allons commencer par un test. (Liste \ref{lst:create_api_constraints_spec}).
+
+    Tout d'abord, nous devons ajouter notre suite de tests, qui dans notre cas sera \href{http://rspec.info/}{Rspec} (Listing \ref{lst:add_rspect_to_gemfile}):
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Gemfile avec la suite de test}, label={lst:add_rspect_to_gemfile}]
+    group :test do
+      gem 'rspec-rails', '~> 3.8'
+      gem 'factory_girl_rails', '~> 4.9'
+      gem 'ffaker', '~> 2.10'
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Ensuite nous lançons la commande \verb|bundle| pour installer les gemmes:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ bundle install
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Enfin, nous installons \verb|rspec| et ajoutons de la configuration pour éviter que des vues et des tests helpers ne soient générés :
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ rails generate rspec:install
+    \end{lstlisting}
+    \end{scriptsize}
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Configuration de notre suite de test avec respec  (/config/application.rb)}, label={lst:setup_rspec}]
+    # ...
+    module MarketPlaceApi
+      class Application < Rails::Application
+        # Initialize configuration defaults for originally generated Rails version.
+        config.load_defaults 5.2
+
+        config.generators do |g|
+          g.test_framework :rspec, fixture: true
+          g.fixture_replacement :factory_girl, dir: 'spec/factories'
+          g.view_specs false
+          g.helper_specs false
+          g.stylesheets = false
+          g.javascripts = false
+          g.helper = false
+        end
+
+        config.autoload_paths += %W(\#{config.root}/lib)
+
+        # Don't generate system test files.
+        config.generators.system_tests = nil
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Si tout s'est bien passé, il est maintenant temps d'ajouter un répertoire \verb|spec| sous \verb|lib| et d'ajouter le fichier \verb|api_constraints_spec.rb|:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ mkdir lib/spec
+    $ touch lib/spec/api_constraints_spec.rb
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Nous ajoutons ensuite une série de spécifications décrivant notre classe:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Test ApiConstraints (lib/spec/api\_constraints\_spec.rb)}, label={lst:create_api_constraints_spec}]
+    require 'spec_helper'
+    require './lib/api_constraints'
+
+    describe ApiConstraints do
+      let(:api_constraints_v1) { ApiConstraints.new(version: 1) }
+      let(:api_constraints_v2) { ApiConstraints.new(version: 2, default: true) }
+
+      describe 'matches?' do
+        it "returns true when the version matches the 'Accept' header" do
+          request = double(host: 'api.marketplace.dev',
+                           headers: { 'Accept' => 'application/vnd.marketplace.v1' })
+          expect(api_constraints_v1.matches?(request)).to be_truthy
+        end
+
+        it "returns the default version when 'default' option is specified" do
+          request = double(host: 'api.marketplace.dev')
+          expect(api_constraints_v2.matches?(request)).to be_truthy
+        end
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+
+    Laissez-moi vous expliquer le code. Nous initialisons la classe avec un \verb|Hash| d'options qui contiendra la version de l'API  et une valeur par défaut pour gérer la version par défaut. Nous fournissons une méthode \verb|match?| afin que le routeur devine si la version par défaut est requise ou si l'en-tête \verb|Accept| correspond à la chaîne donnée.
+
+    L'implémentation ressemble à ceci (Listing \ref{lst:create_api_constraints})
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={La classe ApiConstraints (lib/api\_constraints.rb)}, label={lst:create_api_constraints}]
+    class ApiConstraints
+      def initialize(options)
+        @version = options[:version]
+        @default = options[:default]
+      end
+
+      def matches?(req)
+        @default || req.headers['Accept'].include?("application/vnd.marketplace.v#{@version}")
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Comme vous l'imaginez, nous devons ajouter la classe à notre fichier \verb|routes.rb| et la définir comme option de portée de contrainte (Listing \ref{lst:add_api_constraints_to_toutes}):
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Ajout de la contrainte à la route (config/routes.rb)}, label={lst:add_api_constraints_to_toutes}]
+    require 'api_constraints'
+
+    Rails.application.routes.draw do
+      # Api definition
+      namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+        scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+          # We are going to list our resources here
+        end
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    La configuration ci-dessus gère maintenant le versioning par le biais des en-têtes. Pour l'instant la version 1 est la version par défaut. Chaque requête sera redirigée vers cette version, peu importe si l'en-tête avec la version est présent ou non.
+
+    Avant de nous dire au revoir, faisons nos premiers tests et assurons-nous que notre test fonctionne:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ bundle exec rspec lib/spec/api_constraints_spec.rb
+    ..
+
+    Finished in 0.00294 seconds (files took 0.06292 seconds to load)
+    2 examples, 0 failures
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Ça a été un long chemin, je sais, mais vous avez réussi! N'abandonnez pas, c'est juste notre petite fondation pour quelque chose de grand, alors continuez comme ça. En attendant, et je vous intrigue, il y a quelques gemmes qui gèrent ce genre de configuration:
+
+    \begin{itemize}
+      \item \href{https://github.com/Sutto/rocket_pants}{RocketPants}
+      \item \href{https://github.com/bploetz/versionist}{Versionist}
+    \end{itemize}
+
+    Je n'en parle pas ici puisque nous essayons d'apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu'ici est disponnible \href{https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd}{ici}.
 
 
 \end{document}
