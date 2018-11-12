@@ -39,7 +39,7 @@
 
   API on rails : Construction d'API REST avec rails. Copyright © 2014 par Abraham Kuri. Tout le code source du tutoriel est disponible conjointement sous la [licence MIT](http://opensource.org/licenses/MIT) et la [licence Beerware](http://people.freebsd.org/~phk/).
 
-  \begin{scriptsize}
+  \begin{scriptsize}[breaklines]
   \begin{lstlisting}
   The MIT License
 
@@ -489,7 +489,7 @@
 
   \section{Contrôle de version}\label{section:git}
 
-    Rappelez-vous que Git vous aide à suivre et à maintenir l'historique de votre code. Gardez à l'esprit que le code source de l'application est publié sur Github. Vous pouvez suivre le référentiel sur % TODO changer le repository git
+    Rappelez-vous que Git vous aide à suivre et à maintenir l'historique de votre code. Gardez à l'esprit que le code source de l'application est publié sur Github. Vous pouvez suivre le référentiel sur \href{https://github.com/madeindjs/market_place_api}{github.com/madeindjs/market\_place\_api}
 
     À ce stade, je suppose que vous avez déjà configuré git et que vous êtes prêt à l'utiliser pour suivre le projet. Si ce n'est pas votre cas, suivez ces étapes de première installation:
 
@@ -550,14 +550,33 @@
     \end{lstlisting}
     \end{scriptsize}
 
+    Bonne pratique : J'ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu'il a fait. De cette façon il est plus facile de lire et de comprendre l'histoirique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu'à la fin du tutoriel.
 
+    Enfin, comme étape optionnelle, nous installons le projet github (je ne vais pas passer par là) et poussons notre code vers le serveur distant:
 
+    On ajoute d'abord le serveur distant:
 
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash, breaklines]
+    $ git remote add origin git@github.com:madeindjs/market_place_api.git
+    \end{lstlisting}
+    \end{scriptsize}
 
+    ensuite:
 
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash, breaklines]
+    $ git push -u origin master
+    \end{lstlisting}
+    \end{scriptsize}
 
+    Au fur et à mesure que nous avançons dans le tutoriel, j'utiliserai les pratiques que j'utilise quotidiennement. Cela inclut le travail avec les branches, le rebasage, le squash et bien d'autres. Pour l'instant, vous n'avez pas à vous inquiéter si certains des termes ne vous semblent pas familiers, je les expliquerai le temps venu.
 
+  \section{Conclusion}
 
+    Cela a été un long chemin à travers ce chapitre, si vous arrivez ici, permettez-moi de vous féliciter. Soyez sûr que les choses vont s'améliorer à partir de ce point.
+
+    Maintenant, commençons à mettre les mains dans le code!
 
 
 \end{document}
