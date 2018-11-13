@@ -1,5 +1,5 @@
 \documentclass[]{report}
-\title{API on Rails}
+\title{\textbf{API on Rails}\\ Construction d'API REST avec Rails}
 \author{Alexandre Rousseau}
 
 \usepackage{graphicx}
@@ -48,29 +48,31 @@
 
 \pagenumbering{arabic}
 
-\chapter{Droits d'auteur et licence}
+\chapter{Avant-propos}
 
-  API on rails : Construction d'API REST avec rails. Copyright © 2014 par Abraham Kuri. Tout le code source du tutoriel est disponible conjointement sous la [licence MIT](http://opensource.org/licenses/MIT) et la [licence Beerware](http://people.freebsd.org/~phk/).
+  \textquote{API on Rails: Construction d'API REST avec Rails} est une mise à jour et une traduction française du livre \href{http://apionrails.icalialabs.com/book/}{\textquote{APIs on Rails: Building REST APIs with Rails}}. Celui-ci fut initialement publié en 2014 par \href{https://twitter.com/kurenn}{Abraham Kuri} sous les licences \href{http://opensource.org/licenses/MIT}{MIT} et \href{http://people.freebsd.org/~phk/}{Beerware}.
 
-  \begin{tcolorbox}{The MIT License}
-    Copyright (c) 2018 Alexandre Rousseau
+  \section{A propos de l'autheur original}
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    \href{https://twitter.com/kurenn}{Abraham Kuri} est un développeur de Rails avec 5 ans d'expérience. Son expérience inclut le travail en tant que freelance dans la construction de produits logiciels et plus récemment dans la collaboration au sein de la communauté open source. Il a développé \href{http://icalialabs.github.io/furatto/}{Furatto} un cadre frontal construit avec Sass, \href{https://github.com/IcaliaLabs/sabisu-rails}{Sabisu} la prochaine génération d'explorateur d'API pour votre application Rails et a collaboré sur d'autres projets. Diplômé en informatique d'ITESM, il a fondé deux sociétés au Mexique (\href{http://icalialabs.com/}{Icalia Labs} et \href{http://codeandomexico.org/}{Codeando Mexico}).
 
-    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+  \section{Droits d'auteur et licence}
 
-    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  \end{tcolorbox}
+    Cette traduction est disponnible sous \href{http://opensource.org/licenses/MIT}{licence MIT}. Tout le code source de ce livre est disponnible au format \href{https://fr.wikipedia.org/wiki/LaTeX}{\LaTeX} sur \href{https://github.com/madeindjs/api_on_rails}{ce répertoire Github}
 
-  \begin{tcolorbox}{THE BEER-WARE LICENSE}
-   \"THE BEER-WARE LICENSE\" (Revision 42):
+    \begin{tcolorbox}{The MIT License}
+      Copyright (c) 2018 Alexandre Rousseau
 
-   Abraham Kuri wrote this code. As long as you retain this notice you can do whatever you want with this stuff. If we meet some day, and you think this stuff is worth it, you can buy me a beer in return.
-  \end{tcolorbox}
+      Permission est accordée, à titre gratuit, à toute personne obtenant une copie de ce logiciel et la documentation associée, pour faire des modification dans le logiciel sans restriction et sans limitation des droits d’utiliser, copier, modifier, fusionner, publier, distribuer, concéder sous licence, et / ou de vendre les copies du Logiciel, et à autoriser les personnes auxquelles le Logiciel est meublé de le faire, sous réserve des conditions suivantes:
+
+      L’avis de copyright ci-dessus et cette autorisation doit être inclus dans toutes les copies ou parties substantielles du Logiciel.
+
+      LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D’AUCUNE SORTE, EXPLICITE OU IMPLICITE, Y COMPRIS, MAIS SANS S’Y LIMITER, LES GARANTIES DE QUALITÉ MARCHANDE, ADAPTATION À UN USAGE PARTICULIER ET D’ABSENCE DE CONTREFAÇON. EN AUCUN CAS LES AUTEURS OU TITULAIRES DU ETRE TENU RESPONSABLE DE TOUT DOMMAGE, RÉCLAMATION OU AUTRES RESPONSABILITÉ, SOIT DANS UNE ACTION DE CONTRAT, UN TORT OU AUTRE, PROVENANT DE, DE OU EN RELATION AVEC LE LOGICIEL OU L’UTILISATION OU DE TRANSACTIONS AUTRES LE LOGICIEL.
+    \end{tcolorbox}
 
 \chapter{Introduction}
 
-  Bienvenue sur APIs on Rails, un tutoriel sous stéroïdes sur la façon de construire votre prochaine API avec Rails. Le but de ce livre est de fournir une réponse sur la façon de développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec les API Rails, vous devriez être en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit sur Ruby on Rails 5 qui est la version actuelle, pour plus d'informations à ce sujet, consultez \href{http://rubyonrails.org/}{rubyonrails.org}. La version la plus récente de l'API sur les rails se trouve sur \href{https://apionrails.icalialabs.com}{apionrails.icalialabs.com} ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
+  Bienvenue sur APIs on Rails, un tutoriel sous stéroïdes sur la façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec les API Rails, vous devriez être en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit sur Ruby on Rails 5 qui est la version actuelle, pour plus d'informations à ce sujet, consultez \href{http://rubyonrails.org/}{rubyonrails.org}. La version la plus récente de APIs on Rails se trouve sur \href{https://apionrails.icalialabs.com}{apionrails.icalialabs.com} ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
 
   L'intention de ce livre n'est pas d'enseigner comment construire une API avec Rails, mais plutôt de vous apprendre comment construire une API évolutive et maintenable avec Rails. Ce qui signifie améliorer vos connaissances actuelles Rails  sur cette approche. Dans ce voyage que nous allons faire, vous apprendrez à le faire
 
