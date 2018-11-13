@@ -1732,6 +1732,102 @@
       \end{lstlisting}
       \end{scriptsize}
 
+    \subsection{Supprimer l'utilisateur}
+
+      Jusqu'à présent, nous avons construit un tas d'actions sur le contrôleur des utilisateurs avec leurs tests mais ce n'est terminé. Il nous en manque juste une dernière qui est l'action de destruction. Créons donc le test (liste \ref{lst:add_spec_users_controller_destroy}):
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Les tests du contrôlleur utilisateur avec les test de destruction}, label={lst:add_spec_users_controller_destroy}]
+      # spec/controllers/api/v1/users_controller_spec.rb
+
+      require 'rails_helper'
+
+      RSpec.describe Api::V1::UsersController, type: :controller do
+        before(:each) { request.headers['Accept'] = 'application/vnd.marketplace.v1' }
+
+        # ...
+
+        describe "DELETE #destroy" do
+          before(:each) do
+            @user = FactoryBot.create :user
+            delete :destroy, params: { id: @user.id }, format: :json
+          end
+
+          it { expect(response.response_code).to eq(204) }
+        end
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez le voir, le test est très simple. Nous ne répondons qu'avec un statut de 204 qui signifie \verb|No Content|\footnote{Cela qui signifie que le serveur a traité la demande avec succès, mais ne renvoie aucun contenu}. Nous pourrions aussi retourner un code d'état de 200, mais je trouve plus naturel de répondre sans rien dans ce cas car nous supprimons une ressource et une réponse réussie peut suffire.
+
+      La mise en œuvre de l'action de destruction est également assez simple:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/controllers/api/v1/users_controller.rb
+      class Api::V1::UsersController < ApplicationController
+        # ...
+
+        def destroy
+          user = User.find(params[:id])
+          user.destroy
+          head 204
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      N'oubliez pas d'ajouter l'action \verb|destroy| dans le fichier \verb|routes.rb|:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # config/routes.rb
+
+      Rails.application.routes.draw do
+        # ...
+        resources :users, only: [:show, :create, :update, :destroy]
+        # ...
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Si tout est correct, vos tests devraient passer:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
+      .............
+
+      Finished in 0.09255 seconds (files took 0.4618 seconds to load)
+      13 examples, 0 failures
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Rappelez-vous qu'après avoir apporté quelques modifications à notre code, il est de bonne pratique de les commettre afin que nous gardions un bon histoirique.
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds destroy action to the users controller"
+      \end{lstlisting}
+      \end{scriptsize}
+
+  \section{Integrating Sabisu}
+
+    % TODO ?
+
+  \section{Conclusion}
+
+    Oh vous êtes là! Bien joué! Je sais que c'était probablement  long mais n'abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s'améliorer, dans le chapitre 4, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!
+
+\chapter{Refactoriser les test}
+
+
+
+
 
 
 
