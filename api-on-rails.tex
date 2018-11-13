@@ -423,6 +423,7 @@
 
         \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Le Gemfile par défaut avec la Gem des sérialiseurs.}, label={listing:gemfile_active _model_serializers}, breaklines]
+        # Gemfile
         source 'https://rubygems.org'
         git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -450,10 +451,11 @@
 
         C'est une bonne pratique aussi d'inclure la version ruby utilisée sur l'ensemble du projet, ce qui empêche les dépendances de casser si le code est partagé entre différents développeurs, que ce soit pour un projet privé ou public.
 
-        Il est également important que vous mettiez à jour le Gemfile pour regrouper les différentes gemmes dans l'environnement correct (Listing \ref{listing:gemfile_active _group}) :
+        Il est également important que vous mettiez à jour le Gemfile pour regrouper les différentes gemmes dans l'environnement correct (Listing \ref{lst:gemfile_active _group}) :
 
         \begin{scriptsize}
-        \begin{lstlisting}[language=ruby, caption={Le Gemfile mis à jour pour différents groupes.}, label={listing:gemfile_active _group}, breaklines]
+        \begin{lstlisting}[language=ruby, caption={Le Gemfile mis à jour pour différents groupes.}, label={lst:gemfile_active _group}]
+        # Gemfile
         # ...
         group :development do
           gem 'sqlite3'
@@ -471,7 +473,7 @@
         Une fois cette configuration configurée, il est temps d'exécuter la commande d'installation du paquet pour intégrer les dépendances correspondantes:
 
         \begin{scriptsize}
-        \begin{lstlisting}[language=bash, breaklines]
+        \begin{lstlisting}[language=bash]
         $ bundle install
         \end{lstlisting}
         \end{scriptsize}
@@ -591,7 +593,7 @@
 
     \begin{figure}
       \includegraphics[width=\linewidth]{img/data_model.png}
-      % \caption{http://market\_place\_api.dev/}
+      \caption{http://market\_place\_api.dev/}
       \label{fig:data_model}
     \end{figure}
 
@@ -660,6 +662,7 @@
 
       \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Le fichier routes.rb par défault}, label={lst:default_routes}]
+      # config/routes.rb
       Rails.application.routes.draw do
         # ...
       end
@@ -687,6 +690,7 @@
 
       \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Création d'un Namespace}, label={lst:routes_create_namespace}]
+      # config/routes.rb
       Rails.application.routes.draw do
         # Api definition
         namespace :api do
@@ -714,6 +718,7 @@
 
       \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Création d'un Namespace avec un format par défault}, label={lst:routes_create_namespace_with_format}]
+      # config/routes.rb
       Rails.application.routes.draw do
         # Api definition
         namespace :api, defaults: { format: :json }  do
@@ -727,6 +732,7 @@
 
       \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Création d'un Namespace avec un format par défault}, label={lst:routes_create_namespace_with_subdomain}]
+      # config/routes.rb
       Rails.application.routes.draw do
         # Api definition
         namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
@@ -766,6 +772,7 @@
 
     \begin{scriptsize}
     \begin{lstlisting}[language=ruby]
+    # config/routes.rb
     Rails.application.routes.draw do
       # Api definition
       namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
@@ -792,6 +799,7 @@
 
     \begin{scriptsize}
     \begin{lstlisting}[language=ruby, caption={Spécification de la version de l'API}, label={lst:add_scope_to_toutes}]
+    # config/routes.rb
     Rails.application.routes.draw do
       # Api definition
       namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
@@ -847,6 +855,7 @@
 
     \begin{scriptsize}
     \begin{lstlisting}[language=ruby, caption={Gemfile avec la suite de test}, label={lst:add_rspect_to_gemfile}]
+    # Gemfile
     group :test do
       gem 'rspec-rails', '~> 3.8'
       gem 'factory_bot_rails', '~> 4.9'
@@ -872,7 +881,8 @@
     \end{scriptsize}
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=ruby, caption={Configuration de notre suite de test avec respec  (/config/application.rb)}, label={lst:setup_rspec}]
+    \begin{lstlisting}[language=ruby, caption={Configuration de notre suite de test avec respec}, label={lst:setup_rspec}]
+    # config/application.rb
     # ...
     module MarketPlaceApi
       class Application < Rails::Application
@@ -910,7 +920,8 @@
     Nous ajoutons ensuite une série de spécifications décrivant notre classe:
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=ruby, caption={Test ApiConstraints (lib/spec/api\_constraints\_spec.rb)}, label={lst:create_api_constraints_spec}]
+    \begin{lstlisting}[language=ruby, caption={Test de ApiConstraints}, label={lst:create_api_constraints_spec}]
+    # lib/spec/api_constraints_spec.rb
     require 'spec_helper'
     require './lib/api_constraints'
 
@@ -940,7 +951,8 @@
     L'implémentation ressemble à ceci (Listing \ref{lst:create_api_constraints})
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=ruby, caption={La classe ApiConstraints (lib/api\_constraints.rb)}, label={lst:create_api_constraints}]
+    \begin{lstlisting}[language=ruby, caption={La classe ApiConstraints}, label={lst:create_api_constraints}]
+    # lib/api_constraints.rb
     class ApiConstraints
       def initialize(options)
         @version = options[:version]
@@ -957,7 +969,8 @@
     Comme vous l'imaginez, nous devons ajouter la classe à notre fichier \verb|routes.rb| et la définir comme option de portée de contrainte (Listing \ref{lst:add_api_constraints_to_toutes}):
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=ruby, caption={Ajout de la contrainte à la route (config/routes.rb)}, label={lst:add_api_constraints_to_toutes}]
+    \begin{lstlisting}[language=ruby, caption={Ajout de la contrainte à la route}, label={lst:add_api_constraints_to_toutes}]
+    # config/routes.rb
     require 'api_constraints'
 
     Rails.application.routes.draw do
@@ -994,7 +1007,7 @@
 
     Je n'en parle pas ici puisque nous essayons d'apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu'ici est disponnible \href{https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd}{ici}.
 
-\chapter{Présentation des utilisateurs}
+\chapter{Présentation des utilisateurs}\label{chapter:3}
 
   Dans le dernier chapitre, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le versioning par le biais des en-têtes HTTP. Dans le Chapitre 5, nous traiterons l'authentification des utilisateurs à l'aide de jetons d'authentification ainsi que la définition de permissions pour limiter l'accès aux utilisateurs  connectés. Dans les chapitres à venir, nous relierons les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
 
@@ -1045,6 +1058,7 @@
 
     \begin{scriptsize}
     \begin{lstlisting}[language=ruby, caption={Le Gemfile avec l'ajout de Devise}, label={lst:add_devise_to_gemfile}]
+    # Gemfile
     source 'https://rubygems.org'
     git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -1125,7 +1139,8 @@
     A partir de maintenant, chaque fois que nous créons un modèle, le générateur va également créer un fichier d'usine pour ce modèle (Listing \ref{lst:create_factories_users}). Cela nous aidera à créer facilement des utilisateurs de tests et facilitera la rédaction de nos tests.
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=ruby, caption={Usine d'utilsateurs (spec/factories/users.rb)}, label={lst:create_factories_users}]
+    \begin{lstlisting}[language=ruby, caption={Usine d'utilsateurs}, label={lst:create_factories_users}]
+    # spec/factories/users.rb
     FactoryBot.define do
       factory :user do
 
@@ -1170,7 +1185,8 @@
     Nous allons ajouter quelques spécifications pour nous assurer que le modèle utilisateur répond aux attributs \verb|email|, \verb|password| et \verb|password_confirmation| fournis par Devise. nous allons les ajouter (Listing \ref{lst:user_spec_with_attrs}). Pour des raisons de commodité, nous allons modifier le fichier d'usine des utilisateurs pour ajouter les attributs correspondants (Listing \ref{lst:user_factory_with_attrs}).
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=ruby, caption={Usine d'utilisateurs avec les attributs (spec/factories/users.rb)}, label={lst:user_factory_with_attrs}]
+    \begin{lstlisting}[language=ruby, caption={Usine d'utilisateurs avec les attributs}, label={lst:user_factory_with_attrs}]
+    # spec/factories/users.rb
     FactoryBot.define do
       factory :user do
         email { FFaker::Internet.email }
@@ -1184,7 +1200,8 @@
     Une fois les attributs ajoutés, il est temps de tester notre modèle \verb|User| (Listing \ref{lst:user_spec_with_attrs})).
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=ruby, caption={Test pour les attributs Devise (spec/models/user\_spec.rb)}, label={lst:user_spec_with_attrs}]
+    \begin{lstlisting}[language=ruby, caption={Test pour les attributs Devise}, label={lst:user_spec_with_attrs}]
+    # spec/models/user_spec.rb
     require 'rails_helper'
 
     RSpec.describe User, type: :model do
@@ -1823,7 +1840,235 @@
 
     Oh vous êtes là! Bien joué! Je sais que c'était probablement  long mais n'abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s'améliorer, dans le chapitre 4, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!
 
-\chapter{Refactoriser les test}
+\chapter{Refactoriser les tests}
+
+  Dans le chapitre \ref{chapter:3} nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n'avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c'est une introduction aux réponses JSON.
+
+  Vous pouvez cloner le projet à cette étape avec:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git clone --branch chapitre_3 https://github.com/madeindjs/market_place_api
+    \end{lstlisting}
+  \end{scriptsize}
+
+  Dans ce chapitre, nous allons refactoriser nos spécifications de test en ajoutant des méthodes d'aide, supprimer le paramètre de format envoyé sur chaque requête et le faire à travers les en-têtes, et nous espérons construire une suite de test plus cohérente et évolutive.
+
+  Jetons donc un coup d'oeil au fichier \verb|users_controller_spec.rb| (Listing \ref{lst:users_controller_spec_before_factorization}):
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Le fichier de test du contrôlleur avant la refactorisation}, label={lst:users_controller_spec_before_factorization}]
+    # spec/controllers/api/v1/users_controller_spec.rb
+
+    require 'rails_helper'
+
+    RSpec.describe Api::V1::UsersController, type: :controller do
+      before(:each) { request.headers['Accept'] = 'application/vnd.marketplace.v1' }
+
+      describe 'GET #show' do
+        before(:each) do
+          @user = FactoryBot.create :user
+          get :show, params: { id: @user.id, format: :json }
+        end
+
+        it 'returns the information about a reporter on a hash' do
+          user_response = JSON.parse(response.body, symbolize_names: true)
+          expect(user_response[:email]).to eql @user.email
+        end
+
+        it { expect(response.response_code).to eq(200) }
+      end
+
+      describe 'POST #create' do
+        context 'when is successfully created' do
+          before(:each) do
+            @user_attributes = FactoryBot.attributes_for :user
+            post :create, params: { user: @user_attributes }, format: :json
+          end
+
+          it 'renders the json representation for the user record just created' do
+            user_response = JSON.parse(response.body, symbolize_names: true)
+            expect(user_response[:email]).to eql @user_attributes[:email]
+          end
+
+          it { expect(response.response_code).to eq(201) }
+        end
+
+        context 'when is not created' do
+          before(:each) do
+            # notice I'm not including the email
+            @invalid_user_attributes = { password: '12345678',
+                                         password_confirmation: '12345678' }
+            post :create, params: { user: @invalid_user_attributes }, format: :json
+          end
+
+          it 'renders an errors json' do
+            user_response = JSON.parse(response.body, symbolize_names: true)
+            expect(user_response).to have_key(:errors)
+          end
+
+          it 'renders the json errors on why the user could not be created' do
+            user_response = JSON.parse(response.body, symbolize_names: true)
+            expect(user_response[:errors][:email]).to include "can't be blank"
+          end
+
+          it {  expect(response.response_code).to eq(422) }
+        end
+      end
+
+
+      describe "PUT/PATCH #update" do
+
+       context "when is successfully updated" do
+         before(:each) do
+           @user = FactoryBot.create :user
+           patch :update, params: {
+             id: @user.id,
+             user: { email: "newmail@example.com" } },
+             format: :json
+         end
+
+         it "renders the json representation for the updated user" do
+           user_response = JSON.parse(response.body, symbolize_names: true)
+           expect(user_response[:email]).to eql "newmail@example.com"
+         end
+
+         it {  expect(response.response_code).to eq(200) }
+       end
+
+       context "when is not created" do
+         before(:each) do
+           @user = FactoryBot.create :user
+           patch :update, params: {
+             id: @user.id,
+             user: { email: "bademail.com" } },
+             format: :json
+         end
+
+         it "renders an errors json" do
+           user_response = JSON.parse(response.body, symbolize_names: true)
+           expect(user_response).to have_key(:errors)
+         end
+
+         it "renders the json errors on whye the user could not be created" do
+           user_response = JSON.parse(response.body, symbolize_names: true)
+           expect(user_response[:errors][:email]).to include "is invalid"
+         end
+
+         it {  expect(response.response_code).to eq(422) }
+       end
+      end
+
+      describe "DELETE #destroy" do
+        before(:each) do
+          @user = FactoryBot.create :user
+          delete :destroy, params: { id: @user.id }, format: :json
+        end
+
+        it { expect(response.response_code).to eq(204) }
+      end
+    end
+    \end{lstlisting}
+  \end{scriptsize}
+
+  Comme vous pouvez le voir, il y a beaucoup de code dupliqué. Deux possibilité de factorisation sont:
+
+
+  \begin{itemize}
+    \item La méthode JSON.parse peut être encapsulée sur une méthode (Section \ref{sec:refactoring_json_response}).
+    \item Le paramètre format est envoyé à chaque demande (Section 4.2). Bien que ce ne soit pas une mauvaise pratique, il est préférable de gérer le type de réponse à l'aide des en-têtes.
+  \end{itemize}
+
+  Ajoutons donc une méthode pour gérer la réponse JSON. Mais avant de continuer, et si vous avez suivi le tutoriel, vous savez peut-être que nous créons une branche pour chaque chapitre. Alors faisons-le:
+
+  \begin{scriptsize}
+  \begin{lstlisting}[language=bash]
+  $ git checkout -b chapter4
+  \end{lstlisting}
+  \end{scriptsize}
+
+  \section{Refactorisation de la réponse JSON}\label{sec:refactoring_json_response}
+
+    De retour à notre refactorisation, nous allons créer un fichier sous le répertoire \verb|spec/support|. Actuellement, nous n'avons pas ce répertoire, alors créons-le:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ mkdir spec/support
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Ensuite, nous créons un fichier \verb|request_helpers.rb| sous le répertoire \verb|support| que nous venons de créer:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ touch spec/support/request_helpers.rb
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Il est temps d'extraire la méthode \verb|JSON.parse| dans notre propre méthode de support (Listing \ref{lst:create_request_helpers}):
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Extraction de la méthode JSON.parse}, label={lst:create_request_helpers}]
+    # spec/support/request_helpers.rb
+    module Request
+      module JsonHelpers
+        def json_response
+          @json_response ||= JSON.parse(response.body, symbolize_names: true)
+        end
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Nous allons intégrer la méthode dans certains \verb|modules| afin de garder notre code bien organisé. L'étape suivante consiste à mettre à jour le fichier \verb|users_controller_spec.rb| pour utiliser la méthode. Un exemple rapide est présenté ci-dessous:
+
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby]
+    # spec/controllers/api/v1/users_controller_spec.rb
+
+    # ...
+    it 'returns the information about a reporter on a hash' do
+      user_response = json_response # c'est cette ligne qui est maj
+      expect(user_response[:email]).to eql @user.email
+    end
+    # ...
+    \end{lstlisting}
+    \end{scriptsize}
+
+    C'est maintenant à votre tour de mettre à jour l'ensemble du fichier!
+
+    Si vous essayez maintenant d'exécuter vos tests avec \verb|bundle exec rspec spec/controllers| vous allez avoir une erreur. C'est normal. La méthode \verb|json_response| n'est pas chargée dans le fichier \verb|rails_helper.rb|. Il faut donc modifier un peu notre \verb|rails_helper| qui s'occuppe de configurer nos tests:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Ajout des méthodes de request\_helpers.rb}]
+      # spec/rails_helper.rb
+
+      # chargement de tous les fichiers Ruby dans le dossier spec/support
+      Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each do |f|
+        require f
+      end
+
+      RSpec.configure do |config|
+        #  ...
+        # Nous devons aussi inclure ces methodes dans rspec en tant
+        # qu'aides de type controleur
+        config.include Request::JsonHelpers, :type => :controller
+        #  ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Une fois le fichier modifié, nos tests devraient passer à nouveau! \textit{Commitons} donc ceci avant d'aller plus loin:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git add .
+    $ git commit -m "Refactors the json parse method"
+    \end{lstlisting}
+    \end{scriptsize}
+
+
 
 
 
