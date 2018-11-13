@@ -641,7 +641,7 @@
 
     Cela n'est peut-être pas assez clair ou peut sembler beaucoup d'informations à digérer. Mais à mesure que nous avancerons dans le tutoriel, cela deviendra beaucoup plus facile à comprendre.
 
-    \subsection{Routes, Constraints and Namespaces}
+    \subsection{Routes, Constraints and Namespaces}\label{subsec:routes_constraints_namespaces}
 
       Avant de commencer à taper du code, nous allons préparer le réprtoire Git. Le \textit{workflow} que nous allons suivre est le suivant. Nous allons créer une branche par chapitre.Une fois terminé, nous le pousserons la branche sur github et nous la fusionnerons avec master.
 
@@ -847,7 +847,7 @@
     \begin{lstlisting}[language=ruby, caption={Gemfile avec la suite de test}, label={lst:add_rspect_to_gemfile}]
     group :test do
       gem 'rspec-rails', '~> 3.8'
-      gem 'factory_girl_rails', '~> 4.9'
+      gem 'factory_bot_rails', '~> 4.9'
       gem 'ffaker', '~> 2.10'
     end
     \end{lstlisting}
@@ -879,7 +879,7 @@
 
         config.generators do |g|
           g.test_framework :rspec, fixture: true
-          g.fixture_replacement :factory_girl, dir: 'spec/factories'
+          g.fixture_replacement :factory_bot, dir: 'spec/factories'
           g.view_specs false
           g.helper_specs false
           g.stylesheets = false
@@ -1080,7 +1080,7 @@
     end
 
     group :test do
-      gem 'factory_girl_rails', '~> 4.9'
+      gem 'factory_bot_rails', '~> 4.9'
       gem 'ffaker', '~> 2.10'
       gem 'rspec-rails', '~> 3.8'
     end
@@ -1113,7 +1113,7 @@
         create    app/models/user.rb
         invoke    rspec
         create      spec/models/user_spec.rb
-        invoke      factory_girl
+        invoke      factory_bot
         create        spec/factories/users.rb
         insert    app/models/user.rb
         route  devise_for :users
@@ -1124,7 +1124,7 @@
 
     \begin{scriptsize}
     \begin{lstlisting}[language=ruby, caption={Usine d'utilsateurs (spec/factories/users.rb)}, label={lst:create_factories_users}]
-    FactoryGirl.define do
+    FactoryBot.define do
       factory :user do
 
       end
@@ -1169,11 +1169,11 @@
 
     \begin{scriptsize}
     \begin{lstlisting}[language=ruby, caption={Usine d'utilisateurs avec les attributs (spec/factories/users.rb)}, label={lst:user_factory_with_attrs}]
-    FactoryGirl.define do
+    FactoryBot.define do
       factory :user do
         email { FFaker::Internet.email }
-        password '12345678'
-        password_confirmation '12345678'
+        password { '12345678' }
+        password_confirmation { '12345678' }
       end
     end
     \end{lstlisting}
@@ -1182,11 +1182,11 @@
     Une fois les attributs ajoutés, il est temps de tester notre modèle \verb|User| (Listing \ref{lst:user_spec_with_attrs})).
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=ruby, caption={Test pour les attributs Devise (spec/models/user_spec.rb)}, label={lst:user_spec_with_attrs}]
+    \begin{lstlisting}[language=ruby, caption={Test pour les attributs Devise (spec/models/user\_spec.rb)}, label={lst:user_spec_with_attrs}]
     require 'rails_helper'
 
     RSpec.describe User, type: :model do
-      before { @user = FactoryGirl.build(:user) }
+      before { @user = FactoryBot.build(:user) }
 
       subject { @user }
 
@@ -1227,6 +1227,518 @@
     $ git commit -am 'Adds user firsts specs'
     \end{lstlisting}
     \end{scriptsize}
+
+  \section{Construire les utilisateurs}
+
+    Il est temps de faire notre première ressource. Nous allons juste commencer à construire l'action \verb|show| pour l'utilisateur qui va afficher un utilisateur en JSON. Nous devons d'abord générer le \verb|users_controller|, ajouter les tests correspondants et ensuite construire le code réel.
+
+    Tout d'abord, nous générons le contrôleur utilisateur:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ rails generate controller users
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Cette commande var créer le fichier \verb|users_controller_spec.rb| (Listing \ref{lst:add_show_test_to_users_controller_spec}). Avant d'entrer dans le vif du sujet, il y a deux choses que nous voulons tester pour une API.
+
+    \begin{itemize}
+      \item La structure du JSON renvoyée par le serveur
+      \item Le code de réponse HTTP renvoyée par le serveur (encadré 3.2).
+    \end{itemize}
+
+    \begin{tcolorbox}{Les codes HTTP courants}\label{box:common_http_code}
+      \begin{quote}
+        Le premier chiffre du code d'état spécifie l'une des cinq classes de réponse ; le strict minimum pour un client HTTP est qu'il reconnaît ces cinq classes - Wikipedia
+      \end{quote}
+
+      Voici une liste des codes HTTP courrament utilisés:
+
+      \begin{description}
+        \item[200] Réponse standard pour les requêtes HTTP réussies. C'est généralement sur les requêtes GET
+        \item[201] La demande a été satisfaite et a donné lieu à la création d'une nouvelle ressource. Après les demandes de POST
+        \item[204] Le serveur a traité la requête avec succès, mais ne renvoie aucun contenu. Il s'agit généralement d'une requête DELETE réussie.
+        \item[400] La requête ne peut pas être exécutée en raison d'une mauvaise syntaxe. Peut arriver pour tout type de requête.
+        \item[401] Similaire au 403 Interdit, mais spécifiquement pour une utilisation lorsque l'authentification est requise et qu'elle a échoué ou n'a pas encore été fournie. Peut arriver pour tout type de requête.
+        \item[404] La ressource demandée n'a pas pu être trouvée mais peut être à nouveau disponible à l'avenir. Habituellement, concerne les requêtes GET
+        \item[500] Un message d'erreur générique, donné lorsqu'une condition inattendue a été rencontrée et qu'aucun autre message spécifique ne convient. Peut arriver pour tout type de requête.
+      \end{description}
+
+
+      Pour une liste complète des codes de réponse HTTP, consultez l'\href{https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP}{article sur Wikipedia}.
+    \end{tcolorbox}
+
+    Pour garder notre code bien découpé, nous allons créer quelques répertoires sous le répertoire des tests des contrôleurs afin d'être cohérent la configuration (Listing \ref{lst:mkdir_controllers_api}). Il existe aussi une autre convention qui utilise à la place du répertoire \verb|controllers| un répertoire de \verb|request| ou \verb|integration|. Dans notre cas, je préfère rester cohérent avec le répertoire \verb|app/controllers|.
+
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ mkdir -p spec/controllers/api/v1
+    $ mv spec/controllers/users_controller_spec.rb spec/controllers/api/v1
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Après avoir créé les répertoires, nous devons changer le nom de la classe \verb|UsersController| en \verb|Api::V1::UsersController|. Le fichier doit ressembler à ça:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby]
+    require 'rails_helper'
+
+    RSpec.describe Api::V1::UsersController, type: :controller do
+
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant, voici le fichier avec les tests crée:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Le test du contrôlleur des utilisateur  (spec/controllers/api/v1/users\_controller\_spec.rb)}, label={lst:add_show_test_to_users_controller_spec}]
+    require 'rails_helper'
+
+    RSpec.describe Api::V1::UsersController, type: :controller do
+      before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1" }
+
+        describe "GET #show" do
+          before(:each) do
+            @user = FactoryBot.create :user
+            get :show, params: { id: @user.id, format: :json}
+          end
+
+          it "returns the information about a reporter on a hash" do
+            user_response = JSON.parse(response.body, symbolize_names: true)
+            expect(user_response[:email]).to eql @user.email
+          end
+
+          it { expect(response).to be_success }
+        end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Il suffit ensuite d'ajouter l'action à notre contrôlleur (Listing \ref{lst:add_show_to_users_controller_spec}). C'est extrêmement simple:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Le contrôlleur des utilisateurs avec l'action' 'show' (app/controllers/api/v1/users\_controller.rb)}, label={lst:add_show_to_users_controller_spec}]
+    class  Api::V1::UsersController < ApplicationController
+      def show
+        render json: User.find(params[:id])
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    \begin{tcolorbox}{Les codes HTTP courants}
+      Il est possible qu'il faille activer le module \verb|Devise::Test::ControllerHelpers| au fichier \verb|spec/rails_helper.rb| afin de charger les utilitaires Devise aux test. Si c'est le cas, ajouter la ligne suivante
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      #  ...
+      RSpec.configure do |config|
+        #  ...
+        config.include Devise::Test::ControllerHelpers, type: :controller
+        #  ...
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+    \end{tcolorbox}
+
+    Si vous exécutez les tests avec \verb|bundle exec rspec spec/controllers| vous obtenez l'erreur suivante:
+
+    \begin{scriptsize}
+    \begin{lstlisting}
+    $ bundle exec rspec spec/controllers
+    FF
+
+    Failures:
+
+      1) Api::V1::UsersController GET #show returns the information about a reporter on a hash
+        Failure/Error: get :show, params: { id: @user.id, format: :json}
+
+        ActionController::UrlGenerationError:
+        No route matches {:action=>"show", :controller=>"api/v1/users", :format=>:json, :id=>1}
+          ...
+
+      2) Api::V1::UsersController GET #show
+        Failure/Error: get :show, params: { id: @user.id, format: :json}
+
+        ActionController::UrlGenerationError:
+        No route matches {:action=>"show", :controller=>"api/v1/users", :format=>:json, :id=>1}
+          ...
+
+    Finished in 0.01632 seconds (files took 0.47675 seconds to load)
+      2 examples, 2 failures
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Ce type d'erreur est très courant lorsque vous générer vos ressources à la main! En effet, nous vons totalement oublié les routes. Alors ajoutons-les (Figure \ref{lst:add_route_users_show}):
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=ruby, caption={Ajoute de la route Users\#Show}, label={lst:add_route_users_show}]
+    # config/routes.rb
+
+    require 'api_constraints'
+
+    Rails.application.routes.draw do
+      devise_for :users
+      # Api definition
+      namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+        scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+          resources :users, only: [:show]
+        end
+      end
+    end
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Vos tests devraient désormais passer:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ bundle exec rspec spec/controllers
+    ..
+
+    Finished in 0.02652 seconds (files took 0.47291 seconds to load)
+    2 examples, 0 failures
+    \end{lstlisting}
+    \end{scriptsize}
+
+    Comme d'habitude, après avoir ajouté un des fonctionnalités dont nous sommes satisfaits, nous faisons un \verb|commit|:
+
+    \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git add .
+    $ git commit -m "Adds show action the users controller"
+    \end{lstlisting}
+    \end{scriptsize}
+
+    \subsection{Tester notre ressource avec cURL}
+
+      Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions pour la tester. La première qui me vient à l'esprit est l'utilisation de cURL qui est intégré dans presque toutes les distributions Linux. Alors, essayons:
+
+      Rappelez-vous que notre URI de base est \verb|api.market_place_api.dev| (Section \ref{subsec:routes_constraints_namespaces}).
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ curl -H 'Accept: application/vnd.marketplace.v1' http://api.market_place_api.dev/users/1
+      \end{lstlisting}
+      \end{scriptsize}
+
+      En faisant cela nous obtenons une erreur et c'est normal: l'utilisateur n'existe pas. Créons-le avec le terminal:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails console
+      Loading development environment (Rails 5.2.1)
+      2.5.3 :001 >  User.create email: "example@marketplace.com", password: "12345678", password_confirmation: "12345678"
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Après avoir créé l'utilisateur, notre appel cURL devrait fonctionner:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ curl -H 'Accept: application/vnd.marketplace.v1' \
+      http://api.market_place_api.dev/users/1
+      {"id":1,"email":"example@marketplace.com", ...
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Et voilà! Vous avez maintenant une entrée d'API d'enregistrement d'utilisateur. Si vous avez des problèmes avec la réponse, vous devrez peut-être modifier le fichier \verb|application_controller.rb| et ajouter la ligne suivante (Listing \ref{lst:add_protect_from_forgery}):
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Correction de la réponde de l'API}, label={lst:add_protect_from_forgery}]
+      # app/controllers/application_controller.rb
+
+      class ApplicationController < ActionController::Base
+        # Prevent CSRF attacks by raising an exception.
+        # For APIs, you may want to use :null_session instead.
+        protect_from_forgery with: :null_session
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Comme suggéré même par Rails, nous devrions utiliser \verb|null_session| pour empêcher les attaques CSFR. Je vous recommande fortement de le faire sinon les requêtes POST et PUT ne fonctionnerons pas. Après avoir mis à jour le fichier \verb|application_controller.rb| c'est le moment de faire un \verb|commit|:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Updates application controller to prevent CSRF exception from being raised"
+      \end{lstlisting}
+      \end{scriptsize}
+
+    \subsection{Créer les utilisateurs}\label{subsec:create_users}
+
+      Maintenant que nous avons une meilleure compréhension de la façon de construire des points d'entrée, il est temps d'étendre notre API. Une des fonctionnalités les plus importante est de laisser les utilisateurs créer un profil sur notre application. Comme d'habitude, nous allons écrire des tests avant d'implémenter notre code pour étendre notre suite de tests.
+
+      Assurez-vous que votre répertoire Git est propre et que vous n'avez pas de fichier en \verb|staging|. Si c'est le cas, \textit{committez}-les pour que nous puissions recommencer à zéro.
+
+      Commençons donc par écrire notre test tests en ajoutant une entrée pour créer un utilisateur sur le fichier \verb|users_controller_spec.rb| (Listing \ref{lst:add_spec_users_controller_create}):
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Ajout les tests de création des utilisateurs}, label={lst:add_spec_users_controller_create}]
+      # spec/controllers/api/v1/users_controller_spec.rb
+
+      require 'rails_helper'
+
+      RSpec.describe Api::V1::UsersController, type: :controller do
+
+        # ...
+
+        describe 'POST #create' do
+          context 'when is successfully created' do
+            before(:each) do
+              @user_attributes = FactoryBot.attributes_for :user
+              post :create, params: { user: @user_attributes }, format: :json
+            end
+
+            it 'renders the json representation for the user record just created' do
+              user_response = JSON.parse(response.body, symbolize_names: true)
+              expect(user_response[:email]).to eql @user_attributes[:email]
+            end
+
+            it { expect(response.response_code).to eq(201) }
+          end
+
+          context 'when is not created' do
+            before(:each) do
+              # notice I'm not including the email
+              @invalid_user_attributes = { password: '12345678',
+                                           password_confirmation: '12345678' }
+              post :create, params: { user: @invalid_user_attributes }, format: :json
+            end
+
+            it 'renders an errors json' do
+              user_response = JSON.parse(response.body, symbolize_names: true)
+              expect(user_response).to have_key(:errors)
+            end
+
+            it 'renders the json errors on why the user could not be created' do
+              user_response = JSON.parse(response.body, symbolize_names: true)
+              expect(user_response[:errors][:email]).to include "can't be blank"
+            end
+
+            it {  expect(response.response_code).to eq(422) }
+          end
+        end
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Cela fait beaucoup de code (Listing \ref{lst:add_spec_users_controller_create}). Ne vous inquiétez pas, je vous explique tout:
+
+      \begin{itemize}
+        \item Nous devons valider les états sur lesquels l'enregistrement peut être valide ou invalide. Dans ce cas, nous utilisons les \verb|context| pour réaliser ces scénarios.
+        \item  Au cas où tout se passe bien, nous devrions retourner un code HTTP 201\footnote{signifie qu'un enregistrement vient d'être créé} ainsi que la représentation JSON de cet objet.
+        \item En cas d'erreur, nous devons renvoyer un code HTTP 422\footnote{signifie Unprocessable Entity c'est à dire que le serveur ne peut pas sauvegarder l'enregistrement}. Nous retournons également un JSON représentant la raison pour laquelle la ressource n'a pas pu être sauvegardée.
+      \end{itemize}
+
+      A ce moment là, Les tests doivent échouer:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
+      .FFFFFF
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Il est donc temps d'implémenter le code pour que nos tests reussissent (Listing \ref{})
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Implémentation du contrôlleur utilisateurs afin que les tests de création passent}]
+      # app/controllers/api/v1/users_controller.rb
+
+      class Api::V1::UsersController < ApplicationController
+
+        # ...
+
+        def create
+          user = User.new user_params
+          if user.save
+            render json: user, status: 201, location: [:api, user]
+          else
+            render json: { errors: user.errors }, status: 422
+          end
+        end
+
+        private
+
+        def user_params
+          params.require(:user).permit(:email, :password, :password_confirmation)
+        end
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Rappelez-vous qu'à chaque fois que nous ajoutons une entrée dans notre API il faut aussi ajouter cette action dans notre fichier \verb|routes.rb|.
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # config/routes.rb
+
+      Rails.application.routes.draw do
+        # ...
+        resources :users, only: [:show, :create]
+        # ...
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez le constater, l'implémentation est assez simple. Nous avons également ajouté la méthode privée \verb|user_params| pour protéger les assignation d'attributs en masse. Maintenant, nos tests devraient passer:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
+      .......
+
+      Finished in 0.05967 seconds (files took 0.4673 seconds to load)
+      7 examples, 0 failures
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Oura! \textit{Committons} les changements et continuons à construire notre application:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds the user create endpoint"
+      \end{lstlisting}
+      \end{scriptsize}
+
+
+    \subsection{Mettre à jour les utilisateurs}
+
+      Le schéma de mise à jour des utilisateurs est très similaire à celui de la création (Section \ref{subsec:create_users}). Si vous êtes un développeur de Rails expérimenté, vous connaissez peut-être déjà les différences entre ces deux actions:
+
+      \begin{itemize}
+        \item L'action de mise à jour répond à une requête PUT/PATCH (Section \ref{section:setup_api}).
+        \item Seul un utilisateur connecté devrait être en mesure de mettre à jour ses informations. Ce qui signifie que nous devrons forcer un utilisateur à s'authentifier. Nous en parlerons au chapitre 5.
+      \end{itemize}
+
+      Comme d'habitude, nous commençons par écrire nos tests (Listing \ref{lst:add_spec_users_controller_update}):
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Les tests du contrôlleur utilisateur avec les test de mise à jour}, label={lst:add_spec_users_controller_update}]
+      # spec/controllers/api/v1/users_controller_spec.rb
+
+      RSpec.describe Api::V1::UsersController, type: :controller do
+
+        # ...
+
+        describe "PUT/PATCH #update" do
+
+         context "when is successfully updated" do
+           before(:each) do
+             @user = FactoryBot.create :user
+             patch :update, params: {
+               id: @user.id,
+               user: { email: "newmail@example.com" } },
+               format: :json
+           end
+
+           it "renders the json representation for the updated user" do
+             user_response = JSON.parse(response.body, symbolize_names: true)
+             expect(user_response[:email]).to eql "newmail@example.com"
+           end
+
+           it {  expect(response.response_code).to eq(200) }
+         end
+
+         context "when is not created" do
+           before(:each) do
+             @user = FactoryBot.create :user
+             patch :update, params: {
+               id: @user.id,
+               user: { email: "bademail.com" } },
+               format: :json
+           end
+
+           it "renders an errors json" do
+             user_response = JSON.parse(response.body, symbolize_names: true)
+             expect(user_response).to have_key(:errors)
+           end
+
+           it "renders the json errors on whye the user could not be created" do
+             user_response = JSON.parse(response.body, symbolize_names: true)
+             expect(user_response[:errors][:email]).to include "is invalid"
+           end
+
+           it {  expect(response.response_code).to eq(422) }
+         end
+       end
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Pour que les tests réussissent, nous devons construire l'action de mise à jour sur le fichier \verb|users_controller.rb| et ajouter la route au fichier \verb|routes.rb|. Comme vous pouvez le voir, nous avons trop de code dupliqué, nous remanierons nos tests au chapitre 4.
+
+      Tout d'abord nous ajoutons l'action le fichier routes.rb:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # config/routes.rb
+
+      Rails.application.routes.draw do
+        # ...
+        resources :users, only: [:show, :create, :update]
+        # ...
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Ensuite nous implémentons l'action de mise à jour sur le contrôleur utilisateur et faisons passer nos tests:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/controllers/api/v1/users_controller.rb
+      class Api::V1::UsersController < ApplicationController
+        # ...
+
+        def update
+          user = User.find(params[:id])
+
+          if user.update(user_params)
+            render json: user, status: 200, location: [:api, user]
+          else
+            render json: { errors: user.errors }, status: 422
+          end
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Tous nos tests devraient maintenant passer:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
+      ............
+
+      Finished in 0.08826 seconds (files took 0.47286 seconds to load)
+      12 examples, 0 failures
+      \end{lstlisting}
+      \end{scriptsize}
+
+      Vue que tout fonctionne, on effecte un \verb|commit|:
+
+      \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds update action the users controller"
+      \end{lstlisting}
+      \end{scriptsize}
+
+
+
+
+
+
+
+
+
+
 
 
 
