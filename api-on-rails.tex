@@ -2,20 +2,17 @@
 \title{\textbf{API on Rails}\\ Construction d'API REST avec Rails}
 \author{Alexandre Rousseau}
 
-\usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
-\usepackage{tikz}
-%\usepackage{listings}
-\usepackage[pdf]{graphviz}
-\usepackage{appendix}
 \usepackage{csquotes}
 \usepackage{tcolorbox}
 \usepackage{listings}
-\usepackage{tabularx}
+\usepackage{lstautogobble}
+\usepackage{color}
 
-\showboxdepth=\maxdimen
+\hbadness=99999
+\hfuzz=999pt
 
 \pagestyle{headings}
 
@@ -25,8 +22,6 @@
 %     filecolor=black,
 %     urlcolor=black
 % }
-\usepackage{lstautogobble}
-\usepackage{color}
 \lstset{
   autogobble,% remove leading space indentation
   breaklines=true, % sets automatic line breaking
@@ -40,12 +35,9 @@
 
 
 \maketitle
-
 \newpage
-
 \tableofcontents
 \newpage
-
 \pagenumbering{arabic}
 
 \section{Avant-propos}
@@ -1009,7 +1001,7 @@
 
 \chapter{Présentation des utilisateurs}\label{chapter:3}
 
-  Dans le dernier chapitre, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le versioning par le biais des en-têtes HTTP. Dans le Chapitre \label{chapter:authenticating}, nous traiterons l'authentification des utilisateurs à l'aide de jetons d'authentification ainsi que la définition de permissions pour limiter l'accès aux utilisateurs  connectés. Dans les chapitres à venir, nous relierons les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
+  Dans le dernier chapitre, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le versioning par le biais des en-têtes HTTP. Dans le Chapitre \ref{chapter:5}, nous traiterons l'authentification des utilisateurs à l'aide de jetons d'authentification ainsi que la définition de permissions pour limiter l'accès aux utilisateurs  connectés. Dans les chapitres à venir, nous relierons les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
 
   Vous pouvez cloner le projet jusqu'à ce point avec:
 
@@ -1561,10 +1553,10 @@
       \end{lstlisting}
       \end{scriptsize}
 
-      Il est donc temps d'implémenter le code pour que nos tests reussissent (Listing \ref{})
+      Il est donc temps d'implémenter le code pour que nos tests reussissent (Listing \ref{lst:add_users_controller_create})
 
       \begin{scriptsize}
-      \begin{lstlisting}[language=ruby, caption={Implémentation du contrôlleur utilisateurs afin que les tests de création passent}]
+      \begin{lstlisting}[language=ruby, caption={Implémentation du contrôlleur utilisateurs afin que les tests de création passent}, label={lst:add_users_controller_create}]
       # app/controllers/api/v1/users_controller.rb
 
       class Api::V1::UsersController < ApplicationController
@@ -1631,7 +1623,7 @@
 
       \begin{itemize}
         \item L'action de mise à jour répond à une requête PUT/PATCH (Section \ref{section:setup_api}).
-        \item Seul un utilisateur connecté devrait être en mesure de mettre à jour ses informations. Ce qui signifie que nous devrons forcer un utilisateur à s'authentifier. Nous en parlerons au chapitre \label{chapter:authenticating}.
+        \item Seul un utilisateur connecté devrait être en mesure de mettre à jour ses informations. Ce qui signifie que nous devrons forcer un utilisateur à s'authentifier. Nous en parlerons au chapitre \ref{chapter:5}.
       \end{itemize}
 
       Comme d'habitude, nous commençons par écrire nos tests (Listing \ref{lst:add_spec_users_controller_update}):
@@ -2238,7 +2230,7 @@
 
   \section{Conclusion}
 
-    Pour finir ce chapitre, bien qu'il ait été court, c'était une étape cruciale car cela nous aidera à écrire des tests plus rapides. Au chapitre \label{chapter:authenticating}, nous ajouterons le mécanisme d'authentification que nous utiliserons à travers l'application ainsi que la restriction de l'accès à certaines actions.
+    Pour finir ce chapitre, bien qu'il ait été court, c'était une étape cruciale car cela nous aidera à écrire des tests plus rapides. Au chapitre \ref{chapter:5}, nous ajouterons le mécanisme d'authentification que nous utiliserons à travers l'application ainsi que la restriction de l'accès à certaines actions.
 
 \chapter{Authentification des utilisateurs}\label{chapter:5}
 
@@ -2470,7 +2462,7 @@
 
     \subsection{Le contrôlleur de session}
 
-      De retour au contrôleur de sessions. Les actions que nous allons implémenter seront gérées en tant que services RESTful: la connexion sera gérée par une demande POST à l'action \verb|create| (Section 5.1.2.1) et la déconnexion par une demande DELETE à l'action \verb|destroy| (Rappel pour la liste \label{desc:http_verbs} des verbes HTTP).
+      De retour au contrôleur de sessions. Les actions que nous allons implémenter seront gérées en tant que services RESTful: la connexion sera gérée par une demande POST à l'action \verb|create| (Section 5.1.2.1) et la déconnexion par une demande DELETE à l'action \verb|destroy| (Rappel pour la liste \ref{desc:http_verbs} des verbes HTTP).
 
       Pour commencer, nous allons commencer par créer le contrôleur de sessions:
 
@@ -2750,7 +2742,7 @@
     Notre test doit échouer. Implémentons donc le code pour qu'il passe (Listing \ref{lst:create_authenticable}):
 
     \begin{scriptsize}
-      \begin{lstlisting}[language=ruby, caption={Implémentation de la méthode current_user}, label={lst:create_authenticable}]
+      \begin{lstlisting}[language=ruby, caption={Implémentation de la méthode current\_user}, label={lst:create_authenticable}]
       # app/controllers/concerns/authenticable.rb
       module Authenticable
         # Devise methods overwrites
