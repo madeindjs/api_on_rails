@@ -48,7 +48,7 @@
 
 \pagenumbering{arabic}
 
-\chapter{Avant-propos}
+\section{Avant-propos}
 
   \textquote{API on Rails: Construction d'API REST avec Rails} est une mise à jour et une traduction française du livre \href{http://apionrails.icalialabs.com/book/}{\textquote{APIs on Rails: Building REST APIs with Rails}}. Celui-ci fut initialement publié en 2014 par \href{https://twitter.com/kurenn}{Abraham Kuri} sous les licences \href{http://opensource.org/licenses/MIT}{MIT} et \href{http://people.freebsd.org/~phk/}{Beerware}.
 
@@ -70,7 +70,7 @@
       LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D’AUCUNE SORTE, EXPLICITE OU IMPLICITE, Y COMPRIS, MAIS SANS S’Y LIMITER, LES GARANTIES DE QUALITÉ MARCHANDE, ADAPTATION À UN USAGE PARTICULIER ET D’ABSENCE DE CONTREFAÇON. EN AUCUN CAS LES AUTEURS OU TITULAIRES DU ETRE TENU RESPONSABLE DE TOUT DOMMAGE, RÉCLAMATION OU AUTRES RESPONSABILITÉ, SOIT DANS UNE ACTION DE CONTRAT, UN TORT OU AUTRE, PROVENANT DE, DE OU EN RELATION AVEC LE LOGICIEL OU L’UTILISATION OU DE TRANSACTIONS AUTRES LE LOGICIEL.
     \end{tcolorbox}
 
-\chapter{Introduction}
+\chapter{Introduction}\label{chapter:1}
 
   Bienvenue sur APIs on Rails, un tutoriel sous stéroïdes sur la façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec les API Rails, vous devriez être en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit sur Ruby on Rails 5 qui est la version actuelle, pour plus d'informations à ce sujet, consultez \href{http://rubyonrails.org/}{rubyonrails.org}. La version la plus récente de APIs on Rails se trouve sur \href{https://apionrails.icalialabs.com}{apionrails.icalialabs.com} ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
 
@@ -571,7 +571,7 @@
 
     Maintenant, commençons à mettre les mains dans le code!
 
-\chapter{L'API}
+\chapter{L'API}\label{chapter:2}
 
   Dans cette section, je vais vous donner les grandes lignes de l'application, vous devriez maintenant avoir le texte de l'application, comme indiqué dans la section 1.3, si vous ne l'avez pas lu, je vous recommande de le faire.
 
@@ -636,7 +636,7 @@
       \item Suivez les méthodes \href{https://fr.wikipedia.org/wiki/Hypertext_Transfer_Protocol}{HTTP} standard telles que GET, POST, PUT, PUT, DELETE.
     \end{itemize}
 
-    \begin{description}
+    \begin{description}\label{desc:http_verbs}
       \item[GET] Lit la ou les ressources définies par le modèle URI
       \item[POST] Crée une nouvelle entrée dans la collection de ressources
       \item[PUT] Mise à jour d'une collection ou d'un membre des ressources
@@ -1009,7 +1009,7 @@
 
 \chapter{Présentation des utilisateurs}\label{chapter:3}
 
-  Dans le dernier chapitre, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le versioning par le biais des en-têtes HTTP. Dans le Chapitre 5, nous traiterons l'authentification des utilisateurs à l'aide de jetons d'authentification ainsi que la définition de permissions pour limiter l'accès aux utilisateurs  connectés. Dans les chapitres à venir, nous relierons les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
+  Dans le dernier chapitre, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le versioning par le biais des en-têtes HTTP. Dans le Chapitre \label{chapter:authenticating}, nous traiterons l'authentification des utilisateurs à l'aide de jetons d'authentification ainsi que la définition de permissions pour limiter l'accès aux utilisateurs  connectés. Dans les chapitres à venir, nous relierons les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
 
   Vous pouvez cloner le projet jusqu'à ce point avec:
 
@@ -1019,9 +1019,9 @@
   \end{lstlisting}
   \end{scriptsize}
 
-  Comme vous pouvez déjà l'imaginer, il existe de nombreuses solutions d'authentification pour Rails comme \href{https://github.com/binarylogic/authlogic}{AuthLogic}, \href{https://github.com/thoughtbot/clearance}{Clearance} et \href{https://github.com/plataformatec/devise}{Devise}. Nous utiliserons le dernier (Encadré \ref{box:devise_for_authentication}), qui offre un excellent moyen d'intégrer non seulement l'authentification de base, mais de nombreux autres modules pour une utilisation ultérieure.
+  Comme vous pouvez déjà l'imaginer, il existe de nombreuses solutions d'authentification pour Rails comme \href{https://github.com/binarylogic/authlogic}{AuthLogic}, \href{https://github.com/thoughtbot/clearance}{Clearance} et \href{https://github.com/plataformatec/devise}{Devise}. Nous utiliserons le dernier (Encadré \ref{box:devise_for_authentification}), qui offre un excellent moyen d'intégrer non seulement l'authentification de base, mais de nombreux autres modules pour une utilisation ultérieure.
 
-  \begin{tcolorbox}{Devise pour l'authentification}\label{box:devise_for_authentication}
+  \begin{tcolorbox}{Devise pour l'authentification}\label{box:devise_for_authentification}
     Devise est livré avec jusqu'à 10 modules pour la gestion de l'authentification :
 
     \begin{itemize}
@@ -1631,7 +1631,7 @@
 
       \begin{itemize}
         \item L'action de mise à jour répond à une requête PUT/PATCH (Section \ref{section:setup_api}).
-        \item Seul un utilisateur connecté devrait être en mesure de mettre à jour ses informations. Ce qui signifie que nous devrons forcer un utilisateur à s'authentifier. Nous en parlerons au chapitre 5.
+        \item Seul un utilisateur connecté devrait être en mesure de mettre à jour ses informations. Ce qui signifie que nous devrons forcer un utilisateur à s'authentifier. Nous en parlerons au chapitre \label{chapter:authenticating}.
       \end{itemize}
 
       Comme d'habitude, nous commençons par écrire nos tests (Listing \ref{lst:add_spec_users_controller_update}):
@@ -1840,7 +1840,7 @@
 
     Oh vous êtes là! Bien joué! Je sais que c'était probablement  long mais n'abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s'améliorer, dans le chapitre 4, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!
 
-\chapter{Refactoriser les tests}
+\chapter{Refactoriser les tests}\label{chapter:4}
 
   Dans le chapitre \ref{chapter:3} nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n'avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c'est une introduction aux réponses JSON.
 
@@ -2238,9 +2238,564 @@
 
   \section{Conclusion}
 
-    Pour finir ce chapitre, bien qu'il ait été court, c'était une étape cruciale car cela nous aidera à écrire des tests plus rapides. Au chapitre 5, nous ajouterons le mécanisme d'authentification que nous utiliserons à travers l'application ainsi que la restriction de l'accès à certaines actions.
+    Pour finir ce chapitre, bien qu'il ait été court, c'était une étape cruciale car cela nous aidera à écrire des tests plus rapides. Au chapitre \label{chapter:authenticating}, nous ajouterons le mécanisme d'authentification que nous utiliserons à travers l'application ainsi que la restriction de l'accès à certaines actions.
+
+\chapter{Authentification des utilisateurs}\label{chapter:5}
+
+  Cela fait longtemps que vous avez commencé. J'espère que vous appréciez ce voyage autant que moi. Au chapitre 4, nous avons refactorisé notre suite de tests et, comme nous n'avons pas ajouté beaucoup de code, cela n'a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
+
+  Vous pouvez cloner le projet jusqu'ici:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git clone --branch chapitre_4 https://github.com/madeindjs/market_place_api
+    \end{lstlisting}
+  \end{scriptsize}
+
+  Dans ce chapitre, les choses vont devenir très intéressantes. Nous allons mettre en place notre mécanisme d'authentification. À mon avis, ce sera l'un des chapitres les plus intéressants car nous allons introduire beaucoup de nouveaux concepts. A la fin, vous aurez un système d'authentification simple mais puissant. Ne paniquez pas, nous y arriverons.
+
+  Commençons par le commencement. Comme d'habitude quand nous commençons un nouveau chapitre, nous allons créer une nouvelle branche:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git checkout -b chapter5
+    \end{lstlisting}
+  \end{scriptsize}
+
+  \section{Session sans état and sign in failure}
+
+    Avant d'aller plus loin, quelque chose doit être clair: une API ne gère pas les sessions. Si vous n'avez pas d'expérience dans la création de ce genre d'applications, cela peut paraître un peu fou. Une API doit être sans état. Ce qui signifie par définition qu'il s'agit d'une API qui fournit une réponse après votre demande et qui ne nécessite aucune autre attention. Cela à pour conséquence qu'aucun état antérieur ou futur n'est nécessaire pour que le système fonctionne.
+
+    Le processus d'authentification de l'utilisateur via une API est très simple:
+
+    \begin{itemize}
+      \item Le client demande une ressource de sessions avec les informations d'identification correspondantes (généralement un e-mail et un mot de passe).
+      \item Le serveur renvoie la ressource utilisateur avec son jeton d'authentification correspondant.
+      \item Pour chaque page qui nécessite une authentification, le client doit envoyer ce jeton d'authentification.
+    \end{itemize}
+
+    Dans cette section et la suivante, nous nous concentrerons sur la construction d'un contrôleur de sessions avec ses actions correspondantes. Nous compléterons ensuite le flux de demandes en ajoutant l'accès d'autorisation nécessaire.
+
+    \subsection{Le jeton d'authentification}
+
+      Avant de procéder à la logique sur le contrôleur de sessions, nous devons d'abord ajouter le champ du jeton d'authentification au modèle utilisateur. Ensuite, il faudra  ajouter une méthode pour définir ce jeton.
+
+      Nous començons donc par générer un fichier de migration:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rails generate migration add_authentification_token_to_users auth_token:string
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme une bonne pratique, j'aime configurer les valeurs \verb|String| à une chaîne vide. Et dans ce cas, nous allons ajouter un index avec une condition d'unicité. Ainsi, nous garantissons qu'il n'y a pas d'utilisateurs avec le même jeton. Alors faisons-le:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # db/migrate/20181114134521_add_authentification_token_to_users.rb
+        class AddauthentificationTokenToUsers < ActiveRecord::Migration[5.2]
+          def change
+            add_column :users, :auth_token, :string, default: ''
+            add_index :users, :auth_token, unique: true
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Ensuite, nous exécutons les migrations pour ajouter le champ et préparer la base de données de test:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rake db:migrate
+        == 20181114134521 AddauthentificationTokenToUsers: migrating ====================
+        -- add_column(:users, :auth_token, :string, {:default=>""})
+           -> 0.0004s
+        -- add_index(:users, :auth_token, {:unique=>true})
+           -> 0.0010s
+        == 20181114134521 AddauthentificationTokenToUsers: migrated (0.0016s) ===========
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Il est maintenant temps d'ajouter quelques tests de réponse et d'unicité à nos spécifications de modèle utilisateur (Listing \ref{lst:add_uniq_test_to_user_spec}).
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Ajout des tests de réponse et d'unicité}, label={lst:add_uniq_test_to_user_spec}]
+        # spec/models/user_spec.rb
+
+        RSpec.describe User, type: :model do
+          # ...
+
+          it { should respond_to(:auth_token) }
+          it { should validate_uniqueness_of(:auth_token)}
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Nous passons ensuite au fichier \verb|user.rb| et ajoutons le code nécessaire pour faire passer nos tests:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/user.rb
+
+        class User < ApplicationRecord
+          validates :auth_token, uniqueness: true
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Maintenant nous allons implémenter une méthode qui générera un jeton d'authentification unique pour chaque utilisateur afin de les authentifier plus tard via l'API. Construisons donc d'abord les tests (Listing \ref{lst:test_token_to_user_spec}).
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test de la génération automatique du jeton d'authentification}, label={lst:test_token_to_user_spec}]
+        # spec/models/user_spec.rb
+
+        RSpec.describe User, type: :model do
+          # ...
+
+          describe "#generate_authentification_token!" do
+            it "generates a unique token" do
+              @user.generate_authentification_token!
+              expect(@user.auth_token).not_to be_nil
+            end
+
+            it "generates another token when one already has been taken" do
+              existing_user = FactoryBot.create(:user, auth_token: "auniquetoken123")
+              @user.generate_authentification_token!
+              expect(@user.auth_token).not_to eql existing_user.auth_token
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      \begin{tcolorbox}
+        Afin d'utilliser la méthode \verb|validate_uniqueness_of|, il faut installer la gem \verb|shoulda-matchers|. Pour cela, nous rajoutons la gem dans le \verb|Gemfile|:
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby]
+          # Gemfile
+
+          # ...
+          group :test do
+            # ...
+            gem 'shoulda-matchers'
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+
+        Et nous la chargeons dans le fichier \verb|rails_helper.rb|:
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby]
+          # spec/rails_helper.rb
+
+          # ...
+          RSpec.configure do |config|
+            # ...
+            RSpec.configure do |config|
+              config.include(Shoulda::Matchers::ActiveModel, type: :model)
+              config.include(Shoulda::Matchers::ActiveRecord, type: :model)
+            end
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+      \end{tcolorbox}
+
+      Les tests échouent comme prévu:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ bundle exec rspec spec/models/user_spec.rb
+        .......FF
+
+        Failures:
+
+          1) User#generate_authentification_token! generates a unique token
+             Failure/Error: @user.generate_authentification_token!
+
+             NoMethodError:
+               undefined method `generate_authentification_token!' for #<User:0x0000558948d23760>
+             # ./spec/models/user_spec.rb:23:in `block (3 levels) in <top (required)>'
+
+          2) User#generate_authentification_token! generates another token when one already has been taken
+             Failure/Error: @user.generate_authentification_token!
+
+             NoMethodError:
+               undefined method `generate_authentification_token!' for #<User:0x0000558948d18720>
+             # ./spec/models/user_spec.rb:29:in `block (3 levels) in <top (required)>'
+        \end{lstlisting}
+      \end{scriptsize}
+
+      C'est normal, la méthode \verb|generate_authentification_token| n'existe pas encore. Nous allons l'implémenter et l'accrocher à l'appel \verb|before_create|  pour garantir que chaque utilisateur a un jeton d'authentification. Pour créer le token il y a beaucoup de solutions. Je vais utiliser la méthode \verb|friendly_token| qui conçoit déjà des jetons mais je pourrais aussi le faire avec la méthode \verb|hex| de la classe \verb|SecureRandom|.
+
+      Le code pour générer le jeton est assez simple:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/user.rb
+        class User < ApplicationRecord
+          before_create :generate_authentification_token!
+          # ...
+
+          def generate_authentification_token!
+            begin
+              self.auth_token = Devise.friendly_token
+            end while self.class.exists?(auth_token: auth_token)
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Après avoir fait cela, nous tests devraient passer:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ bundle exec rspec spec/models/user_spec.rb
+        .........
+
+        Finished in 0.05079 seconds (files took 0.49029 seconds to load)
+        9 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme d'habitude, nous \textit{commitons} nos modifications:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ git add .
+        $ git commit -m "Adds user authentification token"
+        \end{lstlisting}
+      \end{scriptsize}
+
+    \subsection{Le contrôlleur de session}
+
+      De retour au contrôleur de sessions. Les actions que nous allons implémenter seront gérées en tant que services RESTful: la connexion sera gérée par une demande POST à l'action \verb|create| (Section 5.1.2.1) et la déconnexion par une demande DELETE à l'action \verb|destroy| (Rappel pour la liste \label{desc:http_verbs} des verbes HTTP).
+
+      Pour commencer, nous allons commencer par créer le contrôleur de sessions:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rails generate controller sessions
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Ensuite, nous devons déplacer les fichiers dans le répertoire \verb|api/v1|, à la fois pour le dossier \verb|app| mais aussi pour le dossier \verb|spec|:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ mv app/controllers/sessions_controller.rb app/controllers/api/v1
+        $ mv spec/controllers/sessions_controller_spec.rb spec/controllers/api/v1
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Après avoir déplacé les fichiers, nous devons les mettre à jour pour qu'ils correspondent à la structure des répertoires que nous avons actuellement. Comme le montrent les listes \ref{lst:add_namespace_for_sessions_controller} et \ref{lst:add_namespace_for_sessions_controller_spec}.
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Ajout des Namespaces pour le contrôlleur de sessions}, label={lst:add_namespace_for_sessions_controller}]
+        # app/controllers/api/v1/sessions_controller.rb
+        class Api::V1::SessionsController < ApplicationController
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Ajout des Namespaces pour le test du contrôlleur de sessions}, label={lst:add_namespace_for_sessions_controller_spec}]
+        # spec/controllers/api/v1/sessions_controller_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Api::V1::SessionsController, type: :controller do
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      \subsubsection{Connexion réussie}
+
+        Notre premier arrêt sera l'action de création. Mais d'abord, et comme d'habitude, générons nos tests (Listing 5.5).
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby, caption={Création des tests du contrôlleur de sessions}, label={lst:add_sessions_controller_spec_for_create}]
+          # spec/controllers/api/v1/sessions_controller_spec.rb
+          require 'rails_helper'
+
+          RSpec.describe Api::V1::SessionsController, type: :controller do
+            describe 'POST #create' do
+              before(:each) do
+                @user = FactoryBot.create :user
+              end
+
+              context 'when the credentials are correct' do
+                before(:each) do
+                  post :create, params: {
+                    session: { email: @user.email, password: '12345678' }
+                  }
+                end
+
+                it 'returns the user record corresponding to the given credentials' do
+                  @user.reload
+                  expect(json_response[:auth_token]).to eql @user.auth_token
+                end
+
+                it { expect(response.response_code).to eq(200) }
+              end
+
+              context 'when the credentials are incorrect' do
+                before(:each) do
+                  post :create, params: {
+                    session: { email: @user.email, password: 'invalidpassword' }
+                  }
+                end
+
+                it 'returns a json with an error' do
+                  expect(json_response[:errors]).to eql 'Invalid email or password'
+                end
+
+                it { expect(response.response_code).to eq(422) }
+              end
+            end
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+
+        Les tests sont assez simples. Nous renvoyons simplement l'utilisateur au format JSON si les informations d'identification sont correctes, sinon nous envoyons simplement un JSON avec le message d'erreur.
+
+        Nous devons maintenant implémenter le code pour que nos tests passent (Listing \ref{lst:sessions_controller_create}). Mais avant cela, nous ajouterons les routes à notre fichier \verb|route.rb| (Listing \ref{lst:add_sessions_routes}).
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby, caption={Ajout des routes pour les sessions}, label={lst:add_sessions_routes}]
+          # config/routes.rb
+          require 'api_constraints'
+
+          Rails.application.routes.draw do
+            # ...
+            resources :sessions, :only => [:create, :destroy]
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby, caption={Implémentation de la méthode SessionsController\#create}, label={lst:sessions_controller_create}]
+          # app/controllers/api/v1/sessions_controller.rb
+          class Api::V1::SessionsController < ApplicationController
+            def create
+              user_password = params[:session][:password]
+              user_email = params[:session][:email]
+              user = user_email.present? && User.find_by(email: user_email)
+
+              if user.valid_password? user_password
+                sign_in user
+                user.generate_authentification_token!
+                user.save
+                render json: user, status: 200, location: [:api, user]
+              else
+                render json: { errors: 'Invalid email or password' }, status: 422
+              end
+            end
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+
+        Avant d'exécuter nos tests, il est nécessaire d'ajouter les \verb|helpers| dans le fichier \verb|rails_helper.rb|:
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby]
+          # spec/rails_helper.rb
+          require 'api_constraints'
+
+          RSpec.configure do |config|
+            # ...
+            config.include Devise::Test::ControllerHelpers, :type => :controller
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+
+        Et maintenant nous pouvons lancer nos tests:
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=bash]
+          $ bundle exec rspec spec/controllers/api/v1/sessions_controller_spec.rb
+          ....
+
+          Finished in 0.06515 seconds (files took 0.49218 seconds to load)
+          4 examples, 0 failures
+          \end{lstlisting}
+        \end{scriptsize}
+
+        Ourah! Faisons un \verb|commit|:
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=bash]
+          $ git add .
+          $ git commit -m "Adds sessions controller create action"
+          \end{lstlisting}
+        \end{scriptsize}
+
+      \subsubsection{Déconnexion}
+
+        Nous avons maintenant l'entrée de l'API. Il est temps de construire un point de sortie. Vous vous demandez peut-être pourquoi, puisque nous ne gérons pas les sessions et qu'il n'y a rien à détruire. Et c'est bien vrai! Lors d'une destruction, nous devons mettre à jour le jeton d'authentification pour que ce dernier devienne inutile et ne puisse plus être utilisé.
+
+        Il n'est en fait pas nécessaire d'inclure ce point final, mais j'aime l'inclure pour expirer les jetons d'authentification.
+
+        Comme d'habitude, nous commençons par les tests (Listing \ref{lst:add_sessions_controller_spec_for_destroy}):
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby, caption={Création des test de destruction des jetons d'authentification}, label={lst:add_sessions_controller_spec_for_destroy}]
+          # spec/controllers/api/v1/sessions_controller_spec.rb
+          require 'rails_helper'
+
+          RSpec.describe Api::V1::SessionsController, type: :controller do
+            # ...
+
+            describe "DELETE #destroy" do
+
+              before(:each) do
+                @user = FactoryBot.create :user
+                sign_in @user, store: false
+                delete :destroy, params: { id: @user.auth_token }
+              end
+
+              it { expect(response.response_code).to eq(204) }
+
+            end
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+
+        Comme vous pouvez le voir le test est super simple! Maintenant nous avons juste besoin d'implémenter le code nécessaire pour faire passer nos tests (Listing \ref{lst:add_sessions_controller_for_destroy})
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby, caption={Création de la méthode de destruction des jetons d'authentification}, label={lst:add_sessions_controller_for_destroy}]
+          # app/controllers/api/v1/sessions_controller.rb
+          class Api::V1::SessionsController < ApplicationController
+            # ...
+            def destroy
+              user = User.find_by(auth_token: params[:id])
+              user.generate_authentication_token!
+              user.save
+              head 204
+            end
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+
+        Ici, nous nous attendons à ce qu'un identifiant soit envoyé sur la requête (qui doit correspondre au jeton d'authentification de l'utilisateur).,Nous ajouterons une méthode \verb|current_user| pour gérer cela plus facilement lors de la section 5. Pour l'instant, \textit{commitons} notre avancée:
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=bash]
+          $ git add .
+          $ git commit -m "Adds destroy session action added"
+          \end{lstlisting}
+        \end{scriptsize}
+
+  \section{Utilisateur connecté}
+
+    Si vous avez déjà travaillé avec \href{https://github.com/plataformatec/devise}{devise}, vous connaissez sûrement déjà les méthodes générées pour gérer l'authentification ou bien pour obtenir l'utilisateur connecté (voir la \href{https://github.com/plataformatec/devise#getting-started}{documentation}).
+
+    Dans notre cas, nous allons remplacer la méthode \verb|current_user| pour répondre à nos besoins. C'est-à-dire retrouver l'utilisateur gràce à son  jeton d'authentification qui envoyé sur chaque requête. Laissez moi clarifier ce point.
+
+    Une fois que le client se connecte, l'API lui retourne son jeton d'authentification. A chaque fois que ce client demande une page protégée, nous devrons retrouver l'utilisateur à partir de ce jeton d'authentification que l'utilisateur aura passé en paramètre ou dans l'en-tête HTTP.
+
+    Dans notre cas, nous utiliserons l'en-tête HTTP \verb|Authorization| qui est souvent utilisé pour ça. Personnellement, je le trouve que c'est la meilleur manière parce que cela donne un contexte à la requête sans polluer l'URL avec des paramètres supplémentaires.
+
+    Quand il s'agit de l'authentification, j'aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d'inclure le fichier dans le \verb|ApplicationController|. De cette façon, il est très facile à tester de manière isolée.
+
+    Créeons-donc le fichier dans le répertoire \verb|controllers/concerns|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ touch app/controllers/concerns/authenticable.rb
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Ensuite, créons un répertoire \verb|concerns| sous \verb|spec/controllers/| et un fichier \verb|authenticable_spec.rb| pour nos tests d'authentification:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ mkdir spec/controllers/concerns
+      $ touch spec/controllers/concerns/authenticable_spec.rb
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Comme d'habitude, nous commençons par écrire nos tests. Dans ce cas, notre méthode \verb|current_user|, va chercher un utilisateur par le jeton d'authentification dans l'en-tête HTTP \verb|Authorization|.
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/controllers/concerns/authenticable_spec.rb
+      require 'rails_helper'
+
+      class Authentication < ActionController::Base
+        include Authenticable
+      end
 
 
+      RSpec.describe Authenticable do
+        let(:authentication) { Authentication.new }
+        subject { authentication }
 
+        describe "#current_user" do
+          before do
+            @user = FactoryBot.create :user
+            request.headers["Authorization"] = @user.auth_token
+            authentication.stub(:request).and_return(request)
+          end
+          it "returns the user from the authorization header" do
+            expect(authentication.current_user.auth_token).to eql @user.auth_token
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+    \footnote{Si vous vous demandez \textquote{pourquoi diable avons-nous créé une classe d'authentification dans le fichier spec?}, La réponse est simple. Quand il s'agit de tester des modules, je trouve facile de les inclure dans une classe temporaire et de stub toutes les autres méthodes dont j'ai besoin plus tard, comme la requête montrée ci-dessus.}
+
+    Notre test doit échouer. Implémentons donc le code pour qu'il passe (Listing \ref{lst:create_authenticable}):
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Implémentation de la méthode current_user}, label={lst:create_authenticable}]
+      # app/controllers/concerns/authenticable.rb
+      module Authenticable
+        # Devise methods overwrites
+        def current_user
+          @current_user ||= User.find_by(auth_token: request.headers['Authorization'])
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant notre test devrait passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ bundle exec rspec spec/controllers/concerns/authenticable_spec.rb
+      .
+
+      Finished in 0.0149 seconds (files took 0.49496 seconds to load)
+      1 example, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Nous n'avons plus qu'à inclure le module \verb|Authenticable| dans la classe \verb|ApplicationController|:
+
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/controllers/application_controller.rb
+      class ApplicationController < ActionController::Base
+        # Prevent CSRF attacks by raising an exception.
+        # For APIs, you may want to use :null_session instead.
+        protect_from_forgery with: :null_session
+
+        include Authenticable
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et maintenant il est temps de \textit{commiter} nos changements:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds authenticable module for managing authentication methods"
+      \end{lstlisting}
+    \end{scriptsize}
 
 \end{document}
