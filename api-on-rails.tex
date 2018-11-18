@@ -16,12 +16,12 @@
 
 \pagestyle{headings}
 
-% \hypersetup{
-%     colorlinks,
+\hypersetup{
+    colorlinks,
 %     citecolor=black,
 %     filecolor=black,
 %     urlcolor=black
-% }
+}
 \lstset{
   autogobble,% remove leading space indentation
   breaklines=true, % sets automatic line breaking
@@ -2789,5 +2789,20 @@
       $ git commit -m "Adds authenticable module for managing authentication methods"
       \end{lstlisting}
     \end{scriptsize}
+
+  \section{Authentification avec le jeton}
+
+    L'autorisation joue un rôle important dans la construction des applications car, contrairement à l'authentification qui permet d'identifier l'utilisateur, l'autorisation nous aide à définir ce qu'il a le droit de faire.
+
+    Nous avons une route pour mettre à jour l'utilisateur mais il y a un problème: n'importe qui peut mettre à jour n'importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l'utilisateur soit connecté afin d'empêcher tout accès non autorisé. Nous retournerons un message d'erreur JSON avec un code HTTP correspondant.
+
+    Tout d'abord, nous allons ajouter quelques tests sur le fichier \verb|authenticable_spec.rb| pour la méthode \verb|authenticate_with_token| (Listing 5.11).
+
+
+    % TODO
+
+    Comme vous pouvez le voir, nous utilisons à nouveau la classe Authentification et nous écrasons la requête et la réponse pour traiter la réponse attendue du serveur. Il est maintenant temps d'implémenter le code pour faire passer nos tests (Listing 5.12).
+
+
 
 \end{document}
