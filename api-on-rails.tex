@@ -62,6 +62,10 @@
       LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D’AUCUNE SORTE, EXPLICITE OU IMPLICITE, Y COMPRIS, MAIS SANS S’Y LIMITER, LES GARANTIES DE QUALITÉ MARCHANDE, ADAPTATION À UN USAGE PARTICULIER ET D’ABSENCE DE CONTREFAÇON. EN AUCUN CAS LES AUTEURS OU TITULAIRES DU ETRE TENU RESPONSABLE DE TOUT DOMMAGE, RÉCLAMATION OU AUTRES RESPONSABILITÉ, SOIT DANS UNE ACTION DE CONTRAT, UN TORT OU AUTRE, PROVENANT DE, DE OU EN RELATION AVEC LE LOGICIEL OU L’UTILISATION OU DE TRANSACTIONS AUTRES LE LOGICIEL.
     \end{tcolorbox}
 
+    API on Rails de \href{https://github.com/madeindjs/api_on_rails}{Alexandre Rousseau} est mis à disposition selon les termes de la licence \href{http://creativecommons.org/licenses/by-sa/4.0/}{Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International}.
+    Fondé sur une œuvre à \url{http://apionrails.icalialabs.com/book/}.
+
+
 \chapter{Introduction}\label{chapter:1}
 
   Bienvenue sur APIs on Rails, un tutoriel sous stéroïdes sur la façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec les API Rails, vous devriez être en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit sur Ruby on Rails 5 qui est la version actuelle, pour plus d'informations à ce sujet, consultez \href{http://rubyonrails.org/}{rubyonrails.org}. La version la plus récente de APIs on Rails se trouve sur \href{https://apionrails.icalialabs.com}{apionrails.icalialabs.com} ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
@@ -1377,7 +1381,7 @@
       require 'api_constraints'
 
       Rails.application.routes.draw do
-        devise_for :users
+        devise_for :usersto
         # Api definition
         namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
           scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
