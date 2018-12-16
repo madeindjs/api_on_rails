@@ -65,7 +65,6 @@
     API on Rails de \href{https://github.com/madeindjs/api_on_rails}{Alexandre Rousseau} est mis à disposition selon les termes de la licence \href{http://creativecommons.org/licenses/by-sa/4.0/}{Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International}.
     Fondé sur une œuvre à \url{http://apionrails.icalialabs.com/book/}.
 
-
 \chapter{Introduction}\label{chapter:1}
 
   Bienvenue sur APIs on Rails, un tutoriel sous stéroïdes sur la façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec les API Rails, vous devriez être en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit sur Ruby on Rails 5 qui est la version actuelle, pour plus d'informations à ce sujet, consultez \href{http://rubyonrails.org/}{rubyonrails.org}. La version la plus récente de APIs on Rails se trouve sur \href{https://apionrails.icalialabs.com}{apionrails.icalialabs.com} ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
@@ -2788,12 +2787,284 @@
 
     Nous avons une route pour mettre à jour l'utilisateur mais il y a un problème: n'importe qui peut mettre à jour n'importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l'utilisateur soit connecté afin d'empêcher tout accès non autorisé. Nous retournerons un message d'erreur JSON avec un code HTTP correspondant.
 
-    Tout d'abord, nous allons ajouter quelques tests sur le fichier \verb|authenticable_spec.rb| pour la méthode \verb|authenticate_with_token| (Listing 5.11).
+    Tout d'abord, nous allons ajouter quelques tests sur le fichier \verb|authenticable_spec.rb| pour la méthode \verb|authenticate_with_token| (Listing \ref{lst:add_authenticate_with_token_test}).
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, label={lst:add_authenticate_with_token_test}, caption={Test de l'authentification par la méthode de jeton}]
+      # spec/controllers/concerns/authenticable_spec.rb
+      require 'rails_helper'
+
+      class Authentication < ActionController::Base
+        include Authenticable
+      end
+
+      RSpec.describe Authenticable do
+
+        # ...
+
+        describe '#authenticate_with_token' do
+          before do
+            @user = FactoryBot.create :user
+            authentication.stub(:current_user).and_return(nil)
+            response.stub(:response_code).and_return(401)
+            response.stub(:body).and_return({ 'errors' => 'Not authenticated' }.to_json)
+            authentication.stub(:response).and_return(response)
+          end
+
+          it 'render a json error message' do
+            expect(json_response[:errors]).to eql 'Not authenticated'
+          end
+
+          it { expect(response.response_code).to eq(401) }
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
 
 
-    % TODO
+    Comme vous pouvez le voir, nous utilisons à nouveau la classe Authentification et nous écrasons la requête et la réponse pour traiter la réponse attendue du serveur. Il est maintenant temps d'implémenter le code pour faire passer nos tests (Listing \ref{lst:add_authenticate_with_token}).
 
-    Comme vous pouvez le voir, nous utilisons à nouveau la classe Authentification et nous écrasons la requête et la réponse pour traiter la réponse attendue du serveur. Il est maintenant temps d'implémenter le code pour faire passer nos tests (Listing 5.12).
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, label={lst:add_authenticate_with_token}, caption={Ajout de l'authentification par la méthode de jeton}]
+      # app/controllers/concerns/authenticable.rb
+      module Authenticable
+
+        # ...
+
+        def authenticate_with_token!
+          unless current_user.present?
+            render json: { errors: 'Not authenticated' },
+                   status: :unauthorized
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    A ce stade, nous venons de construire un mécanisme d'autorisation très simple pour empêcher les utilisateurs non signés d'accéder à l'API. Il suffit de mettre à jour le fichier \verb|users\_controller.rb| avec la méthode \verb|current_user| et d'empêcher l'accès avec la commande \verb|authenticate_with_token!|!
+
+    \textit{Comitons} ces changements et continuons d'avancer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git commit -m "Adds the authenticate with token method to handle access to actions"
+      \end{lstlisting}
+    \end{scriptsize}
+
+
+  \section{Autoriser les actions}
+
+    Il est maintenant temps de mettre à jour notre fichier \verb|users_controller.rb| pour refuser l'accès à certaines actions. Nous allons aussi implémenter la méthode \verb|current_user| sur l'action \verb|update| et \verb|destroy| afin de s'assurer que l'utilisateur qui est connecté ne sera capable que de mettre à jour que ses données et qu'il ne pourra supprimer que (et uniquement) son compte.
+
+    Nous allons commencer par l'action \verb|update| (Listing \ref{lst:use_current_user_on_users_update}). Nous n'irons plus chercher l'utilisateur par son identifiant mais par l' \verb|auth_token| sur l'en-tête \verb|Authorization| fourni par la méthode \verb|current_user|.
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, label={lst:use_current_user_on_users_update}, caption={Utilisation de la méthode current\_user pour l'action update}]
+      # app/controllers/api/v1/users_controller.rb
+      class Api::V1::UsersController < ApplicationController
+
+        # ...
+
+        def update
+          # on change juste la methode ici
+          user = current_user
+
+          if user.update(user_params)
+            render json: user, status: 200, location: [:api, user]
+          else
+            render json: { errors: user.errors }, status: 422
+          end
+        end
+
+        # ...
+
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et comme vous pouvez vous y attendre, si nous exécutons les tests de notre \textit{controller} utilisateurs, ils devraient échouer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/controllers/api/v1/users_controller_spec.rb
+      .......FFFFF.
+
+      Failures:
+
+        1) Api::V1::UsersController PUT/PATCH #update when is successfully updated renders the json representation for the updated user
+           Failure/Error: if user.update(user_params)
+
+           NoMethodError:
+             undefined method `update' for nil:NilClass
+
+         ...
+      \end{lstlisting}
+    \end{scriptsize}
+
+    La solution est assez simple, il suffit d'ajouter l'en-tête \verb|Authorization| à la requête:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/controllers/api/v1/users_controller_spec.rb
+
+      require 'rails_helper'
+
+      RSpec.describe Api::V1::UsersController, type: :controller do
+
+        # ...
+
+        describe 'PUT/PATCH #update' do
+          context 'when is successfully updated' do
+            before(:each) do
+              @user = FactoryBot.create :user
+              request.headers['Authorization'] = @user.auth_token
+              patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
+            end
+
+            # ...
+          end
+
+          context 'when is not created' do
+            before(:each) do
+              @user = FactoryBot.create :user
+              request.headers['Authorization'] = @user.auth_token
+              patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
+            end
+
+            # ...
+          end
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant, les tests devraient passer. Mais attendez, quelque chose ne va pas, n'est-ce pas? Nous pouvons refactoriser la ligne que nous venons d'ajouter et la mettre dans le module \verb|HeadersHelpers| que nous construisons au chapitre \ref{chapter:4} (Listing \ref{lst:add_api_authorization_helper}):
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, label={lst:add_api_authorization_helper}, caption={Factorisation de l'initialisation de l'en-tête Authorization}]
+      # spec/support/request_helpers.rb
+
+      module Request
+        # ...
+
+        module HeadersHelpers
+          # ...
+
+          def api_authorization_header(token)
+            request.headers['Authorization'] = token
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant, chaque fois que nous avons besoin d'avoir l'utilisateur courant sur nos tests, nous appelons simplement la méthode \verb|api_authorization_header|. Je vous laisse le faire avec \verb|users_controller_spec.rb| pour la spécification de mise à jour:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/controllers/api/v1/users_controller_spec.rb
+
+      require 'rails_helper'
+
+      RSpec.describe Api::V1::UsersController, type: :controller do
+
+        # ...
+
+        describe 'PUT/PATCH #update' do
+          context 'when is successfully updated' do
+            before(:each) do
+              @user = FactoryBot.create :user
+              api_authorization_header @user.auth_token
+              patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
+            end
+
+            # ...
+          end
+
+          context 'when is not created' do
+            before(:each) do
+              @user = FactoryBot.create :user
+              api_authorization_header @user.auth_token
+              patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
+            end
+
+            # ...
+          end
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Pour l'action \verb|destroy|, nous ferons la même chose car nous devons juste nous assurer qu'un utilisateur est capable de se supprimer (Listing \ref{lst:add_current_user_to_users_destroy}):
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, label={lst:add_current_user_to_users_destroy}, caption={Mise à jour de l'action Users\#Destroy}]
+      # app/controllers/api/v1/users_controller.rb
+      class Api::V1::UsersController < ApplicationController
+
+        # ...
+
+        def destroy
+          current_user.destroy
+          head 204
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant, pour le fichier de spécification et comme mentionné précédemment, nous avons juste besoin d'ajouter l'en-tête \verb|api_authorization_header|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/controllers/api/v1/users_controller_spec.rb
+
+      require 'rails_helper'
+
+      RSpec.describe Api::V1::UsersController, type: :controller do
+        # ...
+
+        describe 'DELETE #destroy' do
+          before(:each) do
+            @user = FactoryBot.create :user
+            api_authorization_header @user.auth_token
+            delete :destroy, params: { id: @user.id }
+          end
+
+          it { expect(response.response_code).to eq(204) }
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Tout nos tests devraient passer. La dernière étape de cette section consiste à ajouter les droits d'accès correspondants pour ces deux dernières actions.
+
+    Il est courant de simplement empêcher les actions sur lesquelles l'utilisateur effectue des actions sur le modèle lui-même. Dans ce cas l'action \verb|update| et \verb|destroy|.
+
+    Sur le \verb|users_controller.rb| nous devons filtrer certaines de ces actions pour empêcher l'accès (Listing \ref{lst:add_before_action_to_users}).
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Utilisation de la méthode before_action pour le controlleur des utilisateurs}, label={lst:add_before_action_to_users}]
+      # app/controllers/api/v1/users_controller.rb
+      class Api::V1::UsersController < ApplicationController
+        before_action :authenticate_with_token!, only: %i[update destroy]
+        respond_to :json
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Nos tests devraient être encore bons. Et à partir de maintenant, chaque fois que nous voulons éviter qu'une action ne soit déclenchée, nous ajoutons simplement la méthode \verb|authenticate_with_token!| sur un hook \verb|before_action|.
+
+    \textit{Comitons} juste ça:
+
+    % http://apionrails.icalialabs.com/book/chapter_five#_code-users_controller_authenticate
 
 
 
