@@ -2851,7 +2851,6 @@
       \end{lstlisting}
     \end{scriptsize}
 
-
   \section{Autoriser les actions}
 
     Il est maintenant temps de mettre à jour notre fichier \verb|users_controller.rb| pour refuser l'accès à certaines actions. Nous allons aussi implémenter la méthode \verb|current_user| sur l'action \verb|update| et \verb|destroy| afin de s'assurer que l'utilisateur qui est connecté ne sera capable que de mettre à jour que ses données et qu'il ne pourra supprimer que (et uniquement) son compte.
@@ -3049,7 +3048,7 @@
     Sur le \verb|users_controller.rb| nous devons filtrer certaines de ces actions pour empêcher l'accès (Listing \ref{lst:add_before_action_to_users}).
 
     \begin{scriptsize}
-      \begin{lstlisting}[language=ruby, caption={Utilisation de la méthode before_action pour le controlleur des utilisateurs}, label={lst:add_before_action_to_users}]
+      \begin{lstlisting}[language=ruby, caption={Utilisation de la méthode before\_action pour le controlleur des utilisateurs}, label={lst:add_before_action_to_users}]
       # app/controllers/api/v1/users_controller.rb
       class Api::V1::UsersController < ApplicationController
         before_action :authenticate_with_token!, only: %i[update destroy]
@@ -3062,9 +3061,100 @@
 
     Nos tests devraient être encore bons. Et à partir de maintenant, chaque fois que nous voulons éviter qu'une action ne soit déclenchée, nous ajoutons simplement la méthode \verb|authenticate_with_token!| sur un hook \verb|before_action|.
 
-    \textit{Comitons} juste ça:
+    \textit{Comitons} tout ça:
 
-    % http://apionrails.icalialabs.com/book/chapter_five#_code-users_controller_authenticate
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds authorization for the users controller"
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Enfin, nous terminerons le chapitre en remaniant la méthode \verb|authenticate_with_token!|, C'est une petite amélioration mais cela rendra la méthode plus parlante. Vous comprendrez ce que je veux dire dans une minute (Listing \ref{lst:add_user_signed_in}), mais avant tout, ajoutons quelques tests.
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Création du test user\_signed\_in?}, label={lst:add_user_signed_in_test}]
+      # spec/controllers/concerns/authenticable_spec.rb
+      require 'rails_helper'
+
+      # ...
+
+      RSpec.describe Authenticable do
+        # ...
+
+        describe '#user_signed_in?' do
+          context "when there is a user on 'session'" do
+            before do
+              @user = FactoryBot.create :user
+              authentication.stub(:current_user).and_return(@user)
+            end
+
+            it { should be_user_signed_in }
+          end
+
+          context "when there is no user on 'session'" do
+            before do
+              @user = FactoryBot.create :user
+              authentication.stub(:current_user).and_return(nil)
+            end
+
+            it { should_not be_user_signed_in }
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Comme vous pouvez le voir, nous avons ajouté deux simples tests pour savoir si l'utilisateur est connecté ou non. Et comme je l'ai déjà dis, c'est juste pour la clarté visuelle. Mais continuons et ajoutons l'implémentation. (Liste \ref{lst:add_user_signed_in}):
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Implémetation de  user\_signed\_in?}, label={lst:add_user_signed_in}]
+      # app/controllers/concerns/authenticable.rb
+      module Authenticable
+        # ...
+
+        def authenticate_with_token!
+          unless user_signed_in?
+            render json: { errors: 'Not authenticated' },
+                   status: :unauthorized
+          end
+        end
+
+        def user_signed_in?
+          current_user.present?
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Comme vous pouvez le voir, maintenant \vebr|authenticate_with_token!| est plus facile à lire non seulement pour vous mais pour aussi pour les autres développeurs qui rejoignerons le projet. Cette approche a également un avantage secondaire: si vous voulez modifier ou améliorer la façon de valider, vous pouvez simplement le faire sur la méthode \verb|user_signed_in?|.
+
+    Maintenant, nos tests devraient être tous verts:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/controllers/concerns/authenticable_spec.rb
+      .....
+
+      Finished in 0.07415 seconds (files took 0.702 seconds to load)
+      5 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \textit{Comitons} tout ça:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds user_signed_in? method to know whether the user is logged in or not"
+      \end{lstlisting}
+    \end{scriptsize}
+
+  \section{Conclusion}
+
+    Vous l'avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c'est un grand pas en avant sur la mise en place d'un mécanisme solide pour gérer l'authentification utilisateur et nous grattons même la surface pour de simples règles d'autorisation.
+
+    Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l'utilisateur avec \verb|active_model_serializers| et l'ajout d'un modèle de produit en donnant à l'utilisateur la possibilité de créer un produit et le publier pour la vente.
 
 
 
