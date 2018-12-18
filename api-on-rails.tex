@@ -579,7 +579,7 @@
 
     \begin{figure}
       \includegraphics[width=\linewidth]{img/data_model.png}
-      \caption{http://market\_place\_api.dev/}
+      \caption{Schéma des liaisons entre les différent modèles}
       \label{fig:data_model}
     \end{figure}
 
@@ -3155,6 +3155,128 @@
     Vous l'avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c'est un grand pas en avant sur la mise en place d'un mécanisme solide pour gérer l'authentification utilisateur et nous grattons même la surface pour de simples règles d'autorisation.
 
     Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l'utilisateur avec \verb|active_model_serializers| et l'ajout d'un modèle de produit en donnant à l'utilisateur la possibilité de créer un produit et le publier pour la vente.
+
+\chapter{Produits des utilisateurs}\label{chapter:6}
+
+  Au chapitre \ref{chapter:5}, nous avons implémenté le mécanisme d'authentification que nous allons utiliser tout au long de l'application. Pour l'instant, nous avons une implémentation très simple du modèle \verb|User|, mais le moment de vérité est venu où nous allons personnaliser la sortie JSON et ajouter une deuxième ressource : les produits utilisateurs. Ce sont les éléments que l'utilisateur vendra dans l'application, et par conséquent sera directement associé. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle \verb|User| au modèle \verb|Product| en utilisant les méthodes \verb|has_many| et \verb|belongs_to| de \textit{Active Record}.  (voir figure \ref{fig:data_model}).
+
+  Dans ce chapitre, nous allons construire le modèle de \verb|Product| à partir de zéro, l'associer à l'utilisateur et créer les entrées nécessaires pour que tout client puisse accéder aux informations.
+
+  Vous pouvez cloner le projet jusqu'à ce point:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git clone --branch chapter6 https://github.com/madeindjs/market_place_api
+    \end{lstlisting}
+  \end{scriptsize}
+
+  Avant de commencer,et comme d'habitude quand nous commençons de nouvelles fonctionnalités, nous créons une nouvelle branche:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git checkout -b chapter6
+    \end{lstlisting}
+  \end{scriptsize}
+
+  \section{Le modèle du produit}
+
+    Nous commencerons d'abord par créer un modèle de \verb|Product| puis nous y ajouterons quelques validations et enfin nous l'associons au modèle \verb|User|. Comme le modèle \verb|User|, le \verb|Product| sera entièrement testé et sera automatiquement supprimé si l'utilisateur est supprimé.
+
+    \subsection{Les foncdements du produit}
+
+      Le modèle \verb|Product| aura besoin de plusieurs champs: un attribut \verb|price| pour le prix du produit, un booléen \verb|published| pour savoir si le produit est prêt à être vendu ou non, un \verb|title| pour définir un titre de produit sexy, et enfin et surtout un \verb|user_id| pour associer ce produit particulier à un utilisateur. Comme vous le savez peut-être déjà, nous le générons avec la commande \verb|rails generate|:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rails generate model Product title:string price:decimal published:boolean user_id:integer:index
+          invoke  active_record
+          create    db/migrate/20181218064350_create_products.rb
+          create    app/models/product.rb
+          invoke    rspec
+          create      spec/models/product_spec.rb
+          invoke      factory_bot
+          create        spec/factories/products.rb
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez le remarquer, nous avons également ajouté un \verb|index| à l'attribut \verb|user_id|. C'est une bonne pratique pour les clés d'association car cela optimise les requêtes de la base de données. Ce n'est pas obligatoire, mais je vous le recommande vivement.
+
+      Le fichier de migration devrait ressembler à ceci:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # db/migrate/20181218064350_create_products.rb
+        class CreateProducts < ActiveRecord::Migration[5.2]
+          def change
+            create_table :products do |t|
+              t.string :title
+              t.decimal :price
+              t.boolean :published
+              t.integer :user_id
+
+              t.timestamps
+            end
+            add_index :products, :user_id
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Notez que nous avons défini des valeurs par défaut pour tous les attributs à l'exception de \verb|user_id|, de cette façon nous gardons un haut niveau de cohérence dans notre base de données car nous ne traitons pas beaucoup de valeurs NULL.
+
+      Ensuite, nous ajouterons quelques tests de base au modèle de produit. Nous nous assurerons simplement que l'objet répond aux champs que nous avons ajoutés, comme indiqué dans le listing \ref{lst:create_product_spec}:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Le premier test de notre modèle de produit}, label={lst:create_product_spec}]
+        # spec/models/product_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Product, type: :model do
+          let(:product) { FactoryBot.build :product }
+          subject { product }
+
+          it { should respond_to(:title) }
+          it { should respond_to(:price) }
+          it { should respond_to(:published) }
+          it { should respond_to(:user_id) }
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Il suffit ensuite de lancer les migrations:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rake db:migrate
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Et maintenant nous pouvons nous assurer que les tests passent:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/modes/product_spec.rb
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Bien que nos tests réussissent, nous avons besoin de faire un peu de travail au niveau de la \textit{factory} des produits. Pour l'instant, tout est codé en dur. Comme vous vous en souvenez, nous avons utilisé un \verb|Faker| pour falsifier les valeurs de nos modèles de tests (Listing \ref{lst:user_factory_with_attrs}). Il est donc temps de faire de même avec le modèle de \verb|Product|. Voir le listing \ref{lst:create_factories_products}:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Création de la factory pour le modèle produit}, label={lst:create_factories_products}]
+        # spec/factories/products.rb
+        FactoryBot.define do
+          factory :product do
+            title { FFaker::Product.product_name }
+            price { rand * 100 }
+            published { false }
+            user_id { 1 }
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Maintenant, chaque produit que nous créons ressemblera un peu plus à un vrai produit. Nous devons encore travailler sur le \verb|user_id| tel quel, mais nous y reviendrons à la section 6.1.3.
+
 
 
 
