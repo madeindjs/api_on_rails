@@ -3255,7 +3255,7 @@
 
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
-        $ rspec spec/modes/product_spec.rb
+        $ rspec spec/models/product_spec.rb
         \end{lstlisting}
       \end{scriptsize}
 
@@ -3275,7 +3275,346 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      Maintenant, chaque produit que nous créons ressemblera un peu plus à un vrai produit. Nous devons encore travailler sur le \verb|user_id| tel quel, mais nous y reviendrons à la section 6.1.3.
+      Maintenant, chaque produit que nous créons ressemblera un peu plus à un vrai produit. Nous devons encore travailler sur le \verb|user_id| tel quel, mais nous y reviendrons à la section \ref{subsec:user_has_products}.
+
+    \subsection{Validations des produits}
+
+      Comme nous l'avons vu avec l'utilisateur, les validations sont une partie importante lors de la construction de tout type d'application. Cela nous permet d'empêcher toute donnée indésirable d'être enregistrée dans la base de données. Pour le produit, nous devons nous assurer, par exemple, que le prix est un nombre et qu'il n'est pas négatif.
+
+      Une autre chose importante à propos de la validation, lorsque l'on travaille avec des associations, est de valider que chaque \verb|Product| a un \verb|User|. Donc, dans ce cas, nous devons valider la présence de l'\verb|user_id|. Dans Listing \ref{lst:add_presence_to_product_test} vous pouvez voir de quoi je parle.
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Ajout de tests de présences pour les produits}, label={lst:add_presence_to_product_test}]
+        # spec/models/product_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Product, type: :model do
+          # ...
+
+          it { should validate_presence_of :title }
+          it { should validate_presence_of :price }
+          it { should validate_numericality_of(:price).is_greater_than_or_equal_to(0) }
+          it { should validate_presence_of :user_id }
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Il nous faut maintenant ajouter l'implémentation pour faire passer les tests:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/product.rb
+        class Product < ApplicationRecord
+          validates :title, :user_id, presence: true
+          validates :price, numericality: { greater_than_or_equal_to: 0 }, presence: true
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Les tests passent désormais:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/models/product_spec.rb
+        ........
+
+        Finished in 0.04173 seconds (files took 0.74322 seconds to load)
+        8 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+      \textit{Comitons} ces changements et continuons d'avancer:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ git add .
+        $ git commit -m "Adds product model bare bones along with some validations"
+        \end{lstlisting}
+      \end{scriptsize}
+
+    \subsection{Liaison des produits et des utilisateurs}\label{subsec:user_has_products}
+
+      Dans cette section, nous allons construire l'association entre le produit et le modèle utilisateur. Nous avons déjà les champs nécessaires, nous avons donc juste besoin de mettre à jour quelques fichiers et nous serons prêts à commencer. Tout d'abord, nous devons modifier la \textit{factory} de \verb|Product| pour la relier à l'utilisateur. Alors comment faire?
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # spec/factories/products.rb
+        FactoryBot.define do
+          factory :product do
+            title { FFaker::Product.product_name }
+            price { rand * 100 }
+            published { false }
+            user
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez le voir, nous venons de renommer l'attribut \verb|user_id| en \verb|user| et nous n'avons pas spécifié de valeur. FactoryBot est assez intelligent pour créer un objet \verb|user| pour chaque produit et les associer automatiquement. Maintenant nous devons ajouter quelques tests pour l'association (Listing \ref{lst:add_should_belong_to_user}):
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Ajout du test de l'association utilisateur au model du produit}, label={lst:add_should_belong_to_user}]
+        # spec/models/product_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Product, type: :model do
+          # ...
+
+          it { should belong_to :user }
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez le voir, le test que nous avons ajouté est très simple, grâce à la puissance des \textit{shoulda-matchers}. Nous poursuivons la mise en œuvre maintenant:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/product.rb
+        class Product < ApplicationRecord
+          belongs_to :user
+          #...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      N'oubliez pas de faire le test que nous avons ajouté juste pour vous assurer que tout va bien:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/models/product_spec.rb
+        .........
+
+        Finished in 0.08815 seconds (files took 0.75134 seconds to load)
+        9 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Actuellement, nous n'avons qu'une partie de l'association.  Mais comme vous vous en doutez peut-être déjà, nous devons ajouter une association \verb|has_many| au modèle \verb|User|.
+
+      Tout d'abord, nous ajoutons le test sur le fichier \verb|user_spec.rb|:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # spec/models/user_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe User, type: :model do
+          # ...
+          it { should have_many(:products) }
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      L'implémentation sur le modèle utilisateur est extrêmement simple:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/user.rb
+        class User < ApplicationRecord
+          has_many :products
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Maintenant, si nous exécutons les tests de l'utilisateur, elles devraient toutes être correctes:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/models/user_spec.rb
+        ..........
+
+        Finished in 0.08411 seconds (files took 0.74624 seconds to load)
+        10 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+    \subsection{Supression en cascade}
+
+      Ce que j'ai vu dans le code d'autres développeurs, lorsqu'ils travaillent avec des associations, c'est qu'ils oublient la destruction des dépendances entre les modèles. Ce que je veux dire par là, c'est que si un utilisateur est supprimé, les produits de l'utilisateur devraient l'être aussi.
+
+      Donc pour tester cette interaction entre les modèles, nous avons besoin d'un utilisateur avec un des produits. Puis, nous supprimerons cet utilisateur en espérant que les produits disparaissent avec lui. Une implémentation simple ressemblerait à ceci:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        products = user.products
+        user.destroy
+        products.each do |product|
+          expect(Product.find(product.id)).to raise_error ActiveRecord::RecordNotFound
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Nous sauvegardons d'abord les produits dans une variable pour un accès ultérieur, puis nous détruisons l'utilisateur et bouclons la variable des produits en nous attendant à ce que chacun des produits lance une exception. Tout mettre ensemble devrait ressembler au code dans Listing \ref{lst:create_destroy_user_spec}:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test de suppression des produits liés aux utilisateurs}, label={lst:create_destroy_user_spec}]
+        # spec/models/user_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe User, type: :model do
+          # ...
+
+          describe '#products association' do
+            before do
+              @user.save
+              3.times { FactoryBot.create :product, user: @user }
+            end
+
+            it 'destroys the associated products on self destruct' do
+              products = @user.products
+              @user.destroy
+              products.each do |product|
+                expect { Product.find(product.id) }.to raise_error ActiveRecord::RecordNotFound
+              end
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Le code nécessaire pour rendre le code sur Listing \ref{lst:create_destroy_user_spec} à passer est juste une option sur la méthode d'association \verb|has_many|:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/user.rb
+        class User < ApplicationRecord
+          has_many :products, dependent: :destroy
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Avec ce code ajouté, tous nos tests devraient passer:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/
+        ...........................................
+
+        Finished in 0.44188 seconds (files took 0.8351 seconds to load)
+        43 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+      \textit{Comitons} ces changements et continuons d'avancer:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ git add .
+        $ git commit -m "Finishes modeling the product model along with user associations"
+        \end{lstlisting}
+      \end{scriptsize}
+
+  \section{Point d'entrée pour nos produits}
+
+    Il est maintenant temps de commencer à construire les points d'entrée des produits. Pour l'instant, nous allons juste construire cinq actions REST et certaines d'entre elles seront imbriquées dans la ressource utilisateur. Dans le prochain chapitre, nous allons personnaliser la sortie JSON en implémentant la gemme \verb|active_model_serializers|.
+
+    Nous devons d'abord créer le \verb|products_controller|, et nous pouvons facilement y parvenir avec la commande ci-dessous:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails generate controller api/v1/products
+      \end{lstlisting}
+    \end{scriptsize}
+
+    La commande ci-dessus va générer pas mal de fichiers qui nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c'est qu'il va générer le contrôleur et les fichiers de test déjà \textit{scopés} à la version 1 de l'API (Listing \ref{lst:generate_products_controller} et \ref{lst:generate_products_controller_spec}).
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Le controlleur des produits généré automatqiuement}, label={lst:generate_products_controller}]
+      # app/controllers/api/v1/products_controller.rb
+      class Api::V1::ProductsController < ApplicationController
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Les test du controlleur des produits généré automatqiuement}, label={lst:generate_products_controller_spec}]
+      # spec/controllers/api/v1/products_controller_spec.rb
+      require 'rails_helper'
+
+      RSpec.describe Api::V1::ProductsController, type: :controller do
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    En guise d'échauffement, nous allons commencer par construire l'action du \verb|show| pour le produit.
+
+    \subsection{Action d'affichage d'un produit}
+
+      Comme d'habitude, nous commençons par ajouter quelques test du contrôleur des produits (Listing \ref{lst:products_controller_spec_show}). La stratégie ici est très simple, il suffit de créer un seul produit et de s'assurer que la réponse du serveur est celle que nous attendons.
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test d'affichage d'un produit}, label={lst:products_controller_spec_show}]
+        # spec/controllers/api/v1/products_controller_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Api::V1::ProductsController, type: :controller do
+          describe 'GET #show' do
+            before(:each) do
+              @product = FactoryBot.create :product
+              get :show, params: { id: @product.id }
+            end
+
+            it 'returns the information about a reporter on a hash' do
+              product_response = json_response
+              expect(product_response[:title]).to eql @product.title
+            end
+
+            it { expect(response.response_code).to eq(200) }
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Nous ajoutons ensuite le code pour faire passer le test:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/controllers/api/v1/products_controller.rb
+        class Api::V1::ProductsController < ApplicationController
+          def show
+            render json: Product.find(params[:id])
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Attendez! N'exécutez pas encore les tests. N'oubliez pas que nous devons ajouter la route au fichier \verb|routes.rb|:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # config/routes.rb
+        require 'api_constraints'
+
+        Rails.application.routes.draw do
+          # ...
+          namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+            scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+              # ...
+              resources :products, only: [:show]
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Maintenant, on s'assure que les tests passent:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/controllers/api/v1/products_controller_spec.rb
+        ..
+
+        Finished in 0.05474 seconds (files took 0.75052 seconds to load)
+        2 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez déjà le constater, les tests et l'implémentation sont très simples. En fait, cela ressemble beaucoup à ce que nous avons fait pour les utilisateurs.
+
+
 
 
 
