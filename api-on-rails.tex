@@ -10,6 +10,7 @@
 \usepackage{listings}
 \usepackage{lstautogobble}
 \usepackage{color}
+\usepackage{xcolor}
 
 \hbadness=99999
 \hfuzz=999pt
@@ -23,10 +24,11 @@
 %     urlcolor=black
 }
 \lstset{
+  backgroundcolor = \color{lightgray},
   autogobble,% remove leading space indentation
   breaklines=true, % sets automatic line breaking
   captionpos=b, % sets the caption-position to bottom
-  frame=single, % adds a frame around the code
+  % frame=single, % adds a frame around the code
   showtabs=false, % show tabs within strings adding particular underscores
   tabsize=2, % sets default tabsize to 2 spaces
 }
