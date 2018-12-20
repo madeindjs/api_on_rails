@@ -3614,6 +3614,535 @@
 
       Comme vous pouvez déjà le constater, les tests et l'implémentation sont très simples. En fait, cela ressemble beaucoup à ce que nous avons fait pour les utilisateurs.
 
+    \subsection{Liste des produits}
+
+      Il est maintenant temps de créer une entrée pour liste de produits, qui pourrait permettre d'afficher le catalogue de produits d'un marché par exemple. Pour ce point d'accès, nous n'exigeons pas que l'utilisateur soit connecté. Comme d'habitude, nous allons commencer à écrire quelques tests (Listing \ref{lst:create_index_products_controller_spec}):
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test de l'affichage des produits}, label={lst:create_index_products_controller_spec}]
+        # spec/controllers/api/v1/products_controller_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Api::V1::ProductsController, type: :controller do
+
+          # ...
+
+          describe 'GET #index' do
+            before(:each) do
+              4.times { FactoryBot.create :product }
+              get :index
+            end
+
+            it 'returns 4 records from the database' do
+              products_response = json_response
+              expect(products_response[:products]).to have(4).items
+            end
+
+            it { expect(response.response_code).to eq(200) }
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      \begin{tcolorbox}
+        Attention, la méthode \verb|have| que nous utilisons dance ce test par exemple:
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby]
+          expect(products_response[:products]).to have(4).items
+          \end{lstlisting}
+        \end{scriptsize}
+
+        n'est plus disponnible depuis Rspec 3.0. Il faut donc installer une librairie supplémentaire:
+
+        \begin{scriptsize}
+          \begin{lstlisting}[language=ruby]
+          # Gemfile
+          # ...
+          group :test do
+            # ...
+            gem 'rspec-collection_matchers', '~> 1.1'
+          end
+          \end{lstlisting}
+        \end{scriptsize}
+
+
+      \end{tcolorbox}
+
+      Passons maintenant à la mise en œuvre, qui, pour l'instant, va être une triste méthode toutes classes (Listing \ref{lst:create_index_products_controller}):
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Méthode d'affichage des produits}, label={lst:create_index_products_controller}]
+        # app/controllers/api/v1/products_controller.rb
+        class Api::V1::ProductsController < ApplicationController
+          def index
+            render json: Product.all
+          end
+
+          #...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Et n'oubliez pas, vous devez ajouter la route correspondante dans le fichier \verb|config/routes.rb|:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        resources :products, only: %i[show index]
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Dans les chapitres suivants, nous allons améliorer ce point d'entré et donner la possibilité de recevoir des paramètres pour les filtrer.
+
+      \textit{Comitons} ces changements et continuons d'avancer:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ git add .
+        $ git commit -m "Finishes modeling the product model along with user associations"
+        \end{lstlisting}
+      \end{scriptsize}
+
+    \subsection{Création des produits}\label{subsec:create_products}
+
+      Créer des produits est un peu plus délicat parce que nous aurons besoin d'une configuration supplémentaire pour donner une meilleure structure à ce point d'entré. La stratégie que nous suivrons est d'imbriquer les produits, dans les actions des utilisateurs. Ceci nous permettra d'avoir  un point d'entrée plus descriptif comme \verb|/users/:user_id/products|.
+
+      Notre premier arrêt sera donc le fichier \verb|products_controller_spec.rb| (Listing \ref{lst:create_create_products_controller_spec}).
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test de la création d'un produit}, label={lst:create_create_products_controller_spec}]
+        # spec/controllers/api/v1/products_controller_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Api::V1::ProductsController, type: :controller do
+
+          # ...
+
+          describe 'POST #create' do
+            context 'when is successfully created' do
+              before(:each) do
+                user = FactoryBot.create :user
+                @product_attributes = FactoryBot.attributes_for :product
+                api_authorization_header user.auth_token
+                post :create, params: { user_id: user.id, product: @product_attributes }
+              end
+
+              it 'renders the json representation for the product record just created' do
+                product_response = json_response
+                expect(product_response[:title]).to eql @product_attributes[:title]
+              end
+
+              it { expect(response.response_code).to eq(201) }
+            end
+
+            context 'when is not created' do
+              before(:each) do
+                user = FactoryBot.create :user
+                @invalid_product_attributes = { title: 'Smart TV', price: 'Twelve dollars' }
+                api_authorization_header user.auth_token
+                post :create, params: { user_id: user.id, product: @invalid_product_attributes }
+              end
+
+              it 'renders an errors json' do
+                product_response = json_response
+                expect(product_response).to have_key(:errors)
+              end
+
+              it 'renders the json errors on whye the user could not be created' do
+                product_response = json_response
+                expect(product_response[:errors][:price]).to include 'is not a number'
+              end
+
+              it { expect(response.response_code).to eq(422) }
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+
+      Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez de la Section \ref{subsec:create_users}, les tests sont en fait les mêmes que ceux de la création de l'utilisateur exépté quelques changements mineurs. Rappelez-vous que nous avons cette route imbriquée, nous devons donc nous assurer d'envoyer le paramètre \verb|user_id| à chaque requête, comme vous pouvez le voir sur:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        post :create, params: { user_id: user.id, product: @product_attributes }
+        \end{lstlisting}
+      \end{scriptsize}
+
+      De cette façon, nous pouvons voir l'utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux, si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d'autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l'utilisateur à partir de l'en-tête \verb|Authorization| et lui avons assigné une méthode \verb|current_user|. C'est donc assez facile à mettre en place en ajoutant simplement l'en-tête d'autorisation dans la requête et en récupérant l'utilisateur à partir de celui-ci. Alors faisons-le (Listing \ref{lst:create_create_products_controller}):
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Méthode de création des produits}, label={lst:create_create_products_controller}]
+        # app/controllers/api/v1/products_controller.rb
+        class Api::V1::ProductsController < ApplicationController
+          before_action :authenticate_with_token!, only: [:create]
+
+          # ...
+
+          def create
+            product = current_user.products.build(product_params)
+            if product.save
+              render json: product, status: 201, location: [:api, product]
+            else
+              render json: { errors: product.errors }, status: 422
+            end
+          end
+
+          private
+
+          def product_params
+            params.require(:product).permit(:title, :price, :published)
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez le voir, nous protégeons l'action de création avec la méthode \verb|authenticate_with_token!|, et sur l'action \verb|create| nous construisons le produit en associant  l'utilisateur courant.
+
+      A ce stade, vous vous demandez peut-être s'il est vraiment nécessaire d'imbriquer l'action? Parce qu'en fait, nous n'utilisons pas vraiment le paramètre \verb|user_id| fournis de l'URL. Vous avez tout à fait raison, mon seul argument ici est qu'avec cette approche, la route est beaucoup plus descriptive de l'extérieur, car nous disons aux développeurs que pour créer un produit, il nous faut un utilisateur.
+
+      Alors c'est vraiment à vous de décider comment vous voulez organiser vos routes et les exposer au monde. Ma façon n'est pas la seule et cela ne signifie pas non plus que c'est la bonne. En fait, je vous encourage à jouer avec différentes approches et choisir celle que vous trouvez le mieux.
+
+      Une dernière chose avant de faire vos tests: la route nécessaire:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # config/routes.rb
+        require 'api_constraints'
+
+        Rails.application.routes.draw do
+          devise_for :users
+          # Api definition
+          namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+            scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+              resources :users, only: %i[show create update destroy] do
+                resources :products, only: [:create]
+              end
+              resources :sessions, only: %i[create destroy]
+              resources :products, only: %i[show index]
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Si vous faites les tests maintenant, ils devraient tous passer:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/controllers/api/v1/products_controller_spec.rb
+        .........
+
+        Finished in 0.21831 seconds (files took 0.75823 seconds to load)
+        9 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+    \subsection{Mise à jour des produits}
+
+      J'espère que maintenant vous comprenez la logique pour construire les actions à venir. Dans cette section, nous nous concentrerons sur l'action de mise à jour qui fonctionnera de manière similaire à celle de création. Nous avons juste besoin d'aller chercher le produit dans la base de données et de le mettre à jour.
+
+      Nous ajoutons d'abord l'action aux routes pour ne pas oublier plus tard:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        # config/routes.rb
+        require 'api_constraints'
+
+        Rails.application.routes.draw do
+          devise_for :users
+          # Api definition
+          namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+            scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+              resources :users, only: %i[show create update destroy] do
+                resources :products, only: %i[create update]
+              end
+              resources :sessions, only: %i[create destroy]
+              resources :products, only: %i[show index]
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Avant de commencer à coder certains tests je veux juste préciser que, de la même manière que pour l'action \verb|create|, nous allons délimiter le produit à l'utilisateur courant. Nous voulons nous assurer que le produit que nous mettons à jour appartient bien à l'utilisateur. Nous allons donc chercher ce produit dans l'association \verb|user.products| fournie par \textit{Active Record}.
+
+      Tout d'abord, nous ajoutons quelques tests (Listing \ref{lst:update_index_products_controller_spec}):
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test de mise à jour des produits}, label={lst:update_index_products_controller_spec}]
+        # spec/controllers/api/v1/products_controller_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Api::V1::ProductsController, type: :controller do
+          # ...
+
+          describe 'PUT/PATCH #update' do
+            before(:each) do
+              @user = FactoryBot.create :user
+              @product = FactoryBot.create :product, user: @user
+              api_authorization_header @user.auth_token
+            end
+
+            context 'when is successfully updated' do
+              before(:each) do
+                patch :update, params: { user_id: @user.id, id: @product.id, product: { title: 'An expensive TV' } }
+              end
+
+              it 'renders the json representation for the updated user' do
+                product_response = json_response
+                expect(product_response[:title]).to eql 'An expensive TV'
+              end
+
+              it { expect(response.response_code).to eq(200) }
+            end
+
+            context 'when is not updated' do
+              before(:each) do
+                patch :update, params: { user_id: @user.id, id: @product.id, product: { price: 'two hundred' } }
+              end
+
+              it 'renders an errors json' do
+                product_response = json_response
+                expect(product_response).to have_key(:errors)
+              end
+
+              it 'renders the json errors on whye the user could not be created' do
+                product_response = json_response
+                expect(product_response[:errors][:price]).to include 'is not a number'
+              end
+
+              it { expect(response.response_code).to eq(422) }
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Les tests peuvent paraître complexes, mais en jetant un coup d'oeil, ils sont presque identiques à ceux des utilisateurs (Listing \ref{lst:add_spec_users_controller_update}). La seule différence ici étant que les routes sont imbriquées comme nous l'avons vu à la Section \ref{subsec:create_products}. Nous devons donc envoyer le \verb|user_id| comme paramètre.
+
+      Maintenant implémentons le code pour faire passer nos tests avec succès (Listing \ref{lst:update_index_products_controller}):
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Implémentation de la mise à jour des produits}, label={lst:update_index_products_controller}]
+        # app/controllers/api/v1/products_controller.rb
+        class Api::V1::ProductsController < ApplicationController
+          before_action :authenticate_with_token!, only: %i[create update]
+
+          # ...
+
+          def update
+            product = current_user.products.find(params[:id])
+            if product.update(product_params)
+              render json: product, status: 200, location: [:api, product]
+            else
+              render json: { errors: product.errors }, status: 422
+            end
+          end
+
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez le constater, l'implémentation est assez simple. Nous allons simplement récuéré le produit auprès de l'utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au \verb|before_action|, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
+
+      Si on lance les tests, ils devraient passer:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/controllers/api/v1/products_controller_spec.rb
+        ..............
+
+        Finished in 0.24404 seconds (files took 0.75973 seconds to load)
+        14 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+    \subsection{Suppression des produits}
+
+      Notre dernier arrêt pour les route des produits, sera l'action \verb|destroy|. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La stratégie ici sera assez similaire à l'action de \verb|create| et \verb|update|. Ce qui signifie que nous allons imbriquer la route dans les ressources des utilisateurs, puis récupérer le produit auprès de l'association \verb|user.products| et enfin le supprimer en retournant un code 204.
+
+      Recommençons par ajouter la route:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # config/routes.rb
+        require 'api_constraints'
+
+        Rails.application.routes.draw do
+          # ...
+          namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+            scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+              resources :users, only: %i[show create update destroy] do
+                resources :products, only: %i[create update destroy]
+              end
+              # ...
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Après cela, nous devons ajouter quelques tests comme indiqué dans le listing \ref{lst:create_destroy_products_controller_spec}:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test de suppression des produits}, label={lst:create_destroy_products_controller_spec}]
+        # spec/controllers/api/v1/products_controller_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Api::V1::ProductsController, type: :controller do
+          # ...
+
+          describe 'DELETE #destroy' do
+            before(:each) do
+              @user = FactoryBot.create :user
+              @product = FactoryBot.create :product, user: @user
+              api_authorization_header @user.auth_token
+              delete :destroy, params: { user_id: @user.id, id: @product.id }
+            end
+
+            it { expect(response.response_code).to eq(204) }
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Maintenant, ajoutons simplement le code nécessaire pour faire passer les tests (Listing \ref{lst:create_destroy_products_controller}):
+
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Implémentation de suppression des produits}, label={lst:create_destroy_products_controller}]
+        # app/controllers/api/v1/products_controller.rb
+        class Api::V1::ProductsController < ApplicationController
+          before_action :authenticate_with_token!, only: %i[create update destroy]
+
+          # ...
+
+          def destroy
+            product = current_user.products.find(params[:id])
+            product.destroy
+            head 204
+          end
+
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Comme vous pouvez le voir, l'implémentation fait le travail en trois lignes. Nous pouvons lancer les tests pour nous assurer que tout est bon.
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/controllers/api/v1/products_controller_spec.rb
+        ...............
+
+        Finished in 0.25959 seconds (files took 0.80248 seconds to load)
+        15 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Après cela, nous \textit{commitons} les changements.
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ git add .
+        $ git commit -m "Adds the products create, update and destroy action nested on the user resources"
+        \end{lstlisting}
+      \end{scriptsize}
+
+  \section{Remplir la base de données}
+
+    Avant de continuer avec plus de code, remplissons la base de données avec de fausses données. Nous avons des usines qui devraient faire le travail à notre place. Alors utilisons-les.
+
+    Tout d'abord, nous exécutons la commande de la console Rails à partir du Terminal:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails console
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Nous créons ensuite un tas d'objets produits avec la gemme FactoryBot:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      Loading development environment (Rails 5.2.1)
+      2.5.3 :001 > 20.times { FactoryBot.create :product }
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Oups, vous avez probablement des erreurs qui se sont produites:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      Traceback (most recent call last):
+              3: from (irb):1
+              2: from (irb):1:in `times'
+              1: from (irb):1:in `block in irb_binding'
+      NameError (uninitialized constant FactoryBot)
+      \end{lstlisting}
+    \end{scriptsize}
+
+    C'est parce que nous utilisons la console sur l'environnement de développement. Mais ça n'a pas de sens avec notre Gemfile qui ressemble actuellement à ceci:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # Gemfile
+
+      # ...
+      group :test do
+        gem 'factory_bot_rails'
+        gem 'ffaker', '~> 2.10'
+        gem 'rspec-collection_matchers', '~> 1.1'
+        gem 'rspec-rails', '~> 3.8'
+        gem 'shoulda-matchers'
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Vous voyez où est le problème? Si vous faites attention, vous remarquerez que la gemme \verb|factory_bot_rails| n'est disponible que pour l'environnement de test et non pour le développement. Cela peut être corrigé très rapidement:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # Gemfile
+
+      # ...
+      group :development, :test do
+        gem 'factory_bot_rails'
+        gem 'ffaker', '~> 2.10'
+      end
+
+      group :test do
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Notez que nous avons déplacé la gemme \verb|ffaker| vers le groupe partagé comme nous l'utilisons à l'intérieur des usines que nous décrivons plus haut. Lancez maintenant la commande \verb|bundle| pour mettre à jour les bibliothèques. Alors construisez les produits que vous voulez comme ça:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails console
+      Loading development environment (Rails 5.2.1)
+      2.5.3 :001 > 20.times { FactoryBot.create :product }
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Désormais, vous pourrez créer n'importe quel objet à partir d'usines, comme les utilisateurs, les produits, les commandes, etc.
+
+    \textit{commitons} les changements!
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Updates test environment factory gems to work on development"
+      \end{lstlisting}
+    \end{scriptsize}
+
+  \section{Conlusion}
+
+    Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produit à l'aide de la gemme \textit{active model serializers}. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
 
 
 
