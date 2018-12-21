@@ -1322,7 +1322,8 @@
     Il suffit ensuite d'ajouter l'action à notre contrôlleur (Listing \ref{lst:add_show_to_users_controller_spec}). C'est extrêmement simple:
 
     \begin{scriptsize}
-      \begin{lstlisting}[language=ruby, caption={Le contrôlleur des utilisateurs avec l'action' 'show' (app/controllers/api/v1/users\_controller.rb)}, label={lst:add_show_to_users_controller_spec}]
+      \begin{lstlisting}[language=ruby, caption={Le contrôlleur des utilisateurs avec l'action' 'show'}, label={lst:add_show_to_users_controller_spec}]
+      # app/controllers/api/v1/users\_controller.rb
       class  Api::V1::UsersController < ApplicationController
         def show
           render json: User.find(params[:id])
@@ -4154,7 +4155,7 @@
   Maintenant, vous devriez être satisfait de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n'est pas parfaite. La sortie JSON ressemble au Listing \ref{lst:products_json} or nous voulons un sortie correspondante au Listing \ref{lst:wanted_products_json}.
 
   \begin{scriptsize}
-    \begin{lstlisting}[language=json, caption={Exemple de la sortie JSON actuelle pour la route products}, label={lst:products_json}]
+    \begin{lstlisting}[caption={Exemple de la sortie JSON actuelle pour la route products}, label={lst:products_json}]
     {
       "products": [
           {
@@ -4170,7 +4171,7 @@
   \end{scriptsize}
 
   \begin{scriptsize}
-    \begin{lstlisting}[language=json, caption={Exemple d'une belle sortie JSON pour la route products}, label={lst:wanted_products_json}]
+    \begin{lstlisting}[caption={Exemple d'une belle sortie JSON pour la route products}, label={lst:wanted_products_json}]
     {
       "products": [
           {
@@ -4214,7 +4215,7 @@
 
     Exécutez la commande d'installation du paquet pour installer la gemme ... et c'est tout! Vous devriez être prêt à continuer avec ce tutoriel.
 
-  \section{Serialiser l'utilisateur}
+  \section{Serialiser l'utilisateur}\label{sec:serialize_user}
 
     Nous devons d'abord ajouter un fichier \verb|user_serializer|. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
@@ -4225,8 +4226,185 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Ceci a créé un fichier appelé \verb|user_serializer.rb| sous le répertoire \verb|app/serializers|, qui devrait ressembler à celui de Listing 7.2:
+    Ceci a créé un fichier appelé \verb|user_serializer.rb| sous le répertoire \verb|app/serializers|, qui devrait ressembler à celui de Listing \ref{lst:generated_user_serializer}:
 
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Sérialsateur d'utilisateurs généré}, label={lst:generated_user_serializer}]
+      # app/serializers/user_serializer.rb
+      class UserSerializer < ActiveModel::Serializer
+        attributes :id
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Nous devrions avoir des tests qui échouent. Essayez par vous même:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/controllers/api/v1/users_controller_spec.rb
+      F.F....F.....
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Si vous jetez un coup d'oeil rapide au \verb|users_controller|, vous devez avoir quelque chose correspondant au listing \ref{lst:add_show_to_users_controller_spec} pour l'action \verb|show|. La documentation de la gemme explique ce qui vient de ce passer:
+
+    \begin{displayquote}
+      Rails recherchera automatiquement un sérialiseur nommé \verb|PostSerializer|, et s'il existe, l'utilisera pour sérialiser un \verb|Post|.
+
+      Cela fonctionne aussi avec \verb|respond_with|, qui utilise \verb|to_json| sous le capot. Notez également que toutes les options passées pour rendre \verb|:json| seront passées à votre sérialiseur et disponibles comme \verb|@options| à l'intérieur.
+
+      Cela signifie que peu importe si nous utilisons la méthode \verb|render json| ou \verb|respond_with|. A partir de maintenant, Rails recherchera le sérialiseur correspondant en premier.
+    \end{displayquote}
+
+    Maintenant, de retour aux tests, vous pouvez voir que pour une raison quelconque, la réponse n'est pas tout à fait ce que nous attendons. C'est parce que la gemme réduit la réponse que nous avions précedement définie. Donc pour faire passer les tests, il suffit d'ajouter les attributs à sérialiser dans le \verb|user_serializer.rb| et de mettre à jour le fichier \verb|users_controller_spec.rb|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      # app/serializers/user_serializer.rb
+      class UserSerializer < ActiveModel::Serializer
+        attributes :id, :email, :created_at, :updated_at, :auth_token
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Si vous faites les tests maintenant, ils devraient passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/controllers/api/v1/users_controller_spec.rb
+      .............
+
+      Finished in 0.16712 seconds (files took 0.80637 seconds to load)
+      13 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \textit{Comitons} ces changements et continuons d'avancer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -am "Adds user serializer for customizing the json output"
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Nous pouvons également tester les objets du sérialiseur, comme indiqué dans la documentation, mais je vous laisse le soin de décider si vous voulez tester ou non.
+
+  \section{Sérialiser les produits}
+
+    Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape et comme pour l'utilisateur, nous avons besoin d'un sérialiseur de produit, alors faisons-le:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails generate serializer product
+              create  app/serializers/product_serializer.rb
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l'avons fait avec l'utilisateur dans la Section \ref{sec:serialize_user}:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/serializers/product_serializer.rb
+      class ProductSerializer < ActiveModel::Serializer
+        attributes :id, :title, :price, :published
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et voilà. Ce n'est pas plus compliqué que ça. Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons.
+
+    \textit{Comitons} ces petits changements:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -a "Adds product serializer for custom json output"
+      \end{lstlisting}
+    \end{scriptsize}
+
+  \section{Sérialiser les associations}
+
+    Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c'est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne.
+
+    Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre. Ici, je vais expliquer ce que j'ai trouvé et ce fonctionne pour moi. Ce n'est pas la seule manière de faire, je vous laisse juger si elle vous convient. Dans cette section, nous allons étendre notre API pour gérer l'association produit/utilisateur. Je vais aussi vous expliquer certaines des erreurs courantes dans lesquels vous pouvez tomber.
+
+    Pour résumer, nous avons une association de type \verb|has_many| entre l'utilisateur et le modèle de produit. Regardez le Listing \ref{lst:user_assocations} et Listing \ref{lst:product_assocations}.
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Associations des utilisateurs}, label={lst:user_assocations}]
+      # app/models/user.rb
+      class User < ApplicationRecord
+        has_many :products, dependent: :destroy
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Associations des produits}, label={lst:product_assocations}]
+      # app/models/product.rb
+      class Product < ApplicationRecord
+        belongs_to :user
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    C'est une bonne idée d'intégrer des modèles dans d'autres modèles dans d'autres modèle car cela évite au client de l'API d'executer plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d'étranglement. Permettez-moi d'expliquer, à l'aide d'un cas d'utilisation, l'application réelle telle qu'elle est illustrée dans l'encadré \ref{box:association_embeded}.
+
+    \begin{tcolorbox}{Cas d'utilisation d'un objet incorporé dans une association}\label{box:association_embeded}
+
+      Imaginez un scénario où vous allez chercher les produits dans l'API, mais dans ce cas, vous devez afficher une partie des informations de l'utilisateur.
+
+      Une solution possible serait d'ajouter l'attribut \verb|user_id| au \verb|product_serializer| pour que nous puissions récupérer l'utilisateur correspondant plus tard. Cela peut sembler être une bonne idée, mais si vous vous souciez de la performance, ou si les transactions de votre base de données ne sont pas assez rapides, vous devriez reconsidérer cette approche. Vous devez comprendre que pour chaque produit que vous récupérez, vous allez devoir récupérer son utilisateur correspondant.
+
+      Face à ce problème, je suis venu avec deux alternatives possibles:
+
+      \begin{itemize}
+        \item Une bonne solution à mon avis est d'intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
+          \begin{scriptsize}
+            \begin{lstlisting}
+            {
+              "meta": { "user_ids": [1,2,3] },
+              "products": [
+                ...
+              ]
+            }
+            \end{lstlisting}
+          \end{scriptsize}
+          Cela peut nécessiter une configuration supplémentaire sur le terminal de l'utilisateur, afin que le client puisse récupérer ces utilisateurs à partir de ces \verb|user_ids|.
+        \item Une autre solution, et celle que j'utiliserai ici, est d'incorporer l'objet \verb|user| dans l'objet \verb|product|. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n'a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
+          \begin{scriptsize}
+            \begin{lstlisting}
+            {
+              "products":
+              [
+                  {
+                     "id": 1,
+                     "title": "Digital Portable System",
+                     "price": "25.0277354166289",
+                     "published": false,
+                     "user": {
+                        "id": 2,
+                        "email": "stephany@lind.co.uk",
+                        "created_at": "2014-07-29T03:52:07.432Z",
+                        "updated_at": "2014-07-29T03:52:07.432Z",
+                        "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+                      }
+                  }
+                  ...
+               ]
+            }
+            \end{lstlisting}
+          \end{scriptsize}
+      \end{itemize}
+
+    \end{tcolorbox}
+
+    Donc, selon l'encadré \ref{box:association_embeded}, nous allons incorporer l'objet utilisateur dans le produit. Commençons par ajouter quelques tests. Nous allons simplement modifier les tests des routes \verb|Products#index| et \verb|Products#show| Listing 7.6.
+
+    % http://apionrails.icalialabs.com/book/chapter_seven#_code-product_spec_embeded_user_spec
 
 
 
