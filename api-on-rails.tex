@@ -4147,6 +4147,88 @@
 
     Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produit à l'aide de la gemme \textit{active model serializers}. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
 
+\chapter{Modélisation du JSON avec Active Model Serializers}\label{chapter:7}
+
+  Dans le chapitre \ref{chapter:6}, nous avons ajouté les produits à l'application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de \verb|products_controller|.
+
+  Maintenant, vous devriez être satisfait de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n'est pas parfaite. La sortie JSON ressemble au Listing \ref{lst:products_json} or nous voulons un sortie correspondante au Listing \ref{lst:wanted_products_json}.
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=json, caption={Exemple de la sortie JSON actuelle pour la route products}, label={lst:products_json}]
+    {
+      "products": [
+          {
+              "id": 1,
+              "title": "Tag Case",
+              "price": "98.7761933800815",
+              "published": false,
+              "user_id": 1,
+              "created_at": "2018-12-20T12:47:26.686Z",
+              "updated_at": "2018-12-20T12:47:26.686Z"
+          },
+    \end{lstlisting}
+  \end{scriptsize}
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=json, caption={Exemple d'une belle sortie JSON pour la route products}, label={lst:wanted_products_json}]
+    {
+      "products": [
+          {
+              "id": 1,
+              "title": "Tag Case",
+          },
+    \end{lstlisting}
+  \end{scriptsize}
+
+  Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme \verb|active_model_serializers|. Pour plus d'informations vous pouvez consulter le \href{https://github.com/rails-api/active_model_serializers}{répertoire sur github}. Je vais couvrir quelques points ici, de l'installation à l'implémentation, mais je vous recommande de jetter un oeuil à la documentation.
+
+  Vous pouvez cloner le projet jusqu'à ce point avec:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git clone https://github.com/madeindjs/market_place_api.git -b chapter6
+    \end{lstlisting}
+  \end{scriptsize}
+
+  Commençons une nouvelle branche pour ce chapitre:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git checkout -b chapter7
+    \end{lstlisting}
+  \end{scriptsize}
+
+  \section{Mise en place de la gemme}
+
+    Si vous avez suivi le tutoriel depuis le début, vous devriez déjà avoir la gemme installée. Mais au cas où vous auriez atterri ici, je vais vous guider dans l'installation.
+
+    Ajoutez la ligne suivante à votre \verb|Gemfile|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # Gemfile
+      # ...
+      gem 'active_model_serializers', '~> 0.10.8'
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Exécutez la commande d'installation du paquet pour installer la gemme ... et c'est tout! Vous devriez être prêt à continuer avec ce tutoriel.
+
+  \section{Serialiser l'utilisateur}
+
+    Nous devons d'abord ajouter un fichier \verb|user_serializer|. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails generate serializer user
+          create  app/serializers/user_serializer.rb
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Ceci a créé un fichier appelé \verb|user_serializer.rb| sous le répertoire \verb|app/serializers|, qui devrait ressembler à celui de Listing 7.2:
+
+
+
 
 
 
