@@ -12,6 +12,7 @@
 \usepackage{color}
 \usepackage{xcolor}
 
+
 \hbadness=99999
 \hfuzz=999pt
 
@@ -25,13 +26,19 @@
 }
 \lstset{
   % backgroundcolor = \color{lightgray},
-  rulecolor = \color{lightgray},
   autogobble,% remove leading space indentation
   breaklines=true, % sets automatic line breaking
   captionpos=b, % sets the caption-position to bottom
   frame=single, % adds a frame around the code
   showtabs=false, % show tabs within strings adding particular underscores
   tabsize=2, % sets default tabsize to 2 spaces
+  rulecolor = \color{lightgray},
+  keywordstyle=\bfseries\color{purple!40!black},
+  commentstyle=\itshape\color{gray},
+  % identifierstyle=\color{blue},
+  numberstyle=\tiny\color{green},
+  stringstyle=\color{blue!40!black},
+  title=\lstname,
 }
 
 \begin{document}
@@ -4148,7 +4155,7 @@
 
     Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produit à l'aide de la gemme \textit{active model serializers}. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
 
-\chapter{Modélisation du JSON avec Active Model Serializers}\label{chapter:7}
+\chapter{Modélisation du JSON}\label{chapter:7}
 
   Dans le chapitre \ref{chapter:6}, nous avons ajouté les produits à l'application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de \verb|products_controller|.
 
@@ -4963,6 +4970,254 @@
   \section{Conclusion}
 
     Jusqu'à présent, et grâce à la gemme \href{https://github.com/rails-api/active_model_serializers}{active\_model\_serializers}, c'était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle \verb|Order| qui associera les utilisateurs aux produits.
+
+\chapter{Création des commandes}\label{chapter:8}
+
+  Dans le chapitre \ref{chapter:7} nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir \textit{scaler}\footnote{La scalabilité désigne la capacité d'un produit à s'adapter à une forte  demande (montée en charge)} rapidement et facilement. Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre 3 modèles. Nous devons être assez intelligents pour gérer la sortie JSON que nous fournissons.
+
+  Dans ce chapitre, nous allons faire plusieurs choses que j'énumère ci-dessous:
+
+  \begin{itemize}
+    \item Créer un modèle de commande avec les spécifications correspondantes
+    \item Gérer l'association de sortie json entre l'utilisateur de la commande et les modèles de produits
+    \item Envoyer un email de confirmation avec le récapitulatif de la commande
+  \end{itemize}
+
+  Maintenant que tout est clair, on peut commencer à travailler. Vous pouvez cloner le projet jusqu'à ce point avec:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git clone --branch chapter7 https://github.com/madeindjs/market_place_api
+    \end{lstlisting}
+  \end{scriptsize}
+
+  Créons une nouvelle branche afin de commencer à travailler:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git checkout -b chapter8
+    \end{lstlisting}
+  \end{scriptsize}
+
+  \section{Modélisation de l'ordre}
+
+    Si vous vous souvenez de la Figure \ref{fig:data_model}, le modèle \verb|Order| est associé aux \verb|User| et \verb|Product|. C'est en fait très simple de gérer cela avec Rails. La partie délicate est quand vient la sérialisation de ces objets. J'en parlerai plus en détail à la section 8.3.
+
+    Commençons par créer le modèle de la commande:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails generate model order user:references total:decimal
+      \end{lstlisting}
+    \end{scriptsize}
+
+    La commande ci-dessus va générer le modèle \verb|Order|. Je profite de la méthode des \verb|references| pour créer la clé étrangère correspondante pour que la commande appartienne à un utilisateur. Elle ajoute aussi la directive \verb|belongs_to| dans le modèle des commandes. Migrons la base de données:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rake db:migrate
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Il est maintenant temps de créer quelques tests dans le fichier \verb|order_spec.rb|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Premiers tests du modèle de commande}]
+      # spec/models/order_spec.rb
+      require 'rails_helper'
+
+      RSpec.describe Order, type: :model do
+        let(:order) { FactoryBot.build :order }
+        subject { order }
+
+        it { should respond_to(:total) }
+        it { should respond_to(:user_id) }
+
+        it { should validate_presence_of :user_id }
+        it { should validate_presence_of :total }
+        it { should validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
+
+        it { should belong_to :user }
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    L'implémentation est assez simple:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Validateurs du modèle de commande}]
+      # app/models/order.rb
+      class Order < ApplicationRecord
+        belongs_to :user
+        validates :total, presence: true, numericality: { greater_than_or_equal_to: 0 }
+        validates :user_id, presence: true
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Les tests devraient passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Validateurs du modèle de commande}]
+      $ rspec spec/models/order_spec.rb
+      ......
+
+      Finished in 0.16229 seconds (files took 4.08 seconds to load)
+      6 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \subsection{Les commandes et les produits}
+
+      Nous devons établir l'association entre la commande et le produit. Cela se fait avec une association de plusieurs à plusieurs car de nombreux produits seront placés sur plusieurs commandes et les commandes auront plusieurs produits. Dans ce cas, nous avons donc besoin d'un modèle supplémentaire qui joindra ces deux autres objets et mappera l'association appropriée. Générons ce modèle:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        rails generate model placement order:references product:references
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Migrons la base de données:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rake db:migrate
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Ajoutons d'abord les tests de l'association des commandes aux produits:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Tests de l'association des commandes aux produits}]
+        # spec/models/order_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Order, type: :model do
+          # ...
+
+          it { should have_many(:placements) }
+          it { should have_many(:products).through(:placements) }
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      L'implémentation est la suivante:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Implémentation de l'association des commandes aux produits}]
+        # app/models/order.rb
+        class Order < ApplicationRecord
+          has_many :placements
+          has_many :products, through: :placements
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Il est maintenant temps de se lancer dans l'association \verb|product-placement|:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # spec/models/product_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Product, type: :model do
+          # ...
+          it { should have_many(:placements) }
+          it { should have_many(:orders).through(:placements) }
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Ajoutons le code pour le faire passer:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/product.rb
+        class Product < ApplicationRecord
+          belongs_to :user
+          has_many :placements
+          has_many :orders, through: :placements
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Enfin, et ce n'est pas le moins important, les tests de placement:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # spec/models/placement_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Placement, type: :model do
+          let(:placement) { FactoryBot.build :placement }
+          subject { placement }
+
+          it { should respond_to :order_id }
+          it { should respond_to :product_id }
+
+          it { should belong_to :order }
+          it { should belong_to :product }
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Si vous avez suivi le tutoriel jusqu'à présent, l'implémentation est déjà là, à cause du type de références que nous passons au générateur de commandes du modèle. Nous devrions ajouter l'option inverse au modèle de placement pour chaque appel aux \verb|belongs_to|. Cela donne un petit coup de pouce lors du référencement de l'objet parent.
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/placement.rb
+        class Placement < ApplicationRecord
+          belongs_to :order, inverse_of: :placements
+          belongs_to :product, inverse_of: :placements
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Et maintenant, lançons tous les tests des modèles afin de nous assurer que tout est bon:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/models
+        ...........................................
+
+        Finished in 0.53127 seconds (files took 0.73125 seconds to load)
+        43 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Maintenant que tout est beau et vert, \textit{commitons} les changements:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ git add .
+        $ git commit -m "Associates products and orders with a placements model"
+        \end{lstlisting}
+      \end{scriptsize}
+
+  \section{Commandes de l'utilisateur}
+
+    Il nous manque juste une petite (mais très importante) partie qui est de relier l'utilisateur aux commandes. Alors faisons-le :
+
+    Ouvrez d'abord le fichier \verb|user_model_spec.rb| pour ajouter les tests correspondants:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      # spec/models/user_spec.rb
+      require 'rails_helper'
+
+      RSpec.describe User, type: :model do
+        # ...
+        it { should have_many(:orders) }
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+
+
 
 
 
