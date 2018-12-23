@@ -4847,7 +4847,122 @@
         \end{lstlisting}
       \end{scriptsize}
 
+    \subsection{Moteur de recherche}
 
+      Maintenant que nous avons la base pour le moteur de recherche que nous utiliserons dans l'application, il est temps de mettre en œuvre une méthode de recherche simple mais puissante. Elle s'occupera de gérer toute la logique pour récupérer les enregistrements des produits.
+
+      La méthode consistera à enchaîner tous les \verb|scope| que nous avons construits précédemment et à retourner le résultat. Commençons par ajouter quelques tests:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test du moteur de recherche des produits}, label={lst:product_search_spec}]
+        # spec/models/product_spec.rb
+        require 'rails_helper'
+
+        RSpec.describe Product, type: :model do
+          # ...
+
+          describe '.search' do
+            before(:each) do
+              @product1 = FactoryBot.create :product, price: 100, title: 'Plasma tv'
+              @product2 = FactoryBot.create :product, price: 50, title: 'Videogame console'
+              @product3 = FactoryBot.create :product, price: 150, title: 'MP3'
+              @product4 = FactoryBot.create :product, price: 99, title: 'Laptop'
+            end
+
+            context "when title 'videogame' and '100' a min price are set" do
+              it 'returns an empty array' do
+                search_hash = { keyword: 'videogame', min_price: 100 }
+                expect(Product.search(search_hash)).to be_empty
+              end
+            end
+
+            context "when title 'tv', '150' as max price, and '50' as min price are set" do
+              it 'returns the product1' do
+                search_hash = { keyword: 'tv', min_price: 50, max_price: 150 }
+                expect(Product.search(search_hash)).to match_array([@product1])
+              end
+            end
+
+            context 'when an empty hash is sent' do
+              it 'returns all the products' do
+                expect(Product.search({})).to match_array([@product1, @product2, @product3, @product4])
+              end
+            end
+
+            context 'when product_ids is present' do
+              it 'returns the product from the ids' do
+                search_hash = { product_ids: [@product1.id, @product2.id] }
+                expect(Product.search(search_hash)).to match_array([@product1, @product2])
+              end
+            end
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Nous avons ajouté un tas de code mais je vous assure que l'implémentation est très facile. Vous pouvez aller plus loin et ajouter quelques tests supplémentaires mais, dans mon cas, je n'ai pas trouvé cela nécessaire.
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Implémentation du moteur de recherche des produits}, label={lst:product_search}]
+        # app/models/product.rb
+        class Product < ApplicationRecord
+          # ...
+
+          def self.search(params = {})
+            products = params[:product_ids].present? ? Product.find(params[:product_ids]) : Product.all
+
+            products = products.filter_by_title(params[:keyword]) if params[:keyword]
+            products = products.above_or_equal_to_price(params[:min_price].to_f) if params[:min_price]
+            products = products.below_or_equal_to_price(params[:max_price].to_f) if params[:max_price]
+            products = products.recent(params[:recent]) if params[:recent].present?
+
+            products
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Il est important de noter que nous retournons les produits en tant qu'objet \verb|ActiveRelation| afin de pouvoir enchaîner d'autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l'action \verb|Product#index| pour récupérer les produits à partir de la méthode de recherche:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/models/product.rb
+        # app/controllers/api/v1/products_controller.rb
+        class Api::V1::ProductsController < ApplicationController
+          before_action :authenticate_with_token!, only: %i[create update destroy]
+
+          def index
+            render json: Product.search(params)
+          end
+
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Nous pouvons exécuter l'ensemble de la suite de tests, pour nous assurer que l'application est en bonne santé jusqu'ici:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/
+        .......................................................................
+
+        Finished in 1.49 seconds (files took 6.53 seconds to load)
+        71 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+      \textit{Comitons} ces changements:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ git commit -am "Adds search class method to filter products"
+        \end{lstlisting}
+      \end{scriptsize}
+
+  \section{Conclusion}
+
+    Jusqu'à présent, et grâce à la gemme \href{https://github.com/rails-api/active_model_serializers}{active\_model\_serializers}, c'était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle \verb|Order| qui associera les utilisateurs aux produits.
 
 
 
