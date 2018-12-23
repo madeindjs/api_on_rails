@@ -18,6 +18,8 @@
 
 \pagestyle{headings}
 
+\definecolor{codeborder}{rgb}{0.9,0.9,0.9}
+
 \hypersetup{
     colorlinks,
 %     citecolor=black,
@@ -32,7 +34,7 @@
   frame=single, % adds a frame around the code
   showtabs=false, % show tabs within strings adding particular underscores
   tabsize=2, % sets default tabsize to 2 spaces
-  rulecolor = \color{lightgray},
+  rulecolor = \color{codeborder},
   keywordstyle=\bfseries\color{purple!40!black},
   commentstyle=\itshape\color{gray},
   % identifierstyle=\color{blue},
@@ -1207,7 +1209,7 @@
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Test pour les attributs Devise}, label={lst:user_spec_with_attrs}]
       # spec/models/user_spec.rb
-      require 'rails_helper'
+      # ...
 
       RSpec.describe User, type: :model do
         before { @user = FactoryBot.build(:user) }
@@ -1292,7 +1294,7 @@
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::UsersController, type: :controller do
 
@@ -1304,7 +1306,7 @@
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Le test du contrôlleur des utilisateur  (spec/controllers/api/v1/users\_controller\_spec.rb)}, label={lst:add_show_test_to_users_controller_spec}]
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::UsersController, type: :controller do
         before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1" }
@@ -1492,7 +1494,7 @@
       \begin{lstlisting}[language=ruby, caption={Ajout les tests de création des utilisateurs}, label={lst:add_spec_users_controller_create}]
       # spec/controllers/api/v1/users_controller_spec.rb
 
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::UsersController, type: :controller do
 
@@ -1751,7 +1753,7 @@
       \begin{lstlisting}[language=ruby, caption={Les tests du contrôlleur utilisateur avec les test de destruction}, label={lst:add_spec_users_controller_destroy}]
       # spec/controllers/api/v1/users_controller_spec.rb
 
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::UsersController, type: :controller do
         before(:each) { request.headers['Accept'] = 'application/vnd.marketplace.v1' }
@@ -1854,7 +1856,7 @@
     \begin{lstlisting}[language=ruby, caption={Le fichier de test du contrôlleur avant la refactorisation}, label={lst:users_controller_spec_before_factorization}]
     # spec/controllers/api/v1/users_controller_spec.rb
 
-    require 'rails_helper'
+    # ...
 
     RSpec.describe Api::V1::UsersController, type: :controller do
       before(:each) { request.headers['Accept'] = 'application/vnd.marketplace.v1' }
@@ -2496,7 +2498,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Ajout des Namespaces pour le test du contrôlleur de sessions}, label={lst:add_namespace_for_sessions_controller_spec}]
         # spec/controllers/api/v1/sessions_controller_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Api::V1::SessionsController, type: :controller do
         end
@@ -2510,7 +2512,7 @@
         \begin{scriptsize}
           \begin{lstlisting}[language=ruby, caption={Création des tests du contrôlleur de sessions}, label={lst:add_sessions_controller_spec_for_create}]
           # spec/controllers/api/v1/sessions_controller_spec.rb
-          require 'rails_helper'
+          # ...
 
           RSpec.describe Api::V1::SessionsController, type: :controller do
             describe 'POST #create' do
@@ -2635,7 +2637,7 @@
         \begin{scriptsize}
           \begin{lstlisting}[language=ruby, caption={Création des test de destruction des jetons d'authentification}, label={lst:add_sessions_controller_spec_for_destroy}]
           # spec/controllers/api/v1/sessions_controller_spec.rb
-          require 'rails_helper'
+          # ...
 
           RSpec.describe Api::V1::SessionsController, type: :controller do
             # ...
@@ -2715,7 +2717,7 @@
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
       # spec/controllers/concerns/authenticable_spec.rb
-      require 'rails_helper'
+      # ...
 
       class Authentication < ActionController::Base
         include Authenticable
@@ -2803,7 +2805,7 @@
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, label={lst:add_authenticate_with_token_test}, caption={Test de l'authentification par la méthode de jeton}]
       # spec/controllers/concerns/authenticable_spec.rb
-      require 'rails_helper'
+      # ...
 
       class Authentication < ActionController::Base
         include Authenticable
@@ -2917,7 +2919,7 @@
       \begin{lstlisting}[language=ruby]
       # spec/controllers/api/v1/users_controller_spec.rb
 
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::UsersController, type: :controller do
 
@@ -2976,7 +2978,7 @@
       \begin{lstlisting}[language=ruby]
       # spec/controllers/api/v1/users_controller_spec.rb
 
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::UsersController, type: :controller do
 
@@ -3034,7 +3036,7 @@
       \begin{lstlisting}[language=ruby]
       # spec/controllers/api/v1/users_controller_spec.rb
 
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::UsersController, type: :controller do
         # ...
@@ -3086,7 +3088,7 @@
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Création du test user\_signed\_in?}, label={lst:add_user_signed_in_test}]
       # spec/controllers/concerns/authenticable_spec.rb
-      require 'rails_helper'
+      # ...
 
       # ...
 
@@ -3240,7 +3242,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Le premier test de notre modèle de produit}, label={lst:create_product_spec}]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           let(:product) { FactoryBot.build :product }
@@ -3297,7 +3299,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Ajout de tests de présences pour les produits}, label={lst:add_presence_to_product_test}]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           # ...
@@ -3366,7 +3368,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Ajout du test de l'association utilisateur au model du produit}, label={lst:add_should_belong_to_user}]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           # ...
@@ -3407,7 +3409,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby]
         # spec/models/user_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe User, type: :model do
           # ...
@@ -3462,7 +3464,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test de suppression des produits liés aux utilisateurs}, label={lst:create_destroy_user_spec}]
         # spec/models/user_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe User, type: :model do
           # ...
@@ -3543,7 +3545,7 @@
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Les test du controlleur des produits généré automatqiuement}, label={lst:generate_products_controller_spec}]
       # spec/controllers/api/v1/products_controller_spec.rb
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::ProductsController, type: :controller do
       end
@@ -3559,7 +3561,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test d'affichage d'un produit}, label={lst:products_controller_spec_show}]
         # spec/controllers/api/v1/products_controller_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Api::V1::ProductsController, type: :controller do
           describe 'GET #show' do
@@ -3632,7 +3634,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test de l'affichage des produits}, label={lst:create_index_products_controller_spec}]
         # spec/controllers/api/v1/products_controller_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Api::V1::ProductsController, type: :controller do
 
@@ -3723,7 +3725,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test de la création d'un produit}, label={lst:create_create_products_controller_spec}]
         # spec/controllers/api/v1/products_controller_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Api::V1::ProductsController, type: :controller do
 
@@ -3883,7 +3885,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test de mise à jour des produits}, label={lst:update_index_products_controller_spec}]
         # spec/controllers/api/v1/products_controller_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Api::V1::ProductsController, type: :controller do
           # ...
@@ -4000,7 +4002,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test de suppression des produits}, label={lst:create_destroy_products_controller_spec}]
         # spec/controllers/api/v1/products_controller_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Api::V1::ProductsController, type: :controller do
           # ...
@@ -4414,7 +4416,7 @@
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Test de l'associations des produits pour l'API}, label={lst:spec_product_assocations}]
       # spec/controllers/api/v1/products_controller_spec.rb
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Api::V1::ProductsController, type: :controller do
         describe 'GET #show' do
@@ -4475,7 +4477,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test de présence des identifiants des produits dans l'objet de l'utilisateur}, label={lst:product_ids_users_controller_spec}]
         # spec/controllers/api/v1/users_controller_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Api::V1::UsersController, type: :controller do
           describe 'GET #show' do
@@ -4522,7 +4524,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Tests du paramètre d'identifiants des produits pour l'affichage de l'index des produits}, label={lst:parameter_products_controller_spec}]
         # spec/controllers/api/v1/products_controller_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Api::V1::ProductsController, type: :controller do
           # ...
@@ -4632,7 +4634,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test du filtrage des produits par titre}, label={lst:product_filter_by_title_spec}]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           # ...
@@ -4694,7 +4696,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test du filtrage des produits par prix supérieur ou égal}, label={lst:product_above_or_equal_to_price_spec}]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           # ...
@@ -4746,7 +4748,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test du filtrage des produits par prix inférieur ou égal}, label={lst:product_below_or_equal_to_price_spec}]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           # ...
@@ -4802,7 +4804,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test du filtrage des produits par date de création}, label={lst:product_recent_spec}]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           # ...
@@ -4863,7 +4865,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Test du moteur de recherche des produits}, label={lst:product_search_spec}]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           # ...
@@ -5024,7 +5026,7 @@
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Premiers tests du modèle de commande}]
       # spec/models/order_spec.rb
-      require 'rails_helper'
+      # ...
 
       RSpec.describe Order, type: :model do
         let(:order) { FactoryBot.build :order }
@@ -5090,7 +5092,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby, caption={Tests de l'association des commandes aux produits}]
         # spec/models/order_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Order, type: :model do
           # ...
@@ -5119,7 +5121,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby]
         # spec/models/product_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Product, type: :model do
           # ...
@@ -5149,7 +5151,7 @@
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby]
         # spec/models/placement_spec.rb
-        require 'rails_helper'
+        # ...
 
         RSpec.describe Placement, type: :model do
           let(:placement) { FactoryBot.build :placement }
@@ -5204,9 +5206,9 @@
     Ouvrez d'abord le fichier \verb|user_model_spec.rb| pour ajouter les tests correspondants:
 
     \begin{scriptsize}
-      \begin{lstlisting}[language=bash]
+      \begin{lstlisting}[language=ruby]
       # spec/models/user_spec.rb
-      require 'rails_helper'
+      # ...
 
       RSpec.describe User, type: :model do
         # ...
@@ -5215,6 +5217,236 @@
       end
       \end{lstlisting}
     \end{scriptsize}
+
+    Et puis il suffit d'ajouter l'implémentation qui est très simple:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/models/user.rb
+      class User < ApplicationRecord
+        # ...
+        has_many :orders, dependent: :destroy
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Vous pouvez exécuter les tests pour les deux fichiers, et ils devraient tous passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      $ rspec spec/models/{order,user}_spec.rb
+      ....................
+
+      Finished in 0.14279 seconds (files took 0.72848 seconds to load)
+      20 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \textit{Comitons} ces changements et continuons d'avancer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      $ git add .
+      $ git commit -m 'Adds user order has many relation'
+      \end{lstlisting}
+    \end{scriptsize}
+
+  \section{Exposer le modèle d'utilisateur}
+
+    Il est maintenant temps de préparer le contrôleur de commandes à exposer la bonne commande. Si vous vous souvenez des chapitres précédents ou l'on avait utilisé \href{https://github.com/rails-api/active_model_serializers}{ActiveModelSerializers} vous devez vous rappeler que c'était vraiment facile.
+
+    \textquote{Mais attendez, que sommes-nous censés exposer?} vous vous demandez peut-être. Vous avez raison! Définissons d'abord quelles actions nous allons mettre en place:
+
+    \begin{itemize}
+      \item Une action d'indexation pour récupérer les commandes des utilisateurs en cours
+      \item Une action show pour récupérer une commande particulière de l'utilisateur courant
+      \item Une action de création pour passer réellement la commande
+    \end{itemize}
+
+
+    Commençons par l'action \verb|index|. Nous devons d'abord créer le contrôleur de commandes:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      $ rails g controller api/v1/orders
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Jusqu'ici, et avant de commencer à taper du code, nous devons nous demander, \textquote{Est-ce que je dois laisser les routes de ma commande imbriqués dans le UsersController ou bien je dois les isoler?}. La réponse est vraiment simple. Je dirais que cela dépend de la quantité d'informations dans ce cas en particulier que vous voulez exposer au développeur Pas du point de vue de la sortie JSON mais au niveau de l'URI.
+
+    Dans notre cas, je vais emboîter les routes, parce que j'aime donner ce type d'information aux développeurs. Je pense que cela donne plus de contexte à la requête elle-même.
+
+    Commençons par quelques tests:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Test de l'affichage des commandes}]
+      # spec/controllers/api/v1/orders_controller_spec.rb
+      # ...
+
+      RSpec.describe Api::V1::OrdersController, type: :controller do
+        describe 'GET #index' do
+          before(:each) do
+            current_user = FactoryBot.create :user
+            api_authorization_header current_user.auth_token
+            4.times { FactoryBot.create :order, user: current_user }
+            get :index, params: { user_id: current_user.id }
+          end
+
+          it 'returns 4 order records from the user' do
+            expect(json_response).to have(4).items
+          end
+
+          it { expect(response.response_code).to eq(200) }
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Si nous exécutons la suite de tests maintenant, comme vous pouvez vous y attendre, les deux tests échoueront. C'est normal car nous n'avons même pas défini ni les bonnes routes ni l'action. Commençons donc par ajouter les routes:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # config/routes.rb
+      # ...
+
+      Rails.application.routes.draw do
+        # ...
+        namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+          scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+            resources :users, only: %i[show create update destroy] do
+              # ...
+              resources :orders, only: [:index]
+            end
+            # ...
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Il est maintenant temps d'implémenter le contrôleur des commandes:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/controllers/api/v1/orders_controller.rb
+      class Api::V1::OrdersController < ApplicationController
+        before_action :authenticate_with_token!
+
+        def index
+          render json: current_user.orders
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et maintenant nos tests devraient passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      rspec spec/controllers/api/v1/orders_controller_spec.rb
+      ..
+
+      Finished in 0.07943 seconds (files took 0.7232 seconds to load)
+      2 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Nous aimons nos commits très petits. Alors \textit{commitons} dès maintenant:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      rspec spec/controllers/api/v1/orders_controller_spec.rb
+      ..
+
+      Finished in 0.07943 seconds (files took 0.7232 seconds to load)
+      2 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \subsection{Afficher une seule commande}
+
+      Comme vous pouvez déjà l'imaginer, cette route est très facile. Nous n'avons qu'à mettre en place quelques configurations (routes, action du contrôleur) et ce sera tout pour cette section.
+
+      Commençons par ajouter quelques tests:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby, caption={Test de l'affichage d'une commande}]
+        # spec/controllers/api/v1/orders_controller_spec.rb
+        # ...
+
+        RSpec.describe Api::V1::OrdersController, type: :controller do
+          # ...
+
+          describe 'GET #show' do
+            before(:each) do
+              current_user = FactoryBot.create :user
+              api_authorization_header current_user.auth_token
+              @order = FactoryBot.create :order, user: current_user
+              get :show, params: { user_id: current_user.id, id: @order.id }
+            end
+
+            it 'returns the user order record matching the id' do
+              expect(json_response[:id]).to eql @order.id
+            end
+
+            it { expect(response.response_code).to eq(200) }
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Ajoutons l'implémentation pour faire passer nos tests. Sur le fichier \verb|routes.rb| ajoutez l'action \verb|show| aux routes des commandes:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # config/routes.rb
+        # ...
+
+        Rails.application.routes.draw do
+          # ...
+          resources :orders, only: [:index, :show]
+          # ...
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Et l'implémentation devrait ressembler à ceci:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=ruby]
+        # app/controllers/api/v1/orders_controller.rb
+        class Api::V1::OrdersController < ApplicationController
+          # ...
+
+          def show
+            render json: current_user.orders.find(params[:id])
+          end
+        end
+        \end{lstlisting}
+      \end{scriptsize}
+
+      Tous nos tests passent désormais:
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ rspec spec/controllers/api/v1/orders_controller_spec.rb
+        ....
+
+        Finished in 0.12767 seconds (files took 0.73322 seconds to load)
+        4 examples, 0 failures
+        \end{lstlisting}
+      \end{scriptsize}
+
+
+      \textit{Commitons} les changements et passons à l'action \verb|Product#create|.
+
+      \begin{scriptsize}
+        \begin{lstlisting}[language=bash]
+        $ git add .
+        $ g commit -m "Adds the show action for order"
+        \end{lstlisting}
+      \end{scriptsize}
 
 
 
