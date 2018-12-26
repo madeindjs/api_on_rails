@@ -5722,177 +5722,365 @@
 
   \section{Customiser l'affichage JSON des commandes}
 
-  Maintenant que nous avons construit les routs nécessaires pour les commandes nous pouvons personnaliser les informations que nous voulons rendre sur la sortie JSON pour chaque commande.
+    Maintenant que nous avons construit les routs nécessaires pour les commandes nous pouvons personnaliser les informations que nous voulons rendre sur la sortie JSON pour chaque commande.
 
-  Si vous vous souvenez du chaptitre \ref{chapter:7}, nous allons ici aussi utiliser \textit{Active Model Serializers}. Commençons donc par créer un séraliseur pour les commandes:
+    Si vous vous souvenez du chaptitre \ref{chapter:7}, nous allons ici aussi utiliser \textit{Active Model Serializers}. Commençons donc par créer un séraliseur pour les commandes:
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=bash]
-    $ rails generate serializer order
-    \end{lstlisting}
-  \end{scriptsize}
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails generate serializer order
+      \end{lstlisting}
+    \end{scriptsize}
 
-  Ensuite, ouvrons le fichier \verb|order_serializer.rb| qui doit ressembler à ça:
+    Ensuite, ouvrons le fichier \verb|order_serializer.rb| qui doit ressembler à ça:
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=bash]
-    # app/serializers/order_serializer.rb
-    class OrderSerializer < ActiveModel::Serializer
-      attributes :id
-    end
-    \end{lstlisting}
-  \end{scriptsize}
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      # app/serializers/order_serializer.rb
+      class OrderSerializer < ActiveModel::Serializer
+        attributes :id
+      end
+      \end{lstlisting}
+    \end{scriptsize}
 
 
-  Nous allons ajouter l'association des produits et l'attribut \verb|total| à la sortie JSON. Pour nous assurer que tout fonctionne bien, et comme d'habitude, nous ferons quelques tests. Afin d'éviter la duplication de code sur les tests, je vais juste ajouter une spécification pour le spectacle et m'assurer que les données supplémentaires sont rendues. C'est parce que j'utilise le même sérialiseur chaque fois qu'un objet d'ordre est analysé à json, donc dans ce cas, je dirais qu'il est très bien:
+    Nous allons ajouter l'association des produits et l'attribut \verb|total| à la sortie JSON. Pour nous assurer que tout fonctionne bien, et comme d'habitude, nous ferons quelques tests. Afin d'éviter la duplication de code sur les tests, je vais juste ajouter une spécification pour le spectacle et m'assurer que les données supplémentaires sont rendues. C'est parce que j'utilise le même sérialiseur chaque fois qu'un objet d'ordre est analysé à json, donc dans ce cas, je dirais qu'il est très bien:
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=ruby]
-    # spec/controllers/api/v1/orders_controller_spec.rb
-    # ...
-
-    RSpec.describe Api::V1::OrdersController, type: :controller do
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/controllers/api/v1/orders_controller_spec.rb
       # ...
 
-      describe 'GET #show' do
-        before(:each) do
-          current_user = FactoryBot.create :user
-          api_authorization_header current_user.auth_token
-          @order = FactoryGirl.create :order, user: current_user, product_ids: [@product.id]
-          get :show, params: { user_id: current_user.id, id: @order.id }
-        end
+      RSpec.describe Api::V1::OrdersController, type: :controller do
+        # ...
 
-        it 'returns the user order record matching the id' do
-          expect(json_response[:id]).to eql @order.id
-        end
+        describe 'GET #show' do
+          before(:each) do
+            current_user = FactoryBot.create :user
+            api_authorization_header current_user.auth_token
+            @order = FactoryGirl.create :order, user: current_user, product_ids: [@product.id]
+            get :show, params: { user_id: current_user.id, id: @order.id }
+          end
 
-        it 'includes the total for the order' do
-          expect(json_response[:total]).to eql @order.total.to_s
-        end
+          it 'returns the user order record matching the id' do
+            expect(json_response[:id]).to eql @order.id
+          end
 
-        it 'includes the products on the order' do
-          expect(json_response[:products]).to have(1).item
+          it 'includes the total for the order' do
+            expect(json_response[:total]).to eql @order.total.to_s
+          end
+
+          it 'includes the products on the order' do
+            expect(json_response[:products]).to have(1).item
+          end
+
+          # ...
         end
 
         # ...
       end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Ces tests devraient échouer mais ils sont faciles à faire passer sur le sérialiseur de commande:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      # app/serializers/order_serializer.rb
+      class OrderSerializer < ActiveModel::Serializer
+        attributes :id, :total
+        has_many :products
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et désormais nos tests devraient passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/controllers/api/v1/orders_controller_spec.rb
+      ........
+
+      Finished in 0.22865 seconds (files took 0.70506 seconds to load)
+      8 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Si vous vous souvenez du chapitre \ref{chapter:7} et de l'encadré \ref{box:association_embeded}, nous avons intégré l'utilisateur dans le produit. Mais ici, cela ne sert à rien sachant nous connaissons toujours l'utilisateur car il s'agit de l'utilisateur courant. Il n'y a pas lieu de l'ajouter car ce n'est pas efficace. Corrigeons cela en ajoutant un nouveau sérialiseur:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails g serializer order_product
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Nous voulons que les informations sur les produits restent cohérentes avec celles que nous avons actuellement de sorte que nous puissions simplement en hériter le comportement comme cela:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/serializers/order_product_serializer.rb
+      class OrderProductSerializer < OrderSerializer
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    De cette façon, les deux sérialiseurs seront maintenant lié et il suffira d'ajouter un champ à \verb|ProductSerializer| et il sera ajouté à \verb|OrderProductSerializer|. Maintenant, nous voulons supprimer l'utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela\footnote{Pour plus d'informations, jettez un oeuil à la documentation de  ActiveModelSerializer}:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/serializers/order_product_serializer.rb
+      class OrderProductSerializer < ProductSerializer
+        def include_user?
+          false
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Après avoir fait ce changement, nous devons dire au \verb|order_serializer| d'utiliser le serializer que nous venons de créer en passant simplement une option à l'association \verb|has_many| sur le \verb|order_serializer|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/serializers/order_product_serializer.rb
+      class OrderProductSerializer < ProductSerializer
+        def include_user?
+          false
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et nos tests devraient continuer à passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/controllers/api/v1/orders_controller_spec.rb
+      ........
+
+      Finished in 0.24024 seconds (files took 0.70072 seconds to load)
+      8 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \textit{Commitons} nos changements et passons à la section suivante:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds a custom order product serializer to remove the user association"
+      \end{lstlisting}
+    \end{scriptsize}
+
+  \section{Envoyer un email de confirmation}
+
+    La dernière section de ce chapitre sera d'envoyer un email de confirmation à l'utilisateur qui vient de créer une commande. Si vous voulez sauter cette étape et passer au chapitre \ref{chapter:9} suivant, allez-y! Cette section est plus à un échauffement.
+
+    Vous êtes peut-être familier avec la manipulation d'email avec Rails, je vais essayer de rendre cela simple et rapide:
+
+    Nouscommençons par créer le \verb|order_mailer|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails generate mailer order_mailer
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Pour faciliter le test de l'email, nous utiliserons une gemme appelée \href{https://github.com/email-spec/email-spec}{email\_spec}. Elle inclut un tas de méthodes utiles pour tester les emails.
+
+    Donc d'abord ajoutons la gemme au \verb|Gemfile|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # Gemfile
+      # ...
+
+      group :test do
+        gem 'rspec-collection_matchers', '~> 1.1'
+        gem 'rspec-rails', '~> 3.8'
+        gem "email_spec"
+        gem 'shoulda-matchers'
+      end
 
       # ...
-    end
-    \end{lstlisting}
-  \end{scriptsize}
+      \end{lstlisting}
+    \end{scriptsize}
 
-  Ces tests devraient échouer mais ils sont faciles à faire passer sur le sérialiseur de commande:
+    Lancez maintenant la commande \verb|bundle install| pour installer toutes les dépendances. Je vais suivre \href{https://github.com/email-spec/email-spec#rspec-31}{les étapes de documentation} pour configurer la gemme. Lorsque vous avez terminé, votre fichier \verb|rails_helper.rb| devrait ressembler à ça:
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=bash]
-    # app/serializers/order_serializer.rb
-    class OrderSerializer < ActiveModel::Serializer
-      attributes :id, :total
-      has_many :products
-    end
-    \end{lstlisting}
-  \end{scriptsize}
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/rails_helper.rb
 
-  Et désormais nos tests devraient passer:
+      require File.expand_path('../config/environment', __dir__)
+      ENV['RAILS_ENV'] ||= 'test'
+      # Prevent database truncation if the environment is production
+      abort('The Rails environment is running in production mode!') if Rails.env.production?
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=bash]
-    $ rspec spec/controllers/api/v1/orders_controller_spec.rb
-    ........
+      require 'spec_helper'
+      require 'email_spec'
+      require 'email_spec/rspec'
+      require 'rspec/rails'
 
-    Finished in 0.22865 seconds (files took 0.70506 seconds to load)
-    8 examples, 0 failures
-    \end{lstlisting}
-  \end{scriptsize}
+      # ...
+      \end{lstlisting}
+    \end{scriptsize}
 
-  Si vous vous souvenez du chapitre \ref{chapter:7} et de l'encadré \ref{box:association_embeded}, nous avons intégré l'utilisateur dans le produit. Mais ici, cela ne sert à rien sachant nous connaissons toujours l'utilisateur car il s'agit de l'utilisateur courant. Il n'y a pas lieu de l'ajouter car ce n'est pas efficace. Corrigeons cela en ajoutant un nouveau sérialiseur:
+    Maintenant, nous pouvons ajouter quelques tests pour les mails de commandes que nous venons de créer:
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=bash]
-    $ rails g serializer order_product
-    \end{lstlisting}
-  \end{scriptsize}
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Test des mails de commande}]
+      # spec/mailers/order_mailer_spec.rb
+      require 'rails_helper'
 
-  Nous voulons que les informations sur les produits restent cohérentes avec celles que nous avons actuellement de sorte que nous puissions simplement en hériter le comportement comme cela:
+      RSpec.describe OrderMailer, type: :mailer do
+        include Rails.application.routes.url_helpers
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=ruby]
-    # app/serializers/order_product_serializer.rb
-    class OrderProductSerializer < OrderSerializer
-    end
-    \end{lstlisting}
-  \end{scriptsize}
+        describe '.send_confirmation' do
+          before(:all) do
+            @user = FactoryBot.create :user
+            @order = FactoryBot.create :order, user: @user
+            @order_mailer = OrderMailer.send_confirmation(@order)
+          end
 
-  De cette façon, les deux sérialiseurs seront maintenant lié et il suffira d'ajouter un champ à \verb|ProductSerializer| et il sera ajouté à \verb|OrderProductSerializer|. Maintenant, nous voulons supprimer l'utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela\footnote{Pour plus d'informations, jettez un oeuil à la documentation de  ActiveModelSerializer}:
+          it 'should be set to be delivered to the user from the order passed in' do
+            expect(@order_mailer).to deliver_to(@user.email)
+          end
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=ruby]
-    # app/serializers/order_product_serializer.rb
-    class OrderProductSerializer < ProductSerializer
-      def include_user?
-        false
+          it 'should be set to be send from no-reply@marketplace.com' do
+            expect(@order_mailer).to deliver_from('no-reply@marketplace.com')
+          end
+
+          it "should contain the user's message in the mail body" do
+            expect(@order_mailer).to have_body_text(/Order: ##{@order.id}/)
+          end
+
+          it 'should have the correct subject' do
+            expect(@order_mailer).to have_subject(/Order Confirmation/)
+          end
+
+          it 'should have the products count' do
+            expect(@order_mailer).to have_body_text(/You ordered #{@order.products.count} products:/)
+          end
+        end
       end
-    end
-    \end{lstlisting}
-  \end{scriptsize}
+      \end{lstlisting}
+    \end{scriptsize}
 
-  Après avoir fait ce changement, nous devons dire au \verb|order_serializer| d'utiliser le serializer que nous venons de créer en passant simplement une option à l'association \verb|has_many| sur le \verb|order_serializer|:
+    J'ai simplement copié/collé les tests de la documentation et je l'ai adapté à nos besoins. Nous devons maintenant nous assurer que ces tests passent.
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=ruby]
-    # app/serializers/order_product_serializer.rb
-    class OrderProductSerializer < ProductSerializer
-      def include_user?
-        false
+    Tout d'abord, nous ajoutons la méthode \verb|OrderMailer#send_confirmation|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Implémetation de la méthode pour envoyer un mail lors de la création d'une commande}]
+      # app/mailers/order_mailer.rb
+      class OrderMailer < ApplicationMailer
+        default from: 'no-reply@marketplace.com'
+        def send_confirmation(order)
+          @order = order
+          @user = @order.user
+          mail to: @user.email, subject: 'Order Confirmation'
+        end
       end
-    end
-    \end{lstlisting}
-  \end{scriptsize}
+      \end{lstlisting}
+    \end{scriptsize}
 
-  Et nos tests devraient continuer à passer:
+    Après avoir ajouté ce code, nous devons maintenant ajouter les vues correspondantes. C'est une bonne pratique d'inclure une version texte (Listing \ref{lst:order_mailer_send_confirmation_text}) en plus de la version HTML (Listing \ref{lst:order_mailer_send_confirmation_html}).
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=bash]
-    $ rspec spec/controllers/api/v1/orders_controller_spec.rb
-    ........
+    \begin{scriptsize}
+      \begin{lstlisting}[caption={Vue de l'email de confirmation de commande au format texte}, label={lst:order_mailer_send_confirmation_text}]
+      <%# app/views/order_mailer/send_confirmation.txt.erb %>
+      Order: #<%= @order.id %>
+      You ordered <%= @order.products.count %> products:
+      <% @order.products.each do |product| %>
+        <%= product.title %> - <%= number_to_currency product.price %>
+      <% end %>
+      \end{lstlisting}
+    \end{scriptsize}
 
-    Finished in 0.24024 seconds (files took 0.70072 seconds to load)
-    8 examples, 0 failures
-    \end{lstlisting}
-  \end{scriptsize}
+    \begin{scriptsize}
+      \begin{lstlisting}[language=html, caption={Vue de l'email de confirmation de commande au format HTML}, label={lst:order_mailer_send_confirmation_html}]
+      <!-- app/views/order_mailer/send_confirmation.html.erb -->
+      <h1>Order: #<%= @order.id %></h1>
+      <p>You ordered <%= @order.products.count %> products:</p>
+      <ul>
+        <% @order.products.each do |product| %>
+          <li><%= product.title %> - <%= number_to_currency product.price %></li>
+        <% end %>
+      </ul>
+      \end{lstlisting}
+    \end{scriptsize}
 
-  \textit{Commitons} nos changements et passons à la section suivante:
+    Maintenant, nos tests devraient passer:
 
-  \begin{scriptsize}
-    \begin{lstlisting}[language=bash]
-    $ git add .
-    $ git commit -m "Adds a custom order product serializer to remove the user association"
-    \end{lstlisting}
-  \end{scriptsize}
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/mailers/order_mailer_spec.rb
+      .....
 
+      Finished in 0.24919 seconds (files took 0.75369 seconds to load)
+      5 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
 
+    Et maintenant, il suffit d'appeler la méthode \verb|OrderMailer#send_confirmation| dans l'action de création sur le contrôleur des ordres:
 
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/controllers/api/v1/orders_controller.rb
+      class Api::V1::OrdersController < ApplicationController
+        # ...
 
+        def create
+          order = current_user.orders.build(order_params)
 
+          if order.save
+            OrderMailer.send_confirmation(order).deliver
+            render json: order, status: 201, location: [:api, current_user, order]
+          else
+            render json: { errors: order.errors }, status: 422
+          end
+        end
 
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
 
+    Pour être sûr que nous n'avons rien cassé, lançons tous les tests:
 
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec
+      ..................................................................................................
 
+      Finished in 1.82 seconds (files took 0.78532 seconds to load)
+      98 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
 
+    \textit{Commitons} tout ce que nous venons de faire pour terminer cette section:
 
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds order confirmation mailer"
+      \end{lstlisting}
+    \end{scriptsize}
 
+  \section{Conclusion}
 
+   Ca y est! Vous avez réussi! Vous pouvez vous applaudir. Je sais que ça a été long mais c'est presque finit, croyez moi.
 
+   Sur les chapitres à venir, nous continuerons à travailler sur le modèle de commande pour ajouter des validations lors de la passation d'une commande. Certains scénarios sont:
 
+   \begin{itemize}
+     \item Que se passe-t-il lorsque les produits ne sont pas disponibles?
+     \item Diminuer la quantité du produit en cours lors de la passation d'une commande
+   \end{itemize}
 
+   Le prochain chapitre sera court, mais il est très important pour la santé l'application. Alors ne le sautez pas.
 
-
-
-
-
-
-
+\chapter{}\label{chapter:9}
 
 
 
