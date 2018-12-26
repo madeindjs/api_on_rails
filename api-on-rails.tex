@@ -6080,7 +6080,32 @@
 
    Le prochain chapitre sera court, mais il est très important pour la santé l'application. Alors ne le sautez pas.
 
-\chapter{}\label{chapter:9}
+\chapter{Améliorer les commandes}\label{chapter:9}
+
+  Dans le chapitre \ref{chapter:8}, nous avons amélioré notre API pour passer des commandes et envoyer un e-mail de confirmation à l'utilisateur (juste pour améliorer l'expérience utilisateur). Ce chapitre va s'occuper de quelques validations sur le modèle de commande afin de s'assurer qu'elle est valide. C'est-à-dire:
+
+  \begin{itemize}
+    \item Diminuer la quantité du produit en cours lors de la passation d'une commande
+    \item Que se passe-t-il lorsque les produits ne sont pas disponibles?
+  \end{itemize}
+
+  Nous aurons aussi besoin de mettre à jour un peu la sortie JSON pour les commandes Mais ne \textit{spoilons} pas la suite.
+
+  Maintenant que tout est clair, on peut mettre les mains dans le cambouis. Vous pouvez cloner le projet jusqu'à ce point avec:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git clone https://github.com/madeindjs/market_place_api.git -b chapter8
+    \end{lstlisting}
+  \end{scriptsize}
+
+  Créons une branche pour commencer
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git checkout -b chapter9
+    \end{lstlisting}
+  \end{scriptsize}
 
 
 
