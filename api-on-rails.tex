@@ -5511,7 +5511,7 @@
       Ensuite, la mise en œuvre qui est facile:
 
       \begin{scriptsize}
-        \begin{lstlisting}[language=ruby]
+        \begin{lstlisting}[language=ruby, caption={Création de l'action de création d'une commande}, label={lst:orders_controller_create}]
         # app/controllers/api/v1/orders_controller.rb
         class Api::V1::OrdersController < ApplicationController
           # ...
@@ -6106,6 +6106,294 @@
     $ git checkout -b chapter9
     \end{lstlisting}
   \end{scriptsize}
+
+  \section{Diminution de la quantité de produit}
+
+    Dans cette partie nous travaillerons sur la mise à jour de la quantité du produit pour nous assurer que chaque commande livrera le produit réel. Actuellement, le modèle de produit n'a pas d'attribut de quantité, alors faisons-le:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails generate migration add_quantity_to_products quantity:integer
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Attendez! N'exécutez pas encore cette migrations! Nous allons y apporter une petite modification. Comme bonne pratique, j'aime ajouter des valeurs par défaut pour la base de données juste pour être sûr de ne pas tout gâcher avec des valeurs nulles. C'est un cas parfait!
+
+    Votre fichier de migration devrait ressembler à ceci:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # db/migrate/20181227092237_add_quantity_to_products.rb
+      class AddQuantityToProducts < ActiveRecord::Migration[5.2]
+        def change
+          add_column :products, :quantity, :integer, default: 0
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant nous pouvons lancer la migration:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rake db:migrate
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Il est maintenant temps de diminuer la quantité du \verb|Product| une fois l' \verb|Order| passée. La première chose qui vous vient probablement à l'esprit est de le faire dans le modèle \verb|Order| et c'est une erreur fréquente. Lorsque vous travaillez avec des associations Many-to-Many, nous oublions totalement le modèle de jointure qui dans ce cas est \verb|Placement|. Le \verb|Placement| est un meilleur endroit pour gérer cela car nous avons accès à la commande et au produit. Ainsi, nous pouvons facilement diminuer le stock du produit.
+
+    Avant de commencer à implémenter le code, nous devons changer la façon dont nous gérons la création de la commande car nous devons maintenant accepter une quantité pour chaque produit. Si vous vous souvenez de Listing \ref{lst:orders_controller_create}, nous attendons un tableau d'identifiants de produits. Je vais essayer de garder les choses simples et je vais envoyer un tableau de tableaux où la première position de chaque tableau interne sera l'identifiant du produit et la seconde la quantité.
+
+    Un exemple rapide serait quelque chose comme cela:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      product_ids_and_quantities = [
+        [1,4],
+        [3,5]
+      ]
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Ça va être difficile, alors restez avec moi. Construisons d'abord des tests unitaires:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/models/order_spec.rb
+      require 'rails_helper'
+
+      RSpec.describe Order, type: :model do
+        # ...
+
+        describe '#build_placements_with_product_ids_and_quantities' do
+          before(:each) do
+            product_1 = FactoryBot.create :product, price: 100, quantity: 5
+            product_2 = FactoryBot.create :product, price: 85, quantity: 10
+
+            @product_ids_and_quantities = [[product_1.id, 2], [product_2.id, 3]]
+          end
+
+          it 'builds 2 placements for the order' do
+            expect { order.build_placements_with_product_ids_and_quantities(@product_ids_and_quantities) }.to change { order.placements.size }.from(0).to(2)
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et maintenant l'implémentation
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/models/order.rb
+      class Order < ApplicationRecord
+        # ...
+
+        # @param product_ids_and_quantities [Array] something like this
+        #        `[[product_1.id, 2], [product_2.id, 3]]`. Where first item is
+        #        `product_id` and the second is the quantity
+        # @yield [Placement] placement build
+        def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
+          product_ids_and_quantities.each do |product_id_and_quantity|
+            id, quantity = product_id_and_quantity # [1,5]
+            placement = placements.build(product_id: id)
+            yield placement if block_given?
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et maintenant, si nous lançons les tests, ils devraient passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      $ rspec spec/models/order_spec.rb
+      ........
+
+      Finished in 0.33759 seconds (files took 3.54 seconds to load)
+      8 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Les \verb|build_placements_with_product_ids_and_quantities| construiront les objets \verb|Placement| et une fois que nous déclencherons la méthode de sauvegarde de l'ordre, tout sera inséré dans la base de données. Une dernière étape avant de valider ceci est de mettre à jour \verb|orders_controller_spec| avec son implémentation.
+
+    Tout d'abord, nous mettons à jour le fichier \verb|orders_controller_spec|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/controllers/api/v1/orders_controller_spec.rb
+      require 'rails_helper'
+
+      RSpec.describe Api::V1::OrdersController, type: :controller do
+        # ...
+
+        describe 'POST #create' do
+          before(:each) do
+            current_user = FactoryBot.create :user
+            api_authorization_header current_user.auth_token
+
+            product_1 = FactoryBot.create :product
+            product_2 = FactoryBot.create :product
+            order_params = {
+              product_ids_and_quantities: [[product_1.id, 2], [product_2.id, 3]]
+            }
+            post :create, params: { user_id: current_user.id, order: order_params }
+          end
+
+          it 'embeds the two product objects related to the order' do
+            expect(json_response[:products].size).to eql 2
+          end
+
+          # ...
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Nous devons ensuite mettre un peu à jour notre controlleur des commandes:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/controllers/api/v1/orders_controller.rb
+      class Api::V1::OrdersController < ApplicationController
+        # ...
+
+        def create
+          order = Order.create! user: current_user
+          order.build_placements_with_product_ids_and_quantities(params[:order][:product_ids_and_quantities])
+
+          if order.save
+            order.reload # need to reload associations
+            OrderMailer.send_confirmation(order).deliver
+            render json: order, status: 201, location: [:api, current_user, order]
+          else
+            render json: { errors: order.errors }, status: 422
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Notez que j'ai aussi supprimé la méthode \verb|OrdersController#order_params| qui devient inutile.
+
+    Enfin et surtout, nous devons mettre à jour le fichier d'usine des produits afin d'attribuer une valeur de quantité élevée pour avoir au moins quelques produits en stock.
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/factories/products.rb
+      FactoryBot.define do
+        factory :product do
+          title { FFaker::Product.product_name }
+          price { rand * 100 }
+          published { false }
+          user
+          quantity { 5 }
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \textit{Commitons} nos changements avant d'aller plus loin:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Allows the order to be placed along with product quantity"
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Avez-vous remarqué que nous ne mettons pas à jour la quantité des produits? Actuellement, il n'y a aucun moyen d'en faire le suivi. Cela peut être corrigé très facilement, en ajoutant simplement un attribut de quantité au modèle \verb|Placement| de sorte que pour chaque produit, nous sauvegardons la quantité correspondante. Commençons par créer la migration:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rails generate migration add_quantity_to_placements quantity:integer
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Comme pour la migration des attributs de quantité de produit, nous devrions ajouter une valeur par défaut égale à 0. N'oubliez pas que c'est facultatif mais c'est mieux. Le fichier de migration devrait ressembler à cela:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # db/migrate/20181227104830_add_quantity_to_placements.rb
+      class AddQuantityToPlacements < ActiveRecord::Migration[5.2]
+        def change
+          add_column :placements, :quantity, :integer, default: 0
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Lancez ensuite la migration:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rake db:migrate
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Documentons l'attribut \verb|quantity| par un test unitaire:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/models/placement_spec.rb
+      # ...
+      RSpec.describe Placement, type: :model do
+        # ...
+        it { should respond_to :quantity }
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Il ne nous reste plus qu'à mettre à jour la méthode \verb|build_placements_with_product_ids_and_quantities| pour ajouter la quantité pour les placements:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/models/order.rb
+      class Order < ApplicationRecord
+        # ...
+
+        def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
+          product_ids_and_quantities.each do |product_id_and_quantity|
+            product_id, quantity = product_id_and_quantity # [1,5]
+            placements.build(product_id: product_id, quantity: quantity)
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant, nos tests devarient passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/models/order_spec.rb
+      ........
+
+      Finished in 0.09898 seconds (files took 0.74936 seconds to load)
+      8 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \textit{Commitons} nos changement:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds quantity to placements"
+      \end{lstlisting}
+    \end{scriptsize}
+
+
+
+
+
+
+
+
+
+
 
 
 
