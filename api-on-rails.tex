@@ -6441,6 +6441,217 @@
       \end{lstlisting}
     \end{scriptsize}
 
+  \section{Validation du stock des produits}
+
+    Depuis le début du chapitre, nous avons ajouté l'attribut \verb|quantity| au modèle de produit. il est maintenant temps de valider que la quantité de produit est suffisante pour que la commande soit passée.
+
+    Afin de rendre les choses plus intéressantes, nous allons le faire à l'aide d'un validateur personnalisé\footnote{C'est juste pour garder les choses plus propres et vous montrer une autre technique pour réaliser des validations personnalisées}. Pour les validateurs personnalisés, vous pouvez consulter la \href{https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations}{documentation}.
+
+    Tout d'abord, nous devons créer un répertoire de \verb|validators| dans le répertoire \verb|app| (Rails le charge par défault) et ensuite créons un fichier dedans:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ mkdir app/validators
+      $ touch app/validators/enough_products_validator.rb
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Avant de commencer à implémenter la classe, nous devons nous assurer d'ajouter un test au modèle de commande pour vérifier si la commande peut être passée (Listing \ref{lst:order_valid_spec}).
+
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby, caption={Test de la validation de la commande}, label={lst:order_valid_spec}]
+      # spec/models/order_spec.rb
+      require 'rails_helper'
+
+      RSpec.describe Order, type: :model do
+        # ...
+
+        describe "#valid?" do
+          before do
+            product_1 = FactoryBot.create :product, price: 100, quantity: 5
+            product_2 = FactoryBot.create :product, price: 85, quantity: 10
+
+
+            placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
+            placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
+
+            @order = FactoryBot.build :order
+
+            @order.placements << placement_1
+            @order.placements << placement_2
+          end
+
+          it "becomes invalid due to insufficient products" do
+            expect(@order).to_not be_valid
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Comme vous pouvez le voir sur les tests (Listing \ref{lst:order_valid_spec}), nous nous assurons d'abord que \verb|placement_2| essaie de demander plus de produits que ce qui est disponible. Donc dans ce cas la commande n'est pas supposée être valide.
+
+    Le test est en train d'échouer. Faisons le passer en implémentant le code pour le validateur:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/validators/enough_products_validator.rb
+      class EnoughProductsValidator < ActiveModel::Validator
+        def validate(record)
+          record.placements.each do |placement|
+            product = placement.product
+            if placement.quantity > product.quantity
+              record.errors[product.title.to_s] << "Is out of stock, just #{product.quantity} left"
+            end
+          end
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    J'ajoute simplement un message pour chacun des produits en rupture de stock, mais vous pouvez le gérer différemment si vous le souhaitez. Il ne nous reste plus qu'à ajouter ce validateur au modèle \verb|Order| comme cela:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/models/order.rb
+      class Order < ApplicationRecord
+        # ...
+        validates_with EnoughProductsValidator
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et maintenant, si vous lancer vos tests, tout devrait être beau et vert:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/models/order_spec.rb
+      .........
+
+      Finished in 0.19136 seconds (files took 0.74912 seconds to load)
+      9 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \textit{Commitons} nos changements:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git add .
+      $ git commit -m "Adds validator for order with not enough products on stock"
+      \end{lstlisting}
+    \end{scriptsize}
+
+  \section{Mettre à jour le prix total}
+
+    Réalisez vous que le prix total est mal calculé?  Actuellement, nous ajoutons le prix des produits sur la commande, quelle que soit la quantité demandée. Permettez-moi d'ajouter le code pour clarifier le problème:
+
+    Actuellement, dans le modèle de commande, nous avons cette méthode pour calculer le montant à payer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/models/order.rb
+      class Order < ApplicationRecord
+        # ...
+
+        def set_total!
+          self.total = products.map(&:price).sum
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant, au lieu de calculer le total en additionnant simplement les prix des produits, nous devons le multiplier par la quantité. Alors mettons d'abord à jour les tests:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/models/order_spec.rb
+      require 'rails_helper'
+
+      RSpec.describe Order, type: :model do
+        # ...
+
+        describe '#set_total!' do
+          before(:each) do
+            product_1 = FactoryBot.create :product, price: 100
+            product_2 = FactoryBot.create :product, price: 85
+
+            placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
+            placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
+
+            @order = FactoryBot.build :order
+
+            @order.placements << placement_1
+            @order.placements << placement_2
+          end
+
+          it 'returns the total amount to pay for the products' do
+            expect { @order.set_total! }.to change { @order.total.to_f }.from(0).to(1575)
+          end
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    L'implémentation est assez simple:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/models/order.rb
+      class Order < ApplicationRecord
+        # ...
+
+        def set_total!
+          self.total = 0.0
+          placements.each do |placement|
+            self.total += placement.product.price.to_f * placement.quantity
+          end
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Et maintenant, les tests devraient passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ rspec spec/models/order_spec.rb
+      .........
+
+      Finished in 0.20537 seconds (files took 0.74555 seconds to load)
+      9 examples, 0 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    \textitit{Commitons} nos changements et récapitulons tout ce que nous venons de faire:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ git commit -am "Updates the total calculation for order"
+      \end{lstlisting}
+    \end{scriptsize}
+
+  \section{Conclusion}
+
+    Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le chapitre \ref{chpater:1}, mais vous êtes à un pas de plus. En fait, le chapitre suivant serait le dernier. Alors essayez d'en tirer le meilleur.
+
+    Le dernier chapitre portera sur la façon d'optimiser l'API en utilisant la pagination, la mise en cache et les tâches d'arrière-plan. Donc bouclez vos ceintures, ça va être un parcours mouvementé.
+
+
+
+
+
+
+
+
 
 
 
