@@ -57,7 +57,7 @@
 
   \section{A propos de l'autheur original}
 
-    \href{https://twitter.com/kurenn}{Abraham Kuri} est un développeur de Rails avec 5 ans d'expérience. Son expérience inclut le travail en tant que freelance dans la construction de produits logiciels et plus récemment dans la collaboration au sein de la communauté open source. Il a développé \href{http://icalialabs.github.io/furatto/}{Furatto} un cadre frontal construit avec Sass, \href{https://github.com/IcaliaLabs/sabisu-rails}{Sabisu} la prochaine génération d'explorateur d'API pour votre application Rails et a collaboré sur d'autres projets. Diplômé en informatique d'ITESM, il a fondé deux sociétés au Mexique (\href{http://icalialabs.com/}{Icalia Labs} et \href{http://codeandomexico.org/}{Codeando Mexico}).
+    \href{https://twitter.com/kurenn}{Abraham Kuri} est un développeur de Rails avec 5 ans d'expérience. Son expérience inclut le travail en tant que \textit{freelance} dans la construction de produits logiciels et plus récemment dans la collaboration au sein de la communauté open source. Il a développé \href{http://icalialabs.github.io/furatto/}{Furatto} un cadre frontal construit avec Sass, \href{https://github.com/IcaliaLabs/sabisu-rails}{Sabisu} la prochaine génération d'explorateur d'API pour votre application Rails et a collaboré sur d'autres projets. Diplômé en informatique d'ITESM, il a fondé deux sociétés au Mexique (\href{http://icalialabs.com/}{Icalia Labs} et \href{http://codeandomexico.org/}{Codeando Mexico}).
 
   \section{Droits d'auteur et licence}
 
@@ -91,7 +91,7 @@
 
   Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vous donne des conseils et des faits intéressants pour améliorer vos compétences. Vous pouvez vous considérer comme le personnage principal d'un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
 
-  Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà). Nous allons ensuite créer une application appelée \verb|market_place_api|. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon experience. Cela signifie qu'après avoir initialisé le projet (Section 1.3), nous commencerons à utiliser Git (Section \ref{setup_git}).
+  Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà). Nous allons ensuite créer une application appelée \verb|market_place_api|. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon expérience. Cela signifie qu'après avoir initialisé le projet (Section 1.3), nous commencerons à utiliser Git (Section \ref{setup_git}).
 
   Dans les prochains chapitres, nous allons construire l'application en suivant un \textit{workflow} simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le développement piloté par les tests (TDD). Je vous expliquerai l’intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Du chapitre \ref{chapter:3} au chapitre \ref{chapter:8}, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant tous les points finaux nécessaires. Nous sécuriserons l'accès à l'API et en gérant l'authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre (Chapitre \ref{chapter:11}), nous ajouterons quelques techniques d'optimisation pour améliorer les temps de réponse du serveur.
 
@@ -126,15 +126,15 @@
       \item \textquote{Utiliser} signifie que vous êtes en mesure d'utiliser la ressource.
     \end{itemize}
 
-    Si vous rencontrez une erreur quelconque lors de l'execution d'une commande, je vous recommande d'utiliser un moteur de recherche pour trouvez votre solution. Malheuresement, je ne peux pas couvrir tous les erreurs possibles. Si vous avez envie de prendre une bière ou si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours \href{http://twitter.com/kurenn}{me tweeter} ou \href{mailto:contact@rousseau-alexandre.fr}{m'envoyer un email}.
+    Si vous rencontrez une erreur quelconque lors de l’exécution d'une commande, je vous recommande d'utiliser un moteur de recherche pour trouvez votre solution. Malheureusement, je ne peux pas couvrir tous les erreurs possibles. Si vous avez envie de prendre une bière ou si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours \href{http://twitter.com/kurenn}{me tweeter} ou \href{mailto:contact@rousseau-alexandre.fr}{m'envoyer un email}.
 
   \section{Pour commencer}
 
-    Pour presque tous les développeurs, l'une des parties les plus douloureuses est de mettre en place un environnement de développement comfortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d'enfant. Afin de vous faciliter la tâche et de vous motiver, nous utiliserons un script bash que je maintiens appelé Kaishi\footnote{Kaishi ne fonctionne actuellement que pour Mac OS}. il inclut tous les outils nécessaires (encadré \ref{box:kaishi_tools}) et plus encore pour configurer votre environnement de développement.
+    Pour presque tous les développeurs, l'une des parties les plus douloureuses est de mettre en place un environnement de développement confortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d'enfant. Afin de vous faciliter la tâche et de vous motiver, nous utiliserons un script bash que je maintiens appelé Kaishi\footnote{Kaishi ne fonctionne actuellement que pour Mac OS}. il inclut tous les outils nécessaires (encadré \ref{box:kaishi_tools}) et plus encore pour configurer votre environnement de développement.
 
     \begin{tcolorbox}{Outils de développement Kaishi}\label{box:kaishi_tools}
       \begin{itemize}
-        \item \href{https://github.com/robbyrussell/oh-my-zsh}{oh-my-zsh}  en tant que Shell par défault
+        \item \href{https://github.com/robbyrussell/oh-my-zsh}{oh-my-zsh}  en tant que Shell par défaut
         \item \href{http://brew.sh/}{Homebrew} pour la gestion des paquets
         \item \href{http://git-scm.com/}{Git} en tant que gestionnaire de base de données
         \item \href{http://www.postgresql.org/}{Postresql} en tant que gestionnaire de base de données
@@ -154,23 +154,23 @@
 
     \subsection{Editeurs de texte et Terminal}
 
-      Il existe de nombreux cas dans lesquels les environnements de développement peuvent différer d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd (d'autres pourraient trouver que c'est la meilleure façon de travailler\footnote{Si c'est votre cas, je vous recommande d'essayer avec \href{http://www.aptana.com/products/radrails}{RadRails} ou \href{http://www.jetbrains.com/ruby/index.html}{RubyMine}, les deux sont bien soutenus et possèdent de nombreuses intégrations par défault.}).
+      Il existe de nombreux cas dans lesquels les environnements de développement peuvent différer d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd (d'autres pourraient trouver que c'est la meilleure façon de travailler\footnote{Si c'est votre cas, je vous recommande d'essayer avec \href{http://www.aptana.com/products/radrails}{RadRails} ou \href{http://www.jetbrains.com/ruby/index.html}{RubyMine}, les deux sont bien soutenus et possèdent de nombreuses intégrations par défaut.}).
 
       Maintenant pour ceux qui sont comme moi, je peux vous dire qu'il y a beaucoup d'options disponibles que vous pouvez personnaliser via des plugins et plus.
 
       \begin{description}
-        \item[Editeur de texte] J'utilise personnellement \href{http://www.vim.org/}{Vim} comme éditeur par défaut avec \href{https://github.com/carlhuda/janus}{Janus} qui ajoute et gère plusieurs des plugins que vous allez probablement utiliser. Au cas où vous n'êtes pas un fan de Vim comme moi, il y a beaucoup d'autres solutions comme \href{http://www.sublimetext.com/}{Sublime Text} qui est une multiplateforme facile à apprendre et à personnaliser (c'est probablement votre meilleure option), il est fortement inspiré par \href{http://macromates.com/}{TextMate}\footnote{disponible uniquement pour Mac OS}. Une troisième option est d'utiliser un éditeur de texte plus récent des gars de \href{http://gitub.com/}{Github} appelé \href{https://atom.io/}{Atom}, c'est un éditeur de texte prometteur fait en Javascript. Il est facile à personnaliser pour répondre à vos besoins, faites un essai. N'importe lequel des éditeurs que je vous présente fera le travail, donc je vous laisserai décider lequel vous convient.
+        \item[Éditeur de texte] J'utilise personnellement \href{http://www.vim.org/}{Vim} comme éditeur par défaut avec \href{https://github.com/carlhuda/janus}{Janus} qui ajoute et gère plusieurs des plugins que vous allez probablement utiliser. Au cas où vous n'êtes pas un fan de Vim comme moi, il y a beaucoup d'autres solutions comme \href{http://www.sublimetext.com/}{Sublime Text} qui est une multiplateforme facile à apprendre et à personnaliser (c'est probablement votre meilleure option), il est fortement inspiré par \href{http://macromates.com/}{TextMate}\footnote{disponible uniquement pour Mac OS}. Une troisième option est d'utiliser un éditeur de texte plus récent des gars de \href{http://gitub.com/}{Github} appelé \href{https://atom.io/}{Atom}, c'est un éditeur de texte prometteur fait en Javascript. Il est facile à personnaliser pour répondre à vos besoins, faites un essai. N'importe lequel des éditeurs que je vous présente fera le travail, donc je vous laisserai décider lequel vous convient.
 
         \item[Terminal] Si vous avez décidé d'utiliser \href{http://icalialabs.github.io/kaishi/}{kaishi} pour paramétrer l'environnement, vous remarquerez qu'il définit le shell par défaut à \verb|zsh|, ce que je recommande vivement. Pour le terminal, je ne suis pas un fan de l'application Terminal par défault sous Mac OS. Je recommande \href{http://www.iterm2.com/#/section/home}{iTerm2}, qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un beau terminal, mais le défaut devrait fonctionner très bien.
       \end{description}
 
     \subsection{Navigateur web}
 
-      Quand il s'agit de navigateurs, je conseillerai directement \href{http://www.mozilla.org/en-US/firefox/new/}{Firefox}. Mais d'autres développeurs utilisent \href{https://www.google.com/intl/en/chrome/browser/}{Chrome} ou même \href{https://www.apple.com/safari/}{Safari}. N'importe lequel d'entre eux vous aidera à construire l'application que vous voulez. Ils porposent tous un bon inspecteur pour le DOM, un analyseur de réseau et de nombreuses autres fonctionnalités que vous connaissez peut-être déjà.
+      Quand il s'agit de navigateurs, je conseillerai directement \href{http://www.mozilla.org/en-US/firefox/new/}{Firefox}. Mais d'autres développeurs utilisent \href{https://www.google.com/intl/en/chrome/browser/}{Chrome} ou même \href{https://www.apple.com/safari/}{Safari}. N'importe lequel d'entre eux vous aidera à construire l'application que vous voulez. Ils proposent tous un bon inspecteur pour le DOM, un analyseur de réseau et de nombreuses autres fonctionnalités que vous connaissez peut-être déjà.
 
     \subsection{Note sur les outils}
 
-      Vous ne voudrez peut-être pas inclure tous les paquets qui viennent avec \href{http://icalialabs.github.io/kaishi/}{kaishi} et je vous comprends. Peut-être que vous avez déjà quelques outils installés. Je vais vous décrire comment installer seulment ce dont vous avez besoin pour commencer.
+      Vous ne voudrez peut-être pas inclure tous les paquets qui viennent avec \href{http://icalialabs.github.io/kaishi/}{kaishi} et je vous comprends. Peut-être que vous avez déjà quelques outils installés. Je vais vous décrire comment installer seulement ce dont vous avez besoin pour commencer.
 
     \subsection{Gestionnaire de paquets}
 
@@ -189,14 +189,14 @@
 
       Nous utiliserons beaucoup Git et vous devriez aussi l'utiliser (non seulement pour le but de ce tutoriel mais pour tout vos projet).
 
-      Instalation de Git sous Mac OS:
+      Installation de Git sous Mac OS:
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
         $ brew install git
         \end{lstlisting}
       \end{scriptsize}
 
-      Instalation de Git sous Linux:
+      Installation de Git sous Linux:
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
         $ sudo apt-get install git
@@ -205,7 +205,7 @@
 
     \subsection{Ruby}
 
-      Il existe de nombreuseuses façons d'installer et de gérer Ruby. Vous devriez probablement déjà avoir une version installée sur votre système. Pour connaître votre version, tapez simplement:
+      Il existe de nombreuses façons d'installer et de gérer Ruby. Vous devriez probablement déjà avoir une version installée sur votre système. Pour connaître votre version, tapez simplement:
 
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -217,7 +217,7 @@
 
       \subsubsection{Mac OS}
 
-        Pour commencer l'installation de ruby, tapez:
+        Pour commencer l'installation de Ruby, tapez:
 
         \begin{scriptsize}
           \begin{lstlisting}[language=bash]
@@ -225,7 +225,7 @@
           \end{lstlisting}
         \end{scriptsize}
 
-        Ensuite, vous devez configurer la version de ruby qui vient d'être installée comme version par défaut:
+        Ensuite, vous devez configurer la version de Ruby qui vient d'être installée comme version par défaut:
 
         \begin{scriptsize}
           \begin{lstlisting}[language=bash]
@@ -234,7 +234,7 @@
           \end{lstlisting}
         \end{scriptsize}
 
-        La commande \verb|rehash| est supposée s'exécuter à chaque fois que vous installez une nouvelle version de Ruby ou une Gem. Pour plus d'informations sur la personnalisation ou d'autres types d'installation, consultez la \href{https://github.com/sstephenson/rbenv}{documentation du projet}.
+        La commande \verb|rehash| est supposée s'exécuter à chaque fois que vous installez une nouvelle version de Ruby ou une Gemme. Pour plus d'informations sur la personnalisation ou d'autres types d'installation, consultez la \href{https://github.com/sstephenson/rbenv}{documentation du projet}.
 
       \subsubsection{Linux}
 
@@ -250,7 +250,7 @@
         \end{lstlisting}
         \end{scriptsize}
 
-        Ensuite, vouss pouvez installer la dernière version de Ruby:
+        Ensuite, vous pouvez installer la dernière version de Ruby:
 
         \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -270,9 +270,9 @@
 
         Si tout s'est bien passé, il est temps d'installer le reste des dépendances que nous allons utiliser.
 
-      \subsubsection{Gems, Rails et bibliothèques manquantes}
+      \subsubsection{Gemmes, Rails et bibliothèques manquantes}
 
-        Tout d'abord, nous mettons à jour les Gems sur l'ensemble du système:
+        Tout d'abord, nous mettons à jour les Gemmes sur l'ensemble du système:
 
         \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -288,7 +288,7 @@
         \end{lstlisting}
         \end{scriptsize}
 
-        Nous installons ensuite les gems nécessaires et ignorons la documentation pour chaque gemme:
+        Nous installons ensuite les gemmes nécessaires et ignorons la documentation pour chaque gemme:
 
         \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -328,7 +328,7 @@
 
   \section{Initialisation du projet}
 
-    Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jettez un coup d'oeuil au listing \ref{rails_new}.
+    Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d'oeuil au listing \ref{rails_new}.
 
     Sachez que nous utiliserons \href{http://rspec.info/}{Rspec} comme suite de test. Assurez-vous d'inclure l'option \verb|-T| lors de la création de l'application.
 
@@ -340,7 +340,7 @@
     \end{lstlisting}
     \end{scriptsize}
 
-    Comme vous pouvez le deviner, les commandes ci-dessus (Listing \ref{rails_new}) génèreront les éléments indispensables à votre application Rails. La prochaine étape est d'ajouter quelques gems que nous utiliserons pour construire l'API.
+    Comme vous pouvez le deviner, les commandes ci-dessus (Listing \ref{rails_new}) généreront les éléments indispensables à votre application Rails. La prochaine étape est d'ajouter quelques gemmes que nous utiliserons pour construire l'API.
 
     \subsection{Installer Pow ou Prax}\label{subsection:install_pow}
 
