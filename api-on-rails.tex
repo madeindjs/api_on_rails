@@ -93,7 +93,7 @@
 
   Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà). Nous allons ensuite créer une application appelée \verb|market_place_api|. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon expérience. Cela signifie qu'après avoir initialisé le projet (Section 1.3), nous commencerons à utiliser Git (Section \ref{setup_git}).
 
-  Dans les prochains chapitres, nous allons construire l'application en suivant un \textit{workflow} simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le développement piloté par les tests (TDD). Je vous expliquerai l’intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Du chapitre \ref{chapter:3} au chapitre \ref{chapter:8}, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant tous les points finaux nécessaires. Nous sécuriserons l'accès à l'API et en gérant l'authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre (Chapitre \ref{chapter:11}), nous ajouterons quelques techniques d'optimisation pour améliorer les temps de réponse du serveur.
+  Dans les prochains chapitres, nous allons construire l'application en suivant un \textit{workflow} simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le développement piloté par les tests (TDD). Je vous expliquerai l’intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Du chapitre \ref{chapter:3} au chapitre \ref{chapter:8}, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant tous les points finaux nécessaires. Nous sécuriserons l'accès à l'API et en gérant l'authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre (Chapitre \ref{chapter:10}), nous ajouterons quelques techniques d'optimisation pour améliorer les temps de réponse du serveur.
 
   L'application finale sera une foncation pour une application de place de marché où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme \href{http://shopify.com/}{Shopify}, \href{http://spreecommerce.com/}{Spree} ou \href{http://magento.com/}{Magento}.
 
@@ -328,19 +328,19 @@
 
   \section{Initialisation du projet}
 
-    Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d’œil au listing \ref{rails_new}.
+    Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d’œil au listing \ref{lst:rails_new}.
 
-    Sachez que nous utiliserons \href{http://rspec.info/}{Rspec} comme suite de test. Assurez-vous d'inclure l'option \verb|-T| lors de la création de l'application.
+    Sachez que nous utiliserons \href{http://rspec.info/}{Rspec} comme suite de test. Assurez-vous d'inclure l'option \verb|--skip-test| lors de la création de l'application\footnote{Nous utiliserons la libraire Rspec au lieu du framework de test pas défaut de Rails} et l'option \verb|--api|\footnote{L'otpion API est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et \textit{Middleware} inclue dans l'application. Cela permet aussi d'éviter de générer les vues HTML lors de l'utilisation des générateurs de Rails}.
 
     \begin{scriptsize}
-    \begin{lstlisting}[language=bash, caption={Initialisation du projet avec 'rails new'.}, label={rails_new}]
-    $ mkdir ~/workspace
-    $ cd workspace
-    $ rails new market_place_api -T
-    \end{lstlisting}
+      \begin{lstlisting}[language=bash, caption={Initialisation du projet Rails.}, label={lst:rails_new}]
+      $ mkdir ~/workspace
+      $ cd workspace
+      $ rails new market_place_api --skip-test --api
+      \end{lstlisting}
     \end{scriptsize}
 
-    Comme vous pouvez le deviner, les commandes ci-dessus (Listing \ref{rails_new}) généreront les éléments indispensables à votre application Rails. La prochaine étape est d'ajouter quelques gemmes que nous utiliserons pour construire l'API.
+    Comme vous pouvez le deviner, les commandes ci-dessus (Listing \ref{lst:rails_new}) généreront les éléments indispensables à votre application Rails. La prochaine étape est d'ajouter quelques gemmes que nous utiliserons pour construire l'API.
 
     \subsection{Installer Pow ou Prax}\label{subsection:install_pow}
 
@@ -374,7 +374,7 @@
         \end{lstlisting}
         \end{scriptsize}
 
-        N'oubliez pas de changer le répertoire utilisateur pour celui qui correspond au votre. Vous pouvez maintenant accéder à l'application via \href{http://market_place_api.dev/}{http://market\_place\_api.dev}. Votre application devrait être en cours d'exécution comme celle illustrée à la Figure \ref{rails_new}.
+        N'oubliez pas de changer le répertoire utilisateur pour celui qui correspond au votre. Vous pouvez maintenant accéder à l'application via \href{http://market_place_api.dev/}{http://market\_place\_api.dev}. Votre application devrait être en cours d'exécution comme celle illustrée à la Figure \ref{lst:rails_new}.
 
       \subsubsection{Installer Prax}\label{subsubsect:prax}
 
@@ -1464,7 +1464,7 @@
       \begin{lstlisting}[language=ruby, caption={Correction de la réponde de l'API}, label={lst:add_protect_from_forgery}]
       # app/controllers/application_controller.rb
 
-      class ApplicationController < ActionController::Base
+      class ApplicationController < ActionController::API
         # Prevent CSRF attacks by raising an exception.
         # For APIs, you may want to use :null_session instead.
         protect_from_forgery with: :null_session
@@ -2715,7 +2715,7 @@
       # spec/controllers/concerns/authenticable_spec.rb
       # ...
 
-      class Authentication < ActionController::Base
+      class Authentication < ActionController::API
         include Authenticable
       end
 
@@ -2771,7 +2771,7 @@
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
       # app/controllers/application_controller.rb
-      class ApplicationController < ActionController::Base
+      class ApplicationController < ActionController::API
         # Prevent CSRF attacks by raising an exception.
         # For APIs, you may want to use :null_session instead.
         protect_from_forgery with: :null_session
@@ -2803,7 +2803,7 @@
       # spec/controllers/concerns/authenticable_spec.rb
       # ...
 
-      class Authentication < ActionController::Base
+      class Authentication < ActionController::API
         include Authenticable
       end
 
@@ -6644,9 +6644,10 @@
 
 \chapter{Optimisations}\label{chapter:10}
 
-  Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'êtes qu'à un pas de la fin. Dans le chapitre \ref{chpater:9}, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l'optimisation. Les sujets que je vais aborder ici seront:
+  Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'êtes qu'à un pas de la fin. Dans le chapitre \ref{chapter:9}, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l'optimisation. Les sujets que je vais aborder ici seront:
 
   \begin{itemize}
+      \item La mise en place de la spécification \href{https://jsonapi.org/}{JSON:API}
       \item la pagination
       \item les tâhces en arrière plan
       \item la mise en cache
@@ -6670,9 +6671,20 @@ Créons une nouvelle branche pour ce chapitre:
   \end{lstlisting}
 \end{scriptsize}
 
-\section{Norme https://jsonapi.org/}
+\section{Mise en place de la spécification \href{https://jsonapi.org/}{JSON:API}}
 
-\section{Pagination}
+Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heuresement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établies certaines conventions.
+
+Une des convention les plus appliquée est très certainement \href{https://jsonapi.org/}{JSON:API}. JSON:API nous impose certaines règles à suivre comme:
+
+\begin{itemize}
+  \item Comment formater la présentation de 
+\end{itemize}
+
+Cette convention nous permettra d'aborder la pagination (section \ref{sec:pagination}) plus sereinement.
+
+
+\section{Pagination}\label{sec:pagination}
 
   Une stratégie très commune pour optimiser la récupération d'enregistrements dans une base de données est de charger seulement une qunatité limité en les paginant. Si vous êtes familier avec cette technique, vous savez qu'avec Rails c'est vraiment très facile à mettre en place avec des gemmes telles que \href{https://github.com/mislav/will_paginate}{will\_paginate} ou \href{https://github.com/kaminari/kaminari}{kaminari}.
 
