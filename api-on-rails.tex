@@ -6642,6 +6642,194 @@
 
     Le dernier chapitre portera sur la façon d'optimiser l'API en utilisant la pagination, la mise en cache et les tâches d'arrière-plan. Donc bouclez vos ceintures, ça va être un parcours mouvementé.
 
+\chapter{Optimisations}\label{chapter:10}
+
+  Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'êtes qu'à un pas de la fin. Dans le chapitre \ref{chpater:9}, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l'optimisation. Les sujets que je vais aborder ici seront:
+
+  \begin{itemize}
+      \item la pagination
+      \item les tâhces en arrière plan
+      \item la mise en cache
+  \end{itemize}
+
+  J'essaierai d'aller aussi loin que possible en essayant de couvrir certains scénarios courants. J'espère que ces scénarions vous serons utiles pour certains de vos projets.
+
+  Si vous commencez à lire à ce stade, vous voudrez probablement que le code fonctionne, vous pouvez le cloner comme ça:
+
+  \begin{scriptsize}
+    \begin{lstlisting}[language=bash]
+    $ git clone https://github.com/madeindjs/market_place_api.git -b chapter9
+    \end{lstlisting}
+  \end{scriptsize}
+
+Créons une nouvelle branche pour ce chapitre:
+
+\begin{scriptsize}
+  \begin{lstlisting}[language=bash]
+  $ git checkout -b chapter10
+  \end{lstlisting}
+\end{scriptsize}
+
+\section{Norme https://jsonapi.org/}
+
+\section{Pagination}
+
+  Une stratégie très commune pour optimiser la récupération d'enregistrements dans une base de données est de charger seulement une qunatité limité en les paginant. Si vous êtes familier avec cette technique, vous savez qu'avec Rails c'est vraiment très facile à mettre en place avec des gemmes telles que \href{https://github.com/mislav/will_paginate}{will\_paginate} ou \href{https://github.com/kaminari/kaminari}{kaminari}.
+
+  La seule partie délicate ici est de savoir comment gérer la sortie JSON pour donner assez d'informations au client sur la façon dont le tableau est paginé. Si vous vous souvenez du chapitre \ref{chapter:1}, j'ai partagé quelques ressources sur les pratiques que j'allais suivre ici. L'une d'entre elles était \url{http://jsonapi.org/} qui est une page incontournable des signets.
+
+  Si nous lisons la section sur le format, nous arriverons à une sous-section appelée \href{https://jsonapi.org/format/#document-top-level}{Top Level}. Pour vous expliquer rapidement, ils mentionnent quelque chose sur la pagination:
+
+  \textquote{"meta": méta-information sur une ressource, telle que la pagination.}
+
+  Ce n'est pas très descriptif mais au moins nous avons un indice sur ce qu'il faut regarder ensuite au sujet de l'implémentation de la pagination. Ne vous inquiétez pas, c'est exactement ce que nous allons faire ici.
+
+  Commençons par la liste des produits.
+
+
+  \subsection{Les produits}
+
+    Nous allons commencer par paginer la liste des produits car nous n'avons aucune restriction d'accès. Cela nous facilitera les tests.
+
+    Nous devons d'abord ajouter la gemme de kaminari à notre \verb|Gemfile|:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ bundle add kaminari
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant nous pouvons aller à l'action \verb|Products#index| et ajouter les méthodes de pagination comme indiqué dans la documentation:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/controllers/api/v1/products_controller.rb
+      class Api::V1::ProductsController < ApplicationController
+        # ...
+
+        def index
+          render json: Product.page(params[:page]).per(params[:per_page]).search(params)
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Jusqu'à présent, la seule chose qui a changé est la requête sur la base de données pour limiter le résultat à 25 par page (ce qui est la valeur par défaut). Mais nous n'avons toujours pas ajouté d'informations supplémentaires à la sortie JSON.
+
+    Nous devons fournir les informations de pagination sur la balise meta dans le formulaire suivant:
+
+    \begin{scriptsize}
+      \begin{lstlisting}
+      "meta": {
+          "pagination": {
+              "per_page": 25,
+              "total_page": 6,
+              "total_objects": 11
+          }
+      }
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant que nous avons la structure finale de la balise meta, il ne nous reste plus qu'à la sortir sur la réponse JSON. Ajoutons d'abord quelques tests:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # spec/controllers/api/v1/products_controller_spec.rb
+      require 'rails_helper'
+
+      RSpec.describe Api::V1::ProductsController, type: :controller do
+        # ...
+
+        describe 'GET #index' do
+          before(:each) do
+            4.times { FactoryBot.create :product }
+            get :index
+          end
+
+          # ...
+
+          it 'Have a meta pagination tag' do
+            expect(json_response).to have_key(:meta)
+            expect(json_response[:meta]).to have_key(:pagination)
+            expect(json_response[:meta][:pagination]).to have_key(:per_page)
+            expect(json_response[:meta][:pagination]).to have_key(:total_pages)
+            expect(json_response[:meta][:pagination]).to have_key(:total_objects)
+          end
+
+          it { expect(response.response_code).to eq(200) }
+        end
+
+        # ...
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Le test que nous venons d'ajouter devrait échouer or, si nous executons les tests, deux tests échouent. Cela veux dire que nous avons cassé quelque chose d'autre:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb
+      ...F....F...........
+
+      Failures:
+
+        1) Api::V1::ProductsController GET #index Have a meta pagination tag
+           ...
+
+        2) Api::V1::ProductsController GET #index when product_ids parameter is sent returns just the products that belong to the user
+           Failure/Error: total_pages: products.total_pages,
+
+           NoMethodError:
+             undefined method `total_pages' for #<Array:0x0000556f1ef85c68>
+           # ./app/controllers/api/v1/products_controller.rb:12:in `index'
+           ...
+
+      Finished in 0.40801 seconds (files took 0.62979 seconds to load)
+      20 examples, 2 failures
+      \end{lstlisting}
+    \end{scriptsize}
+
+    L'erreur est en fait sur la méthode \verb|Product.search|. En fait, Kaminari attend une relation d'enregistrement au lieu d'un tableau. C'est très facile à réparer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=ruby]
+      # app/models/product.rb
+      class Product < ApplicationRecord
+        # ...
+
+        def self.search(params = {})
+          products = params[:product_ids].present? ? Product.where(id: params[:product_ids]) : Product.all
+          # ...
+        end
+      end
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Vous avez remarqué le changement? Laissez moi vous l'expliquer. Nous avons simplement remplacé la méthode \verb|Product.find| par \verb|Product.where| en utilisant les paramètres \verb|product_ids|. La différence est que la méthode \verb|where| retourne une  \verb|ActiveRecord::Relation| et c'est exactement ce dont nous avons besoin.
+
+    Maintenant, si nous relançons les tests, le test que nous avions cassé devrait maintenant passer:
+
+    \begin{scriptsize}
+      \begin{lstlisting}[language=bash]
+      $ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb
+      ...F................
+
+      Failures:
+
+        1) Api::V1::ProductsController GET #index Have a meta pagination tag
+           ...
+
+      Finished in 0.41533 seconds (files took 0.5997 seconds to load)
+      20 examples, 1 failure
+      \end{lstlisting}
+    \end{scriptsize}
+
+    Maintenant que nous avons corrigé cela, ajoutons les informations de pagination. Nous devons le faire dans le fichier \verb|products_controller.rb|:
+
+    % https://www.simplify.ba/articles/2016/06/18/creating-rails5-api-only-application-following-jsonapi-specification/
+
 
 
 
