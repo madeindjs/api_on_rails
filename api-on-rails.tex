@@ -61,9 +61,9 @@
 
   \section{Droits d'auteur et licence}
 
-    Cette traduction est disponnible sous \href{http://opensource.org/licenses/MIT}{licence MIT}. Tout le code source de ce livre est disponnible au format \href{https://fr.wikipedia.org/wiki/LaTeX}{\LaTeX} sur \href{https://github.com/madeindjs/api_on_rails}{Github}
+    Cette traduction est disponible sous \href{http://opensource.org/licenses/MIT}{licence MIT}. Tout le code source de ce livre est disponible au format \href{https://fr.wikipedia.org/wiki/LaTeX}{\LaTeX} sur \href{https://github.com/madeindjs/api_on_rails}{Github}
 
-    \begin{tcolorbox}{The MIT License}
+    \begin{tcolorbox}{La licence MIT}
       Copyright (c) 2018 Alexandre Rousseau
 
       Permission est accordée, à titre gratuit, à toute personne obtenant une copie de ce logiciel et la documentation associée, pour faire des modification dans le logiciel sans restriction et sans limitation des droits d’utiliser, copier, modifier, fusionner, publier, distribuer, concéder sous licence, et / ou de vendre les copies du Logiciel, et à autoriser les personnes auxquelles le Logiciel est meublé de le faire, sous réserve des conditions suivantes:
@@ -159,7 +159,7 @@
       Maintenant pour ceux qui sont comme moi, je peux vous dire qu'il y a beaucoup d'options disponibles que vous pouvez personnaliser via des plugins et plus.
 
       \begin{description}
-        \item[Éditeur de texte] J'utilise personnellement \href{http://www.vim.org/}{Vim} comme éditeur par défaut avec \href{https://github.com/carlhuda/janus}{Janus} qui ajoute et gère plusieurs des plugins que vous allez probablement utiliser. Au cas où vous n'êtes pas un fan de Vim comme moi, il y a beaucoup d'autres solutions comme \href{http://www.sublimetext.com/}{Sublime Text} qui est une multiplateforme facile à apprendre et à personnaliser (c'est probablement votre meilleure option), il est fortement inspiré par \href{http://macromates.com/}{TextMate}\footnote{disponible uniquement pour Mac OS}. Une troisième option est d'utiliser un éditeur de texte plus récent des gars de \href{http://gitub.com/}{Github} appelé \href{https://atom.io/}{Atom}, c'est un éditeur de texte prometteur fait en Javascript. Il est facile à personnaliser pour répondre à vos besoins, faites un essai. N'importe lequel des éditeurs que je vous présente fera le travail, donc je vous laisserai décider lequel vous convient.
+        \item[Éditeur de texte] J'utilise personnellement \href{http://www.vim.org/}{Vim} comme éditeur par défaut avec \href{https://github.com/carlhuda/janus}{Janus} qui ajoute et gère plusieurs des plugins que vous allez probablement utiliser. Au cas où vous n'êtes pas un fan de Vim comme moi, il y a beaucoup d'autres solutions comme \href{http://www.sublimetext.com/}{Sublime Text} qui est une multi-plateforme facile à apprendre et à personnaliser (c'est probablement votre meilleure option), il est fortement inspiré par \href{http://macromates.com/}{TextMate}\footnote{disponible uniquement pour Mac OS}. Une troisième option est d'utiliser un éditeur de texte plus récent des gars de \href{http://gitub.com/}{Github} appelé \href{https://atom.io/}{Atom}, c'est un éditeur de texte prometteur fait en Javascript. Il est facile à personnaliser pour répondre à vos besoins, faites un essai. N'importe lequel des éditeurs que je vous présente fera le travail, donc je vous laisserai décider lequel vous convient.
 
         \item[Terminal] Si vous avez décidé d'utiliser \href{http://icalialabs.github.io/kaishi/}{kaishi} pour paramétrer l'environnement, vous remarquerez qu'il définit le shell par défaut à \verb|zsh|, ce que je recommande vivement. Pour le terminal, je ne suis pas un fan de l'application Terminal par défault sous Mac OS. Je recommande \href{http://www.iterm2.com/#/section/home}{iTerm2}, qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un beau terminal, mais le défaut devrait fonctionner très bien.
       \end{description}
@@ -328,7 +328,7 @@
 
   \section{Initialisation du projet}
 
-    Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d'oeuil au listing \ref{rails_new}.
+    Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d’œil au listing \ref{rails_new}.
 
     Sachez que nous utiliserons \href{http://rspec.info/}{Rspec} comme suite de test. Assurez-vous d'inclure l'option \verb|-T| lors de la création de l'application.
 
@@ -542,9 +542,9 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Bonne pratique : J'ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu'il a fait. De cette façon il est plus facile de lire et de comprendre l'histoirique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu'à la fin du tutoriel.
+    Bonne pratique : J'ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu'il a fait. De cette façon il est plus facile de lire et de comprendre l’historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu'à la fin du tutoriel.
 
-    Enfin, et c'est une étape optionnelle, nous installons le projet github (je ne vais pas l'expliquer ici) et poussons notre code vers le serveur distant:
+    Enfin, et c'est une étape optionnelle, nous installons le projet Github (je ne vais pas l'expliquer ici) et poussons notre code vers le serveur distant:
 
     On ajoute d'abord le serveur distant:
 
@@ -598,14 +598,14 @@
 
     Nous n'allons pas construire d'interface pour l'interaction avec l'API afin de ne pas surcharger le tutoriel.  Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks javascript (\href{https://angularjs.org/}{Angular}, \href{https://vuejs.org/}{Vue.JS}, \href{https://reactjs.org/}{React}) ou des librairies mobile (\href{https://github.com/AFNetworking/AFNetworking}{AFNetworking}).
 
-    À ce stade, vous devez vous poser la question \textquote{d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire}, et c'est juste. Si vous googlez quelque chose lié à l'exploration d'une API, vous allez sûremment entendre parler de \href{https://www.getpostman.com/}{Postman}. C'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée  qui est un puissant client de moteur de type facteur pour explorer votre application Rails api's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
+    À ce stade, vous devez vous poser la question \textquote{d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire}, et c'est juste. Si vous \textit{googlez} quelque chose lié à l'exploration d'une API, vous allez sûrement entendre parler de \href{https://www.getpostman.com/}{Postman}. C'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée  qui est un puissant client de moteur de type facteur pour explorer votre application Rails API's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
     % TODO keep it?
 
   \section{Mettre en place l'API}\label{section:setup_api}
 
     Une API est définie par \href{https://fr.wikipedia.org/wiki/Interface_de_programmation}{wikipedia} comme une interface de programmation d'application (API) qui  est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d'autres logiciels. En d'autres termes, il s'agit d'une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)\footnote{Il existe d'autres types de protocoles de communication comme SOAP, mais nous n'en parlons pas ici.}.
 
-    JSON est devenu incontournable en tant sur média Internet en raison de sa lisibilité, de son extensibilité et sa facilité à mettre en œuvre. Beaucoup de frameworks Javascript l'utilisent comme protocole par défault comme \href{https://angularjs.org/}{Angular} ou \href{http://emberjs.com/}{EmberJS}. D'autres grandes bibliothèques en Objective-C l'utilisent  comme \href{https://github.com/AFNetworking/AFNetworking}{AFNetworking} ou \href{http://restkit.org/}{RESTKit}. Il existe probablement de bonnes solutions pour Android, mais en raison de mon manque d'expérience sur cette plate-forme de développement je ne suis peut-être pas la bonne personne pour vous recommander quelque chose.
+    JSON est devenu incontournable en tant sur média Internet en raison de sa lisibilité, de son extensibilité et sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l'utilisent comme protocole par défaut comme \href{https://angularjs.org/}{Angular} ou \href{http://emberjs.com/}{EmberJS}. D'autres grandes bibliothèques en Objective-C l'utilisent  comme \href{https://github.com/AFNetworking/AFNetworking}{AFNetworking} ou \href{http://restkit.org/}{RESTKit}. Il existe probablement de bonnes solutions pour Android, mais en raison de mon manque d'expérience sur cette plate-forme de développement je ne suis peut-être pas la bonne personne pour vous recommander quelque chose.
 
     Très bien, donc nous allons construire notre API avec JSON. La première chose qui pourrait vous venir à l'esprit serait de commencer à créer des routes en vrac. Le problème est qu'elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner qu'elle ressource est renvoyée par une route.
 
@@ -642,7 +642,7 @@
 
     Cela n'est peut-être pas assez clair ou peut sembler compliqué. Mais à mesure que nous avancerons dans le tutoriel, cela deviendra beaucoup plus facile à comprendre.
 
-    \subsection{Routes, Constraints and Namespaces}\label{subsec:routes_constraints_namespaces}
+    \subsection{Routes, contraintes et Namespaces}\label{subsec:routes_constraints_namespaces}
 
       Avant de commencer à taper du code, nous allons préparer le répertoire Git. Le \textit{workflow} que nous allons suivre est le suivant:
 
@@ -747,7 +747,7 @@
       Vous voyez la différence? Nous n'avons pas seulement ajouté un \verb|Hash| de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l'option chemin d'accès et lui avons donné un \textit{backslash}. Cel indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine (Encadré \ref{box:setup_api}).
 
       \begin{tcolorbox}{Les conventions des API}\label{box:setup_api}
-        Vous pouvez trouver de nombreuses approches pour configurer la \verb|base_uri| d'une API. En supposant que nous versionnont notre api (Section \ref{section:api_versioning}):
+        Vous pouvez trouver de nombreuses approches pour configurer la \verb|base_uri| d'une API. En supposant que nous versionnons notre api (Section \ref{section:api_versioning}):
 
         \begin{description}
           \item[api.example.com/] Je suis d'avis que c'est la voie à suivre, vous donne une meilleure interface et l'isolement, et à long terme peut vous aider à mettre rapidement à l'échelle \url{http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/}
@@ -784,7 +784,7 @@
     \end{lstlisting}
     \end{scriptsize}
 
-    Il est maintenant temps de mettre en place d'autres contraintes pour le versioning. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une meilleure structure à votre API. Lorsque des changements interviendrons sur votre API, vous pouvez ainsi proposer aux développeurs de s'adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées\footnote{Il y a un excellent \href{http://railscasts.com/episodes/350-rest-api-versioning}{railscast} qui explique cela}.
+    Il est maintenant temps de mettre en place d'autres contraintes pour le \textit{versioning}. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une meilleure structure à votre API. Lorsque des changements interviendrons sur votre API, vous pouvez ainsi proposer aux développeurs de s'adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées\footnote{Il y a un excellent \href{http://railscasts.com/episodes/350-rest-api-versioning}{railscast} qui explique cela}.
 
     Afin de définir la version de l'API, nous devons d'abord ajouter un autre répertoire sous le dossier \verb|api/| que nous avons créé (Section \ref{section:setup_api}):
 
@@ -818,7 +818,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-  \section{Améliorer le versionning}\label{section:improve_api_versioning}
+  \section{Améliorer le versionnement}\label{section:improve_api_versioning}
 
     Jusqu'à présent, l'API est versionnée via l'URL. Mais quelque chose ne va pas. De mon point de vue, le développeur ne devrait pas être au courant de la version qu'il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir?
 
@@ -847,7 +847,7 @@
 
     \end{tcolorbox}
 
-    Avec Rails, il est très facile d'ajouter ce type de versionnement par le biais d'un en-tête HTTP \verb|Accept|. Nous allons créer une classe sous le répertoire \verb|lib|. N'oubliez pas que nous faisons du TDD\footnote{Développement Dirrigé par les tests} donc nous allons commencer par un test. (Liste \ref{lst:create_api_constraints_spec}).
+    Avec Rails, il est très facile d'ajouter ce type de versionnement par le biais d'un en-tête HTTP \verb|Accept|. Nous allons créer une classe sous le répertoire \verb|lib|. N'oubliez pas que nous faisons du TDD\footnote{Développement Dirigé par les tests} donc nous allons commencer par un test. (Liste \ref{lst:create_api_constraints_spec}).
 
     Tout d'abord, nous devons ajouter notre suite de tests, qui dans notre cas sera \href{http://rspec.info/}{Rspec} (Listing \ref{lst:add_rspect_to_gemfile}):
 
@@ -988,7 +988,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    La configuration ci-dessus gère maintenant le versioning par le biais des en-têtes HTTP. Pour l'instant la version 1 est la version par défaut. Chaque requête sera redirigée vers cette version, peu importe si l'en-tête avec la version est présent ou non.
+    La configuration ci-dessus gère maintenant le \textit{versioning} par le biais des en-têtes HTTP. Pour l'instant la version 1 est la version par défaut. Chaque requête sera redirigée vers cette version, peu importe si l'en-tête avec la version est présent ou non.
 
     Avant de nous dire au revoir, faisons nos premiers tests et assurons-nous que notre test fonctionne:
 
@@ -1265,7 +1265,7 @@
     \end{itemize}
 
     \begin{tcolorbox}{Les codes HTTP courants}\label{box:common_http_code}
-      Le premier chiffre du code d'état spécifie l'une des cinq classes de réponse. Le strict minimum pour un client HTTP est qu'il utilise une ces cinq classes. Voici une liste des codes HTTP courrament utilisés:
+      Le premier chiffre du code d'état spécifie l'une des cinq classes de réponse. Le strict minimum pour un client HTTP est qu'il utilise une ces cinq classes. Voici une liste des codes HTTP couramment utilisés:
 
       \begin{description}
         \item[200] Réponse standard pour les requêtes HTTP réussies. C'est généralement sur les requêtes GET
@@ -1327,7 +1327,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Il suffit ensuite d'ajouter l'action à notre contrôlleur (Listing \ref{lst:add_show_to_users_controller_spec}). C'est extrêmement simple:
+    Il suffit ensuite d'ajouter l'action à notre contrôleur (Listing \ref{lst:add_show_to_users_controller_spec}). C'est extrêmement simple:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Le contrôlleur des utilisateurs avec l'action' 'show'}, label={lst:add_show_to_users_controller_spec}]
@@ -1383,7 +1383,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Ce type d'erreur est très courant lorsque vous générer vos ressources à la main! En effet, nous vons totalement oublié les routes. Alors ajoutons-les (Figure \ref{lst:add_route_users_show}):
+    Ce type d'erreur est très courant lorsque vous générer vos ressources à la main! En effet, nous avons totalement oublié les routes. Alors ajoutons-les (Listing \ref{lst:add_route_users_show}):
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Ajoute de la route Users\#Show}, label={lst:add_route_users_show}]
@@ -1735,7 +1735,7 @@
       \end{lstlisting}
       \end{scriptsize}
 
-      Vue que tout fonctionne, on effecte un \verb|commit|:
+      Vue que tout fonctionne, on effectue un \verb|commit|:
 
       \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -1827,15 +1827,12 @@
       \end{lstlisting}
       \end{scriptsize}
 
-  \section{Integrating Sabisu}
-
-    % TODO ?
 
   \section{Conclusion}
 
     Oh vous êtes là! Bien joué! Je sais que c'était probablement  long mais n'abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s'améliorer, dans le chapitre 4, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!
 
-\chapter{Refactoriser les tests}\label{chapter:4}
+\chapter{Factoriser les tests}\label{chapter:4}
 
   Dans le chapitre \ref{chapter:3} nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n'avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c'est une introduction aux réponses JSON.
 
@@ -1847,7 +1844,7 @@
     \end{lstlisting}
   \end{scriptsize}
 
-  Dans ce chapitre, nous allons refactoriser nos spécifications de test en ajoutant des méthodes d'aide, supprimer le paramètre de format envoyé sur chaque requête et le faire à travers les en-têtes, et nous espérons construire une suite de test plus cohérente et évolutive.
+  Dans ce chapitre, nous allons factoriser nos spécifications de test en ajoutant des méthodes d'aide, supprimer le paramètre de format envoyé sur chaque requête et le faire à travers les en-têtes, et nous espérons construire une suite de test plus cohérente et évolutive.
 
   Jetons donc un coup d'oeil au fichier \verb|users_controller_spec.rb| (Listing \ref{lst:users_controller_spec_before_factorization}):
 
@@ -1984,7 +1981,7 @@
 
   \section{Refactorisation de la réponse JSON}\label{sec:refactoring_json_response}
 
-    De retour à notre refactorisation, nous allons créer un fichier sous le répertoire \verb|spec/support|. Actuellement, nous n'avons pas ce répertoire, alors créons-le:
+    De retour à notre factorisation, nous allons créer un fichier sous le répertoire \verb|spec/support|. Actuellement, nous n'avons pas ce répertoire, alors créons-le:
 
     \begin{scriptsize}
     \begin{lstlisting}[language=bash]
@@ -2033,7 +2030,7 @@
 
     C'est maintenant à votre tour de mettre à jour l'ensemble du fichier!
 
-    Si vous essayez maintenant d'exécuter vos tests avec \verb|bundle exec rspec spec/controllers| vous allez avoir une erreur. C'est normal. La méthode \verb|json_response| n'est pas chargée dans le fichier \verb|rails_helper.rb|. Il faut donc modifier un peu notre \verb|rails_helper| qui s'occuppe de configurer nos tests:
+    Si vous essayez maintenant d'exécuter vos tests avec \verb|bundle exec rspec spec/controllers| vous allez avoir une erreur. C'est normal. La méthode \verb|json_response| n'est pas chargée dans le fichier \verb|rails_helper.rb|. Il faut donc modifier un peu notre \verb|rails_helper| qui s’occupe de configurer nos tests:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Ajout des méthodes de request\_helpers.rb}]
@@ -2126,7 +2123,7 @@
 
     C'est bien mais on peut mieux faire. En effet, nous devrons ajouter ces cinq lignes de code pour chaque fichier. Si pour une raison quelconque, nous changeons le type de réponse en XML, nous devrions modifier les cinq fichiers manuellement. Ne vous inquiétez pas, je vais vous proposer une solution qui résoudra tous ces problèmes.
 
-    Tout d'abord, nous devons étendre notre fichier \verb|request_helpers.rb| pour inclure un autre module que j'ai nommé \verb|HeadersHelpers| et qui aura les méthodes nécessaires pour gérer ces headers personnalisés (Listing \ref{lst:add_headers_to_request_helpers})
+    Tout d'abord, nous devons étendre notre fichier \verb|request_helpers.rb| pour inclure un autre module que j'ai nommé \verb|HeadersHelpers| et qui aura les méthodes nécessaires pour gérer ces en-têtes personnalisés (Listing \ref{lst:add_headers_to_request_helpers})
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Ajout d'un helper pour spécifier les headers des tests}, label={lst:add_headers_to_request_helpers}]
@@ -2220,7 +2217,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Et bien maintenant je suis satisfait du code. \textit{Comittons} nos changements:
+    Et bien maintenant je suis satisfait du code. \textit{Commitons} nos changements:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -2237,7 +2234,7 @@
 
 \chapter{Authentification des utilisateurs}\label{chapter:5}
 
-  Cela fait longtemps que vous avez commencé. J'espère que vous appréciez ce voyage autant que moi. Au chapitre 4, nous avons refactorisé notre suite de tests et, comme nous n'avons pas ajouté beaucoup de code, cela n'a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
+  Cela fait longtemps que vous avez commencé. J'espère que vous appréciez ce voyage autant que moi. Au chapitre 4, nous avons factorisé notre suite de tests et, comme nous n'avons pas ajouté beaucoup de code, cela n'a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
 
   Vous pouvez cloner le projet jusqu'ici:
 
@@ -2365,7 +2362,7 @@
       \end{scriptsize}
 
       \begin{tcolorbox}
-        Afin d'utilliser la méthode \verb|validate_uniqueness_of|, il faut installer la gem \verb|shoulda-matchers|. Pour cela, nous rajoutons la gem dans le \verb|Gemfile|:
+        Afin d’utiliser la méthode \verb|validate_uniqueness_of|, il faut installer la gemme \verb|shoulda-matchers|. Pour cela, nous rajoutons la gemme dans le \verb|Gemfile|:
 
         \begin{scriptsize}
           \begin{lstlisting}[language=ruby]
@@ -2463,7 +2460,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-    \subsection{Le contrôlleur de session}
+    \subsection{Le contrôleur de session}
 
       De retour au contrôleur de sessions. Les actions que nous allons implémenter seront gérées en tant que services RESTful: la connexion sera gérée par une demande POST à l'action \verb|create| (Section 5.1.2.1) et la déconnexion par une demande DELETE à l'action \verb|destroy| (Rappel pour la liste \ref{desc:http_verbs} des verbes HTTP).
 
@@ -2694,7 +2691,7 @@
 
     Quand il s'agit de l'authentification, j'aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d'inclure le fichier dans le \verb|ApplicationController|. De cette façon, il est très facile à tester de manière isolée.
 
-    Créeons-donc le fichier dans le répertoire \verb|controllers/concerns|:
+    Créons-donc le fichier dans le répertoire \verb|controllers/concerns|:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -2855,7 +2852,7 @@
 
     A ce stade, nous venons de construire un mécanisme d'autorisation très simple pour empêcher les utilisateurs non signés d'accéder à l'API. Il suffit de mettre à jour le fichier \verb|users\_controller.rb| avec la méthode \verb|current_user| et d'empêcher l'accès avec la commande \verb|authenticate_with_token!|!
 
-    \textit{Comitons} ces changements et continuons d'avancer:
+    \textit{Commitons} ces changements et continuons d'avancer:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -2951,7 +2948,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Maintenant, les tests devraient passer. Mais attendez, quelque chose ne va pas, n'est-ce pas? Nous pouvons refactoriser la ligne que nous venons d'ajouter et la mettre dans le module \verb|HeadersHelpers| que nous construisons au chapitre \ref{chapter:4} (Listing \ref{lst:add_api_authorization_helper}):
+    Maintenant, les tests devraient passer. Mais attendez, quelque chose ne va pas, n'est-ce pas? Nous pouvons factoriser la ligne que nous venons d'ajouter et la mettre dans le module \verb|HeadersHelpers| que nous construisons au chapitre \ref{chapter:4} (Listing \ref{lst:add_api_authorization_helper}):
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, label={lst:add_api_authorization_helper}, caption={Factorisation de l'initialisation de l'en-tête Authorization}]
@@ -3073,7 +3070,7 @@
 
     Nos tests devraient être encore bons. Et à partir de maintenant, chaque fois que nous voulons éviter qu'une action ne soit déclenchée, nous ajoutons simplement la méthode \verb|authenticate_with_token!| sur un hook \verb|before_action|.
 
-    \textit{Comitons} tout ça:
+    \textit{Commitons} tout ça:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -3153,7 +3150,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    \textit{Comitons} tout ça:
+    \textit{Commitons} tout ça:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -3194,7 +3191,7 @@
 
     Nous commencerons d'abord par créer un modèle de \verb|Product| puis nous y ajouterons quelques validations et enfin nous l'associons au modèle \verb|User|. Comme le modèle \verb|User|, le \verb|Product| sera entièrement testé et sera automatiquement supprimé si l'utilisateur est supprimé.
 
-    \subsection{Les foncdements du produit}
+    \subsection{Les fondements du produit}
 
       Le modèle \verb|Product| aura besoin de plusieurs champs: un attribut \verb|price| pour le prix du produit, un booléen \verb|published| pour savoir si le produit est prêt à être vendu ou non, un \verb|title| pour définir un titre de produit sexy, et enfin et surtout un \verb|user_id| pour associer ce produit particulier à un utilisateur. Comme vous le savez peut-être déjà, nous le générons avec la commande \verb|rails generate|:
 
@@ -3234,7 +3231,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      Notez que nous avons défini des valeurs par défaut pour tous les attributs à l'exception de \verb|user_id|, de cette façon nous gardons un haut niveau de cohérence dans notre base de données car nous ne traitons pas beaucoup de valeurs NULL.
+      Notez que nous avons défini des valeurs par défaut pour tous les attributs à l'exception de \verb|user_id|, de cette façon nous gardons un haut niveau de cohérence dans notre base de données car nous ne traitons pas beaucoup de valeurs \verb|NULL|.
 
       Ensuite, nous ajouterons quelques tests de base au modèle de produit. Nous nous assurerons simplement que l'objet répond aux champs que nous avons ajoutés, comme indiqué dans le listing \ref{lst:create_product_spec}:
 
@@ -3335,7 +3332,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      \textit{Comitons} ces changements et continuons d'avancer:
+      \textit{Commitons} ces changements et continuons d'avancer:
 
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -3442,7 +3439,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-    \subsection{Supression en cascade}
+    \subsection{Suppression en cascade}
 
       Ce que j'ai vu dans le code d'autres développeurs, lorsqu'ils travaillent avec des associations, c'est qu'ils oublient la destruction des dépendances entre les modèles. Ce que je veux dire par là, c'est que si un utilisateur est supprimé, les produits de l'utilisateur devraient l'être aussi.
 
@@ -3510,7 +3507,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      \textit{Comitons} ces changements et continuons d'avancer:
+      \textit{Commitons} ces changements et continuons d'avancer:
 
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -3665,7 +3662,7 @@
           \end{lstlisting}
         \end{scriptsize}
 
-        n'est plus disponnible depuis Rspec 3.0. Il faut donc installer une librairie supplémentaire:
+        n'est plus disponible depuis Rspec 3.0. Il faut donc installer une librairie supplémentaire:
 
         \begin{scriptsize}
           \begin{lstlisting}[language=ruby]
@@ -3706,7 +3703,7 @@
 
       Dans les chapitres suivants, nous allons améliorer ce point d'entré et donner la possibilité de recevoir des paramètres pour les filtrer.
 
-      \textit{Comitons} ces changements et continuons d'avancer:
+      \textit{Commitons} ces changements et continuons d'avancer:
 
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -3957,7 +3954,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      Comme vous pouvez le constater, l'implémentation est assez simple. Nous allons simplement récuéré le produit auprès de l'utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au \verb|before_action|, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
+      Comme vous pouvez le constater, l'implémentation est assez simple. Nous allons simplement récupéré le produit auprès de l'utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au \verb|before_action|, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
 
       Si on lance les tests, ils devraient passer:
 
@@ -4096,7 +4093,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    C'est parce que nous utilisons la console sur l'environnement de développement. Mais ça n'a pas de sens avec notre Gemfile qui ressemble actuellement à ceci:
+    C'est parce que nous utilisons la console sur l'environnement de développement. Mais ça n'a pas de sens avec notre \verb|Gemfile| qui ressemble actuellement à ceci:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
@@ -4152,7 +4149,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-  \section{Conlusion}
+  \section{Conclusion}
 
     Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produit à l'aide de la gemme \textit{active model serializers}. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
 
@@ -4189,7 +4186,7 @@
     \end{lstlisting}
   \end{scriptsize}
 
-  Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme \verb|active_model_serializers|. Pour plus d'informations vous pouvez consulter le \href{https://github.com/rails-api/active_model_serializers}{répertoire sur github}. Je vais couvrir quelques points ici, de l'installation à l'implémentation, mais je vous recommande de jetter un oeuil à la documentation.
+  Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme \verb|active_model_serializers|. Pour plus d'informations vous pouvez consulter le \href{https://github.com/rails-api/active_model_serializers}{répertoire sur Github}. Je vais couvrir quelques points ici, de l'installation à l'implémentation, mais je vous recommande de jeter un œil à la documentation.
 
   Vous pouvez cloner le projet jusqu'à ce point avec:
 
@@ -4223,7 +4220,7 @@
 
     Exécutez la commande d'installation du paquet pour installer la gemme ... et c'est tout! Vous devriez être prêt à continuer avec ce tutoriel.
 
-  \section{Serialiser l'utilisateur}\label{sec:serialize_user}
+  \section{Sérialiser l'utilisateur}\label{sec:serialize_user}
 
     Nous devons d'abord ajouter un fichier \verb|user_serializer|. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
@@ -4264,7 +4261,7 @@
       Cela signifie que peu importe si nous utilisons la méthode \verb|render json| ou \verb|respond_with|. A partir de maintenant, Rails recherchera le sérialiseur correspondant en premier.
     \end{displayquote}
 
-    Maintenant, de retour aux tests, vous pouvez voir que pour une raison quelconque, la réponse n'est pas tout à fait ce que nous attendons. C'est parce que la gemme réduit la réponse que nous avions précedement définie. Donc pour faire passer les tests, il suffit d'ajouter les attributs à sérialiser dans le \verb|user_serializer.rb| et de mettre à jour le fichier \verb|users_controller_spec.rb|:
+    Maintenant, de retour aux tests, vous pouvez voir que pour une raison quelconque, la réponse n'est pas tout à fait ce que nous attendons. C'est parce que la gemme réduit la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit d'ajouter les attributs à sérialiser dans le \verb|user_serializer.rb| et de mettre à jour le fichier \verb|users_controller_spec.rb|:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -4287,7 +4284,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    \textit{Comitons} ces changements et continuons d'avancer:
+    \textit{Commitons} ces changements et continuons d'avancer:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -4322,7 +4319,7 @@
 
     Et voilà. Ce n'est pas plus compliqué que ça. Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons.
 
-    \textit{Comitons} ces petits changements:
+    \textit{Commitons} ces petits changements:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -4359,7 +4356,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    C'est une bonne idée d'intégrer des modèles dans d'autres modèles dans d'autres modèle car cela évite au client de l'API d'executer plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d'étranglement. Permettez-moi d'expliquer, à l'aide d'un cas d'utilisation, l'application réelle telle qu'elle est illustrée dans l'encadré \ref{box:association_embeded}.
+    C'est une bonne idée d'intégrer des modèles dans d'autres modèles dans d'autres modèle car cela évite au client de l'API d’exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d'étranglement. Permettez-moi d'expliquer, à l'aide d'un cas d'utilisation, l'application réelle telle qu'elle est illustrée dans l'encadré \ref{box:association_embeded}.
 
     \begin{tcolorbox}{Cas d'utilisation d'un objet incorporé dans une association}\label{box:association_embeded}
 
@@ -4602,7 +4599,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      \textit{Comittons} nos changements:
+      \textit{Commitons} nos changements:
 
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -4960,7 +4957,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      \textit{Comitons} ces changements:
+      \textit{Commitons} ces changements:
 
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -4980,8 +4977,8 @@
 
   \begin{itemize}
     \item Créer un modèle de commande avec les spécifications correspondantes
-    \item Gérer l'association de sortie json entre l'utilisateur de la commande et les modèles de produits
-    \item Envoyer un email de confirmation avec le récapitulatif de la commande
+    \item Gérer l'association de sortie JSON entre l'utilisateur de la commande et les modèles de produits
+    \item Envoyer un courriel de confirmation avec le récapitulatif de la commande
   \end{itemize}
 
   Maintenant que tout est clair, on peut commencer à travailler. Vous pouvez cloner le projet jusqu'à ce point avec:
@@ -5243,7 +5240,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    \textit{Comitons} ces changements et continuons d'avancer:
+    \textit{Commitons} ces changements et continuons d'avancer:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
@@ -5547,7 +5544,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      Ok donc tout va bien. Nous devrions maintenant passer au chapitre suivant, non? Laissez-moi faire une pause avanat. Nous avons de graves erreurs sur l'application et elles ne sont pas liées au code lui-même mais sur la partie métier.
+      Ok donc tout va bien. Nous devrions maintenant passer au chapitre suivant, non? Laissez-moi faire une pause avant. Nous avons de graves erreurs sur l'application et elles ne sont pas liées au code lui-même mais sur la partie métier.
 
       Ce n'est pas parce que les tests passent que l'application remplit la partie métier de l'application. Je voulais en parler parce que dans de nombreux cas, c'est super facile de simplement recevoir des paramètres et de construire des objets à partir de ces paramètres. Dans notre cas, nous ne pouvons pas nous fier aux données que nous recevons. En effet, nous laissons ici le client fixer le total de la commande! Ouais, c'est fou!
 
@@ -5608,7 +5605,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      Nous pouvons maintenant \textit{hooker}\footnote{Je n'ai pas trouvé de traductions française correcte pour ce terme. Il s'agit de lancer une actions lorsque un évenènement est appelé.} la méthode \verb|set_total!| à un rappel \verb|before_validation| pour s'assurer qu'il a le bon total avant la validation.
+      Nous pouvons maintenant \textit{hooker}\footnote{Je n'ai pas trouvé de traductions française correcte pour ce terme. Il s'agit de lancer une actions lorsque un évènement est appelé.} la méthode \verb|set_total!| à un rappel \verb|before_validation| pour s'assurer qu'il a le bon total avant la validation.
 
       \begin{scriptsize}
         \begin{lstlisting}[language=ruby]
@@ -5632,7 +5629,7 @@
         \end{lstlisting}
       \end{scriptsize}
 
-      C'est maintenant le moment de voir le fichier \verb|orders_controller_spec.rb| et de refactoriser du code. Actuellement, nous avons quelque chose comme:
+      C'est maintenant le moment de voir le fichier \verb|orders_controller_spec.rb| et de factoriser du code. Actuellement, nous avons quelque chose comme:
 
       \begin{scriptsize}
         \begin{lstlisting}[language=bash]
@@ -5722,9 +5719,9 @@
 
   \section{Customiser l'affichage JSON des commandes}
 
-    Maintenant que nous avons construit les routs nécessaires pour les commandes nous pouvons personnaliser les informations que nous voulons rendre sur la sortie JSON pour chaque commande.
+    Maintenant que nous avons construit les routes nécessaires pour les commandes nous pouvons personnaliser les informations que nous voulons rendre sur la sortie JSON pour chaque commande.
 
-    Si vous vous souvenez du chaptitre \ref{chapter:7}, nous allons ici aussi utiliser \textit{Active Model Serializers}. Commençons donc par créer un séraliseur pour les commandes:
+    Si vous vous souvenez du chapitre \ref{chapter:7}, nous allons ici aussi utiliser \textit{Active Model Serializers}. Commençons donc par créer un sérialiseur pour les commandes:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -5744,7 +5741,7 @@
     \end{scriptsize}
 
 
-    Nous allons ajouter l'association des produits et l'attribut \verb|total| à la sortie JSON. Pour nous assurer que tout fonctionne bien, et comme d'habitude, nous ferons quelques tests. Afin d'éviter la duplication de code sur les tests, je vais juste ajouter une spécification pour le spectacle et m'assurer que les données supplémentaires sont rendues. C'est parce que j'utilise le même sérialiseur chaque fois qu'un objet d'ordre est analysé à json, donc dans ce cas, je dirais qu'il est très bien:
+    Nous allons ajouter l'association des produits et l'attribut \verb|total| à la sortie JSON. Pour nous assurer que tout fonctionne bien, et comme d'habitude, nous ferons quelques tests. Afin d'éviter la duplication de code sur les tests, je vais juste ajouter une spécification pour le spectacle et m'assurer que les données supplémentaires sont rendues. C'est parce que j'utilise le même sérialiseur chaque fois qu'un objet d'ordre est analysé à JSON, donc dans ce cas, je dirais qu'il est très bien:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
@@ -5824,7 +5821,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    De cette façon, les deux sérialiseurs seront maintenant lié et il suffira d'ajouter un champ à \verb|ProductSerializer| et il sera ajouté à \verb|OrderProductSerializer|. Maintenant, nous voulons supprimer l'utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela\footnote{Pour plus d'informations, jettez un oeuil à la documentation de  ActiveModelSerializer}:
+    De cette façon, les deux sérialiseurs seront maintenant lié et il suffira d'ajouter un champ à \verb|ProductSerializer| et il sera ajouté à \verb|OrderProductSerializer|. Maintenant, nous voulons supprimer l'utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela\footnote{Pour plus d'informations, jetez un œil à la documentation de  ActiveModelSerializer}:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
@@ -5837,7 +5834,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Après avoir fait ce changement, nous devons dire au \verb|order_serializer| d'utiliser le serializer que nous venons de créer en passant simplement une option à l'association \verb|has_many| sur le \verb|order_serializer|:
+    Après avoir fait ce changement, nous devons dire au \verb|order_serializer| d'utiliser le sérialiseur que nous venons de créer en passant simplement une option à l'association \verb|has_many| sur le \verb|order_serializer|:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
@@ -5873,11 +5870,11 @@
 
   \section{Envoyer un email de confirmation}
 
-    La dernière section de ce chapitre sera d'envoyer un email de confirmation à l'utilisateur qui vient de créer une commande. Si vous voulez sauter cette étape et passer au chapitre \ref{chapter:9} suivant, allez-y! Cette section est plus à un échauffement.
+    La dernière section de ce chapitre sera d'envoyer un courriel de confirmation à l'utilisateur qui vient de créer une commande. Si vous voulez sauter cette étape et passer au chapitre \ref{chapter:9} suivant, allez-y! Cette section est plus à un échauffement.
 
-    Vous êtes peut-être familier avec la manipulation d'email avec Rails, je vais essayer de rendre cela simple et rapide:
+    Vous êtes peut-être familier avec la manipulation des courriels avec Rails, je vais essayer de rendre cela simple et rapide:
 
-    Nouscommençons par créer le \verb|order_mailer|:
+    Nous commençons par créer le \verb|order_mailer|:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -5885,7 +5882,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Pour faciliter le test de l'email, nous utiliserons une gemme appelée \href{https://github.com/email-spec/email-spec}{email\_spec}. Elle inclut un tas de méthodes utiles pour tester les emails.
+    Pour faciliter le test de l'email, nous utiliserons une gemme appelée \href{https://github.com/email-spec/email-spec}{email\_spec}. Elle inclut un tas de méthodes utiles pour tester les courriels.
 
     Donc d'abord ajoutons la gemme au \verb|Gemfile|:
 
@@ -6069,7 +6066,7 @@
 
   \section{Conclusion}
 
-   Ca y est! Vous avez réussi! Vous pouvez vous applaudir. Je sais que ça a été long mais c'est presque finit, croyez moi.
+   Ça y est! Vous avez réussi! Vous pouvez vous applaudir. Je sais que ça a été long mais c'est presque finit, croyez moi.
 
    Sur les chapitres à venir, nous continuerons à travailler sur le modèle de commande pour ajouter des validations lors de la passation d'une commande. Certains scénarios sont:
 
@@ -6140,7 +6137,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Il est maintenant temps de diminuer la quantité du \verb|Product| une fois l' \verb|Order| passée. La première chose qui vous vient probablement à l'esprit est de le faire dans le modèle \verb|Order| et c'est une erreur fréquente. Lorsque vous travaillez avec des associations Many-to-Many, nous oublions totalement le modèle de jointure qui dans ce cas est \verb|Placement|. Le \verb|Placement| est un meilleur endroit pour gérer cela car nous avons accès à la commande et au produit. Ainsi, nous pouvons facilement diminuer le stock du produit.
+    Il est maintenant temps de diminuer la quantité du \verb|Product| une fois l' \verb|Order| passée. La première chose qui vous vient probablement à l'esprit est de le faire dans le modèle \verb|Order| et c'est une erreur fréquente. Lorsque vous travaillez avec des associations \textit{Many-to-Many}, nous oublions totalement le modèle de jointure qui dans ce cas est \verb|Placement|. Le \verb|Placement| est un meilleur endroit pour gérer cela car nous avons accès à la commande et au produit. Ainsi, nous pouvons facilement diminuer le stock du produit.
 
     Avant de commencer à implémenter le code, nous devons changer la façon dont nous gérons la création de la commande car nous devons maintenant accepter une quantité pour chaque produit. Si vous vous souvenez de Listing \ref{lst:orders_controller_create}, nous attendons un tableau d'identifiants de produits. Je vais essayer de garder les choses simples et je vais envoyer un tableau de tableaux où la première position de chaque tableau interne sera l'identifiant du produit et la seconde la quantité.
 
@@ -6251,7 +6248,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Nous devons ensuite mettre un peu à jour notre controlleur des commandes:
+    Nous devons ensuite mettre un peu à jour notre contrôleur des commandes:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby]
@@ -6364,7 +6361,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Maintenant, nos tests devarient passer:
+    Maintenant, nos tests devraient passer:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -6425,7 +6422,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    La mise en œuvre est assez simple comme le montre le lisitng \ref{lst:placement_decrement_product_quantity}.
+    La mise en œuvre est assez simple comme le montre le listing \ref{lst:placement_decrement_product_quantity}.
 
     \begin{scriptsize}
       \begin{lstlisting}[language=ruby, caption={Implémentation de la mise à jour de la quantité des produits}, label={lst:placement_decrement_product_quantity}]
@@ -6447,7 +6444,7 @@
 
     Afin de rendre les choses plus intéressantes, nous allons le faire à l'aide d'un validateur personnalisé\footnote{C'est juste pour garder les choses plus propres et vous montrer une autre technique pour réaliser des validations personnalisées}. Pour les validateurs personnalisés, vous pouvez consulter la \href{https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations}{documentation}.
 
-    Tout d'abord, nous devons créer un répertoire de \verb|validators| dans le répertoire \verb|app| (Rails le charge par défault) et ensuite créons un fichier dedans:
+    Tout d'abord, nous devons créer un répertoire de \verb|validators| dans le répertoire \verb|app| (Rails le charge par défaut) et ensuite créons un fichier dedans:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -6631,7 +6628,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    \textitit{Commitons} nos changements et récapitulons tout ce que nous venons de faire:
+    \textit{Commitons} nos changements et récapitulons tout ce que nous venons de faire:
 
     \begin{scriptsize}
       \begin{lstlisting}[language=bash]
@@ -6641,7 +6638,7 @@
 
   \section{Conclusion}
 
-    Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le chapitre \ref{chpater:1}, mais vous êtes à un pas de plus. En fait, le chapitre suivant serait le dernier. Alors essayez d'en tirer le meilleur.
+    Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le chapitre \ref{chapter:1}, mais vous êtes à un pas de plus. En fait, le chapitre suivant serait le dernier. Alors essayez d'en tirer le meilleur.
 
     Le dernier chapitre portera sur la façon d'optimiser l'API en utilisant la pagination, la mise en cache et les tâches d'arrière-plan. Donc bouclez vos ceintures, ça va être un parcours mouvementé.
 
