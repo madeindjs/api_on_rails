@@ -6,3 +6,4 @@
 *.pdf
 *.synctex.gz
 *.toc
+_minted-api-on-rails
