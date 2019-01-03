@@ -53,7 +53,7 @@
 
 \section{Avant-propos}
 
-  \textquote{API on Rails: Construction d'API REST avec Rails} est une mise à jour et une traduction française du livre \href{http://apionrails.icalialabs.com/book/}{\textquote{APIs on Rails: Building REST APIs with Rails}}. Celui-ci fut initialement publié en 2014 par \href{https://twitter.com/kurenn}{Abraham Kuri} sous les licences \href{http://opensource.org/licenses/MIT}{MIT} et \href{http://people.freebsd.org/~phk/}{Beerware}.
+  \enquote{API on Rails: Construction d'API REST avec Rails} est une mise à jour et une traduction française du livre \href{http://apionrails.icalialabs.com/book/}{\enquote{APIs on Rails: Building REST APIs with Rails}}. Celui-ci fut initialement publié en 2014 par \href{https://twitter.com/kurenn}{Abraham Kuri} sous les licences \href{http://opensource.org/licenses/MIT}{MIT} et \href{http://people.freebsd.org/~phk/}{Beerware}.
 
   \section{A propos de l'autheur original}
 
@@ -121,9 +121,9 @@
     J'utiliserai quelques principes spécifiques à Ruby. C'est-à-dire:
 
     \begin{itemize}
-      \item \textquote{Éviter} signifie que tu n'es pas censé le faire.
-      \item \textquote{Préférer} indique que parmi les 2 options, la première est la plus appropriée.
-      \item \textquote{Utiliser} signifie que vous êtes en mesure d'utiliser la ressource.
+      \item \enquote{Éviter} signifie que tu n'es pas censé le faire.
+      \item \enquote{Préférer} indique que parmi les 2 options, la première est la plus appropriée.
+      \item \enquote{Utiliser} signifie que vous êtes en mesure d'utiliser la ressource.
     \end{itemize}
 
     Si vous rencontrez une erreur quelconque lors de l’exécution d'une commande, je vous recommande d'utiliser un moteur de recherche pour trouvez votre solution. Malheureusement, je ne peux pas couvrir tous les erreurs possibles. Si vous avez envie de prendre une bière ou si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours \href{http://twitter.com/kurenn}{me tweeter} ou \href{mailto:contact@rousseau-alexandre.fr}{m'envoyer un email}.
@@ -344,7 +344,7 @@
 
     \subsection{Installer Pow ou Prax}\label{subsection:install_pow}
 
-      Vous pouvez vous demander \textquote{pourquoi diable voudrais-je installer ce type de paquet?}. La réponse est simple. Nous allons travailler avec des \href{http://en.wikipedia.org/wiki/Subdomain}{sous-domaines}. \href{http://pow.cx/}{Pow} et \href{https://github.com/ysbaddaden/prax.cr}{Prax} vont nous aider a les créer très facilement.
+      Vous pouvez vous demander \enquote{pourquoi diable voudrais-je installer ce type de paquet?}. La réponse est simple. Nous allons travailler avec des \href{http://en.wikipedia.org/wiki/Subdomain}{sous-domaines}. \href{http://pow.cx/}{Pow} et \href{https://github.com/ysbaddaden/prax.cr}{Prax} vont nous aider a les créer très facilement.
 
       \subsubsection{Installer Pow}
 
@@ -598,7 +598,7 @@
 
     Nous n'allons pas construire d'interface pour l'interaction avec l'API afin de ne pas surcharger le tutoriel.  Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks javascript (\href{https://angularjs.org/}{Angular}, \href{https://vuejs.org/}{Vue.JS}, \href{https://reactjs.org/}{React}) ou des librairies mobile (\href{https://github.com/AFNetworking/AFNetworking}{AFNetworking}).
 
-    À ce stade, vous devez vous poser la question \textquote{d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire}, et c'est juste. Si vous \textit{googlez} quelque chose lié à l'exploration d'une API, vous allez sûrement entendre parler de \href{https://www.getpostman.com/}{Postman}. C'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée  qui est un puissant client de moteur de type facteur pour explorer votre application Rails API's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
+    À ce stade, vous devez vous poser la question \enquote{d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire}, et c'est juste. Si vous \textit{googlez} quelque chose lié à l'exploration d'une API, vous allez sûrement entendre parler de \href{https://www.getpostman.com/}{Postman}. C'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée  qui est un puissant client de moteur de type facteur pour explorer votre application Rails API's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
     % TODO keep it?
 
   \section{Mettre en place l'API}\label{section:setup_api}
@@ -2737,7 +2737,7 @@
       end
       \end{lstlisting}
     \end{scriptsize}
-    \footnote{Si vous vous demandez \textquote{pourquoi diable avons-nous créé une classe d'authentification dans le fichier spec?}, La réponse est simple. Quand il s'agit de tester des modules, je trouve facile de les inclure dans une classe temporaire et de stub toutes les autres méthodes dont j'ai besoin plus tard, comme la requête montrée ci-dessus.}
+    \footnote{Si vous vous demandez \enquote{pourquoi diable avons-nous créé une classe d'authentification dans le fichier spec?}, La réponse est simple. Quand il s'agit de tester des modules, je trouve facile de les inclure dans une classe temporaire et de stub toutes les autres méthodes dont j'ai besoin plus tard, comme la requête montrée ci-dessus.}
 
     Notre test doit échouer. Implémentons donc le code pour qu'il passe (Listing \ref{lst:create_authenticable}):
 
@@ -5253,7 +5253,7 @@
 
     Il est maintenant temps de préparer le contrôleur de commandes à exposer la bonne commande. Si vous vous souvenez des chapitres précédents ou l'on avait utilisé \href{https://github.com/rails-api/active_model_serializers}{ActiveModelSerializers} vous devez vous rappeler que c'était vraiment facile.
 
-    \textquote{Mais attendez, que sommes-nous censés exposer?} vous vous demandez peut-être. Vous avez raison! Définissons d'abord quelles actions nous allons mettre en place:
+    \enquote{Mais attendez, que sommes-nous censés exposer?} vous vous demandez peut-être. Vous avez raison! Définissons d'abord quelles actions nous allons mettre en place:
 
     \begin{itemize}
       \item Une action d'indexation pour récupérer les commandes des utilisateurs en cours
@@ -5270,7 +5270,7 @@
       \end{lstlisting}
     \end{scriptsize}
 
-    Jusqu'ici, et avant de commencer à taper du code, nous devons nous demander, \textquote{Est-ce que je dois laisser les routes de ma commande imbriqués dans le UsersController ou bien je dois les isoler?}. La réponse est vraiment simple. Je dirais que cela dépend de la quantité d'informations dans ce cas en particulier que vous voulez exposer au développeur Pas du point de vue de la sortie JSON mais au niveau de l'URI.
+    Jusqu'ici, et avant de commencer à taper du code, nous devons nous demander, \enquote{Est-ce que je dois laisser les routes de ma commande imbriqués dans le UsersController ou bien je dois les isoler?}. La réponse est vraiment simple. Je dirais que cela dépend de la quantité d'informations dans ce cas en particulier que vous voulez exposer au développeur Pas du point de vue de la sortie JSON mais au niveau de l'URI.
 
     Dans notre cas, je vais emboîter les routes, parce que j'aime donner ce type d'information aux développeurs. Je pense que cela donne plus de contexte à la requête elle-même.
 
@@ -6678,7 +6678,7 @@ Comme je vous le dis depuis le début de ce livre, une partie importante et diff
 Une des convention les plus appliquée est très certainement \href{https://jsonapi.org/}{JSON:API}. JSON:API nous impose certaines règles à suivre comme:
 
 \begin{itemize}
-  \item Comment formater la présentation de 
+  \item Comment formater la présentation de
 \end{itemize}
 
 Cette convention nous permettra d'aborder la pagination (section \ref{sec:pagination}) plus sereinement.
@@ -6692,7 +6692,7 @@ Cette convention nous permettra d'aborder la pagination (section \ref{sec:pagina
 
   Si nous lisons la section sur le format, nous arriverons à une sous-section appelée \href{https://jsonapi.org/format/#document-top-level}{Top Level}. Pour vous expliquer rapidement, ils mentionnent quelque chose sur la pagination:
 
-  \textquote{"meta": méta-information sur une ressource, telle que la pagination.}
+  \enquote{"meta": méta-information sur une ressource, telle que la pagination.}
 
   Ce n'est pas très descriptif mais au moins nous avons un indice sur ce qu'il faut regarder ensuite au sujet de l'implémentation de la pagination. Ne vous inquiétez pas, c'est exactement ce que nous allons faire ici.
 
