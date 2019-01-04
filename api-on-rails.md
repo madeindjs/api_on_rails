@@ -1,10 +1,23 @@
 ---
-title: API on Rails - Construction d'API REST avec Rails
-author: Alexnadre Rousseau <contact@rousseau-alexandre.fr>
+title: API on Rails
+subtitle: Construction d'API REST avec Rails
+
+author: Alexandre Rousseau <contact@rousseau-alexandre.fr>
+creator: Alexandre Rousseau <contact@rousseau-alexandre.fr>
+
+cover-image: img/cover.png
+
+ibooks:
+  version: 1.3.4
+
+rights: © 2019 Alexandre Rousseau, CC BY-SA 4.0
+
 toc: true
-lang: fr
+lang: fr-FR
 documentclass: book
 links-as-notes: false
+
+
 ---
 
 
@@ -46,9 +59,9 @@ L'intention de ce livre n'est pas d'enseigner comment construire une API avec Ra
 
 Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vous donne des conseils et des faits intéressants pour améliorer vos compétences. Vous pouvez vous considérer comme le personnage principal d'un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
 
-Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon expérience. Cela signifie qu'après avoir initialisé le projet (Section 1.3), nous commencerons à utiliser Git (Section [4.3.5](#setup_git){reference-type="ref" reference="setup_git"}).
+Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon expérience. Cela signifie qu'après avoir initialisé le projet, nous commencerons à utiliser Git .
 
-Dans les prochains chapitres, nous allons construire l'application en suivant un *workflow* simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le développement piloté par les tests (TDD). Je vous expliquerai l'intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Du chapitre [6](#chapter:3){reference-type="ref" reference="chapter:3"} au chapitre [11](#chapter:8){reference-type="ref" reference="chapter:8"}, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant tous les points finaux nécessaires. Nous sécuriserons l'accès à l'API et en gérant l'authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre (Chapitre [13](#chapter:10){reference-type="ref" reference="chapter:10"}), nous ajouterons quelques techniques d'optimisation pour améliorer les temps de réponse du serveur.
+Dans les prochains chapitres, nous allons construire l'application en suivant un *workflow* simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le développement piloté par les tests (TDD). Je vous expliquerai l'intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant tous les routes nécessaires. Nous sécuriserons aussi l'accès à l'API en gérant l'authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d'optimisation pour améliorer la structure et le temp de réponse du serveur.
 
 L'application finale sera une fonction pour une application de place de marché où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme [Shopify](http://shopify.com/), [Spree](http://spreecommerce.com/) ou [Magento](http://magento.com/).
 
@@ -71,11 +84,11 @@ A command-line command
 
 J'utiliserai quelques principes spécifiques à Ruby. C'est-à-dire:
 
-- "Éviter" signifie que tu n'es pas censé le faire.
-- "Préférer" indique que parmi les 2 options, la première est la plus appropriée.
-- "Utiliser" signifie que vous êtes en mesure d'utiliser la ressource.
+- *"Éviter"* signifie que tu n'es pas censé le faire.
+- *"Préférer"* indique que parmi les 2 options, la première est la plus appropriée.
+- *"Utiliser"* signifie que vous êtes en mesure d'utiliser la ressource.
 
-Si vous rencontrez une erreur quelconque lors de l'exécution d'une commande, je vous recommande d'utiliser un moteur de recherche pour trouvez votre solution. Malheureusement, je ne peux pas couvrir tous les erreurs possibles. Si vous avez envie de prendre une bière ou si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours [me tweeter](http://twitter.com/kurenn) ou [m'envoyer un email](mailto:contact@rousseau-alexandre.fr).
+Si vous rencontrez une erreur quelconque lors de l'exécution d'une commande, je vous recommande d'utiliser votre moteur de recherche pour trouver votre solution. Malheureusement, je ne peux pas couvrir toutes les erreurs possibles. Si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours [m'envoyer un email](mailto:contact@rousseau-alexandre.fr).
 
 ## Pour commencer
 
@@ -103,13 +116,14 @@ label="box:kaishi_tools"}
 
 ### Éditeurs de texte et Terminal
 
-Il existe de nombreux cas dans lesquels les environnements de développement peuvent différer d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd (d'autres pourraient trouver que c'est la meilleure façon de travailler[^2]).
+Les environnements de développement diffèrent d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd
 
-Maintenant pour ceux qui sont comme moi, je peux vous dire qu'il y a beaucoup d'options disponibles que vous pouvez personnaliser via des plugins et plus.
 
-- **Éditeur de texte**: J'utilise personnellement [Vim](http://www.vim.org/) comme éditeur par défaut avec [Janus](https://github.com/carlhuda/janus) qui ajoute et gère plusieurs des plugins que vous allez probablement utiliser. Au cas où vous n'êtes pas un fan de Vim comme moi, il y a beaucoup d'autres solutions comme [Sublime Text](http://www.sublimetext.com/) qui est une multi-plateforme facile à apprendre et à personnaliser (c'est probablement votre meilleure option), il est fortement inspiré par [TextMate](http://macromates.com/)[^3]. Une troisième option est d'utiliser un éditeur de texte plus récent des gars de [Github](http://gitub.com/) appelé [Atom](https://atom.io/), c'est un éditeur de texte prometteur fait en Javascript. Il est facile à personnaliser pour répondre à vos besoins, faites un essai. N'importe lequel des éditeurs que je vous présente fera le travail, donc je vous laisserai décider lequel vous convient.
+Certains pensent que c'est la meilleure façon de travailler et, si c'est votre cas, je vous recommande d'essayer [RadRails](http://www.aptana.com/products/radrails) ou [RubyMine](http://www.jetbrains.com/ruby/index.html). Tout deux sont bien soutenus et possèdent de nombreuses intégrations par défaut. Maintenant pour ceux qui sont comme moi, je peux vous dire qu'il y a beaucoup d'outils disponibles que vous pouvez personnaliser via des plugins et plus.
 
-- **Terminal**: Si vous avez décidé d'utiliser [kaishi](http://icalialabs.github.io/kaishi/) pour paramétrer l'environnement, vous remarquerez qu'il définit le shell par défaut à `zsh`, ce que je recommande vivement. Pour le terminal, je ne suis pas un fan de l'application Terminal par défault sous Mac OS. Je recommande [iTerm2](http://www.iterm2.com/#/section/home), qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un beau terminal, mais le défaut devrait fonctionner très bien.
+- **Éditeur de texte**: J'utilise personnellement [Vim](http://www.vim.org/) comme éditeur par défaut avec [Janus](https://github.com/carlhuda/janus) qui ajoute et gère plusieurs des plugins que vous pouvez probablement utiliser. Au cas où vous n'êtes pas un fan de Vim, il y a beaucoup d'autres solutions comme [Sublime Text](http://www.sublimetext.com/) qui est une multi-plateforme facile à apprendre et à personnaliser (c'est probablement votre meilleure option), il est fortement inspiré par [TextMate](http://macromates.com/)[^3]. Une troisième option est d'utiliser un éditeur de texte plus récent des gars de [Github](http://gitub.com/) appelé [Atom](https://atom.io/), c'est un éditeur de texte prometteur fait en Javascript. Il est facile à personnaliser pour répondre à vos besoins, faites un essai. N'importe lequel des éditeurs que je vous présente fera le travail, donc je vous laisserai décider lequel vous convient.
+
+- **Terminal**: Si vous avez décidé d'utiliser [kaishi](http://icalialabs.github.io/kaishi/) pour paramétrer l'environnement, vous remarquerez qu'il définit le shell par défaut à `zsh`, ce que je recommande vivement. Pour le terminal, je ne suis pas un fan de l'application Terminal par défault sous Mac OS. Je recommande [iTerm2](http://www.iterm2.com/#/section/home), qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
 
 ### Navigateur web
 
@@ -117,7 +131,7 @@ Quand il s'agit de navigateurs, je conseillerai directement [Firefox](http://www
 
 ### Note sur les outils
 
-Vous ne voudrez peut-être pas inclure tous les paquets qui viennent avec [kaishi](http://icalialabs.github.io/kaishi/) et je vous comprends. Peut-être que vous avez déjà quelques outils installés. Je vais vous décrire comment installer seulement ce dont vous avez besoin pour commencer.
+Vous ne voudrez peut-être pas inclure tous les paquets que [kaishi](http://icalialabs.github.io/kaishi/) installe (et je vous comprends). Peut-être que vous avez déjà quelques outils installés. Je vais vous décrire comment installer seulement ce dont vous avez besoin pour commencer.
 
 ### Gestionnaire de paquets
 
@@ -672,7 +686,7 @@ Une liste commune des en-têtes utilisés est présentée ci-dessous:
 - **Accept**: Types de contenu acceptables pour la réponse. Exemple: `Accept: text/plain`
 - **Authorization**: Identifiants d'authentification pour l'authentification HTTP. Exemple: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
 - **Content-Type**: Le type MIME du corps de la requête (utilisé avec les requêtes POST et PUT). Exemple: `Content-Type: application/x-www-form-urlencoded`
-- **Origin**: Lance une demande de partage de ressources d'origine croisée (demande au serveur un en-tête de réponse `Accès-Contrôle-Autorisation-Autorisation-Origin`). Exemple: `Origin: http://www.example-social-network.com`
+- **Origin**: Lance une demande de partage de ressources d'origine croisée (demande au serveur un en-tête de réponse `Access-Controle-Autorisation-Autorisation-Origin`). Exemple: `Origin: http://www.example-social-network.com`
 - **User-Agent**: La chaîne d'agent utilisateur de l'agent utilisateur. Exemple: `User-Agent: Mozilla/5.0`
 
 Il est important que vous vous sentiez à l'aise et que vous les compreniez ces en-tête HTTP[^10].
@@ -6053,10 +6067,6 @@ Maintenant que nous avons corrigé cela, ajoutons les informations de pagination
 
 [^1]: Kaishi ne fonctionne actuellement que pour Mac OS
 
-[^2]: Si c'est votre cas, je vous recommande d'essayer avec
-    [RadRails](http://www.aptana.com/products/radrails) ou
-    [RubyMine](http://www.jetbrains.com/ruby/index.html), les deux sont
-    bien soutenus et possèdent de nombreuses intégrations par défaut.
 
 [^3]: disponible uniquement pour Mac OS
 
