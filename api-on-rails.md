@@ -833,20 +833,10 @@ Dans le dernier chapitre, nous avons réussi à mettre en place les bases de la 
 Vous pouvez cloner le projet jusqu'à ce point avec:
 
 ~~~bash
-    $ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_2
-
+$ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_2
 ~~~
 
-Comme vous pouvez déjà l'imaginer, il existe de nombreuses solutions
-d'authentification pour Rails comme
-[AuthLogic](https://github.com/binarylogic/authlogic),
-[Clearance](https://github.com/thoughtbot/clearance) et
-[Devise](https://github.com/plataformatec/devise). Nous utiliserons le
-dernier (Encadré
-[\[box:devise\_for\_authentification\]](#box:devise_for_authentification){reference-type="ref"
-reference="box:devise_for_authentification"}), qui offre un excellent
-moyen d'intégrer non seulement l'authentification de base, mais de
-nombreux autres modules pour une utilisation ultérieure.
+Comme vous pouvez déjà l'imaginer, il existe de nombreuses solutions d'authentification pour Rails comme [AuthLogic](https://github.com/binarylogic/authlogic), [Clearance](https://github.com/thoughtbot/clearance) et [Devise](https://github.com/plataformatec/devise). Nous utiliserons le dernier (Encadré [\[box:devise\_for\_authentification\]](#box:devise_for_authentification){reference-type="ref"reference="box:devise_for_authentification"}), qui offre un excellent moyen d'intégrer non seulement l'authentification de base, mais de nombreux autres modules pour une utilisation ultérieure.
 
 ### Devise pour l'authentification
 
@@ -1196,20 +1186,13 @@ Comme d'habitude, après avoir ajouté un des fonctionnalités dont nous sommes 
 ~~~bash
 $ git add .
 $ git commit -m "Adds show action the users controller"
-
 ~~~
 
 ### Tester notre ressource avec cURL
 
-Nous avons donc enfin une ressource à tester. Nous avons plusieurs
-solutions pour la tester. La première qui me vient à l'esprit est
-l'utilisation de cURL qui est intégré dans presque toutes les
-distributions Linux. Alors, essayons:
+Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions pour la tester. La première qui me vient à l'esprit est l'utilisation de cURL qui est intégré dans presque toutes les distributions Linux. Alors, essayons:
 
-Rappelez-vous que notre URI de base est `api.market_place_api.dev`
-(Section
-[5.2.1](#subsec:routes_constraints_namespaces){reference-type="ref"
-reference="subsec:routes_constraints_namespaces"}).
+Rappelez-vous que notre URI de base est `api.market_place_api.dev`.
 
 ~~~bash
 $ curl -H 'Accept: application/vnd.marketplace.v1' http://api.market_place_api.dev/users/1
@@ -1231,7 +1214,7 @@ http://api.market_place_api.dev/users/1
 {"id":1,"email":"example@marketplace.com", ...
 ~~~
 
-Et voilà! Vous avez maintenant une entrée d'API d'enregistrement d'utilisateur. Si vous avez des problèmes avec la réponse, vous devrez peut-être modifier le fichier `application_controller.rb` et ajouter la ligne suivante (Listing [\[lst:add\_protect\_from\_forgery\]](#lst:add_protect_from_forgery){reference-type="ref"reference="lst:add_protect_from_forgery"}):
+Et voilà! Vous avez maintenant une entrée d'API d'enregistrement d'utilisateur. Si vous avez des problèmes avec la réponse, vous devrez peut-être modifier le fichier `application_controller.rb` et ajouter la ligne suivante:
 
 ~~~ruby
 # app/controllers/application_controller.rb
@@ -1256,7 +1239,7 @@ Maintenant que nous avons une meilleure compréhension de la façon de construir
 
 Assurez-vous que votre répertoire Git est propre et que vous n'avez pas de fichier en `staging`. Si c'est le cas, *committez*-les pour que nous puissions recommencer à zéro.
 
-Commençons donc par écrire notre test tests en ajoutant une entrée pour créer un utilisateur sur le fichier `users_controller_spec.rb` (Listing [\[lst:add\_spec\_users\_controller\_create\]](#lst:add_spec_users_controller_create){reference-type="ref"reference="lst:add_spec_users_controller_create"}):
+Commençons donc par écrire notre test tests en ajoutant une entrée pour créer un utilisateur sur le fichier `users_controller_spec.rb` :
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
@@ -1931,8 +1914,7 @@ Pour finir ce chapitre, bien qu'il ait été court, c'était une étape cruciale
 
 ---
 
-Authentification des utilisateurs {#chapter:5}
-=================================
+# Authentification des utilisateurs {#chapter:5}
 
 Cela fait longtemps que vous avez commencé. J'espère que vous appréciez ce voyage autant que moi. Au chapitre 4, nous avons factorisé notre suite de tests et, comme nous n'avons pas ajouté beaucoup de code, cela n'a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
 
@@ -2323,38 +2305,20 @@ $ git commit -m "Adds destroy session action added"
 
 ## Utilisateur connecté
 
-Si vous avez déjà travaillé avec
-[devise](https://github.com/plataformatec/devise), vous connaissez
-sûrement déjà les méthodes générées pour gérer l'authentification ou
-bien pour obtenir l'utilisateur connecté (voir la
-[documentation](https://github.com/plataformatec/devise#getting-started)).
+Si vous avez déjà travaillé avec [devise](https://github.com/plataformatec/devise), vous connaissez sûrement déjà les méthodes générées pour gérer l'authentification ou bien pour obtenir l'utilisateur connecté (voir la [documentation](https://github.com/plataformatec/devise#getting-started)).
 
-Dans notre cas, nous allons remplacer la méthode `current_user` pour
-répondre à nos besoins. C'est-à-dire retrouver l'utilisateur gràce à son
-jeton d'authentification qui envoyé sur chaque requête. Laissez moi
-clarifier ce point.
+Dans notre cas, nous allons remplacer la méthode `current_user` pour répondre à nos besoins. C'est-à-dire retrouver l'utilisateur gràce à son jeton d'authentification qui envoyé sur chaque requête. Laissez moi clarifier ce point.
 
-Une fois que le client se connecte, l'API lui retourne son jeton
-d'authentification. A chaque fois que ce client demande une page
-protégée, nous devrons retrouver l'utilisateur à partir de ce jeton
-d'authentification que l'utilisateur aura passé en paramètre ou dans
-l'en-tête HTTP.
+Une fois que le client se connecte, l'API lui retourne son jeton d'authentification. A chaque fois que ce client demande une page protégée, nous devrons retrouver l'utilisateur à partir de ce jeton d'authentification que l'utilisateur aura passé en paramètre ou dans l'en-tête HTTP.
 
-Dans notre cas, nous utiliserons l'en-tête HTTP `Authorization` qui est
-souvent utilisé pour ça. Personnellement, je le trouve que c'est la
-meilleur manière parce que cela donne un contexte à la requête sans
-polluer l'URL avec des paramètres supplémentaires.
+Dans notre cas, nous utiliserons l'en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je le trouve que c'est la meilleur manière parce que cela donne un contexte à la requête sans polluer l'URL avec des paramètres supplémentaires.
 
-Quand il s'agit de l'authentification, j'aime ajouter toutes les
-méthodes associées dans un fichier séparé. Il suffit ensuite d'inclure
-le fichier dans le `ApplicationController`. De cette façon, il est très
-facile à tester de manière isolée.
+Quand il s'agit de l'authentification, j'aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d'inclure le fichier dans le `ApplicationController`. De cette façon, il est très facile à tester de manière isolée.
 
 Créons-donc le fichier dans le répertoire `controllers/concerns`:
 
 ~~~bash
 $ touch app/controllers/concerns/authenticable.rb
-
 ~~~
 
 Ensuite, créons un répertoire `concerns` sous `spec/controllers/` et un
@@ -2363,7 +2327,6 @@ fichier `authenticable_spec.rb` pour nos tests d'authentification:
 ~~~bash
 $ mkdir spec/controllers/concerns
 $ touch spec/controllers/concerns/authenticable_spec.rb
-
 ~~~
 
 Comme d'habitude, nous commençons par écrire nos tests. Dans ce cas,
@@ -2371,74 +2334,67 @@ notre méthode `current_user`, va chercher un utilisateur par le jeton
 d'authentification dans l'en-tête HTTP `Authorization`.
 
 ~~~ruby
-      # spec/controllers/concerns/authenticable_spec.rb
-      # ...
+# spec/controllers/concerns/authenticable_spec.rb
+# ...
 
-      class Authentication < ActionController::API
-        include Authenticable
-      end
+class Authentication < ActionController::API
+  include Authenticable
+end
 
 
-      RSpec.describe Authenticable do
-        let(:authentication) { Authentication.new }
-        subject { authentication }
+RSpec.describe Authenticable do
+  let(:authentication) { Authentication.new }
+  subject { authentication }
 
-        describe "#current_user" do
-          before do
-            @user = FactoryBot.create :user
-            request.headers["Authorization"] = @user.auth_token
-            authentication.stub(:request).and_return(request)
-          end
-          it "returns the user from the authorization header" do
-            expect(authentication.current_user.auth_token).to eql @user.auth_token
-          end
-        end
-      end
-
+  describe "#current_user" do
+    before do
+      @user = FactoryBot.create :user
+      request.headers["Authorization"] = @user.auth_token
+      authentication.stub(:request).and_return(request)
+    end
+    it "returns the user from the authorization header" do
+      expect(authentication.current_user.auth_token).to eql @user.auth_token
+    end
+  end
+end
 ~~~
 
 [^15]
 
-Notre test doit échouer. Implémentons donc le code pour qu'il passe
-(Listing
-[\[lst:create\_authenticable\]](#lst:create_authenticable){reference-type="ref"
-reference="lst:create_authenticable"}):
+Notre test doit échouer. Implémentons donc le code pour qu'il passe (Listing [\[lst:create\_authenticable\]](#lst:create_authenticable){reference-type="ref"reference="lst:create_authenticable"}):
 
-~~~ {#lst:create_authenticable language="ruby" caption="Implémentation de la méthode current\_user" label="lst:create_authenticable"}
-      # app/controllers/concerns/authenticable.rb
-      module Authenticable
-        # Devise methods overwrites
-        def current_user
-          @current_user ||= User.find_by(auth_token: request.headers['Authorization'])
-        end
-      end
-
+~~~ruby
+# app/controllers/concerns/authenticable.rb
+module Authenticable
+  # Devise methods overwrites
+  def current_user
+    @current_user ||= User.find_by(auth_token: request.headers['Authorization'])
+  end
+end
 ~~~
 
 Maintenant notre test devrait passer:
 
 ~~~bash
 $ bundle exec rspec spec/controllers/concerns/authenticable_spec.rb
-      .
+.
 
-      Finished in 0.0149 seconds (files took 0.49496 seconds to load)
-      1 example, 0 failures
-
+Finished in 0.0149 seconds (files took 0.49496 seconds to load)
+1 example, 0 failures
 ~~~
 
 Nous n'avons plus qu'à inclure le module `Authenticable` dans la classe
 `ApplicationController`:
 
 ~~~ruby
-      # app/controllers/application_controller.rb
-      class ApplicationController < ActionController::API
-        # Prevent CSRF attacks by raising an exception.
-        # For APIs, you may want to use :null_session instead.
-        protect_from_forgery with: :null_session
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::API
+  # Prevent CSRF attacks by raising an exception.
+  # For APIs, you may want to use :null_session instead.
+  protect_from_forgery with: :null_session
 
-        include Authenticable
-      end
-
+  include Authenticable
+end
 ~~~
 
 Et maintenant il est temps de *commiter* nos changements:
@@ -2449,131 +2405,96 @@ $ git commit -m "Adds authenticable module for managing authentication methods"
 
 ~~~
 
-Authentification avec le jeton
-------------------------------
+## Authentification avec le jeton
 
-L'autorisation joue un rôle important dans la construction des
-applications car, contrairement à l'authentification qui permet
-d'identifier l'utilisateur, l'autorisation nous aide à définir ce qu'il
-a le droit de faire.
+L'autorisation joue un rôle important dans la construction des applications car, contrairement à l'authentification qui permet d'identifier l'utilisateur, l'autorisation nous aide à définir ce qu'il a le droit de faire.
 
-Nous avons une route pour mettre à jour l'utilisateur mais il y a un
-problème: n'importe qui peut mettre à jour n'importe quel utilisateur.
-Dans cette section, nous allons mettre en œuvre une méthode qui exigera
-que l'utilisateur soit connecté afin d'empêcher tout accès non autorisé.
-Nous retournerons un message d'erreur JSON avec un code HTTP
+Nous avons une route pour mettre à jour l'utilisateur mais il y a un problème: n'importe qui peut mettre à jour n'importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l'utilisateur soit connecté afin d'empêcher tout accès non autorisé. Nous retournerons un message d'erreur JSON avec un code HTTP
 correspondant.
 
-Tout d'abord, nous allons ajouter quelques tests sur le fichier
-`authenticable_spec.rb` pour la méthode `authenticate_with_token`
-(Listing
-[\[lst:add\_authenticate\_with\_token\_test\]](#lst:add_authenticate_with_token_test){reference-type="ref"
-reference="lst:add_authenticate_with_token_test"}).
+Tout d'abord, nous allons ajouter quelques tests sur le fichier `authenticable_spec.rb` pour la méthode `authenticate_with_token` (Listing [\[lst:add\_authenticate\_with\_token\_test\]](#lst:add_authenticate_with_token_test){reference-type="ref"reference="lst:add_authenticate_with_token_test"}).
 
-~~~ {#lst:add_authenticate_with_token_test language="ruby" label="lst:add_authenticate_with_token_test" caption="Test de l'authentification par la méthode de jeton"}
-      # spec/controllers/concerns/authenticable_spec.rb
-      # ...
+~~~ruby
+# spec/controllers/concerns/authenticable_spec.rb
+# ...
 
-      class Authentication < ActionController::API
-        include Authenticable
-      end
+class Authentication < ActionController::API
+  include Authenticable
+end
 
-      RSpec.describe Authenticable do
+RSpec.describe Authenticable do
 
-        # ...
+  # ...
 
-        describe '#authenticate_with_token' do
-          before do
-            @user = FactoryBot.create :user
-            authentication.stub(:current_user).and_return(nil)
-            response.stub(:response_code).and_return(401)
-            response.stub(:body).and_return({ 'errors' => 'Not authenticated' }.to_json)
-            authentication.stub(:response).and_return(response)
-          end
+  describe '#authenticate_with_token' do
+    before do
+      @user = FactoryBot.create :user
+      authentication.stub(:current_user).and_return(nil)
+      response.stub(:response_code).and_return(401)
+      response.stub(:body).and_return({ 'errors' => 'Not authenticated' }.to_json)
+      authentication.stub(:response).and_return(response)
+    end
 
-          it 'render a json error message' do
-            expect(json_response[:errors]).to eql 'Not authenticated'
-          end
+    it 'render a json error message' do
+      expect(json_response[:errors]).to eql 'Not authenticated'
+    end
 
-          it { expect(response.response_code).to eq(401) }
-        end
-      end
-
+    it { expect(response.response_code).to eq(401) }
+  end
+end
 ~~~
 
-Comme vous pouvez le voir, nous utilisons à nouveau la classe
-Authentification et nous écrasons la requête et la réponse pour traiter
-la réponse attendue du serveur. Il est maintenant temps d'implémenter le
-code pour faire passer nos tests (Listing
-[\[lst:add\_authenticate\_with\_token\]](#lst:add_authenticate_with_token){reference-type="ref"
-reference="lst:add_authenticate_with_token"}).
+Comme vous pouvez le voir, nous utilisons à nouveau la classe Authentification et nous écrasons la requête et la réponse pour traiter la réponse attendue du serveur. Il est maintenant temps d'implémenter le code pour faire passer nos tests (Listing [\[lst:add\_authenticate\_with\_token\]](#lst:add_authenticate_with_token){reference-type="ref"reference="lst:add_authenticate_with_token"}).
 
-~~~ {#lst:add_authenticate_with_token language="ruby" label="lst:add_authenticate_with_token" caption="Ajout de l'authentification par la méthode de jeton"}
-      # app/controllers/concerns/authenticable.rb
-      module Authenticable
+~~~ruby
+# app/controllers/concerns/authenticable.rb
+module Authenticable
 
-        # ...
+  # ...
 
-        def authenticate_with_token!
-          unless current_user.present?
-            render json: { errors: 'Not authenticated' },
-                   status: :unauthorized
-          end
-        end
-      end
-
+  def authenticate_with_token!
+    unless current_user.present?
+      render json: { errors: 'Not authenticated' },
+             status: :unauthorized
+    end
+  end
+end
 ~~~
 
-A ce stade, nous venons de construire un mécanisme d'autorisation très
-simple pour empêcher les utilisateurs non signés d'accéder à l'API. Il
-suffit de mettre à jour le fichier `users\_controller.rb` avec la
-méthode `current_user` et d'empêcher l'accès avec la commande
-`authenticate_with_token!`!
+A ce stade, nous venons de construire un mécanisme d'autorisation très simple pour empêcher les utilisateurs non signés d'accéder à l'API. Il suffit de mettre à jour le fichier `users\_controller.rb` avec la méthode `current_user` et d'empêcher l'accès avec la commande `authenticate_with_token!`!
 
 *Commitons* ces changements et continuons d'avancer:
 
 ~~~bash
 $ git commit -m "Adds the authenticate with token method to handle access to actions"
-
 ~~~
 
-Autoriser les actions
----------------------
+## Autoriser les actions
 
-Il est maintenant temps de mettre à jour notre fichier
-`users_controller.rb` pour refuser l'accès à certaines actions. Nous
-allons aussi implémenter la méthode `current_user` sur l'action `update`
-et `destroy` afin de s'assurer que l'utilisateur qui est connecté ne
-sera capable que de mettre à jour que ses données et qu'il ne pourra
-supprimer que (et uniquement) son compte.
+Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l'accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l'action `update` et `destroy` afin de s'assurer que l'utilisateur qui est connecté ne sera capable que de mettre à jour que ses données et qu'il ne pourra supprimer que (et uniquement) son compte.
 
-Nous allons commencer par l'action `update` (Listing
-[\[lst:use\_current\_user\_on\_users\_update\]](#lst:use_current_user_on_users_update){reference-type="ref"
-reference="lst:use_current_user_on_users_update"}). Nous n'irons plus
-chercher l'utilisateur par son identifiant mais par l' `auth_token` sur
-l'en-tête `Authorization` fourni par la méthode `current_user`.
+Nous allons commencer par l'action `update` (Listing [\[lst:use\_current\_user\_on\_users\_update\]](#lst:use_current_user_on_users_update){reference-type="ref"reference="lst:use_current_user_on_users_update"}). Nous n'irons plus chercher l'utilisateur par son identifiant mais par l' `auth_token` sur l'en-tête `Authorization` fourni par la méthode `current_user`.
 
-~~~ {#lst:use_current_user_on_users_update language="ruby" label="lst:use_current_user_on_users_update" caption="Utilisation de la méthode current\_user pour l'action update"}
-      # app/controllers/api/v1/users_controller.rb
-      class Api::V1::UsersController < ApplicationController
+~~~ruby
+# app/controllers/api/v1/users_controller.rb
+class Api::V1::UsersController < ApplicationController
 
-        # ...
+  # ...
 
-        def update
-          # on change juste la methode ici
-          user = current_user
+  def update
+    # on change juste la methode ici
+    user = current_user
 
-          if user.update(user_params)
-            render json: user, status: 200, location: [:api, user]
-          else
-            render json: { errors: user.errors }, status: 422
-          end
-        end
+    if user.update(user_params)
+      render json: user, status: 200, location: [:api, user]
+    else
+      render json: { errors: user.errors }, status: 422
+    end
+  end
 
-        # ...
+  # ...
 
-      end
-
+end
 ~~~
 
 Et comme vous pouvez vous y attendre, si nous exécutons les tests de
@@ -2581,290 +2502,238 @@ notre *controller* utilisateurs, ils devraient échouer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/users_controller_spec.rb
-      .......FFFFF.
+.......FFFFF.
 
-      Failures:
+Failures:
 
-        1) Api::V1::UsersController PUT/PATCH #update when is successfully updated renders the json representation for the updated user
-           Failure/Error: if user.update(user_params)
+  1) Api::V1::UsersController PUT/PATCH #update when is successfully updated renders the json representation for the updated user
+     Failure/Error: if user.update(user_params)
 
-           NoMethodError:
-             undefined method `update' for nil:NilClass
+     NoMethodError:
+       undefined method 'update' for nil:NilClass
 
-         ...
-
+   ...
 ~~~
 
-La solution est assez simple, il suffit d'ajouter l'en-tête
-`Authorization` à la requête:
+La solution est assez simple, il suffit d'ajouter l'en-tête `Authorization` à la requête:
 
 ~~~ruby
-      # spec/controllers/api/v1/users_controller_spec.rb
+# spec/controllers/api/v1/users_controller_spec.rb
+
+# ...
+
+RSpec.describe Api::V1::UsersController, type: :controller do
+
+  # ...
+
+  describe 'PUT/PATCH #update' do
+    context 'when is successfully updated' do
+      before(:each) do
+        @user = FactoryBot.create :user
+        request.headers['Authorization'] = @user.auth_token
+        patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
+      end
 
       # ...
+    end
 
-      RSpec.describe Api::V1::UsersController, type: :controller do
-
-        # ...
-
-        describe 'PUT/PATCH #update' do
-          context 'when is successfully updated' do
-            before(:each) do
-              @user = FactoryBot.create :user
-              request.headers['Authorization'] = @user.auth_token
-              patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
-            end
-
-            # ...
-          end
-
-          context 'when is not created' do
-            before(:each) do
-              @user = FactoryBot.create :user
-              request.headers['Authorization'] = @user.auth_token
-              patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
-            end
-
-            # ...
-          end
-        end
-
-        # ...
+    context 'when is not created' do
+      before(:each) do
+        @user = FactoryBot.create :user
+        request.headers['Authorization'] = @user.auth_token
+        patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
       end
 
+      # ...
+    end
+  end
+
+  # ...
+end
 ~~~
 
-Maintenant, les tests devraient passer. Mais attendez, quelque chose ne
-va pas, n'est-ce pas? Nous pouvons factoriser la ligne que nous venons
-d'ajouter et la mettre dans le module `HeadersHelpers` que nous
-construisons au chapitre [7](#chapter:4){reference-type="ref"
-reference="chapter:4"} (Listing
-[\[lst:add\_api\_authorization\_helper\]](#lst:add_api_authorization_helper){reference-type="ref"
-reference="lst:add_api_authorization_helper"}):
-
-~~~ {#lst:add_api_authorization_helper language="ruby" label="lst:add_api_authorization_helper" caption="Factorisation de l'initialisation de l'en-tête Authorization"}
-      # spec/support/request_helpers.rb
-
-      module Request
-        # ...
-
-        module HeadersHelpers
-          # ...
-
-          def api_authorization_header(token)
-            request.headers['Authorization'] = token
-          end
-        end
-      end
-
-~~~
-
-Maintenant, chaque fois que nous avons besoin d'avoir l'utilisateur
-courant sur nos tests, nous appelons simplement la méthode
-`api_authorization_header`. Je vous laisse le faire avec
-`users_controller_spec.rb` pour la spécification de mise à jour:
+Maintenant, les tests devraient passer. Mais attendez, quelque chose ne va pas, n'est-ce pas? Nous pouvons factoriser la ligne que nous venons d'ajouter et la mettre dans le module `HeadersHelpers` que nous construisons au chapitre [7](#chapter:4){reference-type="ref"reference="chapter:4"} (Listing [\[lst:add\_api\_authorization\_helper\]](#lst:add_api_authorization_helper){reference-type="ref"reference="lst:add_api_authorization_helper"}):
 
 ~~~ruby
-      # spec/controllers/api/v1/users_controller_spec.rb
+# spec/support/request_helpers.rb
 
-      # ...
+module Request
+  # ...
 
-      RSpec.describe Api::V1::UsersController, type: :controller do
+  module HeadersHelpers
+    # ...
 
-        # ...
-
-        describe 'PUT/PATCH #update' do
-          context 'when is successfully updated' do
-            before(:each) do
-              @user = FactoryBot.create :user
-              api_authorization_header @user.auth_token
-              patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
-            end
-
-            # ...
-          end
-
-          context 'when is not created' do
-            before(:each) do
-              @user = FactoryBot.create :user
-              api_authorization_header @user.auth_token
-              patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
-            end
-
-            # ...
-          end
-        end
-
-        # ...
-      end
-
+    def api_authorization_header(token)
+      request.headers['Authorization'] = token
+    end
+  end
+end
 ~~~
 
-Pour l'action `destroy`, nous ferons la même chose car nous devons juste
-nous assurer qu'un utilisateur est capable de se supprimer (Listing
-[\[lst:add\_current\_user\_to\_users\_destroy\]](#lst:add_current_user_to_users_destroy){reference-type="ref"
-reference="lst:add_current_user_to_users_destroy"}):
-
-~~~ {#lst:add_current_user_to_users_destroy language="ruby" label="lst:add_current_user_to_users_destroy" caption="Mise à jour de l'action Users\#Destroy"}
-      # app/controllers/api/v1/users_controller.rb
-      class Api::V1::UsersController < ApplicationController
-
-        # ...
-
-        def destroy
-          current_user.destroy
-          head 204
-        end
-
-        # ...
-      end
-
-~~~
-
-Maintenant, pour le fichier de spécification et comme mentionné
-précédemment, nous avons juste besoin d'ajouter l'en-tête
-`api_authorization_header`:
+Maintenant, chaque fois que nous avons besoin d'avoir l'utilisateur courant sur nos tests, nous appelons simplement la méthode `api_authorization_header`. Je vous laisse le faire avec `users_controller_spec.rb` pour la spécification de mise à jour:
 
 ~~~ruby
-      # spec/controllers/api/v1/users_controller_spec.rb
+# spec/controllers/api/v1/users_controller_spec.rb
+
+# ...
+
+RSpec.describe Api::V1::UsersController, type: :controller do
+
+  # ...
+
+  describe 'PUT/PATCH #update' do
+    context 'when is successfully updated' do
+      before(:each) do
+        @user = FactoryBot.create :user
+        api_authorization_header @user.auth_token
+        patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
+      end
 
       # ...
+    end
 
-      RSpec.describe Api::V1::UsersController, type: :controller do
-        # ...
-
-        describe 'DELETE #destroy' do
-          before(:each) do
-            @user = FactoryBot.create :user
-            api_authorization_header @user.auth_token
-            delete :destroy, params: { id: @user.id }
-          end
-
-          it { expect(response.response_code).to eq(204) }
-        end
+    context 'when is not created' do
+      before(:each) do
+        @user = FactoryBot.create :user
+        api_authorization_header @user.auth_token
+        patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
       end
 
+      # ...
+    end
+  end
+
+  # ...
+end
 ~~~
 
-Tout nos tests devraient passer. La dernière étape de cette section
-consiste à ajouter les droits d'accès correspondants pour ces deux
-dernières actions.
+Pour l'action `destroy`, nous ferons la même chose car nous devons juste nous assurer qu'un utilisateur est capable de se supprimer (Listing [\[lst:add\_current\_user\_to\_users\_destroy\]](#lst:add_current_user_to_users_destroy){reference-type="ref"reference="lst:add_current_user_to_users_destroy"}):
 
-Il est courant de simplement empêcher les actions sur lesquelles
-l'utilisateur effectue des actions sur le modèle lui-même. Dans ce cas
-l'action `update` et `destroy`.
+~~~ruby
+# app/controllers/api/v1/users_controller.rb
+class Api::V1::UsersController < ApplicationController
 
-Sur le `users_controller.rb` nous devons filtrer certaines de ces
-actions pour empêcher l'accès (Listing
-[\[lst:add\_before\_action\_to\_users\]](#lst:add_before_action_to_users){reference-type="ref"
-reference="lst:add_before_action_to_users"}).
+  # ...
 
-~~~ {#lst:add_before_action_to_users language="ruby" caption="Utilisation de la méthode before\_action pour le controlleur des utilisateurs" label="lst:add_before_action_to_users"}
-      # app/controllers/api/v1/users_controller.rb
-      class Api::V1::UsersController < ApplicationController
-        before_action :authenticate_with_token!, only: %i[update destroy]
-        respond_to :json
+  def destroy
+    current_user.destroy
+    head 204
+  end
 
-        # ...
-      end
-
+  # ...
+end
 ~~~
 
-Nos tests devraient être encore bons. Et à partir de maintenant, chaque
-fois que nous voulons éviter qu'une action ne soit déclenchée, nous
-ajoutons simplement la méthode `authenticate_with_token!` sur un hook
-`before_action`.
+Maintenant, pour le fichier de spécification et comme mentionné précédemment, nous avons juste besoin d'ajouter l'en-tête `api_authorization_header`:
+
+~~~ruby
+# spec/controllers/api/v1/users_controller_spec.rb
+
+# ...
+
+RSpec.describe Api::V1::UsersController, type: :controller do
+  # ...
+
+  describe 'DELETE #destroy' do
+    before(:each) do
+      @user = FactoryBot.create :user
+      api_authorization_header @user.auth_token
+      delete :destroy, params: { id: @user.id }
+    end
+
+    it { expect(response.response_code).to eq(204) }
+  end
+end
+~~~
+
+Tout nos tests devraient passer. La dernière étape de cette section consiste à ajouter les droits d'accès correspondants pour ces deux dernières actions.
+
+Il est courant de simplement empêcher les actions sur lesquelles l'utilisateur effectue des actions sur le modèle lui-même. Dans ce cas l'action `update` et `destroy`.
+
+Sur le `users_controller.rb` nous devons filtrer certaines de ces actions pour empêcher l'accès (Listing [\[lst:add\_before\_action\_to\_users\]](#lst:add_before_action_to_users){reference-type="ref"reference="lst:add_before_action_to_users"}).
+
+~~~ruby
+# app/controllers/api/v1/users_controller.rb
+class Api::V1::UsersController < ApplicationController
+  before_action :authenticate_with_token!, only: %i[update destroy]
+  respond_to :json
+
+  # ...
+end
+~~~
+
+Nos tests devraient être encore bons. Et à partir de maintenant, chaque fois que nous voulons éviter qu'une action ne soit déclenchée, nous ajoutons simplement la méthode `authenticate_with_token!` sur un hook `before_action`.
 
 *Commitons* tout ça:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds authorization for the users controller"
-
 ~~~
 
-Enfin, nous terminerons le chapitre en remaniant la méthode
-`authenticate_with_token!`, C'est une petite amélioration mais cela
-rendra la méthode plus parlante. Vous comprendrez ce que je veux dire
-dans une minute (Listing
-[\[lst:add\_user\_signed\_in\]](#lst:add_user_signed_in){reference-type="ref"
-reference="lst:add_user_signed_in"}), mais avant tout, ajoutons quelques
-tests.
+Enfin, nous terminerons le chapitre en remaniant la méthode `authenticate_with_token!`, C'est une petite amélioration mais cela rendra la méthode plus parlante. Vous comprendrez ce que je veux dire dans une minute (Listing [\[lst:add\_user\_signed\_in\]](#lst:add_user_signed_in){reference-type="ref"reference="lst:add_user_signed_in"}), mais avant tout, ajoutons quelques tests.
 
-~~~ {#lst:add_user_signed_in_test language="ruby" caption="Création du test user\_signed\_in?" label="lst:add_user_signed_in_test"}
-      # spec/controllers/concerns/authenticable_spec.rb
-      # ...
+~~~ruby
+# spec/controllers/concerns/authenticable_spec.rb
+# ...
 
-      # ...
+# ...
 
-      RSpec.describe Authenticable do
-        # ...
+RSpec.describe Authenticable do
+  # ...
 
-        describe '#user_signed_in?' do
-          context "when there is a user on 'session'" do
-            before do
-              @user = FactoryBot.create :user
-              authentication.stub(:current_user).and_return(@user)
-            end
-
-            it { should be_user_signed_in }
-          end
-
-          context "when there is no user on 'session'" do
-            before do
-              @user = FactoryBot.create :user
-              authentication.stub(:current_user).and_return(nil)
-            end
-
-            it { should_not be_user_signed_in }
-          end
-        end
+  describe '#user_signed_in?' do
+    context "when there is a user on 'session'" do
+      before do
+        @user = FactoryBot.create :user
+        authentication.stub(:current_user).and_return(@user)
       end
 
-~~~
+      it { should be_user_signed_in }
+    end
 
-Comme vous pouvez le voir, nous avons ajouté deux simples tests pour
-savoir si l'utilisateur est connecté ou non. Et comme je l'ai déjà dis,
-c'est juste pour la clarté visuelle. Mais continuons et ajoutons
-l'implémentation. (Liste
-[\[lst:add\_user\_signed\_in\]](#lst:add_user_signed_in){reference-type="ref"
-reference="lst:add_user_signed_in"}):
-
-~~~ {#lst:add_user_signed_in language="ruby" caption="Implémetation de  user\_signed\_in?" label="lst:add_user_signed_in"}
-      # app/controllers/concerns/authenticable.rb
-      module Authenticable
-        # ...
-
-        def authenticate_with_token!
-          unless user_signed_in?
-            render json: { errors: 'Not authenticated' },
-                   status: :unauthorized
-          end
-        end
-
-        def user_signed_in?
-          current_user.present?
-        end
+    context "when there is no user on 'session'" do
+      before do
+        @user = FactoryBot.create :user
+        authentication.stub(:current_user).and_return(nil)
       end
 
+      it { should_not be_user_signed_in }
+    end
+  end
+end
 ~~~
 
-Comme vous pouvez le voir, maintenant `authenticate_with_token!` est
-plus facile à lire non seulement pour vous mais pour aussi pour les
-autres développeurs qui rejoignerons le projet. Cette approche a
-également un avantage secondaire: si vous voulez modifier ou améliorer
-la façon de valider, vous pouvez simplement le faire sur la méthode
-`user_signed_in?`.
+Comme vous pouvez le voir, nous avons ajouté deux simples tests pour savoir si l'utilisateur est connecté ou non. Et comme je l'ai déjà dis, c'est juste pour la clarté visuelle. Mais continuons et ajoutons l'implémentation. (Liste [\[lst:add\_user\_signed\_in\]](#lst:add_user_signed_in){reference-type="ref"reference="lst:add_user_signed_in"}):
+
+~~~ruby
+# app/controllers/concerns/authenticable.rb
+module Authenticable
+  # ...
+
+  def authenticate_with_token!
+    unless user_signed_in?
+      render json: { errors: 'Not authenticated' },
+             status: :unauthorized
+    end
+  end
+
+  def user_signed_in?
+    current_user.present?
+  end
+end
+~~~
+
+Comme vous pouvez le voir, maintenant `authenticate_with_token!` est plus facile à lire non seulement pour vous mais pour aussi pour les autres développeurs qui rejoignerons le projet. Cette approche a également un avantage secondaire: si vous voulez modifier ou améliorer la façon de valider, vous pouvez simplement le faire sur la méthode `user_signed_in?`.
 
 Maintenant, nos tests devraient être tous verts:
 
 ~~~bash
 $ rspec spec/controllers/concerns/authenticable_spec.rb
-      .....
+.....
 
-      Finished in 0.07415 seconds (files took 0.702 seconds to load)
-      5 examples, 0 failures
-
+Finished in 0.07415 seconds (files took 0.702 seconds to load)
+5 examples, 0 failures
 ~~~
 
 *Commitons* tout ça:
@@ -2872,235 +2741,160 @@ $ rspec spec/controllers/concerns/authenticable_spec.rb
 ~~~bash
 $ git add .
 $ git commit -m "Adds user_signed_in? method to know whether the user is logged in or not"
-
 ~~~
 
-Conclusion
-----------
+## Conclusion
 
-Vous l'avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et
-difficile, mais c'est un grand pas en avant sur la mise en place d'un
-mécanisme solide pour gérer l'authentification utilisateur et nous
-grattons même la surface pour de simples règles d'autorisation.
+Vous l'avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c'est un grand pas en avant sur la mise en place d'un mécanisme solide pour gérer l'authentification utilisateur et nous grattons même la surface pour de simples règles d'autorisation.
 
-Dans le prochain chapitre, nous nous concentrerons sur la
-personnalisation de la sortie JSON pour l'utilisateur avec
-`active_model_serializers` et l'ajout d'un modèle de produit en donnant
-à l'utilisateur la possibilité de créer un produit et le publier pour la
-vente.
+Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l'utilisateur avec `active_model_serializers` et l'ajout d'un modèle de produit en donnant à l'utilisateur la possibilité de créer un produit et le publier pour la vente.
 
-Produits des utilisateurs {#chapter:6}
+Produits des utilisateurs
 =========================
 
-Au chapitre [8](#chapter:5){reference-type="ref" reference="chapter:5"},
-nous avons implémenté le mécanisme d'authentification que nous allons
-utiliser tout au long de l'application. Pour l'instant, nous avons une
-implémentation très simple du modèle `User`, mais le moment de vérité
-est venu où nous allons personnaliser la sortie JSON et ajouter une
-deuxième ressource : les produits utilisateurs. Ce sont les éléments que
-l'utilisateur vendra dans l'application, et par conséquent sera
-directement associé. Si vous êtes familier avec Rails, vous savez
-peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas,
-nous allons associer le modèle `User` au modèle `Product` en utilisant
-les méthodes `has_many` et `belongs_to` de *Active Record*. (voir figure
-[\[fig:data\_model\]](#fig:data_model){reference-type="ref"
+Dans le chapitre précédent, nous avons implémenté le mécanisme d'authentification que nous allons utiliser tout au long de l'application. Pour l'instant, nous avons une implémentation très simple du modèle `User`, mais le moment de vérité est venu où nous allons personnaliser la sortie JSON et ajouter une deuxième ressource : les produits utilisateurs. Ce sont les éléments que l'utilisateur vendra dans l'application, et par conséquent sera directement associé. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de *Active Record*. (voir figure [\[fig:data\_model\]](#fig:data_model){reference-type="ref"
 reference="fig:data_model"}).
 
-Dans ce chapitre, nous allons construire le modèle de `Product` à partir
-de zéro, l'associer à l'utilisateur et créer les entrées nécessaires
-pour que tout client puisse accéder aux informations.
+Dans ce chapitre, nous allons construire le modèle de `Product` à partir de zéro, l'associer à l'utilisateur et créer les entrées nécessaires pour que tout client puisse accéder aux informations.
 
 Vous pouvez cloner le projet jusqu'à ce point:
 
 ~~~bash
-    $ git clone --branch chapter6 https://github.com/madeindjs/market_place_api
-
+$ git clone --branch chapter6 https://github.com/madeindjs/market_place_api
 ~~~
 
-Avant de commencer,et comme d'habitude quand nous commençons de
-nouvelles fonctionnalités, nous créons une nouvelle branche:
+Avant de commencer,et comme d'habitude quand nous commençons de nouvelles fonctionnalités, nous créons une nouvelle branche:
 
 ~~~bash
-    $ git checkout -b chapter6
-
+$ git checkout -b chapter6
 ~~~
 
-Le modèle du produit
---------------------
+## Le modèle du produit
 
-Nous commencerons d'abord par créer un modèle de `Product` puis nous y
-ajouterons quelques validations et enfin nous l'associons au modèle
-`User`. Comme le modèle `User`, le `Product` sera entièrement testé et
-sera automatiquement supprimé si l'utilisateur est supprimé.
+Nous commencerons d'abord par créer un modèle de `Product` puis nous y ajouterons quelques validations et enfin nous l'associons au modèle `User`. Comme le modèle `User`, le `Product` sera entièrement testé et sera automatiquement supprimé si l'utilisateur est supprimé.
 
 ### Les fondements du produit
 
-Le modèle `Product` aura besoin de plusieurs champs: un attribut `price`
-pour le prix du produit, un booléen `published` pour savoir si le
-produit est prêt à être vendu ou non, un `title` pour définir un titre
-de produit sexy, et enfin et surtout un `user_id` pour associer ce
-produit particulier à un utilisateur. Comme vous le savez peut-être
-déjà, nous le générons avec la commande `rails generate`:
+Le modèle `Product` aura besoin de plusieurs champs: un attribut `price` pour le prix du produit, un booléen `published` pour savoir si le produit est prêt à être vendu ou non, un `title` pour définir un titre de produit sexy, et enfin et surtout un `user_id` pour associer ce produit particulier à un utilisateur. Comme vous le savez peut-être déjà, nous le générons avec la commande `rails generate`:
 
 ~~~bash
 $ rails generate model Product title:string price:decimal published:boolean user_id:integer:index
-          invoke  active_record
-          create    db/migrate/20181218064350_create_products.rb
-          create    app/models/product.rb
-          invoke    rspec
-          create      spec/models/product_spec.rb
-          invoke      factory_bot
-          create        spec/factories/products.rb
-
+    invoke  active_record
+    create    db/migrate/20181218064350_create_products.rb
+    create    app/models/product.rb
+    invoke    rspec
+    create      spec/models/product_spec.rb
+    invoke      factory_bot
+    create        spec/factories/products.rb
 ~~~
 
-Comme vous pouvez le remarquer, nous avons également ajouté un `index` à
-l'attribut `user_id`. C'est une bonne pratique pour les clés
-d'association car cela optimise les requêtes de la base de données. Ce
-n'est pas obligatoire, mais je vous le recommande vivement.
+Comme vous pouvez le remarquer, nous avons également ajouté un `index` à l'attribut `user_id`. C'est une bonne pratique pour les clés d'association car cela optimise les requêtes de la base de données. Ce n'est pas obligatoire, mais je vous le recommande vivement.
 
 Le fichier de migration devrait ressembler à ceci:
 
 ~~~ruby
-        # db/migrate/20181218064350_create_products.rb
-        class CreateProducts < ActiveRecord::Migration[5.2]
-          def change
-            create_table :products do |t|
-              t.string :title
-              t.decimal :price
-              t.boolean :published
-              t.integer :user_id
+# db/migrate/20181218064350_create_products.rb
+class CreateProducts < ActiveRecord::Migration[5.2]
+  def change
+    create_table :products do |t|
+      t.string :title
+      t.decimal :price
+      t.boolean :published
+      t.integer :user_id
 
-              t.timestamps
-            end
-            add_index :products, :user_id
-          end
-        end
-
+      t.timestamps
+    end
+    add_index :products, :user_id
+  end
+end
 ~~~
 
-Notez que nous avons défini des valeurs par défaut pour tous les
-attributs à l'exception de `user_id`, de cette façon nous gardons un
-haut niveau de cohérence dans notre base de données car nous ne traitons
-pas beaucoup de valeurs `NULL`.
+Notez que nous avons défini des valeurs par défaut pour tous les attributs à l'exception de `user_id`, de cette façon nous gardons un haut niveau de cohérence dans notre base de données car nous ne traitons pas beaucoup de valeurs `NULL`.
 
-Ensuite, nous ajouterons quelques tests de base au modèle de produit.
-Nous nous assurerons simplement que l'objet répond aux champs que nous
-avons ajoutés, comme indiqué dans le listing
-[\[lst:create\_product\_spec\]](#lst:create_product_spec){reference-type="ref"
-reference="lst:create_product_spec"}:
+Ensuite, nous ajouterons quelques tests de base au modèle de produit. Nous nous assurerons simplement que l'objet répond aux champs que nous avons ajoutés, comme indiqué dans le listing [\[lst:create\_product\_spec\]](#lst:create_product_spec){reference-type="ref"reference="lst:create_product_spec"}:
 
-~~~ {#lst:create_product_spec language="ruby" caption="Le premier test de notre modèle de produit" label="lst:create_product_spec"}
-        # spec/models/product_spec.rb
-        # ...
+~~~ruby
+# spec/models/product_spec.rb
+# ...
 
-        RSpec.describe Product, type: :model do
-          let(:product) { FactoryBot.build :product }
-          subject { product }
+RSpec.describe Product, type: :model do
+  let(:product) { FactoryBot.build :product }
+  subject { product }
 
-          it { should respond_to(:title) }
-          it { should respond_to(:price) }
-          it { should respond_to(:published) }
-          it { should respond_to(:user_id) }
-        end
-
+  it { should respond_to(:title) }
+  it { should respond_to(:price) }
+  it { should respond_to(:published) }
+  it { should respond_to(:user_id) }
+end
 ~~~
 
 Il suffit ensuite de lancer les migrations:
 
 ~~~bash
 $ rake db:migrate
-
 ~~~
 
 Et maintenant nous pouvons nous assurer que les tests passent:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
-
 ~~~
 
-Bien que nos tests réussissent, nous avons besoin de faire un peu de
-travail au niveau de la *factory* des produits. Pour l'instant, tout est
-codé en dur. Comme vous vous en souvenez, nous avons utilisé un `Faker`
-pour falsifier les valeurs de nos modèles de tests (Listing
-[\[lst:user\_factory\_with\_attrs\]](#lst:user_factory_with_attrs){reference-type="ref"
-reference="lst:user_factory_with_attrs"}). Il est donc temps de faire de
-même avec le modèle de `Product`. Voir le listing
-[\[lst:create\_factories\_products\]](#lst:create_factories_products){reference-type="ref"
-reference="lst:create_factories_products"}:
+Bien que nos tests réussissent, nous avons besoin de faire un peu de travail au niveau de la *factory* des produits. Pour l'instant, tout est codé en dur. Comme vous vous en souvenez, nous avons utilisé un `Faker` pour falsifier les valeurs de nos modèles de tests (Listing [\[lst:user\_factory\_with\_attrs\]](#lst:user_factory_with_attrs){reference-type="ref"reference="lst:user_factory_with_attrs"}). Il est donc temps de faire de même avec le modèle de `Product`. Voir le listing [\[lst:create\_factories\_products\]](#lst:create_factories_products){reference-type="ref"reference="lst:create_factories_products"}:
 
-~~~ {#lst:create_factories_products language="ruby" caption="Création de la factory pour le modèle produit" label="lst:create_factories_products"}
-        # spec/factories/products.rb
-        FactoryBot.define do
-          factory :product do
-            title { FFaker::Product.product_name }
-            price { rand * 100 }
-            published { false }
-            user_id { 1 }
-          end
-        end
-
+~~~ruby
+# spec/factories/products.rb
+FactoryBot.define do
+  factory :product do
+    title { FFaker::Product.product_name }
+    price { rand * 100 }
+    published { false }
+    user_id { 1 }
+  end
+end
 ~~~
 
-Maintenant, chaque produit que nous créons ressemblera un peu plus à un
-vrai produit. Nous devons encore travailler sur le `user_id` tel quel,
-mais nous y reviendrons à la section
-[9.1.3](#subsec:user_has_products){reference-type="ref"
-reference="subsec:user_has_products"}.
+Maintenant, chaque produit que nous créons ressemblera un peu plus à un vrai produit. Nous devons encore travailler sur le `user_id` tel quel, mais nous y reviendrons à la section [9.1.3](#subsec:user_has_products){reference-type="ref"reference="subsec:user_has_products"}.
 
 ### Validations des produits
 
-Comme nous l'avons vu avec l'utilisateur, les validations sont une
-partie importante lors de la construction de tout type d'application.
-Cela nous permet d'empêcher toute donnée indésirable d'être enregistrée
-dans la base de données. Pour le produit, nous devons nous assurer, par
-exemple, que le prix est un nombre et qu'il n'est pas négatif.
+Comme nous l'avons vu avec l'utilisateur, les validations sont une partie importante lors de la construction de tout type d'application. Cela nous permet d'empêcher toute donnée indésirable d'être enregistrée dans la base de données. Pour le produit, nous devons nous assurer, par exemple, que le prix est un nombre et qu'il n'est pas négatif.
 
-Une autre chose importante à propos de la validation, lorsque l'on
-travaille avec des associations, est de valider que chaque `Product` a
-un `User`. Donc, dans ce cas, nous devons valider la présence de
-l'`user_id`. Dans Listing
-[\[lst:add\_presence\_to\_product\_test\]](#lst:add_presence_to_product_test){reference-type="ref"
-reference="lst:add_presence_to_product_test"} vous pouvez voir de quoi
-je parle.
+Une autre chose importante à propos de la validation, lorsque l'on travaille avec des associations, est de valider que chaque `Product` a un `User`. Donc, dans ce cas, nous devons valider la présence de l'`user_id`. Dans Listing [\[lst:add\_presence\_to\_product\_test\]](#lst:add_presence_to_product_test){reference-type="ref"reference="lst:add_presence_to_product_test"} vous pouvez voir de quoi je parle.
 
-~~~ {#lst:add_presence_to_product_test language="ruby" caption="Ajout de tests de présences pour les produits" label="lst:add_presence_to_product_test"}
-        # spec/models/product_spec.rb
-        # ...
+~~~ruby
+# spec/models/product_spec.rb
+# ...
 
-        RSpec.describe Product, type: :model do
-          # ...
+RSpec.describe Product, type: :model do
+  # ...
 
-          it { should validate_presence_of :title }
-          it { should validate_presence_of :price }
-          it { should validate_numericality_of(:price).is_greater_than_or_equal_to(0) }
-          it { should validate_presence_of :user_id }
-        end
-
+  it { should validate_presence_of :title }
+  it { should validate_presence_of :price }
+  it { should validate_numericality_of(:price).is_greater_than_or_equal_to(0) }
+  it { should validate_presence_of :user_id }
+end
 ~~~
 
 Il nous faut maintenant ajouter l'implémentation pour faire passer les
 tests:
 
 ~~~ruby
-        # app/models/product.rb
-        class Product < ApplicationRecord
-          validates :title, :user_id, presence: true
-          validates :price, numericality: { greater_than_or_equal_to: 0 }, presence: true
-        end
-
+# app/models/product.rb
+class Product < ApplicationRecord
+  validates :title, :user_id, presence: true
+  validates :price, numericality: { greater_than_or_equal_to: 0 }, presence: true
+end
 ~~~
 
 Les tests passent désormais:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
-        ........
+........
 
-        Finished in 0.04173 seconds (files took 0.74322 seconds to load)
-        8 examples, 0 failures
-
+Finished in 0.04173 seconds (files took 0.74322 seconds to load)
+8 examples, 0 failures
 ~~~
 
 *Commitons* ces changements et continuons d'avancer:
@@ -3113,98 +2907,76 @@ $ git commit -m "Adds product model bare bones along with some validations"
 
 ### Liaison des produits et des utilisateurs {#subsec:user_has_products}
 
-Dans cette section, nous allons construire l'association entre le
-produit et le modèle utilisateur. Nous avons déjà les champs
-nécessaires, nous avons donc juste besoin de mettre à jour quelques
-fichiers et nous serons prêts à commencer. Tout d'abord, nous devons
-modifier la *factory* de `Product` pour la relier à l'utilisateur. Alors
-comment faire?
+Dans cette section, nous allons construire l'association entre le produit et le modèle utilisateur. Nous avons déjà les champs nécessaires, nous avons donc juste besoin de mettre à jour quelques fichiers et nous serons prêts à commencer. Tout d'abord, nous devons modifier la *factory* de `Product` pour la relier à l'utilisateur. Alors comment faire?
 
 ~~~ruby
-        # spec/factories/products.rb
-        FactoryBot.define do
-          factory :product do
-            title { FFaker::Product.product_name }
-            price { rand * 100 }
-            published { false }
-            user
-          end
-        end
-
+# spec/factories/products.rb
+FactoryBot.define do
+  factory :product do
+    title { FFaker::Product.product_name }
+    price { rand * 100 }
+    published { false }
+    user
+  end
+end
 ~~~
 
-Comme vous pouvez le voir, nous venons de renommer l'attribut `user_id`
-en `user` et nous n'avons pas spécifié de valeur. FactoryBot est assez
-intelligent pour créer un objet `user` pour chaque produit et les
-associer automatiquement. Maintenant nous devons ajouter quelques tests
-pour l'association (Listing
-[\[lst:add\_should\_belong\_to\_user\]](#lst:add_should_belong_to_user){reference-type="ref"
-reference="lst:add_should_belong_to_user"}):
-
-~~~ {#lst:add_should_belong_to_user language="ruby" caption="Ajout du test de l'association utilisateur au model du produit" label="lst:add_should_belong_to_user"}
-        # spec/models/product_spec.rb
-        # ...
-
-        RSpec.describe Product, type: :model do
-          # ...
-
-          it { should belong_to :user }
-        end
-
-~~~
-
-Comme vous pouvez le voir, le test que nous avons ajouté est très
-simple, grâce à la puissance des *shoulda-matchers*. Nous poursuivons la
-mise en œuvre maintenant:
+Comme vous pouvez le voir, nous venons de renommer l'attribut `user_id` en `user` et nous n'avons pas spécifié de valeur. FactoryBot est assez intelligent pour créer un objet `user` pour chaque produit et les associer automatiquement. Maintenant nous devons ajouter quelques tests pour l'association (Listing [\[lst:add\_should\_belong\_to\_user\]](#lst:add_should_belong_to_user){reference-type="ref"reference="lst:add_should_belong_to_user"}):
 
 ~~~ruby
-        # app/models/product.rb
-        class Product < ApplicationRecord
-          belongs_to :user
-          #...
-        end
+# spec/models/product_spec.rb
+# ...
 
+RSpec.describe Product, type: :model do
+  # ...
+
+  it { should belong_to :user }
+end
 ~~~
 
-N'oubliez pas de faire le test que nous avons ajouté juste pour vous
-assurer que tout va bien:
+Comme vous pouvez le voir, le test que nous avons ajouté est très simple, grâce à la puissance des *shoulda-matchers*. Nous poursuivons la mise en œuvre maintenant:
+
+~~~ruby
+# app/models/product.rb
+class Product < ApplicationRecord
+  belongs_to :user
+  #...
+end
+~~~
+
+N'oubliez pas de faire le test que nous avons ajouté juste pour vous assurer que tout va bien:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
-        .........
+.........
 
-        Finished in 0.08815 seconds (files took 0.75134 seconds to load)
-        9 examples, 0 failures
-
+Finished in 0.08815 seconds (files took 0.75134 seconds to load)
+9 examples, 0 failures
 ~~~
 
-Actuellement, nous n'avons qu'une partie de l'association. Mais comme
-vous vous en doutez peut-être déjà, nous devons ajouter une association
-`has_many` au modèle `User`.
+Actuellement, nous n'avons qu'une partie de l'association. Mais comme vous vous en doutez peut-être déjà, nous devons ajouter une association `has_many` au modèle `User`.
 
 Tout d'abord, nous ajoutons le test sur le fichier `user_spec.rb`:
 
 ~~~ruby
-        # spec/models/user_spec.rb
-        # ...
+# spec/models/user_spec.rb
+# ...
 
-        RSpec.describe User, type: :model do
-          # ...
-          it { should have_many(:products) }
-          # ...
-        end
-
+RSpec.describe User, type: :model do
+  # ...
+  it { should have_many(:products) }
+  # ...
+end
 ~~~
 
 L'implémentation sur le modèle utilisateur est extrêmement simple:
 
 ~~~ruby
-        # app/models/user.rb
-        class User < ApplicationRecord
-          has_many :products
-          # ...
-        end
-
+# app/models/user.rb
+class User < ApplicationRecord
+  has_many :products
+  # ...
+end
 ~~~
 
 Maintenant, si nous exécutons les tests de l'utilisateur, elles
@@ -3212,90 +2984,70 @@ devraient toutes être correctes:
 
 ~~~bash
 $ rspec spec/models/user_spec.rb
-        ..........
+..........
 
-        Finished in 0.08411 seconds (files took 0.74624 seconds to load)
-        10 examples, 0 failures
-
+Finished in 0.08411 seconds (files took 0.74624 seconds to load)
+10 examples, 0 failures
 ~~~
 
 ### Suppression en cascade
 
-Ce que j'ai vu dans le code d'autres développeurs, lorsqu'ils
-travaillent avec des associations, c'est qu'ils oublient la destruction
-des dépendances entre les modèles. Ce que je veux dire par là, c'est que
-si un utilisateur est supprimé, les produits de l'utilisateur devraient
-l'être aussi.
+Ce que j'ai vu dans le code d'autres développeurs, lorsqu'ils travaillent avec des associations, c'est qu'ils oublient la destruction des dépendances entre les modèles. Ce que je veux dire par là, c'est que si un utilisateur est supprimé, les produits de l'utilisateur devraient l'être aussi.
 
-Donc pour tester cette interaction entre les modèles, nous avons besoin
-d'un utilisateur avec un des produits. Puis, nous supprimerons cet
-utilisateur en espérant que les produits disparaissent avec lui. Une
-implémentation simple ressemblerait à ceci:
+Donc pour tester cette interaction entre les modèles, nous avons besoin d'un utilisateur avec un des produits. Puis, nous supprimerons cet utilisateur en espérant que les produits disparaissent avec lui. Une implémentation simple ressemblerait à ceci:
 
 ~~~ruby
-        products = user.products
-        user.destroy
-        products.each do |product|
-          expect(Product.find(product.id)).to raise_error ActiveRecord::RecordNotFound
-        end
-
+products = user.products
+user.destroy
+products.each do |product|
+  expect(Product.find(product.id)).to raise_error ActiveRecord::RecordNotFound
+end
 ~~~
 
-Nous sauvegardons d'abord les produits dans une variable pour un accès
-ultérieur, puis nous détruisons l'utilisateur et bouclons la variable
-des produits en nous attendant à ce que chacun des produits lance une
-exception. Tout mettre ensemble devrait ressembler au code dans Listing
-[\[lst:create\_destroy\_user\_spec\]](#lst:create_destroy_user_spec){reference-type="ref"
-reference="lst:create_destroy_user_spec"}:
-
-~~~ {#lst:create_destroy_user_spec language="ruby" caption="Test de suppression des produits liés aux utilisateurs" label="lst:create_destroy_user_spec"}
-        # spec/models/user_spec.rb
-        # ...
-
-        RSpec.describe User, type: :model do
-          # ...
-
-          describe '#products association' do
-            before do
-              @user.save
-              3.times { FactoryBot.create :product, user: @user }
-            end
-
-            it 'destroys the associated products on self destruct' do
-              products = @user.products
-              @user.destroy
-              products.each do |product|
-                expect { Product.find(product.id) }.to raise_error ActiveRecord::RecordNotFound
-              end
-            end
-          end
-        end
-
-~~~
-
-Le code nécessaire pour rendre le code sur Listing
-[\[lst:create\_destroy\_user\_spec\]](#lst:create_destroy_user_spec){reference-type="ref"
-reference="lst:create_destroy_user_spec"} à passer est juste une option
-sur la méthode d'association `has_many`:
+Nous sauvegardons d'abord les produits dans une variable pour un accès ultérieur, puis nous détruisons l'utilisateur et bouclons la variable des produits en nous attendant à ce que chacun des produits lance une exception. Tout mettre ensemble devrait ressembler au code dans Listing [\[lst:create\_destroy\_user\_spec\]](#lst:create_destroy_user_spec){reference-type="ref"reference="lst:create_destroy_user_spec"}:
 
 ~~~ruby
-        # app/models/user.rb
-        class User < ApplicationRecord
-          has_many :products, dependent: :destroy
-          # ...
-        end
+# spec/models/user_spec.rb
+# ...
 
+RSpec.describe User, type: :model do
+  # ...
+
+  describe '#products association' do
+    before do
+      @user.save
+      3.times { FactoryBot.create :product, user: @user }
+    end
+
+    it 'destroys the associated products on self destruct' do
+      products = @user.products
+      @user.destroy
+      products.each do |product|
+        expect { Product.find(product.id) }.to raise_error ActiveRecord::RecordNotFound
+      end
+    end
+  end
+end
+~~~
+
+Le code nécessaire pour rendre le code sur Listing [\[lst:create\_destroy\_user\_spec\]](#lst:create_destroy_user_spec){reference-type="ref"reference="lst:create_destroy_user_spec"} à passer est juste une option sur la méthode d'association `has_many`:
+
+~~~ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  has_many :products, dependent: :destroy
+  # ...
+end
 ~~~
 
 Avec ce code ajouté, tous nos tests devraient passer:
 
 ~~~bash
 $ rspec spec/
-        ...........................................
+...........................................
 
-        Finished in 0.44188 seconds (files took 0.8351 seconds to load)
-        43 examples, 0 failures
-
+Finished in 0.44188 seconds (files took 0.8351 seconds to load)
+43 examples, 0 failures
 ~~~
 
 *Commitons* ces changements et continuons d'avancer:
@@ -3303,617 +3055,486 @@ $ rspec spec/
 ~~~bash
 $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
-
 ~~~
 
-Point d'entrée pour nos produits
---------------------------------
+## Point d'entrée pour nos produits
 
-Il est maintenant temps de commencer à construire les points d'entrée
-des produits. Pour l'instant, nous allons juste construire cinq actions
-REST et certaines d'entre elles seront imbriquées dans la ressource
-utilisateur. Dans le prochain chapitre, nous allons personnaliser la
-sortie JSON en implémentant la gemme `active_model_serializers`.
+Il est maintenant temps de commencer à construire les points d'entrée des produits. Pour l'instant, nous allons juste construire cinq actions REST et certaines d'entre elles seront imbriquées dans la ressource utilisateur. Dans le prochain chapitre, nous allons personnaliser la sortie JSON en implémentant la gemme `active_model_serializers`.
 
-Nous devons d'abord créer le `products_controller`, et nous pouvons
-facilement y parvenir avec la commande ci-dessous:
+Nous devons d'abord créer le `products_controller`, et nous pouvons facilement y parvenir avec la commande ci-dessous:
 
 ~~~bash
 $ rails generate controller api/v1/products
+~~~
+
+La commande ci-dessus va générer pas mal de fichiers qui nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c'est qu'il va générer le contrôleur et les fichiers de test déjà *scopés* à la version 1 de l'API (Listing [\[lst:generate\_products\_controller\]](#lst:generate_products_controller){reference-type="ref"reference="lst:generate_products_controller"} et [\[lst:generate\_products\_controller\_spec\]](#lst:generate_products_controller_spec){reference-type="ref"reference="lst:generate_products_controller_spec"}).
+
+~~~ruby
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+end
 
 ~~~
 
-La commande ci-dessus va générer pas mal de fichiers qui nous permettre
-de commencer à travailler rapidement. Ce que je veux dire par là, c'est
-qu'il va générer le contrôleur et les fichiers de test déjà *scopés* à
-la version 1 de l'API (Listing
-[\[lst:generate\_products\_controller\]](#lst:generate_products_controller){reference-type="ref"
-reference="lst:generate_products_controller"} et
-[\[lst:generate\_products\_controller\_spec\]](#lst:generate_products_controller_spec){reference-type="ref"
-reference="lst:generate_products_controller_spec"}).
+~~~ruby
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
 
-~~~ {#lst:generate_products_controller language="ruby" caption="Le controlleur des produits généré automatqiuement" label="lst:generate_products_controller"}
-      # app/controllers/api/v1/products_controller.rb
-      class Api::V1::ProductsController < ApplicationController
-      end
-
+RSpec.describe Api::V1::ProductsController, type: :controller do
+end
 ~~~
 
-~~~ {#lst:generate_products_controller_spec language="ruby" caption="Les test du controlleur des produits généré automatqiuement" label="lst:generate_products_controller_spec"}
-      # spec/controllers/api/v1/products_controller_spec.rb
-      # ...
-
-      RSpec.describe Api::V1::ProductsController, type: :controller do
-      end
-
-~~~
-
-En guise d'échauffement, nous allons commencer par construire l'action
-du `show` pour le produit.
+En guise d'échauffement, nous allons commencer par construire l'action du `show` pour le produit.
 
 ### Action d'affichage d'un produit
 
-Comme d'habitude, nous commençons par ajouter quelques test du
-contrôleur des produits (Listing
-[\[lst:products\_controller\_spec\_show\]](#lst:products_controller_spec_show){reference-type="ref"
-reference="lst:products_controller_spec_show"}). La stratégie ici est
-très simple, il suffit de créer un seul produit et de s'assurer que la
-réponse du serveur est celle que nous attendons.
+Comme d'habitude, nous commençons par ajouter quelques test du contrôleur des produits (Listing [\[lst:products\_controller\_spec\_show\]](#lst:products_controller_spec_show){reference-type="ref"reference="lst:products_controller_spec_show"}). La stratégie ici est très simple, il suffit de créer un seul produit et de s'assurer que la réponse du serveur est celle que nous attendons.
 
-~~~ {#lst:products_controller_spec_show language="ruby" caption="Test d'affichage d'un produit" label="lst:products_controller_spec_show"}
-        # spec/controllers/api/v1/products_controller_spec.rb
-        # ...
+~~~ruby
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
 
-        RSpec.describe Api::V1::ProductsController, type: :controller do
-          describe 'GET #show' do
-            before(:each) do
-              @product = FactoryBot.create :product
-              get :show, params: { id: @product.id }
-            end
+RSpec.describe Api::V1::ProductsController, type: :controller do
+  describe 'GET #show' do
+    before(:each) do
+      @product = FactoryBot.create :product
+      get :show, params: { id: @product.id }
+    end
 
-            it 'returns the information about a reporter on a hash' do
-              product_response = json_response
-              expect(product_response[:title]).to eql @product.title
-            end
+    it 'returns the information about a reporter on a hash' do
+      product_response = json_response
+      expect(product_response[:title]).to eql @product.title
+    end
 
-            it { expect(response.response_code).to eq(200) }
-          end
-        end
-
+    it { expect(response.response_code).to eq(200) }
+  end
+end
 ~~~
 
 Nous ajoutons ensuite le code pour faire passer le test:
 
 ~~~ruby
-        # app/controllers/api/v1/products_controller.rb
-        class Api::V1::ProductsController < ApplicationController
-          def show
-            render json: Product.find(params[:id])
-          end
-        end
-
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  def show
+    render json: Product.find(params[:id])
+  end
+end
 ~~~
 
 Attendez! N'exécutez pas encore les tests. N'oubliez pas que nous devons
 ajouter la route au fichier `routes.rb`:
 
 ~~~ruby
-        # config/routes.rb
-        require 'api_constraints'
+# config/routes.rb
+require 'api_constraints'
 
-        Rails.application.routes.draw do
-          # ...
-          namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-            scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-              # ...
-              resources :products, only: [:show]
-            end
-          end
-        end
-
+Rails.application.routes.draw do
+  # ...
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      # ...
+      resources :products, only: [:show]
+    end
+  end
+end
 ~~~
 
 Maintenant, on s'assure que les tests passent:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
-        ..
+..
 
-        Finished in 0.05474 seconds (files took 0.75052 seconds to load)
-        2 examples, 0 failures
-
+Finished in 0.05474 seconds (files took 0.75052 seconds to load)
+2 examples, 0 failures
 ~~~
 
-Comme vous pouvez déjà le constater, les tests et l'implémentation sont
-très simples. En fait, cela ressemble beaucoup à ce que nous avons fait
-pour les utilisateurs.
+Comme vous pouvez déjà le constater, les tests et l'implémentation sont très simples. En fait, cela ressemble beaucoup à ce que nous avons fait pour les utilisateurs.
 
 ### Liste des produits
 
-Il est maintenant temps de créer une entrée pour liste de produits, qui
-pourrait permettre d'afficher le catalogue de produits d'un marché par
-exemple. Pour ce point d'accès, nous n'exigeons pas que l'utilisateur
-soit connecté. Comme d'habitude, nous allons commencer à écrire quelques
-tests (Listing
-[\[lst:create\_index\_products\_controller\_spec\]](#lst:create_index_products_controller_spec){reference-type="ref"
-reference="lst:create_index_products_controller_spec"}):
-
-~~~ {#lst:create_index_products_controller_spec language="ruby" caption="Test de l'affichage des produits" label="lst:create_index_products_controller_spec"}
-        # spec/controllers/api/v1/products_controller_spec.rb
-        # ...
-
-        RSpec.describe Api::V1::ProductsController, type: :controller do
-
-          # ...
-
-          describe 'GET #index' do
-            before(:each) do
-              4.times { FactoryBot.create :product }
-              get :index
-            end
-
-            it 'returns 4 records from the database' do
-              products_response = json_response
-              expect(products_response).to have(4).items
-            end
-
-            it { expect(response.response_code).to eq(200) }
-          end
-        end
-
-~~~
-
-Attention, la méthode `have` que nous utilisons dance ce test par
-exemple:
+Il est maintenant temps de créer une entrée pour liste de produits, qui pourrait permettre d'afficher le catalogue de produits d'un marché par exemple. Pour ce point d'accès, nous n'exigeons pas que l'utilisateur soit connecté. Comme d'habitude, nous allons commencer à écrire quelques tests (Listing [\[lst:create\_index\_products\_controller\_spec\]](#lst:create_index_products_controller_spec){reference-type="ref"reference="lst:create_index_products_controller_spec"}):
 
 ~~~ruby
-          expect(products_response[:products]).to have(4).items
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
+
+RSpec.describe Api::V1::ProductsController, type: :controller do
+
+  # ...
+
+  describe 'GET #index' do
+    before(:each) do
+      4.times { FactoryBot.create :product }
+      get :index
+    end
+
+    it 'returns 4 records from the database' do
+      products_response = json_response
+      expect(products_response).to have(4).items
+    end
+
+    it { expect(response.response_code).to eq(200) }
+  end
+end
 
 ~~~
 
-n'est plus disponible depuis Rspec 3.0. Il faut donc installer une
-librairie supplémentaire:
+Attention, la méthode `have` que nous utilisons dance ce test par exemple:
 
 ~~~ruby
-          # Gemfile
-          # ...
-          group :test do
-            # ...
-            gem 'rspec-collection_matchers', '~> 1.1'
-          end
-
+expect(products_response[:products]).to have(4).items
 ~~~
 
-Passons maintenant à la mise en œuvre, qui, pour l'instant, va être une
-triste méthode toutes classes (Listing
-[\[lst:create\_index\_products\_controller\]](#lst:create_index_products_controller){reference-type="ref"
-reference="lst:create_index_products_controller"}):
-
-~~~ {#lst:create_index_products_controller language="ruby" caption="Méthode d'affichage des produits" label="lst:create_index_products_controller"}
-        # app/controllers/api/v1/products_controller.rb
-        class Api::V1::ProductsController < ApplicationController
-          def index
-            render json: Product.all
-          end
-
-          #...
-        end
-
-~~~
-
-Et n'oubliez pas, vous devez ajouter la route correspondante dans le
-fichier `config/routes.rb`:
+n'est plus disponible depuis Rspec 3.0. Il faut donc installer une librairie supplémentaire:
 
 ~~~ruby
-        resources :products, only: %i[show index]
-
+# Gemfile
+# ...
+group :test do
+  # ...
+  gem 'rspec-collection_matchers', '~> 1.1'
+end
 ~~~
 
-Dans les chapitres suivants, nous allons améliorer ce point d'entré et
-donner la possibilité de recevoir des paramètres pour les filtrer.
+Passons maintenant à la mise en œuvre, qui, pour l'instant, va être une triste méthode toutes classes (Listing [\[lst:create\_index\_products\_controller\]](#lst:create_index_products_controller){reference-type="ref"reference="lst:create_index_products_controller"}):
+
+~~~ruby
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  def index
+    render json: Product.all
+  end
+
+  #...
+end
+~~~
+
+Et n'oubliez pas, vous devez ajouter la route correspondante dans le fichier `config/routes.rb`:
+
+~~~ruby
+resources :products, only: %i[show index]
+~~~
+
+Dans les chapitres suivants, nous allons améliorer ce point d'entré et donner la possibilité de recevoir des paramètres pour les filtrer.
 
 *Commitons* ces changements et continuons d'avancer:
 
 ~~~bash
 $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
-
 ~~~
 
 ### Création des produits {#subsec:create_products}
 
-Créer des produits est un peu plus délicat parce que nous aurons besoin
-d'une configuration supplémentaire pour donner une meilleure structure à
-ce point d'entré. La stratégie que nous suivrons est d'imbriquer les
-produits, dans les actions des utilisateurs. Ceci nous permettra d'avoir
-un point d'entrée plus descriptif comme `/users/:user_id/products`.
+Créer des produits est un peu plus délicat parce que nous aurons besoin d'une configuration supplémentaire pour donner une meilleure structure à ce point d'entré. La stratégie que nous suivrons est d'imbriquer les produits, dans les actions des utilisateurs. Ceci nous permettra d'avoir un point d'entrée plus descriptif comme `/users/:user_id/products`.
 
-Notre premier arrêt sera donc le fichier `products_controller_spec.rb`
-(Listing
-[\[lst:create\_create\_products\_controller\_spec\]](#lst:create_create_products_controller_spec){reference-type="ref"
-reference="lst:create_create_products_controller_spec"}).
-
-~~~ {#lst:create_create_products_controller_spec language="ruby" caption="Test de la création d'un produit" label="lst:create_create_products_controller_spec"}
-        # spec/controllers/api/v1/products_controller_spec.rb
-        # ...
-
-        RSpec.describe Api::V1::ProductsController, type: :controller do
-
-          # ...
-
-          describe 'POST #create' do
-            context 'when is successfully created' do
-              before(:each) do
-                user = FactoryBot.create :user
-                @product_attributes = FactoryBot.attributes_for :product
-                api_authorization_header user.auth_token
-                post :create, params: { user_id: user.id, product: @product_attributes }
-              end
-
-              it 'renders the json representation for the product record just created' do
-                product_response = json_response
-                expect(product_response[:title]).to eql @product_attributes[:title]
-              end
-
-              it { expect(response.response_code).to eq(201) }
-            end
-
-            context 'when is not created' do
-              before(:each) do
-                user = FactoryBot.create :user
-                @invalid_product_attributes = { title: 'Smart TV', price: 'Twelve dollars' }
-                api_authorization_header user.auth_token
-                post :create, params: { user_id: user.id, product: @invalid_product_attributes }
-              end
-
-              it 'renders an errors json' do
-                product_response = json_response
-                expect(product_response).to have_key(:errors)
-              end
-
-              it 'renders the json errors on whye the user could not be created' do
-                product_response = json_response
-                expect(product_response[:errors][:price]).to include 'is not a number'
-              end
-
-              it { expect(response.response_code).to eq(422) }
-            end
-          end
-        end
-
-~~~
-
-Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez de la
-Section [6.3.2](#subsec:create_users){reference-type="ref"
-reference="subsec:create_users"}, les tests sont en fait les mêmes que
-ceux de la création de l'utilisateur exépté quelques changements
-mineurs. Rappelez-vous que nous avons cette route imbriquée, nous devons
-donc nous assurer d'envoyer le paramètre `user_id` à chaque requête,
-comme vous pouvez le voir sur:
+Notre premier arrêt sera donc le fichier `products_controller_spec.rb` (Listing [\[lst:create\_create\_products\_controller\_spec\]](#lst:create_create_products_controller_spec){reference-type="ref"reference="lst:create_create_products_controller_spec"}).
 
 ~~~ruby
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
+
+RSpec.describe Api::V1::ProductsController, type: :controller do
+
+  # ...
+
+  describe 'POST #create' do
+    context 'when is successfully created' do
+      before(:each) do
+        user = FactoryBot.create :user
+        @product_attributes = FactoryBot.attributes_for :product
+        api_authorization_header user.auth_token
         post :create, params: { user_id: user.id, product: @product_attributes }
+      end
 
+      it 'renders the json representation for the product record just created' do
+        product_response = json_response
+        expect(product_response[:title]).to eql @product_attributes[:title]
+      end
+
+      it { expect(response.response_code).to eq(201) }
+    end
+
+    context 'when is not created' do
+      before(:each) do
+        user = FactoryBot.create :user
+        @invalid_product_attributes = { title: 'Smart TV', price: 'Twelve dollars' }
+        api_authorization_header user.auth_token
+        post :create, params: { user_id: user.id, product: @invalid_product_attributes }
+      end
+
+      it 'renders an errors json' do
+        product_response = json_response
+        expect(product_response).to have_key(:errors)
+      end
+
+      it 'renders the json errors on whye the user could not be created' do
+        product_response = json_response
+        expect(product_response[:errors][:price]).to include 'is not a number'
+      end
+
+      it { expect(response.response_code).to eq(422) }
+    end
+  end
+end
 ~~~
 
-De cette façon, nous pouvons voir l'utilisateur et lui créer un produit
-qui lui est associé. Mais attendez il y a mieux, si nous adoptons cette
-approche, nous pouvons augmenter la portée de notre mécanisme
-d'autorisation. Dans ce cas, si vous vous souvenez, nous avons construit
-la logique pour obtenir l'utilisateur à partir de l'en-tête
-`Authorization` et lui avons assigné une méthode `current_user`. C'est
-donc assez facile à mettre en place en ajoutant simplement l'en-tête
-d'autorisation dans la requête et en récupérant l'utilisateur à partir
-de celui-ci. Alors faisons-le (Listing
-[\[lst:create\_create\_products\_controller\]](#lst:create_create_products_controller){reference-type="ref"
-reference="lst:create_create_products_controller"}):
+Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez de la Section [6.3.2](#subsec:create_users){reference-type="ref"reference="subsec:create_users"}, les tests sont en fait les mêmes que ceux de la création de l'utilisateur exépté quelques changements mineurs. Rappelez-vous que nous avons cette route imbriquée, nous devons donc nous assurer d'envoyer le paramètre `user_id` à chaque requête, comme vous pouvez le voir sur:
 
-~~~ {#lst:create_create_products_controller language="ruby" caption="Méthode de création des produits" label="lst:create_create_products_controller"}
-        # app/controllers/api/v1/products_controller.rb
-        class Api::V1::ProductsController < ApplicationController
-          before_action :authenticate_with_token!, only: [:create]
-
-          # ...
-
-          def create
-            product = current_user.products.build(product_params)
-            if product.save
-              render json: product, status: 201, location: [:api, product]
-            else
-              render json: { errors: product.errors }, status: 422
-            end
-          end
-
-          private
-
-          def product_params
-            params.require(:product).permit(:title, :price, :published)
-          end
-        end
-
+~~~ruby
+post :create, params: { user_id: user.id, product: @product_attributes }
 ~~~
 
-Comme vous pouvez le voir, nous protégeons l'action de création avec la
-méthode `authenticate_with_token!`, et sur l'action `create` nous
-construisons le produit en associant l'utilisateur courant.
+De cette façon, nous pouvons voir l'utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux, si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d'autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l'utilisateur à partir de l'en-tête `Authorization` et lui avons assigné une méthode `current_user`. C'est donc assez facile à mettre en place en ajoutant simplement l'en-tête d'autorisation dans la requête et en récupérant l'utilisateur à partir de celui-ci. Alors faisons-le (Listing [\[lst:create\_create\_products\_controller\]](#lst:create_create_products_controller){reference-type="ref"reference="lst:create_create_products_controller"}):
 
-A ce stade, vous vous demandez peut-être s'il est vraiment nécessaire
-d'imbriquer l'action? Parce qu'en fait, nous n'utilisons pas vraiment le
-paramètre `user_id` fournis de l'URL. Vous avez tout à fait raison, mon
-seul argument ici est qu'avec cette approche, la route est beaucoup plus
-descriptive de l'extérieur, car nous disons aux développeurs que pour
-créer un produit, il nous faut un utilisateur.
+~~~ruby
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  before_action :authenticate_with_token!, only: [:create]
 
-Alors c'est vraiment à vous de décider comment vous voulez organiser vos
-routes et les exposer au monde. Ma façon n'est pas la seule et cela ne
-signifie pas non plus que c'est la bonne. En fait, je vous encourage à
-jouer avec différentes approches et choisir celle que vous trouvez le
-mieux.
+  # ...
+
+  def create
+    product = current_user.products.build(product_params)
+    if product.save
+      render json: product, status: 201, location: [:api, product]
+    else
+      render json: { errors: product.errors }, status: 422
+    end
+  end
+
+  private
+
+  def product_params
+    params.require(:product).permit(:title, :price, :published)
+  end
+end
+~~~
+
+Comme vous pouvez le voir, nous protégeons l'action de création avec la méthode `authenticate_with_token!`, et sur l'action `create` nous construisons le produit en associant l'utilisateur courant.
+
+A ce stade, vous vous demandez peut-être s'il est vraiment nécessaire d'imbriquer l'action? Parce qu'en fait, nous n'utilisons pas vraiment le paramètre `user_id` fournis de l'URL. Vous avez tout à fait raison, mon seul argument ici est qu'avec cette approche, la route est beaucoup plus descriptive de l'extérieur, car nous disons aux développeurs que pour créer un produit, il nous faut un utilisateur.
+
+Alors c'est vraiment à vous de décider comment vous voulez organiser vos routes et les exposer au monde. Ma façon n'est pas la seule et cela ne signifie pas non plus que c'est la bonne. En fait, je vous encourage à jouer avec différentes approches et choisir celle que vous trouvez le mieux.
 
 Une dernière chose avant de faire vos tests: la route nécessaire:
 
 ~~~ruby
-        # config/routes.rb
-        require 'api_constraints'
+# config/routes.rb
+require 'api_constraints'
 
-        Rails.application.routes.draw do
-          devise_for :users
-          # Api definition
-          namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-            scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-              resources :users, only: %i[show create update destroy] do
-                resources :products, only: [:create]
-              end
-              resources :sessions, only: %i[create destroy]
-              resources :products, only: %i[show index]
-            end
-          end
-        end
-
+Rails.application.routes.draw do
+  devise_for :users
+  # Api definition
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :users, only: %i[show create update destroy] do
+        resources :products, only: [:create]
+      end
+      resources :sessions, only: %i[create destroy]
+      resources :products, only: %i[show index]
+    end
+  end
+end
 ~~~
 
 Si vous faites les tests maintenant, ils devraient tous passer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
-        .........
+.........
 
-        Finished in 0.21831 seconds (files took 0.75823 seconds to load)
-        9 examples, 0 failures
-
+Finished in 0.21831 seconds (files took 0.75823 seconds to load)
+9 examples, 0 failures
 ~~~
 
 ### Mise à jour des produits
 
-J'espère que maintenant vous comprenez la logique pour construire les
-actions à venir. Dans cette section, nous nous concentrerons sur
-l'action de mise à jour qui fonctionnera de manière similaire à celle de
-création. Nous avons juste besoin d'aller chercher le produit dans la
-base de données et de le mettre à jour.
+J'espère que maintenant vous comprenez la logique pour construire les actions à venir. Dans cette section, nous nous concentrerons sur l'action de mise à jour qui fonctionnera de manière similaire à celle de création. Nous avons juste besoin d'aller chercher le produit dans la base de données et de le mettre à jour.
 
 Nous ajoutons d'abord l'action aux routes pour ne pas oublier plus tard:
 
 ~~~bash
-        # config/routes.rb
-        require 'api_constraints'
+# config/routes.rb
+require 'api_constraints'
 
-        Rails.application.routes.draw do
-          devise_for :users
-          # Api definition
-          namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-            scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-              resources :users, only: %i[show create update destroy] do
-                resources :products, only: %i[create update]
-              end
-              resources :sessions, only: %i[create destroy]
-              resources :products, only: %i[show index]
-            end
-          end
-        end
-
+Rails.application.routes.draw do
+  devise_for :users
+  # Api definition
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :users, only: %i[show create update destroy] do
+        resources :products, only: %i[create update]
+      end
+      resources :sessions, only: %i[create destroy]
+      resources :products, only: %i[show index]
+    end
+  end
+end
 ~~~
 
-Avant de commencer à coder certains tests je veux juste préciser que, de
-la même manière que pour l'action `create`, nous allons délimiter le
-produit à l'utilisateur courant. Nous voulons nous assurer que le
-produit que nous mettons à jour appartient bien à l'utilisateur. Nous
-allons donc chercher ce produit dans l'association `user.products`
-fournie par *Active Record*.
+Avant de commencer à coder certains tests je veux juste préciser que, de la même manière que pour l'action `create`, nous allons délimiter le produit à l'utilisateur courant. Nous voulons nous assurer que le produit que nous mettons à jour appartient bien à l'utilisateur. Nous allons donc chercher ce produit dans l'association `user.products` fournie par *Active Record*.
 
-Tout d'abord, nous ajoutons quelques tests (Listing
-[\[lst:update\_index\_products\_controller\_spec\]](#lst:update_index_products_controller_spec){reference-type="ref"
-reference="lst:update_index_products_controller_spec"}):
+Tout d'abord, nous ajoutons quelques tests (Listing [\[lst:update\_index\_products\_controller\_spec\]](#lst:update_index_products_controller_spec){reference-type="ref"reference="lst:update_index_products_controller_spec"}):
 
-~~~ {#lst:update_index_products_controller_spec language="ruby" caption="Test de mise à jour des produits" label="lst:update_index_products_controller_spec"}
-        # spec/controllers/api/v1/products_controller_spec.rb
-        # ...
+~~~ruby
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
 
-        RSpec.describe Api::V1::ProductsController, type: :controller do
-          # ...
+RSpec.describe Api::V1::ProductsController, type: :controller do
+  # ...
 
-          describe 'PUT/PATCH #update' do
-            before(:each) do
-              @user = FactoryBot.create :user
-              @product = FactoryBot.create :product, user: @user
-              api_authorization_header @user.auth_token
-            end
+  describe 'PUT/PATCH #update' do
+    before(:each) do
+      @user = FactoryBot.create :user
+      @product = FactoryBot.create :product, user: @user
+      api_authorization_header @user.auth_token
+    end
 
-            context 'when is successfully updated' do
-              before(:each) do
-                patch :update, params: { user_id: @user.id, id: @product.id, product: { title: 'An expensive TV' } }
-              end
+    context 'when is successfully updated' do
+      before(:each) do
+        patch :update, params: { user_id: @user.id, id: @product.id, product: { title: 'An expensive TV' } }
+      end
 
-              it 'renders the json representation for the updated user' do
-                product_response = json_response
-                expect(product_response[:title]).to eql 'An expensive TV'
-              end
+      it 'renders the json representation for the updated user' do
+        product_response = json_response
+        expect(product_response[:title]).to eql 'An expensive TV'
+      end
 
-              it { expect(response.response_code).to eq(200) }
-            end
+      it { expect(response.response_code).to eq(200) }
+    end
 
-            context 'when is not updated' do
-              before(:each) do
-                patch :update, params: { user_id: @user.id, id: @product.id, product: { price: 'two hundred' } }
-              end
+    context 'when is not updated' do
+      before(:each) do
+        patch :update, params: { user_id: @user.id, id: @product.id, product: { price: 'two hundred' } }
+      end
 
-              it 'renders an errors json' do
-                product_response = json_response
-                expect(product_response).to have_key(:errors)
-              end
+      it 'renders an errors json' do
+        product_response = json_response
+        expect(product_response).to have_key(:errors)
+      end
 
-              it 'renders the json errors on whye the user could not be created' do
-                product_response = json_response
-                expect(product_response[:errors][:price]).to include 'is not a number'
-              end
+      it 'renders the json errors on whye the user could not be created' do
+        product_response = json_response
+        expect(product_response[:errors][:price]).to include 'is not a number'
+      end
 
-              it { expect(response.response_code).to eq(422) }
-            end
-          end
-        end
-
+      it { expect(response.response_code).to eq(422) }
+    end
+  end
+end
 ~~~
 
-Les tests peuvent paraître complexes, mais en jetant un coup d'oeil, ils
-sont presque identiques à ceux des utilisateurs (Listing
-[\[lst:add\_spec\_users\_controller\_update\]](#lst:add_spec_users_controller_update){reference-type="ref"
-reference="lst:add_spec_users_controller_update"}). La seule différence
-ici étant que les routes sont imbriquées comme nous l'avons vu à la
-Section [9.2.3](#subsec:create_products){reference-type="ref"
-reference="subsec:create_products"}. Nous devons donc envoyer le
-`user_id` comme paramètre.
+Les tests peuvent paraître complexes, mais en jetant un coup d'oeil, ils sont presque identiques à ceux des utilisateurs (Listing [\[lst:add\_spec\_users\_controller\_update\]](#lst:add_spec_users_controller_update){reference-type="ref"reference="lst:add_spec_users_controller_update"}). La seule différence ici étant que les routes sont imbriquées comme nous l'avons vu à la Section [9.2.3](#subsec:create_products){reference-type="ref"reference="subsec:create_products"}. Nous devons donc envoyer le `user_id` comme paramètre.
 
-Maintenant implémentons le code pour faire passer nos tests avec succès
-(Listing
-[\[lst:update\_index\_products\_controller\]](#lst:update_index_products_controller){reference-type="ref"
-reference="lst:update_index_products_controller"}):
+Maintenant implémentons le code pour faire passer nos tests avec succès (Listing [\[lst:update\_index\_products\_controller\]](#lst:update_index_products_controller){reference-type="ref"reference="lst:update_index_products_controller"}):
 
-~~~ {#lst:update_index_products_controller language="ruby" caption="Implémentation de la mise à jour des produits" label="lst:update_index_products_controller"}
-        # app/controllers/api/v1/products_controller.rb
-        class Api::V1::ProductsController < ApplicationController
-          before_action :authenticate_with_token!, only: %i[create update]
+~~~ruby
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  before_action :authenticate_with_token!, only: %i[create update]
 
-          # ...
+  # ...
 
-          def update
-            product = current_user.products.find(params[:id])
-            if product.update(product_params)
-              render json: product, status: 200, location: [:api, product]
-            else
-              render json: { errors: product.errors }, status: 422
-            end
-          end
+  def update
+    product = current_user.products.find(params[:id])
+    if product.update(product_params)
+      render json: product, status: 200, location: [:api, product]
+    else
+      render json: { errors: product.errors }, status: 422
+    end
+  end
 
-          # ...
-        end
-
+  # ...
+end
 ~~~
 
-Comme vous pouvez le constater, l'implémentation est assez simple. Nous
-allons simplement récupéré le produit auprès de l'utilisateur connecté
-et nous le mettons simplement à jour. Nous avons également ajouté cette
-action au `before_action`, pour empêcher tout utilisateur non autorisé
-de mettre à jour un produit.
+Comme vous pouvez le constater, l'implémentation est assez simple. Nous allons simplement récupéré le produit auprès de l'utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au `before_action`, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
 
 Si on lance les tests, ils devraient passer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
-        ..............
+..............
 
-        Finished in 0.24404 seconds (files took 0.75973 seconds to load)
-        14 examples, 0 failures
-
+Finished in 0.24404 seconds (files took 0.75973 seconds to load)
+14 examples, 0 failures
 ~~~
 
 ### Suppression des produits
 
-Notre dernier arrêt pour les route des produits, sera l'action
-`destroy`. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La
-stratégie ici sera assez similaire à l'action de `create` et `update`.
-Ce qui signifie que nous allons imbriquer la route dans les ressources
-des utilisateurs, puis récupérer le produit auprès de l'association
-`user.products` et enfin le supprimer en retournant un code 204.
+Notre dernier arrêt pour les route des produits, sera l'action `destroy`. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La stratégie ici sera assez similaire à l'action de `create` et `update`. Ce qui signifie que nous allons imbriquer la route dans les ressources des utilisateurs, puis récupérer le produit auprès de l'association `user.products` et enfin le supprimer en retournant un code 204.
 
 Recommençons par ajouter la route:
 
 ~~~ruby
-        # config/routes.rb
-        require 'api_constraints'
+# config/routes.rb
+require 'api_constraints'
 
-        Rails.application.routes.draw do
-          # ...
-          namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-            scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-              resources :users, only: %i[show create update destroy] do
-                resources :products, only: %i[create update destroy]
-              end
-              # ...
-            end
-          end
-        end
-
+Rails.application.routes.draw do
+  # ...
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :users, only: %i[show create update destroy] do
+        resources :products, only: %i[create update destroy]
+      end
+      # ...
+    end
+  end
+end
 ~~~
 
-Après cela, nous devons ajouter quelques tests comme indiqué dans le
-listing
-[\[lst:create\_destroy\_products\_controller\_spec\]](#lst:create_destroy_products_controller_spec){reference-type="ref"
-reference="lst:create_destroy_products_controller_spec"}:
+Après cela, nous devons ajouter quelques tests comme indiqué dans le listing [\[lst:create\_destroy\_products\_controller\_spec\]](#lst:create_destroy_products_controller_spec){reference-type="ref"reference="lst:create_destroy_products_controller_spec"}:
 
-~~~ {#lst:create_destroy_products_controller_spec language="ruby" caption="Test de suppression des produits" label="lst:create_destroy_products_controller_spec"}
-        # spec/controllers/api/v1/products_controller_spec.rb
-        # ...
+~~~ruby
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
 
-        RSpec.describe Api::V1::ProductsController, type: :controller do
-          # ...
+RSpec.describe Api::V1::ProductsController, type: :controller do
+  # ...
 
-          describe 'DELETE #destroy' do
-            before(:each) do
-              @user = FactoryBot.create :user
-              @product = FactoryBot.create :product, user: @user
-              api_authorization_header @user.auth_token
-              delete :destroy, params: { user_id: @user.id, id: @product.id }
-            end
+  describe 'DELETE #destroy' do
+    before(:each) do
+      @user = FactoryBot.create :user
+      @product = FactoryBot.create :product, user: @user
+      api_authorization_header @user.auth_token
+      delete :destroy, params: { user_id: @user.id, id: @product.id }
+    end
 
-            it { expect(response.response_code).to eq(204) }
-          end
-        end
-
+    it { expect(response.response_code).to eq(204) }
+  end
+end
 ~~~
 
-Maintenant, ajoutons simplement le code nécessaire pour faire passer les
-tests (Listing
-[\[lst:create\_destroy\_products\_controller\]](#lst:create_destroy_products_controller){reference-type="ref"
-reference="lst:create_destroy_products_controller"}):
+Maintenant, ajoutons simplement le code nécessaire pour faire passer les tests (Listing [\[lst:create\_destroy\_products\_controller\]](#lst:create_destroy_products_controller){reference-type="ref"reference="lst:create_destroy_products_controller"}):
 
-~~~ {#lst:create_destroy_products_controller language="ruby" caption="Implémentation de suppression des produits" label="lst:create_destroy_products_controller"}
-        # app/controllers/api/v1/products_controller.rb
-        class Api::V1::ProductsController < ApplicationController
-          before_action :authenticate_with_token!, only: %i[create update destroy]
+~~~ruby
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  before_action :authenticate_with_token!, only: %i[create update destroy]
 
-          # ...
+  # ...
 
-          def destroy
-            product = current_user.products.find(params[:id])
-            product.destroy
-            head 204
-          end
+  def destroy
+    product = current_user.products.find(params[:id])
+    product.destroy
+    head 204
+  end
 
-          # ...
-        end
-
+  # ...
+end
 ~~~
 
-Comme vous pouvez le voir, l'implémentation fait le travail en trois
-lignes. Nous pouvons lancer les tests pour nous assurer que tout est
-bon.
+Comme vous pouvez le voir, l'implémentation fait le travail en trois lignes. Nous pouvons lancer les tests pour nous assurer que tout est bon.
 
 ~~~bash
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
-        ...............
+...............
 
-        Finished in 0.25959 seconds (files took 0.80248 seconds to load)
-        15 examples, 0 failures
-
+Finished in 0.25959 seconds (files took 0.80248 seconds to load)
+15 examples, 0 failures
 ~~~
 
 Après cela, nous *commitons* les changements.
@@ -3921,219 +3542,169 @@ Après cela, nous *commitons* les changements.
 ~~~bash
 $ git add .
 $ git commit -m "Adds the products create, update and destroy action nested on the user resources"
-
 ~~~
 
-Remplir la base de données
---------------------------
+## Remplir la base de données
 
-Avant de continuer avec plus de code, remplissons la base de données
-avec de fausses données. Nous avons des usines qui devraient faire le
-travail à notre place. Alors utilisons-les.
+Avant de continuer avec plus de code, remplissons la base de données avec de fausses données. Nous avons des usines qui devraient faire le travail à notre place. Alors utilisons-les.
 
-Tout d'abord, nous exécutons la commande de la console Rails à partir du
-Terminal:
+Tout d'abord, nous exécutons la commande de la console Rails à partir du Terminal:
 
 ~~~bash
 $ rails console
-
 ~~~
 
 Nous créons ensuite un tas d'objets produits avec la gemme FactoryBot:
 
-~~~bash
-      Loading development environment (Rails 5.2.1)
-      2.5.3 :001 > 20.times { FactoryBot.create :product }
-
+~~~ruby
+Loading development environment (Rails 5.2.1)
+2.5.3 :001 > 20.times { FactoryBot.create :product }
 ~~~
 
 Oups, vous avez probablement des erreurs qui se sont produites:
 
-~~~bash
-      Traceback (most recent call last):
-              3: from (irb):1
-              2: from (irb):1:in `times'
-              1: from (irb):1:in `block in irb_binding'
-      NameError (uninitialized constant FactoryBot)
-
+~~~bahs
+Traceback (most recent call last):
+        3: from (irb):1
+        2: from (irb):1:in `times'
+        1: from (irb):1:in `block in irb_binding'
+NameError (uninitialized constant FactoryBot)
 ~~~
 
-C'est parce que nous utilisons la console sur l'environnement de
-développement. Mais ça n'a pas de sens avec notre `Gemfile` qui
-ressemble actuellement à ceci:
+C'est parce que nous utilisons la console sur l'environnement de développement. Mais ça n'a pas de sens avec notre `Gemfile` qui ressemble actuellement à ceci:
 
 ~~~ruby
-      # Gemfile
+# Gemfile
 
-      # ...
-      group :test do
-        gem 'factory_bot_rails'
-        gem 'ffaker', '~> 2.10'
-        gem 'rspec-collection_matchers', '~> 1.1'
-        gem 'rspec-rails', '~> 3.8'
-        gem 'shoulda-matchers'
-      end
+# ...
+group :test do
+  gem 'factory_bot_rails'
+  gem 'ffaker', '~> 2.10'
+  gem 'rspec-collection_matchers', '~> 1.1'
+  gem 'rspec-rails', '~> 3.8'
+  gem 'shoulda-matchers'
+end
 
 ~~~
 
-Vous voyez où est le problème? Si vous faites attention, vous
-remarquerez que la gemme `factory_bot_rails` n'est disponible que pour
-l'environnement de test et non pour le développement. Cela peut être
-corrigé très rapidement:
+Vous voyez où est le problème? Si vous faites attention, vous remarquerez que la gemme `factory_bot_rails` n'est disponible que pour l'environnement de test et non pour le développement. Cela peut être corrigé très rapidement:
 
 ~~~ruby
-      # Gemfile
+# Gemfile
 
-      # ...
-      group :development, :test do
-        gem 'factory_bot_rails'
-        gem 'ffaker', '~> 2.10'
-      end
+# ...
+group :development, :test do
+  gem 'factory_bot_rails'
+  gem 'ffaker', '~> 2.10'
+end
 
-      group :test do
-        # ...
-      end
-
+group :test do
+  # ...
+end
 ~~~
 
-Notez que nous avons déplacé la gemme `ffaker` vers le groupe partagé
-comme nous l'utilisons à l'intérieur des usines que nous décrivons plus
-haut. Lancez maintenant la commande `bundle` pour mettre à jour les
-bibliothèques. Alors construisez les produits que vous voulez comme ça:
+Notez que nous avons déplacé la gemme `ffaker` vers le groupe partagé comme nous l'utilisons à l'intérieur des usines que nous décrivons plus haut. Lancez maintenant la commande `bundle` pour mettre à jour les bibliothèques. Alors construisez les produits que vous voulez comme ça:
 
 ~~~bash
 $ rails console
-      Loading development environment (Rails 5.2.1)
-      2.5.3 :001 > 20.times { FactoryBot.create :product }
+Loading development environment (Rails 5.2.1)
+2.5.3 :001 > 20.times { FactoryBot.create :product }
 
 ~~~
 
-Désormais, vous pourrez créer n'importe quel objet à partir d'usines,
-comme les utilisateurs, les produits, les commandes, etc.
+Désormais, vous pourrez créer n'importe quel objet à partir d'usines, comme les utilisateurs, les produits, les commandes, etc.
 
 *commitons* les changements!
 
 ~~~bash
 $ git add .
 $ git commit -m "Updates test environment factory gems to work on development"
-
 ~~~
 
-Conclusion
-----------
+## Conclusion
 
-Dans le chapitre suivant, nous allons nous concentrer sur la
-personnalisation de la sortie des modèles utilisateur et produit à
-l'aide de la gemme *active model serializers*. Elle nous permettra de
-filtrer facilement les attributs à afficher et à gérer les associations
-comme des objets embarqués par exemple.
+Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produit à l'aide de la gemme *active model serializers*. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
 
-Modélisation du JSON {#chapter:7}
-====================
+---
 
-Dans le chapitre [9](#chapter:6){reference-type="ref"
-reference="chapter:6"}, nous avons ajouté les produits à l'application
-et construit tous les routes nécessaires. Nous avons également associé
-un produit à un utilisateur et restreint certaines des actions de
-`products_controller`.
+# Modélisation du JSON {#chapter:7}
 
-Maintenant, vous devriez être satisfait de tout ce travail. Mais nous
-avons encore du pain sur la planche. Actuellement, nous avons une sortie
-JSON qui n'est pas parfaite. La sortie JSON ressemble au Listing
-[\[lst:products\_json\]](#lst:products_json){reference-type="ref"
-reference="lst:products_json"} or nous voulons un sortie correspondante
-au Listing
-[\[lst:wanted\_products\_json\]](#lst:wanted_products_json){reference-type="ref"
-reference="lst:wanted_products_json"}.
+Dans le chapitre précédent, nous avons ajouté les produits à l'application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
 
-~~~ {#lst:products_json caption="Exemple de la sortie JSON actuelle pour la route products" label="lst:products_json"}
-    {
-      "products": [
-          {
-              "id": 1,
-              "title": "Tag Case",
-              "price": "98.7761933800815",
-              "published": false,
-              "user_id": 1,
-              "created_at": "2018-12-20T12:47:26.686Z",
-              "updated_at": "2018-12-20T12:47:26.686Z"
-          },
+Maintenant, vous devriez être satisfait de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n'est pas parfaite. La sortie JSON ressemble au Listing [\[lst:products\_json\]](#lst:products_json){reference-type="ref"reference="lst:products_json"} or nous voulons un sortie correspondante au Listing [\[lst:wanted\_products\_json\]](#lst:wanted_products_json){reference-type="ref"reference="lst:wanted_products_json"}.
 
+~~~json
+{
+  "products": [
+      {
+          "id": 1,
+          "title": "Tag Case",
+          "price": "98.7761933800815",
+          "published": false,
+          "user_id": 1,
+          "created_at": "2018-12-20T12:47:26.686Z",
+          "updated_at": "2018-12-20T12:47:26.686Z"
+      },
+    ]
+}
 ~~~
 
-~~~ {#lst:wanted_products_json caption="Exemple d'une belle sortie JSON pour la route products" label="lst:wanted_products_json"}
-    {
-      "products": [
-          {
-              "id": 1,
-              "title": "Tag Case",
-          },
-
+~~~ruby
+{
+  "products": [
+      {
+          "id": 1,
+          "title": "Tag Case",
+      },
+    ]
+}
 ~~~
 
-Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant
-la gemme `active_model_serializers`. Pour plus d'informations vous
-pouvez consulter le [répertoire sur
-Github](https://github.com/rails-api/active_model_serializers). Je vais
-couvrir quelques points ici, de l'installation à l'implémentation, mais
-je vous recommande de jeter un œil à la documentation.
+Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme `active_model_serializers`. Pour plus d'informations vous pouvez consulter le [répertoire sur Github](https://github.com/rails-api/active_model_serializers). Je vais couvrir quelques points ici, de l'installation à l'implémentation, mais je vous recommande de jeter un œil à la documentation.
 
 Vous pouvez cloner le projet jusqu'à ce point avec:
 
 ~~~bash
-    $ git clone https://github.com/madeindjs/market_place_api.git -b chapter6
-
+$ git clone https://github.com/madeindjs/market_place_api.git -b chapter6
 ~~~
 
 Commençons une nouvelle branche pour ce chapitre:
 
 ~~~bash
-    $ git checkout -b chapter7
-
+$ git checkout -b chapter7
 ~~~
 
-Mise en place de la gemme
--------------------------
+## Mise en place de la gemme
 
-Si vous avez suivi le tutoriel depuis le début, vous devriez déjà avoir
-la gemme installée. Mais au cas où vous auriez atterri ici, je vais vous
-guider dans l'installation.
+Si vous avez suivi le tutoriel depuis le début, vous devriez déjà avoir la gemme installée. Mais au cas où vous auriez atterri ici, je vais vous guider dans l'installation.
 
 Ajoutez la ligne suivante à votre `Gemfile`:
 
 ~~~ruby
-      # Gemfile
-      # ...
-      gem 'active_model_serializers', '~> 0.10.8'
-
+# Gemfile
+# ...
+gem 'active_model_serializers', '~> 0.10.8'
 ~~~
 
-Exécutez la commande d'installation du paquet pour installer la gemme
-\... et c'est tout! Vous devriez être prêt à continuer avec ce tutoriel.
+Exécutez la commande d'installation du paquet pour installer la gemme... et c'est tout! Vous devriez être prêt à continuer avec ce tutoriel.
 
-Sérialiser l'utilisateur
-------------------------
+## Sérialiser l'utilisateur
 
-Nous devons d'abord ajouter un fichier `user_serializer`. Nous pouvons
-le faire manuellement, mais la gemme fournit une interface en ligne de
-commande pour le faire:
+Nous devons d'abord ajouter un fichier `user_serializer`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
 ~~~bash
 $ rails generate serializer user
-          create  app/serializers/user_serializer.rb
+  create  app/serializers/user_serializer.rb
 
 ~~~
 
-Ceci a créé un fichier appelé `user_serializer.rb` sous le répertoire
-`app/serializers`, qui devrait ressembler à celui de Listing
-[\[lst:generated\_user\_serializer\]](#lst:generated_user_serializer){reference-type="ref"
-reference="lst:generated_user_serializer"}:
+Ceci a créé un fichier appelé `user_serializer.rb` sous le répertoire `app/serializers`, qui devrait ressembler à celui de Listing [\[lst:generated\_user\_serializer\]](#lst:generated_user_serializer){reference-type="ref"reference="lst:generated_user_serializer"}:
 
-~~~ {#lst:generated_user_serializer language="ruby" caption="Sérialsateur d'utilisateurs généré" label="lst:generated_user_serializer"}
-      # app/serializers/user_serializer.rb
-      class UserSerializer < ActiveModel::Serializer
-        attributes :id
-      end
+~~~ruby
+# app/serializers/user_serializer.rb
+class UserSerializer < ActiveModel::Serializer
+  attributes :id
+end
 
 ~~~
 
@@ -4141,52 +3712,35 @@ Nous devrions avoir des tests qui échouent. Essayez par vous même:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/users_controller_spec.rb
-      F.F....F.....
+F.F....F.....
 
 ~~~
 
-Si vous jetez un coup d'oeil rapide au `users_controller`, vous devez
-avoir quelque chose correspondant au listing
-[\[lst:add\_show\_to\_users\_controller\_spec\]](#lst:add_show_to_users_controller_spec){reference-type="ref"
-reference="lst:add_show_to_users_controller_spec"} pour l'action `show`.
-La documentation de la gemme explique ce qui vient de ce passer:
+Si vous jetez un coup d'oeil rapide au `users_controller`, vous devez avoir quelque chose correspondant au listing [\[lst:add\_show\_to\_users\_controller\_spec\]](#lst:add_show_to_users_controller_spec){reference-type="ref"reference="lst:add_show_to_users_controller_spec"} pour l'action `show`. La documentation de la gemme explique ce qui vient de ce passer:
 
-Rails recherchera automatiquement un sérialiseur nommé `PostSerializer`,
-et s'il existe, l'utilisera pour sérialiser un `Post`.
+> Rails recherchera automatiquement un sérialiseur nommé `PostSerializer`, et s'il existe, l'utilisera pour sérialiser un `Post`.
 
-Cela fonctionne aussi avec `respond_with`, qui utilise `to_json` sous le
-capot. Notez également que toutes les options passées pour rendre
-`:json` seront passées à votre sérialiseur et disponibles comme
-`@options` à l'intérieur.
+Cela fonctionne aussi avec `respond_with`, qui utilise `to_json` sous le capot. Notez également que toutes les options passées pour rendre `:json` seront passées à votre sérialiseur et disponibles comme `@options` à l'intérieur.
 
-Cela signifie que peu importe si nous utilisons la méthode `render json`
-ou `respond_with`. A partir de maintenant, Rails recherchera le
-sérialiseur correspondant en premier.
+Cela signifie que peu importe si nous utilisons la méthode `render json` ou `respond_with`. A partir de maintenant, Rails recherchera le sérialiseur correspondant en premier.
 
-Maintenant, de retour aux tests, vous pouvez voir que pour une raison
-quelconque, la réponse n'est pas tout à fait ce que nous attendons.
-C'est parce que la gemme réduit la réponse que nous avions précédemment
-définie. Donc pour faire passer les tests, il suffit d'ajouter les
-attributs à sérialiser dans le `user_serializer.rb` et de mettre à jour
-le fichier `users_controller_spec.rb`:
+Maintenant, de retour aux tests, vous pouvez voir que pour une raison quelconque, la réponse n'est pas tout à fait ce que nous attendons. C'est parce que la gemme réduit la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit d'ajouter les attributs à sérialiser dans le `user_serializer.rb` et de mettre à jour le fichier `users_controller_spec.rb`:
 
-~~~bash
-      # app/serializers/user_serializer.rb
-      class UserSerializer < ActiveModel::Serializer
-        attributes :id, :email, :created_at, :updated_at, :auth_token
-      end
-
+~~~ruby
+# app/serializers/user_serializer.rb
+class UserSerializer < ActiveModel::Serializer
+  attributes :id, :email, :created_at, :updated_at, :auth_token
+end
 ~~~
 
 Si vous faites les tests maintenant, ils devraient passer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/users_controller_spec.rb
-      .............
+.............
 
-      Finished in 0.16712 seconds (files took 0.80637 seconds to load)
-      13 examples, 0 failures
-
+Finished in 0.16712 seconds (files took 0.80637 seconds to load)
+13 examples, 0 failures
 ~~~
 
 *Commitons* ces changements et continuons d'avancer:
@@ -4194,1019 +3748,790 @@ $ rspec spec/controllers/api/v1/users_controller_spec.rb
 ~~~bash
 $ git add .
 $ git commit -am "Adds user serializer for customizing the json output"
-
 ~~~
 
-Nous pouvons également tester les objets du sérialiseur, comme indiqué
-dans la documentation, mais je vous laisse le soin de décider si vous
-voulez tester ou non.
+Nous pouvons également tester les objets du sérialiseur, comme indiqué dans la documentation, mais je vous laisse le soin de décider si vous voulez tester ou non.
 
-Sérialiser les produits
------------------------
+## Sérialiser les produits
 
-Maintenant que nous comprenons comment fonctionne la gemme de
-sérialisation, il est temps de personnaliser la sortie des produits. La
-première étape et comme pour l'utilisateur, nous avons besoin d'un
-sérialiseur de produit, alors faisons-le:
+Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape et comme pour l'utilisateur, nous avons besoin d'un sérialiseur de produit, alors faisons-le:
 
 ~~~bash
 $ rails generate serializer product
-              create  app/serializers/product_serializer.rb
+    create  app/serializers/product_serializer.rb
 
 ~~~
 
-Ajoutons maintenant les attributs à sérialiser pour le produit, comme
-nous l'avons fait avec l'utilisateur dans la Section
-[10.2](#sec:serialize_user){reference-type="ref"
-reference="sec:serialize_user"}:
+Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l'avons fait avec l'utilisateur dans la Section [10.2](#sec:serialize_user){reference-type="ref"reference="sec:serialize_user"}:
 
 ~~~ruby
-      # app/serializers/product_serializer.rb
-      class ProductSerializer < ActiveModel::Serializer
-        attributes :id, :title, :price, :published
-      end
-
+# app/serializers/product_serializer.rb
+class ProductSerializer < ActiveModel::Serializer
+  attributes :id, :title, :price, :published
+end
 ~~~
 
-Et voilà. Ce n'est pas plus compliqué que ça. Vous pouvez lancer les
-tests pour vérifier mais ils devraient encore être bons.
+Et voilà. Ce n'est pas plus compliqué que ça. Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons.
 
 *Commitons* ces petits changements:
 
 ~~~bash
 $ git add .
 $ git commit -a "Adds product serializer for custom json output"
-
 ~~~
 
-Sérialiser les associations
----------------------------
+## Sérialiser les associations
 
-Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être
-que c'est très simple. Dans certains cas, la décision difficile est de
-savoir comment nommer vos routes ou comment structurer la sortie JSON
-afin que votre solution soit pérenne.
+Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c'est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne.
 
-Lorsque vous travaillez avec des associations entre les modèles sur une
-API, il existe de nombreuses approches que vous pouvez prendre. Ici, je
-vais expliquer ce que j'ai trouvé et ce fonctionne pour moi. Ce n'est
-pas la seule manière de faire, je vous laisse juger si elle vous
-convient. Dans cette section, nous allons étendre notre API pour gérer
-l'association produit/utilisateur. Je vais aussi vous expliquer
-certaines des erreurs courantes dans lesquels vous pouvez tomber.
+Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre. Ici, je vais expliquer ce que j'ai trouvé et ce fonctionne pour moi. Ce n'est pas la seule manière de faire, je vous laisse juger si elle vous convient. Dans cette section, nous allons étendre notre API pour gérer l'association produit/utilisateur. Je vais aussi vous expliquer certaines des erreurs courantes dans lesquels vous pouvez tomber.
 
-Pour résumer, nous avons une association de type `has_many` entre
-l'utilisateur et le modèle de produit. Regardez le Listing
-[\[lst:user\_assocations\]](#lst:user_assocations){reference-type="ref"
-reference="lst:user_assocations"} et Listing
-[\[lst:product\_assocations\]](#lst:product_assocations){reference-type="ref"
-reference="lst:product_assocations"}.
+Pour résumer, nous avons une association de type `has_many` entre l'utilisateur et le modèle de produit. Regardez le Listing [\[lst:user\_assocations\]](#lst:user_assocations){reference-type="ref"reference="lst:user_assocations"} et Listing [\[lst:product\_assocations\]](#lst:product_assocations){reference-type="ref"reference="lst:product_assocations"}.
 
-~~~ {#lst:user_assocations language="ruby" caption="Associations des utilisateurs" label="lst:user_assocations"}
-      # app/models/user.rb
-      class User < ApplicationRecord
-        has_many :products, dependent: :destroy
-        # ...
-      end
-
+~~~ruby
+# app/models/user.rb
+class User < ApplicationRecord
+  has_many :products, dependent: :destroy
+  # ...
+end
 ~~~
 
-~~~ {#lst:product_assocations language="ruby" caption="Associations des produits" label="lst:product_assocations"}
-      # app/models/product.rb
-      class Product < ApplicationRecord
-        belongs_to :user
-        # ...
-      end
-
+~~~ruby
+# app/models/product.rb
+class Product < ApplicationRecord
+  belongs_to :user
+  # ...
+end
 ~~~
 
-C'est une bonne idée d'intégrer des modèles dans d'autres modèles dans
-d'autres modèle car cela évite au client de l'API d'exécuter plusieurs
-requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous
-récupérez de nombreux enregistrements, cela peut vous éviter un énorme
-goulet d'étranglement. Permettez-moi d'expliquer, à l'aide d'un cas
-d'utilisation, l'application réelle telle qu'elle est illustrée dans
-l'encadré
-[\[box:association\_embeded\]](#box:association_embeded){reference-type="ref"
-reference="box:association_embeded"}.
+C'est une bonne idée d'intégrer des modèles dans d'autres modèles dans d'autres modèle car cela évite au client de l'API d'exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d'étranglement. Permettez-moi d'expliquer, à l'aide d'un cas d'utilisation, l'application réelle telle qu'elle est illustrée dans l'encadré [\[box:association\_embeded\]](#box:association_embeded){reference-type="ref"reference="box:association_embeded"}.
 
-Cas d'utilisation d'un objet incorporé dans une
-association[\[box:association\_embeded\]]{#box:association_embeded
-label="box:association_embeded"}
+## Cas d'utilisation d'un objet incorporé dans une association
 
-Imaginez un scénario où vous allez chercher les produits dans l'API,
-mais dans ce cas, vous devez afficher une partie des informations de
-l'utilisateur.
+Imaginez un scénario où vous allez chercher les produits dans l'API, mais dans ce cas, vous devez afficher une partie des informations de l'utilisateur.
 
-Une solution possible serait d'ajouter l'attribut `user_id` au
-`product_serializer` pour que nous puissions récupérer l'utilisateur
-correspondant plus tard. Cela peut sembler être une bonne idée, mais si
-vous vous souciez de la performance, ou si les transactions de votre
-base de données ne sont pas assez rapides, vous devriez reconsidérer
-cette approche. Vous devez comprendre que pour chaque produit que vous
-récupérez, vous allez devoir récupérer son utilisateur correspondant.
+Une solution possible serait d'ajouter l'attribut `user_id` au `product_serializer` pour que nous puissions récupérer l'utilisateur correspondant plus tard. Cela peut sembler être une bonne idée, mais si vous vous souciez de la performance, ou si les transactions de votre base de données ne sont pas assez rapides, vous devriez reconsidérer cette approche. Vous devez comprendre que pour chaque produit que vous récupérez, vous allez devoir récupérer son utilisateur correspondant.
 
 Face à ce problème, je suis venu avec deux alternatives possibles:
 
-- Une bonne solution à mon avis est d'intégrer les identifiants des
-    utilisateurs liés aux produits dans un attribut meta, donc nous
-    avons une sortie JSON comme:
-
-                    {
-                      "meta": { "user_ids": [1,2,3] },
-                      "products": [
-                        ...
-                      ]
-                    }
-
-
-    Cela peut nécessiter une configuration supplémentaire sur le
-    terminal de l'utilisateur, afin que le client puisse récupérer ces
-    utilisateurs à partir de ces `user_ids`.
-
-- Une autre solution, et celle que j'utiliserai ici, est d'incorporer
-    l'objet `user` dans l'objet `product`. Ce qui peut rendre la
-    première requête un peu plus lente, mais de cette façon le client
-    n'a pas besoin de faire une autre requête supplémentaire. Un exemple
-    des résultats escomptés est présenté ci-dessous:
-
-                    {
-                      "products":
-                      [
-                          {
-                             "id": 1,
-                             "title": "Digital Portable System",
-                             "price": "25.0277354166289",
-                             "published": false,
-                             "user": {
-                                "id": 2,
-                                "email": "stephany@lind.co.uk",
-                                "created_at": "2014-07-29T03:52:07.432Z",
-                                "updated_at": "2014-07-29T03:52:07.432Z",
-                                "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-                              }
-                          }
-                          ...
-                       ]
-                    }
-
-
-Donc, selon l'encadré
-[\[box:association\_embeded\]](#box:association_embeded){reference-type="ref"
-reference="box:association_embeded"}, nous allons incorporer l'objet
-utilisateur dans le produit. Commençons par ajouter quelques tests. Nous
-allons simplement modifier les tests des routes `Products#index` et
-`Products#show` Listing
-[\[lst:spec\_product\_assocations\]](#lst:spec_product_assocations){reference-type="ref"
-reference="lst:spec_product_assocations"}.
-
-~~~ {#lst:spec_product_assocations language="ruby" caption="Test de l'associations des produits pour l'API" label="lst:spec_product_assocations"}
-      # spec/controllers/api/v1/products_controller_spec.rb
-      # ...
-
-      RSpec.describe Api::V1::ProductsController, type: :controller do
-        describe 'GET #show' do
-          # ...
-
-          it 'has the user as a embeded object' do
-            expect(json_response[:user][:email]).to eql @product.user.email
-          end
-        end
-
-        describe 'GET #index' do
-          # ...
-
-          it 'returns the user object into each product' do
-            json_response.each do |product_response|
-              expect(product_response[:user]).to be_present
-            end
-          end
-        end
-
-        # ...
-      end
-
+- Une bonne solution à mon avis est d'intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
+~~~json
+{
+  "meta": { "user_ids": [1,2,3] },
+  "products": [
+  //  ...
+  ]
+}
+~~~
+Cela peut nécessiter une configuration supplémentaire sur le terminal de l'utilisateur, afin que le client puisse récupérer ces utilisateurs à partir de ces `user_ids`.
+- Une autre solution, et celle que j'utiliserai ici, est d'incorporer l'objet `user` dans l'objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n'a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
+~~~json
+{
+  "products":
+  [
+      {
+         "id": 1,
+         "title": "Digital Portable System",
+         "price": "25.0277354166289",
+         "published": false,
+         "user": {
+            "id": 2,
+            "email": "stephany@lind.co.uk",
+            "created_at": "2014-07-29T03:52:07.432Z",
+            "updated_at": "2014-07-29T03:52:07.432Z",
+            "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+          }
+      }
+      // ...
+   ]
+}
 ~~~
 
-L'implémentation est très simple, il suffit d'ajouter une ligne au
-sérialiseur du produit:
+Donc, selon l'encadré [\[box:association\_embeded\]](#box:association_embeded){reference-type="ref"reference="box:association_embeded"}, nous allons incorporer l'objet utilisateur dans le produit. Commençons par ajouter quelques tests. Nous allons simplement modifier les tests des routes `Products#index` et `Products#show` Listing [\[lst:spec\_product\_assocations\]](#lst:spec_product_assocations){reference-type="ref"reference="lst:spec_product_assocations"}.
 
 ~~~ruby
-      # app/serializers/product_serializer.rb
-      class ProductSerializer < ActiveModel::Serializer
-        attributes :id, :title, :price, :published
-        has_one :user
-      end
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
 
+RSpec.describe Api::V1::ProductsController, type: :controller do
+  describe 'GET #show' do
+    # ...
+
+    it 'has the user as a embeded object' do
+      expect(json_response[:user][:email]).to eql @product.user.email
+    end
+  end
+
+  describe 'GET #index' do
+    # ...
+
+    it 'returns the user object into each product' do
+      json_response.each do |product_response|
+        expect(product_response[:user]).to be_present
+      end
+    end
+  end
+
+  # ...
+end
+~~~
+
+L'implémentation est très simple, il suffit d'ajouter une ligne au sérialiseur du produit:
+
+~~~ruby
+# app/serializers/product_serializer.rb
+class ProductSerializer < ActiveModel::Serializer
+  attributes :id, :title, :price, :published
+  has_one :user
+end
 ~~~
 
 Maintenant, tous les tests devraient passer:
 
 ~~~ruby
-$ rspec spec/
-      ............................................................
+$ rspec spec
+............................................................
 
-      Finished in 0.57068 seconds (files took 0.67788 seconds to load)
-      60 examples, 0 failures
+Finished in 0.57068 seconds (files took 0.67788 seconds to load)
+60 examples, 0 failures
 
 ~~~
 
 ### Récupérer les produits pour des utilisateurs
 
-Maintenant, vous vous demandez peut-être si vous devriez intégrer les
-produits dans l'utilisateur (comme dans la section précédente). Même si
-cela peut sembler bien, cela peut entraîner de graves problèmes
-d'optimisation. Vous pourriez être en train de charger d'énormes
-quantités d'informations et il est vraiment facile de tomber dans le
-problème des **dépendances circulaires** qui boucle le programme jusqu'à
-épuiser la mémoire.
+Maintenant, vous vous demandez peut-être si vous devriez intégrer les produits dans l'utilisateur (comme dans la section précédente). Même si cela peut sembler bien, cela peut entraîner de graves problèmes d'optimisation. Vous pourriez être en train de charger d'énormes quantités d'informations et il est vraiment facile de tomber dans le problème des **dépendances circulaires** qui boucle le programme jusqu'à épuiser la mémoire.
 
-Mais ne vous inquiétez pas, tout n'est pas perdu, nous pouvons
-facilement résoudre ce problème en intégrant seulement les identifiants
-des produits dans l'utilisateur. Cela donnera à votre API une meilleure
-performance et cela évitera de charger des données supplémentaires. Dans
-cette section, nous allons donc étendre notre route de l'index des
-produits pour traiter un paramètre `product_ids` et formater la sortie
-JSON en conséquence.
+Mais ne vous inquiétez pas, tout n'est pas perdu, nous pouvons facilement résoudre ce problème en intégrant seulement les identifiants des produits dans l'utilisateur. Cela donnera à votre API une meilleure performance et cela évitera de charger des données supplémentaires. Dans cette section, nous allons donc étendre notre route de l'index des produits pour traiter un paramètre `product_ids` et formater la sortie JSON en conséquence.
 
-Tout d'abord, nous nous assurons que le `product_ids` qu'il fait partie
-de l'objet sérialisé de l'utilisateur:
+Tout d'abord, nous nous assurons que le `product_ids` qu'il fait partie de l'objet sérialisé de l'utilisateur:
 
-~~~ {#lst:product_ids_users_controller_spec language="ruby" caption="Test de présence des identifiants des produits dans l'objet de l'utilisateur" label="lst:product_ids_users_controller_spec"}
-        # spec/controllers/api/v1/users_controller_spec.rb
-        # ...
+~~~ruby
+# spec/controllers/api/v1/users_controller_spec.rb
+# ...
 
-        RSpec.describe Api::V1::UsersController, type: :controller do
-          describe 'GET #show' do
-            # ...
+RSpec.describe Api::V1::UsersController, type: :controller do
+  describe 'GET #show' do
+    # ...
 
-            it 'has the product ids as an embeded object' do
-              expect(json_response[:product_ids]).to eql []
-            end
-          end
+    it 'has the product ids as an embeded object' do
+      expect(json_response[:product_ids]).to eql []
+    end
+  end
 
-          # ...
-        end
-
+  # ...
+end
 ~~~
 
-L'implémentation est très simple, comme décrit dans [la
-documentation](https://github.com/rails-api/active_model_serializers/blob/0-10-stable/docs/howto/add_relationship_links.md#links-as-an-attribute-of-a-resource)
-de la gemme `active_model_serializers`:
+L'implémentation est très simple, comme décrit dans [la documentation](https://github.com/rails-api/active_model_serializers/blob/0-10-stable/docs/howto/add_relationship_links.md#links-as-an-attribute-of-a-resource) de la gemme `active_model_serializers`:
 
-~~~ {#lst:product_ids_users_controller language="ruby" caption="Implémentation pour inclures les identifiants des produits dans l'objet de l'utilisateur" label="lst:product_ids_users_controller"}
-        # app/serializers/user_serializer.rb
-        class UserSerializer < ActiveModel::Serializer
-        attribute :product_ids do
-          object.products.map(&:id)
-        end
-          # ...
-        end
-
+~~~ruby
+# app/serializers/user_serializer.rb
+class UserSerializer < ActiveModel::Serializer
+  attribute :product_ids do
+    object.products.map(&:id)
+  end
+  # ...
+end
 ~~~
 
 Nos tests devraient passer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/users_controller_spec.rb
-        ..............
+..............
 
-        Finished in 0.16791 seconds (files took 0.65902 seconds to load)
-        14 examples, 0 failures
-
+Finished in 0.16791 seconds (files took 0.65902 seconds to load)
+14 examples, 0 failures
 ~~~
 
-Nous devons maintenant étendre l'action `index` depuis le
-`products_controller` pour qu'il puisse gérer le paramètre `product_ids`
-et afficher les enregistrements scopés. Commençons par ajouter quelques
-tests (Listing
-[\[lst:parameter\_products\_controller\_spec\]](#lst:parameter_products_controller_spec){reference-type="ref"
-reference="lst:parameter_products_controller_spec"}):
+Nous devons maintenant étendre l'action `index` depuis le `products_controller` pour qu'il puisse gérer le paramètre `product_ids` et afficher les enregistrements scopés. Commençons par ajouter quelques tests (Listing [\[lst:parameter\_products\_controller\_spec\]](#lst:parameter_products_controller_spec){reference-type="ref"reference="lst:parameter_products_controller_spec"}):
 
-~~~ {#lst:parameter_products_controller_spec language="ruby" caption="Tests du paramètre d'identifiants des produits pour l'affichage de l'index des produits" label="lst:parameter_products_controller_spec"}
-        # spec/controllers/api/v1/products_controller_spec.rb
-        # ...
+~~~ruby
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
 
-        RSpec.describe Api::V1::ProductsController, type: :controller do
-          # ...
+RSpec.describe Api::V1::ProductsController, type: :controller do
+  # ...
 
-          describe 'GET #index' do
-            before(:each) do
-              4.times { FactoryBot.create :product }
-              get :index
-            end
+  describe 'GET #index' do
+    before(:each) do
+      4.times { FactoryBot.create :product }
+      get :index
+    end
 
-            context 'when is not receiving any product_ids parameter' do
-              before(:each) do
-                get :index
-              end
+    context 'when is not receiving any product_ids parameter' do
+      before(:each) do
+        get :index
+      end
 
-              it 'returns 4 records from the database' do
-                expect(json_response).to have(4).items
-              end
+      it 'returns 4 records from the database' do
+        expect(json_response).to have(4).items
+      end
 
-              it 'returns the user object into each product' do
-                json_response.each do |product_response|
-                  expect(product_response[:user]).to be_present
-                end
-              end
-
-              it { expect(response.response_code).to eq(200) }
-            end
-
-            context 'when product_ids parameter is sent' do
-              before(:each) do
-                @user = FactoryBot.create :user
-                3.times { FactoryBot.create :product, user: @user }
-                get :index, params: { product_ids: @user.product_ids }
-              end
-
-              it 'returns just the products that belong to the user' do
-                json_response.each do |product_response|
-                  expect(product_response[:user][:email]).to eql @user.email
-                end
-              end
-            end
-          end
-
-          # ...
+      it 'returns the user object into each product' do
+        json_response.each do |product_response|
+          expect(product_response[:user]).to be_present
         end
+      end
 
+      it { expect(response.response_code).to eq(200) }
+    end
+
+    context 'when product_ids parameter is sent' do
+      before(:each) do
+        @user = FactoryBot.create :user
+        3.times { FactoryBot.create :product, user: @user }
+        get :index, params: { product_ids: @user.product_ids }
+      end
+
+      it 'returns just the products that belong to the user' do
+        json_response.each do |product_response|
+          expect(product_response[:user][:email]).to eql @user.email
+        end
+      end
+    end
+  end
+
+  # ...
+end
 ~~~
 
-Comme vous pouvez le voir dans Listing
-[\[lst:parameter\_products\_controller\_spec\]](#lst:parameter_products_controller_spec){reference-type="ref"
-reference="lst:parameter_products_controller_spec"}, nous venons
-d'envelopper l'action index dans deux contextes séparés: l'un qui
-recevra les `product_ids` et l'autre l'ancien que nous avions écris.
+Comme vous pouvez le voir dans Listing [\[lst:parameter\_products\_controller\_spec\]](#lst:parameter_products_controller_spec){reference-type="ref"reference="lst:parameter_products_controller_spec"}, nous venons d'envelopper l'action index dans deux contextes séparés: l'un qui recevra les `product_ids` et l'autre l'ancien que nous avions écris. 
+
 Ajoutons le code nécessaire pour faire passer les tests:
 
 ~~~ruby
-        # app/controllers/api/v1/products_controller.rb
-        class Api::V1::ProductsController < ApplicationController
-          before_action :authenticate_with_token!, only: %i[create update destroy]
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  before_action :authenticate_with_token!, only: %i[create update destroy]
 
-          def index
-            products = params[:product_ids].present? ? Product.find(params[:product_ids]) : Product.all
-            render json: products
-          end
+  def index
+    products = params[:product_ids].present? ? Product.find(params[:product_ids]) : Product.all
+    render json: products
+  end
 
-          # ...
-        end
-
+  # ...
+end
 ~~~
 
-Comme vous pouvez le voir l'implémentation est super simple. Nous allons
-simplement chercher les produits avec le paramètre `product_ids` au cas
-où ils seraient présents, sinon nous les cherchons tous. Assurons-nous
-que les tests sont bons:
+Comme vous pouvez le voir l'implémentation est super simple. Nous allons simplement chercher les produits avec le paramètre `product_ids` au cas où ils seraient présents, sinon nous les cherchons tous. Assurons-nous que les tests sont bons:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
-        ..................
+..................
 
-        Finished in 0.35027 seconds (files took 0.65369 seconds to load)
-        18 examples, 0 failures
-
+Finished in 0.35027 seconds (files took 0.65369 seconds to load)
+18 examples, 0 failures
 ~~~
 
 *Commitons* nos changements:
 
 ~~~bash
 $ git commit -am "Embeds the products_ids into the user serialiser and fetches the correct products from the index action endpoint"
-
 ~~~
 
 Rechercher les produits
 -----------------------
 
-Dans cette dernière section, nous continuerons à renforcer l'action
-d'`Products#index` en mettant en place un mécanisme de recherche très
-simple pour permettre à n'importe quel client de filtrer les résultats.
-Cette section est facultative car elle n'aura aucun impact sur les
-modules de l'application. Mais si vous voulez pratiquer davantage avec
-le TDD, je vous recommande de compléter cette dernière étape.
+Dans cette dernière section, nous continuerons à renforcer l'action d'`Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n'importe quel client de filtrer les résultats. Cette section est facultative car elle n'aura aucun impact sur les modules de l'application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
 
-J'utilise [Ransack](https://github.com/activerecord-hackery/ransack)
-pour construire des formulaires de recherche avancée extrêmement
-rapidement. Mais ici, comme le but est dapprendre et que la recherche
-que nous allons effectuer est très simple, je pense que nous pouvons
-construire un moteur de recherche à partir de zéro. Nous devons
-simplement considérer les critères par lesquels nous allons filtrer les
-attributs. Accrochez-vous bien à vos sièges, ça va être un voyage
-difficile.
+J'utilise [Ransack](https://github.com/activerecord-hackery/ransack) pour construire des formulaires de recherche avancée extrêmement rapidement. Mais ici, comme le but est dapprendre et que la recherche que nous allons effectuer est très simple, je pense que nous pouvons construire un moteur de recherche à partir de zéro. Nous devons simplement considérer les critères par lesquels nous allons filtrer les attributs. Accrochez-vous bien à vos sièges, ça va être un voyage difficile.
 
 Nous filtrerons donc les produits selon les critères suivants:
 
 - Par titre
-
 - Par prix
-
 - Trier par date de création
 
-Cela peut sembler court et facile, mais croyez-moi, cela vous donnera
-mal à la tête si vous ne le planifiez pas.
+Cela peut sembler court et facile, mais croyez-moi, cela vous donnera mal à la tête si vous ne le planifiez pas.
 
 ### Le mot-clé by
 
-Nous allons créer un *scope* pour trouver les enregistrements qui
-correspondent à un motif particulier de caractères. Appelons-le
-`filter_by_title`. Ajoutons d'abord quelques tests (Listing
-[\[lst:product\_filter\_by\_title\_spec\]](#lst:product_filter_by_title_spec){reference-type="ref"
-reference="lst:product_filter_by_title_spec"}):
+Nous allons créer un *scope* pour trouver les enregistrements qui correspondent à un motif particulier de caractères. Appelons-le `filter_by_title`. Ajoutons d'abord quelques tests (Listing [\[lst:product\_filter\_by\_title\_spec\]](#lst:product_filter_by_title_spec){reference-type="ref"reference="lst:product_filter_by_title_spec"}):
 
-~~~ {#lst:product_filter_by_title_spec language="ruby" caption="Test du filtrage des produits par titre" label="lst:product_filter_by_title_spec"}
-        # spec/models/product_spec.rb
-        # ...
+~~~ruby
+# spec/models/product_spec.rb
+# ...
 
-        RSpec.describe Product, type: :model do
-          # ...
+RSpec.describe Product, type: :model do
+  # ...
 
-          describe '.filter_by_title' do
-            before(:each) do
-              @product1 = FactoryBot.create :product, title: 'A plasma TV'
-              @product2 = FactoryBot.create :product, title: 'Fastest Laptop'
-              @product3 = FactoryBot.create :product, title: 'CD player'
-              @product4 = FactoryBot.create :product, title: 'LCD TV'
-            end
+  describe '.filter_by_title' do
+    before(:each) do
+      @product1 = FactoryBot.create :product, title: 'A plasma TV'
+      @product2 = FactoryBot.create :product, title: 'Fastest Laptop'
+      @product3 = FactoryBot.create :product, title: 'CD player'
+      @product4 = FactoryBot.create :product, title: 'LCD TV'
+    end
 
-            context "when a 'TV' title pattern is sent" do
-              it 'returns the 2 products matching' do
-                expect(Product.filter_by_title('TV')).to have(2).items
-              end
+    context "when a 'TV' title pattern is sent" do
+      it 'returns the 2 products matching' do
+        expect(Product.filter_by_title('TV')).to have(2).items
+      end
 
-              it 'returns the products matching' do
-                expect(Product.filter_by_title('TV').sort).to match_array([@product1, @product4])
-              end
-            end
-          end
-        end
-
+      it 'returns the products matching' do
+        expect(Product.filter_by_title('TV').sort).to match_array([@product1, @product4])
+      end
+    end
+  end
+end
 ~~~
 
-Le test ici est de s'assurer que quel que soit le cas du titre envoyé,
-nous devons l'aseptiser afin de faire la comparaison appropriée. Dans
-notre cas nous utiliserons l'approche en minuscules. Implémentons le
-code nécessaire (Listing
-[\[lst:product\_filter\_by\_title\]](#lst:product_filter_by_title){reference-type="ref"
-reference="lst:product_filter_by_title"}):
+Le test ici est de s'assurer que quel que soit le cas du titre envoyé, nous devons l'aseptiser afin de faire la comparaison appropriée. Dans notre cas nous utiliserons l'approche en minuscules. Implémentons le code nécessaire (Listing [\[lst:product\_filter\_by\_title\]](#lst:product_filter_by_title){reference-type="ref"reference="lst:product_filter_by_title"}):
 
-~~~ {#lst:product_filter_by_title language="ruby" caption="Implémentation du filtrage des produits par titre" label="lst:product_filter_by_title"}
-        # app/models/product.rb
-        class Product < ApplicationRecord
-          # ...
-          scope :filter_by_title, lambda { |keyword|
-            where('lower(title) LIKE ?', "%#{keyword.downcase}%")
-          }
-        end
-
+~~~ruby
+# app/models/product.rb
+class Product < ApplicationRecord
+  # ...
+  scope :filter_by_title, lambda { |keyword|
+    where('lower(title) LIKE ?', "%#{keyword.downcase}%")
+  }
+end
 ~~~
 
 L'implémentation est suffisante pour que nos tests passent:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
-        ...........
+...........
 
-        Finished in 0.17178 seconds (files took 3.59 seconds to load)
-        11 examples, 0 failures
-
+Finished in 0.17178 seconds (files took 3.59 seconds to load)
+11 examples, 0 failures
 ~~~
 
 ### Par prix
 
-Pour filtrer par prix, les choses peuvent devenir un peu plus délicates.
-Nous allons briser la logique de filtrer par prix en deux méthodes
-différentes: l'une qui va chercher les produits plus grands que le prix
-reçu et l'autre qui va chercher ceux qui sont sous ce prix. De cette
-façon, nous garderons une certaine flexibilité et nous pouvons
-facilement tester les *scope*.
+Pour filtrer par prix, les choses peuvent devenir un peu plus délicates. Nous allons briser la logique de filtrer par prix en deux méthodes différentes: l'une qui va chercher les produits plus grands que le prix reçu et l'autre qui va chercher ceux qui sont sous ce prix. De cette façon, nous garderons une certaine flexibilité et nous pouvons facilement tester les *scope*.
 
-Commençons par construire les tests du *scope* `above_or_equal_to_price`
-(Listing
-[\[lst:product\_above\_or\_equal\_to\_price\_spec\]](#lst:product_above_or_equal_to_price_spec){reference-type="ref"
-reference="lst:product_above_or_equal_to_price_spec"}):
+Commençons par construire les tests du *scope* `above_or_equal_to_price` (Listing [\[lst:product\_above\_or\_equal\_to\_price\_spec\]](#lst:product_above_or_equal_to_price_spec){reference-type="ref"reference="lst:product_above_or_equal_to_price_spec"}):
 
-~~~ {#lst:product_above_or_equal_to_price_spec language="ruby" caption="Test du filtrage des produits par prix supérieur ou égal" label="lst:product_above_or_equal_to_price_spec"}
-        # spec/models/product_spec.rb
-        # ...
+~~~ruby
+# spec/models/product_spec.rb
+# ...
 
-        RSpec.describe Product, type: :model do
-          # ...
+RSpec.describe Product, type: :model do
+  # ...
 
-          describe '.above_or_equal_to_price' do
-            before(:each) do
-              @product1 = FactoryBot.create :product, price: 100
-              @product2 = FactoryBot.create :product, price: 50
-              @product3 = FactoryBot.create :product, price: 150
-              @product4 = FactoryBot.create :product, price: 99
-            end
+  describe '.above_or_equal_to_price' do
+    before(:each) do
+      @product1 = FactoryBot.create :product, price: 100
+      @product2 = FactoryBot.create :product, price: 50
+      @product3 = FactoryBot.create :product, price: 150
+      @product4 = FactoryBot.create :product, price: 99
+    end
 
-            it 'returns the products which are above or equal to the price' do
-              expect(Product.above_or_equal_to_price(100).sort).to match_array([@product1, @product3])
-            end
-          end
-        end
-
+    it 'returns the products which are above or equal to the price' do
+      expect(Product.above_or_equal_to_price(100).sort).to match_array([@product1, @product3])
+    end
+  end
+end
 ~~~
 
-L'implémentation est très très simple (Listing
-[\[lst:product\_above\_or\_equal\_to\_price\]](#lst:product_above_or_equal_to_price){reference-type="ref"
-reference="lst:product_above_or_equal_to_price"}):
+L'implémentation est très très simple (Listing [\[lst:product\_above\_or\_equal\_to\_price\]](#lst:product_above_or_equal_to_price){reference-type="ref"reference="lst:product_above_or_equal_to_price"}):
 
-~~~ {#lst:product_above_or_equal_to_price language="ruby" caption="Implémentation du filtrage des produits par prix supérieur ou égal" label="lst:product_above_or_equal_to_price"}
-        # app/models/product.rb
-        class Product < ApplicationRecord
-          # ...
-          scope :above_or_equal_to_price, lambda { |price|
-            where('price >= ?', price)
-          }
-        end
-
+~~~ruby
+# app/models/product.rb
+class Product < ApplicationRecord
+  # ...
+  scope :above_or_equal_to_price, lambda { |price|
+    where('price >= ?', price)
+  }
+end
 ~~~
 
 L'implémentation est suffisante pour que nos tests passent:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
-        ............
+............
 
-        Finished in 0.1566 seconds (files took 0.64782 seconds to load)
-        12 examples, 0 failures
-
+Finished in 0.1566 seconds (files took 0.64782 seconds to load)
+12 examples, 0 failures
 ~~~
 
-Vous pouvez maintenant imaginer le comportement de la méthode opposée.
-Voici les tests:
+Vous pouvez maintenant imaginer le comportement de la méthode opposée. Voici les tests:
 
-~~~ {#lst:product_below_or_equal_to_price_spec language="ruby" caption="Test du filtrage des produits par prix inférieur ou égal" label="lst:product_below_or_equal_to_price_spec"}
-        # spec/models/product_spec.rb
-        # ...
+~~~ruby
+# spec/models/product_spec.rb
+# ...
 
-        RSpec.describe Product, type: :model do
-          # ...
+RSpec.describe Product, type: :model do
+  # ...
 
-          describe '.below_or_equal_to_price' do
-            before(:each) do
-              @product1 = FactoryBot.create :product, price: 100
-              @product2 = FactoryBot.create :product, price: 50
-              @product3 = FactoryBot.create :product, price: 150
-              @product4 = FactoryBot.create :product, price: 99
-            end
+  describe '.below_or_equal_to_price' do
+    before(:each) do
+      @product1 = FactoryBot.create :product, price: 100
+      @product2 = FactoryBot.create :product, price: 50
+      @product3 = FactoryBot.create :product, price: 150
+      @product4 = FactoryBot.create :product, price: 99
+    end
 
-            it 'returns the products which are above or equal to the price' do
-              expect(Product.below_or_equal_to_price(99).sort).to match_array([@product2, @product4])
-            end
-          end
-        end
-
+    it 'returns the products which are above or equal to the price' do
+      expect(Product.below_or_equal_to_price(99).sort).to match_array([@product2, @product4])
+    end
+  end
+end
 ~~~
 
-Et l'implémentation (Listing
-[\[lst:product\_below\_or\_equal\_to\_price\]](#lst:product_below_or_equal_to_price){reference-type="ref"
-reference="lst:product_below_or_equal_to_price"}):
+Et l'implémentation (Listing [\[lst:product\_below\_or\_equal\_to\_price\]](#lst:product_below_or_equal_to_price){reference-type="ref"reference="lst:product_below_or_equal_to_price"}):
 
-~~~ {#lst:product_below_or_equal_to_price language="ruby" caption="Implémentation du filtrage des produits par prix supérieur ou égal" label="lst:product_below_or_equal_to_price"}
-        # app/models/product.rb
-        class Product < ApplicationRecord
-          # ...
-          scope :below_or_equal_to_price, lambda { |price|
-            where('price <= ?', price)
-          }
-        end
-
+~~~ruby
+# app/models/product.rb
+class Product < ApplicationRecord
+  # ...
+  scope :below_or_equal_to_price, lambda { |price|
+    where('price <= ?', price)
+  }
+end
 ~~~
 
-Pour notre bien, faisons les tests et vérifions que tout est beau et
-vert:
+Pour notre bien, faisons les tests et vérifions que tout est beau et vert:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
-        .............
+.............
 
-        Finished in 0.18008 seconds (files took 0.6544 seconds to load)
-        13 examples, 0 failures
-
+Finished in 0.18008 seconds (files took 0.6544 seconds to load)
+13 examples, 0 failures
 ~~~
 
-Comme vous pouvez le voir, nous n'avons pas eu beaucoup de problèmes.
-Ajoutons simplement une autre *scope* pour trier les enregistrements par
-date de dernière mise à jour. Dans le cas où le propriétaire des
-produits décide de mettre à jour certaines données, il veut toujours les
-trier par enregistrements les plus récents.
+Comme vous pouvez le voir, nous n'avons pas eu beaucoup de problèmes. Ajoutons simplement une autre *scope* pour trier les enregistrements par date de dernière mise à jour. Dans le cas où le propriétaire des produits décide de mettre à jour certaines données, il veut toujours les trier par enregistrements les plus récents.
 
 ### Tri par date de création
 
-Ce *scope* est très facile. Ajoutons d'abord quelques tests (Listing
-[\[lst:product\_recent\_spec\]](#lst:product_recent_spec){reference-type="ref"
-reference="lst:product_recent_spec"}):
+Ce *scope* est très facile. Ajoutons d'abord quelques tests (Listing [\[lst:product\_recent\_spec\]](#lst:product_recent_spec){reference-type="ref"reference="lst:product_recent_spec"}):
 
-~~~ {#lst:product_recent_spec language="ruby" caption="Test du filtrage des produits par date de création" label="lst:product_recent_spec"}
-        # spec/models/product_spec.rb
-        # ...
+~~~ruby
+# spec/models/product_spec.rb
+# ...
 
-        RSpec.describe Product, type: :model do
-          # ...
+RSpec.describe Product, type: :model do
+  # ...
 
-          describe '.recent' do
-            before(:each) do
-              @product1 = FactoryBot.create :product, price: 100
-              @product2 = FactoryBot.create :product, price: 50
-              @product3 = FactoryBot.create :product, price: 150
-              @product4 = FactoryBot.create :product, price: 99
+  describe '.recent' do
+    before(:each) do
+      @product1 = FactoryBot.create :product, price: 100
+      @product2 = FactoryBot.create :product, price: 50
+      @product3 = FactoryBot.create :product, price: 150
+      @product4 = FactoryBot.create :product, price: 99
 
-              # we will touch some products to update them
-              @product2.touch
-              @product3.touch
-            end
+      # we will touch some products to update them
+      @product2.touch
+      @product3.touch
+    end
 
-            it 'returns the most updated records' do
-              expect(Product.recent).to match_array([@product3, @product2, @product4, @product1])
-            end
-          end
-        end
-
+    it 'returns the most updated records' do
+      expect(Product.recent).to match_array([@product3, @product2, @product4, @product1])
+    end
+  end
+end
 ~~~
 
-Et l'implémentation (Listing
-[\[lst:product\_recent\]](#lst:product_recent){reference-type="ref"
-reference="lst:product_recent"}):
+Et l'implémentation (Listing [\[lst:product\_recent\]](#lst:product_recent){reference-type="ref"reference="lst:product_recent"}):
 
-~~~ {#lst:product_recent language="ruby" caption="Implémentation du filtrage des produits par date de création" label="lst:product_recent"}
-        # app/models/product.rb
-        class Product < ApplicationRecord
-          # ...
+~~~ruby
+# app/models/product.rb
+class Product < ApplicationRecord
+  # ...
 
-          scope :recent, lambda {
-            order(:updated_at)
-          }
-        end
-
+  scope :recent, lambda {
+    order(:updated_at)
+  }
+end
 ~~~
 
 Tous nos tests devraient passer:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
-        .............
+.............
 
-        Finished in 0.18008 seconds (files took 0.6544 seconds to load)
-        13 examples, 0 failures
-
+Finished in 0.18008 seconds (files took 0.6544 seconds to load)
+13 examples, 0 failures
 ~~~
 
 ### Moteur de recherche
 
-Maintenant que nous avons la base pour le moteur de recherche que nous
-utiliserons dans l'application, il est temps de mettre en œuvre une
-méthode de recherche simple mais puissante. Elle s'occupera de gérer
-toute la logique pour récupérer les enregistrements des produits.
+Maintenant que nous avons la base pour le moteur de recherche que nous utiliserons dans l'application, il est temps de mettre en œuvre une méthode de recherche simple mais puissante. Elle s'occupera de gérer toute la logique pour récupérer les enregistrements des produits.
 
-La méthode consistera à enchaîner tous les `scope` que nous avons
-construits précédemment et à retourner le résultat. Commençons par
-ajouter quelques tests:
-
-~~~ {#lst:product_search_spec language="ruby" caption="Test du moteur de recherche des produits" label="lst:product_search_spec"}
-        # spec/models/product_spec.rb
-        # ...
-
-        RSpec.describe Product, type: :model do
-          # ...
-
-          describe '.search' do
-            before(:each) do
-              @product1 = FactoryBot.create :product, price: 100, title: 'Plasma tv'
-              @product2 = FactoryBot.create :product, price: 50, title: 'Videogame console'
-              @product3 = FactoryBot.create :product, price: 150, title: 'MP3'
-              @product4 = FactoryBot.create :product, price: 99, title: 'Laptop'
-            end
-
-            context "when title 'videogame' and '100' a min price are set" do
-              it 'returns an empty array' do
-                search_hash = { keyword: 'videogame', min_price: 100 }
-                expect(Product.search(search_hash)).to be_empty
-              end
-            end
-
-            context "when title 'tv', '150' as max price, and '50' as min price are set" do
-              it 'returns the product1' do
-                search_hash = { keyword: 'tv', min_price: 50, max_price: 150 }
-                expect(Product.search(search_hash)).to match_array([@product1])
-              end
-            end
-
-            context 'when an empty hash is sent' do
-              it 'returns all the products' do
-                expect(Product.search({})).to match_array([@product1, @product2, @product3, @product4])
-              end
-            end
-
-            context 'when product_ids is present' do
-              it 'returns the product from the ids' do
-                search_hash = { product_ids: [@product1.id, @product2.id] }
-                expect(Product.search(search_hash)).to match_array([@product1, @product2])
-              end
-            end
-          end
-        end
-
-~~~
-
-Nous avons ajouté un tas de code mais je vous assure que
-l'implémentation est très facile. Vous pouvez aller plus loin et ajouter
-quelques tests supplémentaires mais, dans mon cas, je n'ai pas trouvé
-cela nécessaire.
-
-~~~ {#lst:product_search language="ruby" caption="Implémentation du moteur de recherche des produits" label="lst:product_search"}
-        # app/models/product.rb
-        class Product < ApplicationRecord
-          # ...
-
-          def self.search(params = {})
-            products = params[:product_ids].present? ? Product.find(params[:product_ids]) : Product.all
-
-            products = products.filter_by_title(params[:keyword]) if params[:keyword]
-            products = products.above_or_equal_to_price(params[:min_price].to_f) if params[:min_price]
-            products = products.below_or_equal_to_price(params[:max_price].to_f) if params[:max_price]
-            products = products.recent(params[:recent]) if params[:recent].present?
-
-            products
-          end
-        end
-
-~~~
-
-Il est important de noter que nous retournons les produits en tant
-qu'objet `ActiveRelation` afin de pouvoir enchaîner d'autres méthodes en
-cas de besoin ou les paginer comme nous allons le voir dans les derniers
-chapitres. Il suffit de mettre à jour l'action `Product#index` pour
-récupérer les produits à partir de la méthode de recherche:
+La méthode consistera à enchaîner tous les `scope` que nous avons construits précédemment et à retourner le résultat. Commençons par ajouter quelques tests:
 
 ~~~ruby
-        # app/models/product.rb
-        # app/controllers/api/v1/products_controller.rb
-        class Api::V1::ProductsController < ApplicationController
-          before_action :authenticate_with_token!, only: %i[create update destroy]
+# spec/models/product_spec.rb
+# ...
 
-          def index
-            render json: Product.search(params)
-          end
+RSpec.describe Product, type: :model do
+  # ...
 
-          # ...
-        end
+  describe '.search' do
+    before(:each) do
+      @product1 = FactoryBot.create :product, price: 100, title: 'Plasma tv'
+      @product2 = FactoryBot.create :product, price: 50, title: 'Videogame console'
+      @product3 = FactoryBot.create :product, price: 150, title: 'MP3'
+      @product4 = FactoryBot.create :product, price: 99, title: 'Laptop'
+    end
 
+    context "when title 'videogame' and '100' a min price are set" do
+      it 'returns an empty array' do
+        search_hash = { keyword: 'videogame', min_price: 100 }
+        expect(Product.search(search_hash)).to be_empty
+      end
+    end
+
+    context "when title 'tv', '150' as max price, and '50' as min price are set" do
+      it 'returns the product1' do
+        search_hash = { keyword: 'tv', min_price: 50, max_price: 150 }
+        expect(Product.search(search_hash)).to match_array([@product1])
+      end
+    end
+
+    context 'when an empty hash is sent' do
+      it 'returns all the products' do
+        expect(Product.search({})).to match_array([@product1, @product2, @product3, @product4])
+      end
+    end
+
+    context 'when product_ids is present' do
+      it 'returns the product from the ids' do
+        search_hash = { product_ids: [@product1.id, @product2.id] }
+        expect(Product.search(search_hash)).to match_array([@product1, @product2])
+      end
+    end
+  end
+end
 ~~~
 
-Nous pouvons exécuter l'ensemble de la suite de tests, pour nous assurer
-que l'application est en bonne santé jusqu'ici:
+Nous avons ajouté un tas de code mais je vous assure que l'implémentation est très facile. Vous pouvez aller plus loin et ajouter quelques tests supplémentaires mais, dans mon cas, je n'ai pas trouvé cela nécessaire.
+
+~~~ruby
+# app/models/product.rb
+class Product < ApplicationRecord
+  # ...
+
+  def self.search(params = {})
+    products = params[:product_ids].present? ? Product.find(params[:product_ids]) : Product.all
+
+    products = products.filter_by_title(params[:keyword]) if params[:keyword]
+    products = products.above_or_equal_to_price(params[:min_price].to_f) if params[:min_price]
+    products = products.below_or_equal_to_price(params[:max_price].to_f) if params[:max_price]
+    products = products.recent(params[:recent]) if params[:recent].present?
+
+    products
+  end
+end
+~~~
+
+Il est important de noter que nous retournons les produits en tant qu'objet `ActiveRelation` afin de pouvoir enchaîner d'autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l'action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
+
+~~~ruby
+# app/models/product.rb
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  before_action :authenticate_with_token!, only: %i[create update destroy]
+
+  def index
+    render json: Product.search(params)
+  end
+
+  # ...
+end
+~~~
+
+Nous pouvons exécuter l'ensemble de la suite de tests, pour nous assurer que l'application est en bonne santé jusqu'ici:
 
 ~~~bash
-$ rspec spec/
-        .......................................................................
+$ rspec spec
+.......................................................................
 
-        Finished in 1.49 seconds (files took 6.53 seconds to load)
-        71 examples, 0 failures
-
+Finished in 1.49 seconds (files took 6.53 seconds to load)
+71 examples, 0 failures
 ~~~
 
 *Commitons* ces changements:
 
 ~~~bash
 $ git commit -am "Adds search class method to filter products"
-
 ~~~
 
-Conclusion
-----------
+## Conclusion
 
-Jusqu'à présent, et grâce à la gemme
-[active\_model\_serializers](https://github.com/rails-api/active_model_serializers),
-c'était facile. Sur les chapitres à venir, nous allons commencer à
-construire le modèle `Order` qui associera les utilisateurs aux
-produits.
+Jusqu'à présent, et grâce à la gemme [active\_model\_serializers](https://github.com/rails-api/active_model_serializers), c'était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle `Order` qui associera les utilisateurs aux produits.
 
-Création des commandes {#chapter:8}
-======================
+---
 
-Dans le chapitre [10](#chapter:7){reference-type="ref"
-reference="chapter:7"} nous avons traité les associations entre les
-produit et les modèles utilisateurs. Nous avons aussi vu comment bien
-les sérialiser en optimisant afin de pouvoir *scaler*[^16] rapidement et
-facilement. Maintenant, il est temps de commencer à passer des
-commandes. Cela va être une situation plus complexe parce que nous
-allons gérer les associations entre 3 modèles. Nous devons être assez
-intelligents pour gérer la sortie JSON que nous fournissons.
+# Création des commandes {#chapter:8}
 
-Dans ce chapitre, nous allons faire plusieurs choses que j'énumère
-ci-dessous:
+Dans le chapitre [10](#chapter:7){reference-type="ref"reference="chapter:7"} nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir *scaler*[^16] rapidement et facilement. Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre 3 modèles. Nous devons être assez intelligents pour gérer la sortie JSON que nous fournissons.
+
+Dans ce chapitre, nous allons faire plusieurs choses que j'énumère ci-dessous:
 
 - Créer un modèle de commande avec les spécifications correspondantes
+- Gérer l'association de sortie JSON entre l'utilisateur de la commande et les modèles de produits
+- Envoyer un courriel de confirmation avec le récapitulatif de la commande
 
-- Gérer l'association de sortie JSON entre l'utilisateur de la
-    commande et les modèles de produits
-
-- Envoyer un courriel de confirmation avec le récapitulatif de la
-    commande
-
-Maintenant que tout est clair, on peut commencer à travailler. Vous
-pouvez cloner le projet jusqu'à ce point avec:
+Maintenant que tout est clair, on peut commencer à travailler. Vous pouvez cloner le projet jusqu'à ce point avec:
 
 ~~~bash
-    $ git clone --branch chapter7 https://github.com/madeindjs/market_place_api
-
+$ git clone --branch chapter7 https://github.com/madeindjs/market_place_api
 ~~~
 
 Créons une nouvelle branche afin de commencer à travailler:
 
 ~~~bash
-    $ git checkout -b chapter8
-
+$ git checkout -b chapter8
 ~~~
 
-Modélisation de l'ordre
------------------------
+## Modélisation de l'ordre
 
-Si vous vous souvenez de la Figure
-[\[fig:data\_model\]](#fig:data_model){reference-type="ref"
-reference="fig:data_model"}, le modèle `Order` est associé aux `User` et
-`Product`. C'est en fait très simple de gérer cela avec Rails. La partie
-délicate est quand vient la sérialisation de ces objets. J'en parlerai
-plus en détail à la section 8.3.
+Si vous vous souvenez de la Figure [\[fig:data\_model\]](#fig:data_model){reference-type="ref"reference="fig:data_model"}, le modèle `Order` est associé aux `User` et `Product`. C'est en fait très simple de gérer cela avec Rails. La partie délicate est quand vient la sérialisation de ces objets. J'en parlerai plus en détail à la section 8.3.
 
 Commençons par créer le modèle de la commande:
 
 ~~~bash
 $ rails generate model order user:references total:decimal
-
 ~~~
 
-La commande ci-dessus va générer le modèle `Order`. Je profite de la
-méthode des `references` pour créer la clé étrangère correspondante pour
-que la commande appartienne à un utilisateur. Elle ajoute aussi la
-directive `belongs_to` dans le modèle des commandes. Migrons la base de
-données:
+La commande ci-dessus va générer le modèle `Order`. Je profite de la méthode des `references` pour créer la clé étrangère correspondante pour que la commande appartienne à un utilisateur. Elle ajoute aussi la directive `belongs_to` dans le modèle des commandes. Migrons la base de données:
 
 ~~~bash
 $ rake db:migrate
-
 ~~~
 
-Il est maintenant temps de créer quelques tests dans le fichier
-`order_spec.rb`:
+Il est maintenant temps de créer quelques tests dans le fichier `order_spec.rb`:
 
-~~~ {language="ruby" caption="Premiers tests du modèle de commande"}
-      # spec/models/order_spec.rb
-      # ...
+~~~ruby
+# spec/models/order_spec.rb
+# ...
 
-      RSpec.describe Order, type: :model do
-        let(:order) { FactoryBot.build :order }
-        subject { order }
+RSpec.describe Order, type: :model do
+  let(:order) { FactoryBot.build :order }
+  subject { order }
 
-        it { should respond_to(:total) }
-        it { should respond_to(:user_id) }
+  it { should respond_to(:total) }
+  it { should respond_to(:user_id) }
 
-        it { should validate_presence_of :user_id }
-        it { should validate_presence_of :total }
-        it { should validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
+  it { should validate_presence_of :user_id }
+  it { should validate_presence_of :total }
+  it { should validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
 
-        it { should belong_to :user }
-      end
-
+  it { should belong_to :user }
+end
 ~~~
 
 L'implémentation est assez simple:
 
-~~~ {language="ruby" caption="Validateurs du modèle de commande"}
-      # app/models/order.rb
-      class Order < ApplicationRecord
-        belongs_to :user
-        validates :total, numericality: { greater_than_or_equal_to: 0 }
-        validates :total, presence: true
-        validates :user_id, presence: true
-      end
-
+~~~ruby
+# app/models/order.rb
+class Order < ApplicationRecord
+  belongs_to :user
+  validates :total, numericality: { greater_than_or_equal_to: 0 }
+  validates :total, presence: true
+  validates :user_id, presence: true
+end
 ~~~
 
 Les tests devraient passer:
 
-~~~ {language="ruby" caption="Validateurs du modèle de commande"}
+~~~ruby
 $ rspec spec/models/order_spec.rb
-      ......
+......
 
-      Finished in 0.16229 seconds (files took 4.08 seconds to load)
-      6 examples, 0 failures
-
+Finished in 0.16229 seconds (files took 4.08 seconds to load)
+6 examples, 0 failures
 ~~~
 
 ### Les commandes et les produits
 
-Nous devons établir l'association entre la commande et le produit. Cela
-se fait avec une association de plusieurs à plusieurs car de nombreux
-produits seront placés sur plusieurs commandes et les commandes auront
-plusieurs produits. Dans ce cas, nous avons donc besoin d'un modèle
-supplémentaire qui joindra ces deux autres objets et mappera
-l'association appropriée. Générons ce modèle:
+Nous devons établir l'association entre la commande et le produit. Cela se fait avec une association de plusieurs à plusieurs car de nombreux produits seront placés sur plusieurs commandes et les commandes auront plusieurs produits. Dans ce cas, nous avons donc besoin d'un modèle supplémentaire qui joindra ces deux autres objets et mappera l'association appropriée. Générons ce modèle:
 
 ~~~bash
-        rails generate model placement order:references product:references
-
+$ rails generate model placement order:references product:references
 ~~~
 
 Migrons la base de données:
 
 ~~~bash
 $ rake db:migrate
-
 ~~~
 
 Ajoutons d'abord les tests de l'association des commandes aux produits:
 
-~~~ {language="ruby" caption="Tests de l'association des commandes aux produits"}
-        # spec/models/order_spec.rb
-        # ...
+~~~ruby
+# spec/models/order_spec.rb
+# ...
 
-        RSpec.describe Order, type: :model do
-          # ...
+RSpec.describe Order, type: :model do
+  # ...
 
-          it { should have_many(:placements) }
-          it { should have_many(:products).through(:placements) }
-        end
-
+  it { should have_many(:placements) }
+  it { should have_many(:products).through(:placements) }
+end
 ~~~
 
 L'implémentation est la suivante:
 
-~~~ {language="ruby" caption="Implémentation de l'association des commandes aux produits"}
-        # app/models/order.rb
-        class Order < ApplicationRecord
-          has_many :placements
-          has_many :products, through: :placements
-          # ...
-        end
-
+~~~ruby
+# app/models/order.rb
+class Order < ApplicationRecord
+  has_many :placements
+  has_many :products, through: :placements
+  # ...
+end
 ~~~
 
-Il est maintenant temps de se lancer dans l'association
-`product-placement`:
+Il est maintenant temps de se lancer dans l'association `product-placement`:
 
 ~~~ruby
-        # spec/models/product_spec.rb
-        # ...
+# spec/models/product_spec.rb
+# ...
 
-        RSpec.describe Product, type: :model do
-          # ...
-          it { should have_many(:placements) }
-          it { should have_many(:orders).through(:placements) }
-          # ...
-        end
-
+RSpec.describe Product, type: :model do
+  # ...
+  it { should have_many(:placements) }
+  it { should have_many(:orders).through(:placements) }
+  # ...
+end
 ~~~
 
 Ajoutons le code pour le faire passer:
 
 ~~~ruby
-        # app/models/product.rb
-        class Product < ApplicationRecord
-          belongs_to :user
-          has_many :placements
-          has_many :orders, through: :placements
-          # ...
-        end
-
+# app/models/product.rb
+class Product < ApplicationRecord
+  belongs_to :user
+  has_many :placements
+  has_many :orders, through: :placements
+  # ...
+end
 ~~~
 
 Enfin, et ce n'est pas le moins important, les tests de placement:
 
 ~~~ruby
-        # spec/models/placement_spec.rb
-        # ...
+# spec/models/placement_spec.rb
+# ...
 
-        RSpec.describe Placement, type: :model do
-          let(:placement) { FactoryBot.build :placement }
-          subject { placement }
+RSpec.describe Placement, type: :model do
+  let(:placement) { FactoryBot.build :placement }
+  subject { placement }
 
-          it { should respond_to :order_id }
-          it { should respond_to :product_id }
+  it { should respond_to :order_id }
+  it { should respond_to :product_id }
 
-          it { should belong_to :order }
-          it { should belong_to :product }
-        end
+  it { should belong_to :order }
+  it { should belong_to :product }
+end
 
 ~~~
 
-Si vous avez suivi le tutoriel jusqu'à présent, l'implémentation est
-déjà là, à cause du type de références que nous passons au générateur de
-commandes du modèle. Nous devrions ajouter l'option inverse au modèle de
-placement pour chaque appel aux `belongs_to`. Cela donne un petit coup
-de pouce lors du référencement de l'objet parent.
+Si vous avez suivi le tutoriel jusqu'à présent, l'implémentation est déjà là, à cause du type de références que nous passons au générateur de commandes du modèle. Nous devrions ajouter l'option inverse au modèle de placement pour chaque appel aux `belongs_to`. Cela donne un petit coup de pouce lors du référencement de l'objet parent.
 
 ~~~ruby
-        # app/models/placement.rb
-        class Placement < ApplicationRecord
-          belongs_to :order, inverse_of: :placements
-          belongs_to :product, inverse_of: :placements
-        end
-
+# app/models/placement.rb
+class Placement < ApplicationRecord
+  belongs_to :order, inverse_of: :placements
+  belongs_to :product, inverse_of: :placements
+end
 ~~~
 
 Et maintenant, lançons tous les tests des modèles afin de nous assurer
@@ -5214,11 +4539,10 @@ que tout est bon:
 
 ~~~bash
 $ rspec spec/models
-        ...........................................
+...........................................
 
-        Finished in 0.53127 seconds (files took 0.73125 seconds to load)
-        43 examples, 0 failures
-
+Finished in 0.53127 seconds (files took 0.73125 seconds to load)
+43 examples, 0 failures
 ~~~
 
 Maintenant que tout est beau et vert, *commitons* les changements:
@@ -5232,34 +4556,30 @@ $ git commit -m "Associates products and orders with a placements model"
 Commandes de l'utilisateur
 --------------------------
 
-Il nous manque juste une petite (mais très importante) partie qui est de
-relier l'utilisateur aux commandes. Alors faisons-le :
+Il nous manque juste une petite (mais très importante) partie qui est de relier l'utilisateur aux commandes. Alors faisons-le :
 
-Ouvrez d'abord le fichier `user_model_spec.rb` pour ajouter les tests
-correspondants:
+Ouvrez d'abord le fichier `user_model_spec.rb` pour ajouter les tests correspondants:
 
 ~~~ruby
-      # spec/models/user_spec.rb
-      # ...
+# spec/models/user_spec.rb
+# ...
 
-      RSpec.describe User, type: :model do
-        # ...
-        it { should have_many(:orders) }
-        # ...
-      end
-
+RSpec.describe User, type: :model do
+  # ...
+  it { should have_many(:orders) }
+  # ...
+end
 ~~~
 
 Et puis il suffit d'ajouter l'implémentation qui est très simple:
 
 ~~~ruby
-      # app/models/user.rb
-      class User < ApplicationRecord
-        # ...
-        has_many :orders, dependent: :destroy
-        # ...
-      end
-
+# app/models/user.rb
+class User < ApplicationRecord
+  # ...
+  has_many :orders, dependent: :destroy
+  # ...
+end
 ~~~
 
 Vous pouvez exécuter les tests pour les deux fichiers, et ils devraient
@@ -5267,11 +4587,10 @@ tous passer:
 
 ~~~ruby
 $ rspec spec/models/{order,user}_spec.rb
-      ....................
+....................
 
-      Finished in 0.14279 seconds (files took 0.72848 seconds to load)
-      20 examples, 0 failures
-
+Finished in 0.14279 seconds (files took 0.72848 seconds to load)
+20 examples, 0 failures
 ~~~
 
 *Commitons* ces changements et continuons d'avancer:
@@ -5279,121 +4598,93 @@ $ rspec spec/models/{order,user}_spec.rb
 ~~~ruby
 $ git add .
 $ git commit -m 'Adds user order has many relation'
-
 ~~~
 
-Exposer le modèle d'utilisateur
--------------------------------
+## Exposer le modèle d'utilisateur
 
-Il est maintenant temps de préparer le contrôleur de commandes à exposer
-la bonne commande. Si vous vous souvenez des chapitres précédents ou
-l'on avait utilisé
-[ActiveModelSerializers](https://github.com/rails-api/active_model_serializers)
-vous devez vous rappeler que c'était vraiment facile.
+Il est maintenant temps de préparer le contrôleur de commandes à exposer la bonne commande. Si vous vous souvenez des chapitres précédents ou l'on avait utilisé [ActiveModelSerializers](https://github.com/rails-api/active_model_serializers) vous devez vous rappeler que c'était vraiment facile.
 
-"Mais attendez, que sommes-nous censés exposer?" vous vous demandez
-peut-être. Vous avez raison! Définissons d'abord quelles actions nous
-allons mettre en place:
+"Mais attendez, que sommes-nous censés exposer?" vous vous demandez peut-être. Vous avez raison! Définissons d'abord quelles actions nous allons mettre en place:
 
-- Une action d'indexation pour récupérer les commandes des
-    utilisateurs en cours
-
-- Une action show pour récupérer une commande particulière de
-    l'utilisateur courant
-
+- Une action d'indexation pour récupérer les commandes des utilisateurs en cours
+- Une action show pour récupérer une commande particulière de l'utilisateur courant
 - Une action de création pour passer réellement la commande
 
-Commençons par l'action `index`. Nous devons d'abord créer le contrôleur
-de commandes:
+Commençons par l'action `index`. Nous devons d'abord créer le contrôleur de commandes:
 
 ~~~ruby
 $ rails g controller api/v1/orders
-
 ~~~
 
-Jusqu'ici, et avant de commencer à taper du code, nous devons nous
-demander, "Est-ce que je dois laisser les routes de ma commande
-imbriqués dans le UsersController ou bien je dois les isoler?". La
-réponse est vraiment simple. Je dirais que cela dépend de la quantité
-d'informations dans ce cas en particulier que vous voulez exposer au
-développeur Pas du point de vue de la sortie JSON mais au niveau de
-l'URI.
+Jusqu'ici, et avant de commencer à taper du code, nous devons nous demander, "Est-ce que je dois laisser les routes de ma commande imbriqués dans le UsersController ou bien je dois les isoler?". La réponse est vraiment simple. Je dirais que cela dépend de la quantité d'informations dans ce cas en particulier que vous voulez exposer au développeur Pas du point de vue de la sortie JSON mais au niveau de l'URI.
 
-Dans notre cas, je vais emboîter les routes, parce que j'aime donner ce
-type d'information aux développeurs. Je pense que cela donne plus de
-contexte à la requête elle-même.
+Dans notre cas, je vais emboîter les routes, parce que j'aime donner ce type d'information aux développeurs. Je pense que cela donne plus de contexte à la requête elle-même.
 
 Commençons par quelques tests:
 
-~~~ {language="ruby" caption="Test de l'affichage des commandes"}
-      # spec/controllers/api/v1/orders_controller_spec.rb
-      # ...
+~~~ruby
+# spec/controllers/api/v1/orders_controller_spec.rb
+# ...
 
-      RSpec.describe Api::V1::OrdersController, type: :controller do
-        describe 'GET #index' do
-          before(:each) do
-            current_user = FactoryBot.create :user
-            api_authorization_header current_user.auth_token
-            4.times { FactoryBot.create :order, user: current_user }
-            get :index, params: { user_id: current_user.id }
-          end
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  describe 'GET #index' do
+    before(:each) do
+      current_user = FactoryBot.create :user
+      api_authorization_header current_user.auth_token
+      4.times { FactoryBot.create :order, user: current_user }
+      get :index, params: { user_id: current_user.id }
+    end
 
-          it 'returns 4 order records from the user' do
-            expect(json_response).to have(4).items
-          end
+    it 'returns 4 order records from the user' do
+      expect(json_response).to have(4).items
+    end
 
-          it { expect(response.response_code).to eq(200) }
-        end
-      end
-
+    it { expect(response.response_code).to eq(200) }
+  end
+end
 ~~~
 
-Si nous exécutons la suite de tests maintenant, comme vous pouvez vous y
-attendre, les deux tests échoueront. C'est normal car nous n'avons même
-pas défini ni les bonnes routes ni l'action. Commençons donc par ajouter
-les routes:
+Si nous exécutons la suite de tests maintenant, comme vous pouvez vous y attendre, les deux tests échoueront. C'est normal car nous n'avons même pas défini ni les bonnes routes ni l'action. Commençons donc par ajouter les routes:
 
 ~~~ruby
-      # config/routes.rb
-      # ...
+# config/routes.rb
+# ...
 
-      Rails.application.routes.draw do
+Rails.application.routes.draw do
+  # ...
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+      resources :users, only: %i[show create update destroy] do
         # ...
-        namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-          scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-            resources :users, only: %i[show create update destroy] do
-              # ...
-              resources :orders, only: [:index]
-            end
-            # ...
-          end
-        end
+        resources :orders, only: [:index]
       end
-
+      # ...
+    end
+  end
+end
 ~~~
 
 Il est maintenant temps d'implémenter le contrôleur des commandes:
 
 ~~~ruby
-      # app/controllers/api/v1/orders_controller.rb
-      class Api::V1::OrdersController < ApplicationController
-        before_action :authenticate_with_token!
+# app/controllers/api/v1/orders_controller.rb
+class Api::V1::OrdersController < ApplicationController
+  before_action :authenticate_with_token!
 
-        def index
-          render json: current_user.orders
-        end
-      end
-
+  def index
+    render json: current_user.orders
+  end
+end
 ~~~
 
 Et maintenant nos tests devraient passer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
-      ..
+..
 
-      Finished in 0.07943 seconds (files took 0.7232 seconds to load)
-      2 examples, 0 failures
+Finished in 0.07943 seconds (files took 0.7232 seconds to load)
+2 examples, 0 failures
 
 ~~~
 
@@ -5413,57 +4704,56 @@ contrôleur) et ce sera tout pour cette section.
 
 Commençons par ajouter quelques tests:
 
-~~~ {language="ruby" caption="Test de l'affichage d'une commande"}
-        # spec/controllers/api/v1/orders_controller_spec.rb
-        # ...
+~~~ruby
+# spec/controllers/api/v1/orders_controller_spec.rb
+# ...
 
-        RSpec.describe Api::V1::OrdersController, type: :controller do
-          # ...
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  # ...
 
-          describe 'GET #show' do
-            before(:each) do
-              current_user = FactoryBot.create :user
-              api_authorization_header current_user.auth_token
-              @order = FactoryBot.create :order, user: current_user
-              get :show, params: { user_id: current_user.id, id: @order.id }
-            end
+  describe 'GET #show' do
+    before(:each) do
+      current_user = FactoryBot.create :user
+      api_authorization_header current_user.auth_token
+      @order = FactoryBot.create :order, user: current_user
+      get :show, params: { user_id: current_user.id, id: @order.id }
+    end
 
-            it 'returns the user order record matching the id' do
-              expect(json_response[:id]).to eql @order.id
-            end
+    it 'returns the user order record matching the id' do
+      expect(json_response[:id]).to eql @order.id
+    end
 
-            it { expect(response.response_code).to eq(200) }
-          end
-        end
-
+    it { expect(response.response_code).to eq(200) }
+  end
+end
 ~~~
 
 Ajoutons l'implémentation pour faire passer nos tests. Sur le fichier
 `routes.rb` ajoutez l'action `show` aux routes des commandes:
 
 ~~~ruby
-        # config/routes.rb
-        # ...
+# config/routes.rb
+# ...
 
-        Rails.application.routes.draw do
-          # ...
-          resources :orders, only: [:index, :show]
-          # ...
-        end
+Rails.application.routes.draw do
+  # ...
+  resources :orders, only: [:index, :show]
+  # ...
+end
 
 ~~~
 
 Et l'implémentation devrait ressembler à ceci:
 
 ~~~ruby
-        # app/controllers/api/v1/orders_controller.rb
-        class Api::V1::OrdersController < ApplicationController
-          # ...
+# app/controllers/api/v1/orders_controller.rb
+class Api::V1::OrdersController < ApplicationController
+  # ...
 
-          def show
-            render json: current_user.orders.find(params[:id])
-          end
-        end
+  def show
+    render json: current_user.orders.find(params[:id])
+  end
+end
 
 ~~~
 
@@ -5471,10 +4761,10 @@ Tous nos tests passent désormais:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
-        ....
+....
 
-        Finished in 0.12767 seconds (files took 0.73322 seconds to load)
-        4 examples, 0 failures
+Finished in 0.12767 seconds (files took 0.73322 seconds to load)
+4 examples, 0 failures
 
 ~~~
 
@@ -5488,107 +4778,85 @@ $ git commit -m "Adds the show action for order"
 
 ### Placement et commandes
 
-Il est maintenant temps de donner la possibilité à l'utilisateur de
-passer quelques commandes. Cela ajoutera de la complexité à
-l'application, mais ne vous inquiétez pas, nous allons faire les choses
-une étape à la fois.
+Il est maintenant temps de donner la possibilité à l'utilisateur de passer quelques commandes. Cela ajoutera de la complexité à l'application, mais ne vous inquiétez pas, nous allons faire les choses une étape à la fois.
 
-Avant de lancer cette fonctionnalité, prenons le temps de réfléchir aux
-implications de la création d'une commande dans l'application. Je ne
-parle pas de la mise en place d'un service de transactions comme
-[Stripe](https://stripe.com/) ou
-[Braintree](https://www.braintreepayments.com/) mais de choses comme:
+Avant de lancer cette fonctionnalité, prenons le temps de réfléchir aux implications de la création d'une commande dans l'application. Je ne parle pas de la mise en place d'un service de transactions comme [Stripe](https://stripe.com/) ou [Braintree](https://www.braintreepayments.com/) mais de choses comme:
 
 - la gestion des produits en rupture de stock
-
 - la diminution de l'inventaire de produits
+- ajouter une certaine validation pour le placement de la commande pour s'assurer qu'il y a suffisamment de produits au moment où la commande est passée
 
-- ajouter une certaine validation pour le placement de la commande
-    pour s'assurer qu'il y a suffisamment de produits au moment où la
-    commande est passée
+On dirait qu'il reste un paquet de chose à faire mais croyez-moi: vous êtes plus près que vous ne le pensez et ce n'est pas aussi dur que ça en a l'air. Pour l'instant, gardons les choses simples et supposons que nous avons toujours assez de produits pour passer un nombre quelconque de commandes. Nous nous soucions juste de la réponse du serveur pour le moment.
 
-On dirait qu'il reste un paquet de chose à faire mais croyez-moi: vous
-êtes plus près que vous ne le pensez et ce n'est pas aussi dur que ça en
-a l'air. Pour l'instant, gardons les choses simples et supposons que
-nous avons toujours assez de produits pour passer un nombre quelconque
-de commandes. Nous nous soucions juste de la réponse du serveur pour le
-moment.
+Si vous vous rappelez le modèle de commande sur la section 8.1, nous avons besoin de 3 choses: un total pour la commande, l'utilisateur qui passe la commande et les produits pour la commande. Compte tenu de cette information, nous pouvons commencer à ajouter quelques tests:
 
-Si vous vous rappelez le modèle de commande sur la section 8.1, nous
-avons besoin de 3 choses: un total pour la commande, l'utilisateur qui
-passe la commande et les produits pour la commande. Compte tenu de cette
-information, nous pouvons commencer à ajouter quelques tests:
+~~~ruby
+# spec/controllers/api/v1/orders_controller_spec.rb
+# ...
 
-~~~ {language="ruby" caption="Création de tests pour la création d'une commande"}
-        # spec/controllers/api/v1/orders_controller_spec.rb
-        # ...
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  # ...
 
-        RSpec.describe Api::V1::OrdersController, type: :controller do
-          # ...
+  describe 'POST #create' do
+    before(:each) do
+      current_user = FactoryBot.create :user
+      api_authorization_header current_user.auth_token
 
-          describe 'POST #create' do
-            before(:each) do
-              current_user = FactoryBot.create :user
-              api_authorization_header current_user.auth_token
+      product_1 = FactoryBot.create :product
+      product_2 = FactoryBot.create :product
+      order_params = { total: 50, user_id: current_user.id, product_ids: [product_1.id, product_2.id] }
+      post :create, params: { user_id: current_user.id, order: order_params }
+    end
 
-              product_1 = FactoryBot.create :product
-              product_2 = FactoryBot.create :product
-              order_params = { total: 50, user_id: current_user.id, product_ids: [product_1.id, product_2.id] }
-              post :create, params: { user_id: current_user.id, order: order_params }
-            end
+    it 'returns the just user order record' do
+      expect(json_response[:id]).to be_present
+    end
 
-            it 'returns the just user order record' do
-              expect(json_response[:id]).to be_present
-            end
-
-            it { expect(response.response_code).to eq(201) }
-          end
-        end
+    it { expect(response.response_code).to eq(201) }
+  end
+end
 
 ~~~
 
-Comme vous pouvez le voir, nous sommes en train de créer une variable
-`order_params` avec les données de la commande. Vous voyez le problème
-ici? Je l'expliquerai plus tard. Ajoutons simplement le code nécessaire
-pour faire passer ce test.
+Comme vous pouvez le voir, nous sommes en train de créer une variable `order_params` avec les données de la commande. Vous voyez le problème ici? Je l'expliquerai plus tard. Ajoutons simplement le code nécessaire pour faire passer ce test.
 
 Nous devons d'abord ajouter l'action aux routes:
 
 ~~~ruby
-        # config/routes.rb
-        # ...
+# config/routes.rb
+# ...
 
-        Rails.application.routes.draw do
-          # ...
-          resources :orders, only: %i[index show create]
-          # ...
-        end
+Rails.application.routes.draw do
+  # ...
+  resources :orders, only: %i[index show create]
+  # ...
+end
 
 ~~~
 
 Ensuite, la mise en œuvre qui est facile:
 
-~~~ {#lst:orders_controller_create language="ruby" caption="Création de l'action de création d'une commande" label="lst:orders_controller_create"}
-        # app/controllers/api/v1/orders_controller.rb
-        class Api::V1::OrdersController < ApplicationController
-          # ...
+~~~ruby
+# app/controllers/api/v1/orders_controller.rb
+class Api::V1::OrdersController < ApplicationController
+  # ...
 
-          def create
-            order = current_user.orders.build(order_params)
+  def create
+    order = current_user.orders.build(order_params)
 
-            if order.save
-              render json: order, status: 201, location: [:api, current_user, order]
-            else
-              render json: { errors: order.errors }, status: 422
-            end
-          end
+    if order.save
+      render json: order, status: 201, location: [:api, current_user, order]
+    else
+      render json: { errors: order.errors }, status: 422
+    end
+  end
 
-          private
+  private
 
-          def order_params
-            params.require(:order).permit(:total, :user_id, product_ids: [])
-          end
-        end
+  def order_params
+    params.require(:order).permit(:total, :user_id, product_ids: [])
+  end
+end
 
 ~~~
 
@@ -5596,350 +4864,287 @@ Et maintenant, nos tests devraient tous passer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
-        ......
+......
 
-        Finished in 0.16817 seconds (files took 0.64624 seconds to load)
-        6 examples, 0 failures
+Finished in 0.16817 seconds (files took 0.64624 seconds to load)
+6 examples, 0 failures
 
 ~~~
 
-Ok donc tout va bien. Nous devrions maintenant passer au chapitre
-suivant, non? Laissez-moi faire une pause avant. Nous avons de graves
-erreurs sur l'application et elles ne sont pas liées au code lui-même
-mais sur la partie métier.
+Ok donc tout va bien. Nous devrions maintenant passer au chapitre suivant, non? Laissez-moi faire une pause avant. Nous avons de graves erreurs sur l'application et elles ne sont pas liées au code lui-même mais sur la partie métier.
 
-Ce n'est pas parce que les tests passent que l'application remplit la
-partie métier de l'application. Je voulais en parler parce que dans de
-nombreux cas, c'est super facile de simplement recevoir des paramètres
-et de construire des objets à partir de ces paramètres. Dans notre cas,
-nous ne pouvons pas nous fier aux données que nous recevons. En effet,
-nous laissons ici le client fixer le total de la commande! Ouais, c'est
-fou!
+Ce n'est pas parce que les tests passent que l'application remplit la partie métier de l'application. Je voulais en parler parce que dans de nombreux cas, c'est super facile de simplement recevoir des paramètres et de construire des objets à partir de ces paramètres. Dans notre cas, nous ne pouvons pas nous fier aux données que nous recevons. En effet, nous laissons ici le client fixer le total de la commande! Ouais, c'est fou!
 
-Nous devons donc ajouter quelques validations et calculer le total de la
-commande dans le modèle. De cette façon, nous ne recevons plus cet
-attribut total et nous avons un contrôle complet sur cet attribut. Alors
-faisons-le.
+Nous devons donc ajouter quelques validations et calculer le total de la commande dans le modèle. De cette façon, nous ne recevons plus cet attribut total et nous avons un contrôle complet sur cet attribut. Alors faisons-le.
 
 Nous devons d'abord ajouter quelques tests pour le modèle de commande:
 
-~~~ {language="ruby" caption="Test de la métode du calcul de total de la commande"}
-        # spec/models/order_spec.rb
-        # ...
+~~~ruby
+# spec/models/order_spec.rb
+# ...
 
-        RSpec.describe Order, type: :model do
-          # ...
+RSpec.describe Order, type: :model do
+  # ...
 
-          describe '#set_total!' do
-            before(:each) do
-              product_1 = FactoryBot.create :product, price: 100
-              product_2 = FactoryBot.create :product, price: 85
+  describe '#set_total!' do
+    before(:each) do
+      product_1 = FactoryBot.create :product, price: 100
+      product_2 = FactoryBot.create :product, price: 85
 
-              @order = FactoryBot.build :order, product_ids: [product_1.id, product_2.id]
-            end
+      @order = FactoryBot.build :order, product_ids: [product_1.id, product_2.id]
+    end
 
-            it 'returns the total amount to pay for the products' do
-              expect { @order.set_total! }.to change { @order.total }.from(0).to(185)
-            end
-          end
-        end
+    it 'returns the total amount to pay for the products' do
+      expect { @order.set_total! }.to change { @order.total }.from(0).to(185)
+    end
+  end
+end
 
 ~~~
 
 Nous pouvons maintenant ajouter l'implémentation:
 
-~~~ {language="ruby" caption="Implémentation de la métode du calcul de total de la commande"}
-        # app/models/order.rb
-        class Order < ApplicationRecord
-          # ...
+~~~ruby
+# app/models/order.rb
+class Order < ApplicationRecord
+  # ...
 
-          def set_total!
-            self.total = products.map(&:price).sum
-          end
-        end
+  def set_total!
+    self.total = products.map(&:price).sum
+  end
+end
 
 ~~~
 
 Juste avant que vous ne lanciez vos tests, nous avons besoin de mettre à
 jour l'usine de commande:
 
-~~~ {language="ruby" caption="Implémentation de la métode du calcul de total de la commande"}
-        # spec/factories/orders.rb
-        FactoryBot.define do
-          factory :order do
-            user { nil }
-            total { 0.0 }
-          end
-        end
+~~~ruby
+# spec/factories/orders.rb
+FactoryBot.define do
+  factory :order do
+    user { nil }
+    total { 0.0 }
+  end
+end
 
 ~~~
 
-Nous pouvons maintenant *hooker*[^17] la méthode `set_total!` à un
-rappel `before_validation` pour s'assurer qu'il a le bon total avant la
+Nous pouvons maintenant *hooker*[^17] la méthode `set_total!` à un rappel `before_validation` pour s'assurer qu'il a le bon total avant la
 validation.
 
 ~~~ruby
-        # app/models/order.rb
-        class Order < ApplicationRecord
-          before_validation :set_total!
-          # ...
-        end
+# app/models/order.rb
+class Order < ApplicationRecord
+  before_validation :set_total!
+  # ...
+end
 
 ~~~
 
-A ce stade, nous nous assurons que le total est toujours présent et
-supérieur ou égal à zéro, ce qui signifie que nous pouvons supprimer ces
-validations et supprimer les spécifications. Nos tests devraient passer
-maintenant:
+A ce stade, nous nous assurons que le total est toujours présent et supérieur ou égal à zéro, ce qui signifie que nous pouvons supprimer ces validations et supprimer les spécifications. Nos tests devraient passer maintenant:
 
 ~~~bash
 $ rspec spec/models/order_spec.rb
-        .........
+.........
 
-        Finished in 0.06807 seconds (files took 0.66165 seconds to load)
-        9 examples, 0 failures
+Finished in 0.06807 seconds (files took 0.66165 seconds to load)
+9 examples, 0 failures
 
 ~~~
 
-C'est maintenant le moment de voir le fichier
-`orders_controller_spec.rb` et de factoriser du code. Actuellement, nous
-avons quelque chose comme:
+C'est maintenant le moment de voir le fichier `orders_controller_spec.rb` et de factoriser du code. Actuellement, nous avons quelque chose comme:
 
 ~~~bash
-        # spec/controllers/api/v1/orders_controller_spec.rb
-        # ...
+# spec/controllers/api/v1/orders_controller_spec.rb
+# ...
 
-        RSpec.describe Api::V1::OrdersController, type: :controller do
-          # ...
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  # ...
 
-          describe 'POST #create' do
-            before(:each) do
-              current_user = FactoryBot.create :user
-              api_authorization_header current_user.auth_token
+  describe 'POST #create' do
+    before(:each) do
+      current_user = FactoryBot.create :user
+      api_authorization_header current_user.auth_token
 
-              product_1 = FactoryBot.create :product
-              product_2 = FactoryBot.create :product
-              order_params = { total: 50, user_id: current_user.id, product_ids: [product_1.id, product_2.id] }
-              post :create, params: { user_id: current_user.id, order: order_params }
-            end
+      product_1 = FactoryBot.create :product
+      product_2 = FactoryBot.create :product
+      order_params = { total: 50, user_id: current_user.id, product_ids: [product_1.id, product_2.id] }
+      post :create, params: { user_id: current_user.id, order: order_params }
+    end
 
-            it 'returns the just user order record' do
-              expect(json_response[:id]).to be_present
-            end
+    it 'returns the just user order record' do
+      expect(json_response[:id]).to be_present
+    end
 
-            it { expect(response.response_code).to eq(201) }
-          end
-        end
-
-~~~
-
-Il suffit de supprimer l'`user_id` et les paramètres `total` car
-l'identifiant utilisateur n'est pas vraiment nécessaire et le total est
-calculé par le modèle. Après avoir effectué les modifications, le code
-doit ressembler à ce qui suit:
-
-~~~ruby
-        # spec/controllers/api/v1/orders_controller_spec.rb
-        # ...
-
-        RSpec.describe Api::V1::OrdersController, type: :controller do
-          # ...
-
-          describe 'POST #create' do
-            before(:each) do
-              current_user = FactoryBot.create :user
-              api_authorization_header current_user.auth_token
-
-              product_1 = FactoryBot.create :product
-              product_2 = FactoryBot.create :product
-              # changes heres
-              order_params = { product_ids: [product_1.id, product_2.id] }
-              post :create, params: { user_id: current_user.id, order: order_params }
-            end
-
-            it 'returns the just user order record' do
-              expect(json_response[:id]).to be_present
-            end
-
-            it { expect(response.response_code).to eq(201) }
-          end
-        end
+    it { expect(response.response_code).to eq(201) }
+  end
+end
 
 ~~~
 
-Si vous exécutez les tests maintenant, ils passeront. Mais avant,
-supprimons le `total` et `user_id` des paramètres autorisés et évitons
-l'affectation en masse. La méthode `order_params` devrait ressembler à
-ceci:
+Il suffit de supprimer l'`user_id` et les paramètres `total` car l'identifiant utilisateur n'est pas vraiment nécessaire et le total est calculé par le modèle. Après avoir effectué les modifications, le code doit ressembler à ce qui suit:
 
 ~~~ruby
-        # app/controllers/api/v1/orders_controller.rb
-        class Api::V1::OrdersController < ApplicationController
-          # ...
+# spec/controllers/api/v1/orders_controller_spec.rb
+# ...
 
-          private
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  # ...
 
-          def order_params
-            params.require(:order).permit(product_ids: [])
-          end
-        end
+  describe 'POST #create' do
+    before(:each) do
+      current_user = FactoryBot.create :user
+      api_authorization_header current_user.auth_token
 
+      product_1 = FactoryBot.create :product
+      product_2 = FactoryBot.create :product
+      # changes heres
+      order_params = { product_ids: [product_1.id, product_2.id] }
+      post :create, params: { user_id: current_user.id, order: order_params }
+    end
+
+    it 'returns the just user order record' do
+      expect(json_response[:id]).to be_present
+    end
+
+    it { expect(response.response_code).to eq(201) }
+  end
+end
+
+~~~
+
+Si vous exécutez les tests maintenant, ils passeront. Mais avant, supprimons le `total` et `user_id` des paramètres autorisés et évitons l'affectation en masse. La méthode `order_params` devrait ressembler à ceci:
+
+~~~ruby
+# app/controllers/api/v1/orders_controller.rb
+class Api::V1::OrdersController < ApplicationController
+  # ...
+
+  private
+
+  def order_params
+    params.require(:order).permit(product_ids: [])
+  end
+end
 ~~~
 
 Nos tests doivent continuer à passer. *Commitons* nos changements:
 
 ~~~bash
 $ git commit -am "Adds the create method for the orders controller"
-
 ~~~
 
-Customiser l'affichage JSON des commandes
------------------------------------------
+## Customiser l'affichage JSON des commandes
 
-Maintenant que nous avons construit les routes nécessaires pour les
-commandes nous pouvons personnaliser les informations que nous voulons
-rendre sur la sortie JSON pour chaque commande.
+Maintenant que nous avons construit les routes nécessaires pour les commandes nous pouvons personnaliser les informations que nous voulons rendre sur la sortie JSON pour chaque commande.
 
-Si vous vous souvenez du chapitre [10](#chapter:7){reference-type="ref"
-reference="chapter:7"}, nous allons ici aussi utiliser *Active Model
-Serializers*. Commençons donc par créer un sérialiseur pour les
-commandes:
+Si vous vous souvenez du chapitre [10](#chapter:7){reference-type="ref"reference="chapter:7"}, nous allons ici aussi utiliser *Active Model Serializers*. Commençons donc par créer un sérialiseur pour les commandes:
 
 ~~~bash
 $ rails generate serializer order
-
 ~~~
 
-Ensuite, ouvrons le fichier `order_serializer.rb` qui doit ressembler à
-ça:
+Ensuite, ouvrons le fichier `order_serializer.rb` qui doit ressembler à ça:
 
 ~~~bash
-      # app/serializers/order_serializer.rb
-      class OrderSerializer < ActiveModel::Serializer
-        attributes :id
-      end
-
+# app/serializers/order_serializer.rb
+class OrderSerializer < ActiveModel::Serializer
+  attributes :id
+end
 ~~~
 
-Nous allons ajouter l'association des produits et l'attribut `total` à
-la sortie JSON. Pour nous assurer que tout fonctionne bien, et comme
-d'habitude, nous ferons quelques tests. Afin d'éviter la duplication de
-code sur les tests, je vais juste ajouter une spécification pour le
-spectacle et m'assurer que les données supplémentaires sont rendues.
-C'est parce que j'utilise le même sérialiseur chaque fois qu'un objet
-d'ordre est analysé à JSON, donc dans ce cas, je dirais qu'il est très
-bien:
+Nous allons ajouter l'association des produits et l'attribut `total` à la sortie JSON. Pour nous assurer que tout fonctionne bien, et comme d'habitude, nous ferons quelques tests. Afin d'éviter la duplication de code sur les tests, je vais juste ajouter une spécification pour le spectacle et m'assurer que les données supplémentaires sont rendues. C'est parce que j'utilise le même sérialiseur chaque fois qu'un objet d'ordre est analysé à JSON, donc dans ce cas, je dirais qu'il est très bien:
 
 ~~~ruby
-      # spec/controllers/api/v1/orders_controller_spec.rb
-      # ...
+# spec/controllers/api/v1/orders_controller_spec.rb
+# ...
 
-      RSpec.describe Api::V1::OrdersController, type: :controller do
-        # ...
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  # ...
 
-        describe 'GET #show' do
-          before(:each) do
-            current_user = FactoryBot.create :user
-            api_authorization_header current_user.auth_token
-            @order = FactoryGirl.create :order, user: current_user, product_ids: [@product.id]
-            get :show, params: { user_id: current_user.id, id: @order.id }
-          end
+  describe 'GET #show' do
+    before(:each) do
+      current_user = FactoryBot.create :user
+      api_authorization_header current_user.auth_token
+      @order = FactoryGirl.create :order, user: current_user, product_ids: [@product.id]
+      get :show, params: { user_id: current_user.id, id: @order.id }
+    end
 
-          it 'returns the user order record matching the id' do
-            expect(json_response[:id]).to eql @order.id
-          end
+    it 'returns the user order record matching the id' do
+      expect(json_response[:id]).to eql @order.id
+    end
 
-          it 'includes the total for the order' do
-            expect(json_response[:total]).to eql @order.total.to_s
-          end
+    it 'includes the total for the order' do
+      expect(json_response[:total]).to eql @order.total.to_s
+    end
 
-          it 'includes the products on the order' do
-            expect(json_response[:products]).to have(1).item
-          end
+    it 'includes the products on the order' do
+      expect(json_response[:products]).to have(1).item
+    end
 
-          # ...
-        end
+    # ...
+  end
 
-        # ...
-      end
-
+  # ...
+end
 ~~~
 
-Ces tests devraient échouer mais ils sont faciles à faire passer sur le
-sérialiseur de commande:
+Ces tests devraient échouer mais ils sont faciles à faire passer sur le sérialiseur de commande:
 
 ~~~bash
-      # app/serializers/order_serializer.rb
-      class OrderSerializer < ActiveModel::Serializer
-        attributes :id, :total
-        has_many :products
-      end
-
+# app/serializers/order_serializer.rb
+class OrderSerializer < ActiveModel::Serializer
+  attributes :id, :total
+  has_many :products
+end
 ~~~
 
 Et désormais nos tests devraient passer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
-      ........
+........
 
-      Finished in 0.22865 seconds (files took 0.70506 seconds to load)
-      8 examples, 0 failures
-
+Finished in 0.22865 seconds (files took 0.70506 seconds to load)
+8 examples, 0 failures
 ~~~
 
-Si vous vous souvenez du chapitre [10](#chapter:7){reference-type="ref"
-reference="chapter:7"} et de l'encadré
-[\[box:association\_embeded\]](#box:association_embeded){reference-type="ref"
-reference="box:association_embeded"}, nous avons intégré l'utilisateur
-dans le produit. Mais ici, cela ne sert à rien sachant nous connaissons
-toujours l'utilisateur car il s'agit de l'utilisateur courant. Il n'y a
-pas lieu de l'ajouter car ce n'est pas efficace. Corrigeons cela en
-ajoutant un nouveau sérialiseur:
+Si vous vous souvenez du chapitre [10](#chapter:7){reference-type="ref"reference="chapter:7"} et de l'encadré [\[box:association\_embeded\]](#box:association_embeded){reference-type="ref"reference="box:association_embeded"}, nous avons intégré l'utilisateur dans le produit. Mais ici, cela ne sert à rien sachant nous connaissons toujours l'utilisateur car il s'agit de l'utilisateur courant. Il n'y a pas lieu de l'ajouter car ce n'est pas efficace. Corrigeons cela en ajoutant un nouveau sérialiseur:
 
 ~~~bash
 $ rails g serializer order_product
+~~~
+
+Nous voulons que les informations sur les produits restent cohérentes avec celles que nous avons actuellement de sorte que nous puissions simplement en hériter le comportement comme cela:
+
+~~~ruby
+# app/serializers/order_product_serializer.rb
+class OrderProductSerializer < OrderSerializer
+end
+~~~
+
+De cette façon, les deux sérialiseurs seront maintenant lié et il suffira d'ajouter un champ à `ProductSerializer` et il sera ajouté à `OrderProductSerializer`. Maintenant, nous voulons supprimer l'utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela[^18]:
+
+~~~ruby
+# app/serializers/order_product_serializer.rb
+class OrderProductSerializer < ProductSerializer
+  def include_user?
+    false
+  end
+end
 
 ~~~
 
-Nous voulons que les informations sur les produits restent cohérentes
-avec celles que nous avons actuellement de sorte que nous puissions
-simplement en hériter le comportement comme cela:
+Après avoir fait ce changement, nous devons dire au `order_serializer` d'utiliser le sérialiseur que nous venons de créer en passant simplement une option à l'association `has_many` sur le `order_serializer`:
 
 ~~~ruby
-      # app/serializers/order_product_serializer.rb
-      class OrderProductSerializer < OrderSerializer
-      end
-
-~~~
-
-De cette façon, les deux sérialiseurs seront maintenant lié et il
-suffira d'ajouter un champ à `ProductSerializer` et il sera ajouté à
-`OrderProductSerializer`. Maintenant, nous voulons supprimer
-l'utilisateur associé. Nous ajouterons simplement une méthode qui permet
-de faire cela[^18]:
-
-~~~ruby
-      # app/serializers/order_product_serializer.rb
-      class OrderProductSerializer < ProductSerializer
-        def include_user?
-          false
-        end
-      end
-
-~~~
-
-Après avoir fait ce changement, nous devons dire au `order_serializer`
-d'utiliser le sérialiseur que nous venons de créer en passant simplement
-une option à l'association `has_many` sur le `order_serializer`:
-
-~~~ruby
-      # app/serializers/order_product_serializer.rb
-      class OrderProductSerializer < ProductSerializer
-        def include_user?
-          false
-        end
-      end
+# app/serializers/order_product_serializer.rb
+class OrderProductSerializer < ProductSerializer
+  def include_user?
+    false
+  end
+end
 
 ~~~
 
@@ -5947,10 +5152,10 @@ Et nos tests devraient continuer à passer:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
-      ........
+........
 
-      Finished in 0.24024 seconds (files took 0.70072 seconds to load)
-      8 examples, 0 failures
+Finished in 0.24024 seconds (files took 0.70072 seconds to load)
+8 examples, 0 failures
 
 ~~~
 
@@ -5959,196 +5164,164 @@ $ rspec spec/controllers/api/v1/orders_controller_spec.rb
 ~~~bash
 $ git add .
 $ git commit -m "Adds a custom order product serializer to remove the user association"
-
 ~~~
 
-Envoyer un email de confirmation
---------------------------------
+## Envoyer un email de confirmation
 
-La dernière section de ce chapitre sera d'envoyer un courriel de
-confirmation à l'utilisateur qui vient de créer une commande. Si vous
-voulez sauter cette étape et passer au chapitre
-[12](#chapter:9){reference-type="ref" reference="chapter:9"} suivant,
-allez-y! Cette section est plus à un échauffement.
+La dernière section de ce chapitre sera d'envoyer un courriel de confirmation à l'utilisateur qui vient de créer une commande. Si vous voulez sauter cette étape et passer au chapitre [12](#chapter:9){reference-type="ref" reference="chapter:9"} suivant, allez-y! Cette section est plus à un échauffement.
 
-Vous êtes peut-être familier avec la manipulation des courriels avec
-Rails, je vais essayer de rendre cela simple et rapide:
+Vous êtes peut-être familier avec la manipulation des courriels avec Rails, je vais essayer de rendre cela simple et rapide:
 
 Nous commençons par créer le `order_mailer`:
 
 ~~~bash
 $ rails generate mailer order_mailer
-
 ~~~
 
-Pour faciliter le test de l'email, nous utiliserons une gemme appelée
-[email\_spec](https://github.com/email-spec/email-spec). Elle inclut un
-tas de méthodes utiles pour tester les courriels.
+Pour faciliter le test de l'email, nous utiliserons une gemme appelée [email\_spec](https://github.com/email-spec/email-spec). Elle inclut un tas de méthodes utiles pour tester les courriels.
 
 Donc d'abord ajoutons la gemme au `Gemfile`:
 
 ~~~ruby
-      # Gemfile
-      # ...
+# Gemfile
+# ...
 
-      group :test do
-        gem 'rspec-collection_matchers', '~> 1.1'
-        gem 'rspec-rails', '~> 3.8'
-        gem "email_spec"
-        gem 'shoulda-matchers'
-      end
+group :test do
+  gem 'rspec-collection_matchers', '~> 1.1'
+  gem 'rspec-rails', '~> 3.8'
+  gem "email_spec"
+  gem 'shoulda-matchers'
+end
 
-      # ...
-
+# ...
 ~~~
 
-Lancez maintenant la commande `bundle install` pour installer toutes les
-dépendances. Je vais suivre [les étapes de
-documentation](https://github.com/email-spec/email-spec#rspec-31) pour
-configurer la gemme. Lorsque vous avez terminé, votre fichier
-`rails_helper.rb` devrait ressembler à ça:
+Lancez maintenant la commande `bundle install` pour installer toutes les dépendances. Je vais suivre [les étapes de documentation](https://github.com/email-spec/email-spec#rspec-31) pour configurer la gemme. Lorsque vous avez terminé, votre fichier `rails_helper.rb` devrait ressembler à ça:
 
 ~~~ruby
-      # spec/rails_helper.rb
+# spec/rails_helper.rb
 
-      require File.expand_path('../config/environment', __dir__)
-      ENV['RAILS_ENV'] ||= 'test'
-      # Prevent database truncation if the environment is production
-      abort('The Rails environment is running in production mode!') if Rails.env.production?
+require File.expand_path('../config/environment', __dir__)
+ENV['RAILS_ENV'] ||= 'test'
+# Prevent database truncation if the environment is production
+abort('The Rails environment is running in production mode!') if Rails.env.production?
 
-      require 'spec_helper'
-      require 'email_spec'
-      require 'email_spec/rspec'
-      require 'rspec/rails'
+require 'spec_helper'
+require 'email_spec'
+require 'email_spec/rspec'
+require 'rspec/rails'
 
-      # ...
-
-~~~
-
-Maintenant, nous pouvons ajouter quelques tests pour les mails de
-commandes que nous venons de créer:
-
-~~~ {language="ruby" caption="Test des mails de commande"}
-      # spec/mailers/order_mailer_spec.rb
-      require 'rails_helper'
-
-      RSpec.describe OrderMailer, type: :mailer do
-        include Rails.application.routes.url_helpers
-
-        describe '.send_confirmation' do
-          before(:all) do
-            @user = FactoryBot.create :user
-            @order = FactoryBot.create :order, user: @user
-            @order_mailer = OrderMailer.send_confirmation(@order)
-          end
-
-          it 'should be set to be delivered to the user from the order passed in' do
-            expect(@order_mailer).to deliver_to(@user.email)
-          end
-
-          it 'should be set to be send from no-reply@marketplace.com' do
-            expect(@order_mailer).to deliver_from('no-reply@marketplace.com')
-          end
-
-          it "should contain the user's message in the mail body" do
-            expect(@order_mailer).to have_body_text(/Order: ##{@order.id}/)
-          end
-
-          it 'should have the correct subject' do
-            expect(@order_mailer).to have_subject(/Order Confirmation/)
-          end
-
-          it 'should have the products count' do
-            expect(@order_mailer).to have_body_text(/You ordered #{@order.products.count} products:/)
-          end
-        end
-      end
+# ...
 
 ~~~
 
-J'ai simplement copié/collé les tests de la documentation et je l'ai
-adapté à nos besoins. Nous devons maintenant nous assurer que ces tests
-passent.
+Maintenant, nous pouvons ajouter quelques tests pour les mails de commandes que nous venons de créer:
+
+~~~ruby
+# spec/mailers/order_mailer_spec.rb
+require 'rails_helper'
+
+RSpec.describe OrderMailer, type: :mailer do
+  include Rails.application.routes.url_helpers
+
+  describe '.send_confirmation' do
+    before(:all) do
+      @user = FactoryBot.create :user
+      @order = FactoryBot.create :order, user: @user
+      @order_mailer = OrderMailer.send_confirmation(@order)
+    end
+
+    it 'should be set to be delivered to the user from the order passed in' do
+      expect(@order_mailer).to deliver_to(@user.email)
+    end
+
+    it 'should be set to be send from no-reply@marketplace.com' do
+      expect(@order_mailer).to deliver_from('no-reply@marketplace.com')
+    end
+
+    it "should contain the user's message in the mail body" do
+      expect(@order_mailer).to have_body_text(/Order: ##{@order.id}/)
+    end
+
+    it 'should have the correct subject' do
+      expect(@order_mailer).to have_subject(/Order Confirmation/)
+    end
+
+    it 'should have the products count' do
+      expect(@order_mailer).to have_body_text(/You ordered #{@order.products.count} products:/)
+    end
+  end
+end
+~~~
+
+J'ai simplement copié/collé les tests de la documentation et je l'ai adapté à nos besoins. Nous devons maintenant nous assurer que ces tests passent.
 
 Tout d'abord, nous ajoutons la méthode `OrderMailer#send_confirmation`:
 
-~~~ {language="ruby" caption="Implémetation de la méthode pour envoyer un mail lors de la création d'une commande"}
-      # app/mailers/order_mailer.rb
-      class OrderMailer < ApplicationMailer
-        default from: 'no-reply@marketplace.com'
-        def send_confirmation(order)
-          @order = order
-          @user = @order.user
-          mail to: @user.email, subject: 'Order Confirmation'
-        end
-      end
-
+~~~ruby
+# app/mailers/order_mailer.rb
+class OrderMailer < ApplicationMailer
+  default from: 'no-reply@marketplace.com'
+  def send_confirmation(order)
+    @order = order
+    @user = @order.user
+    mail to: @user.email, subject: 'Order Confirmation'
+  end
+end
 ~~~
 
-Après avoir ajouté ce code, nous devons maintenant ajouter les vues
-correspondantes. C'est une bonne pratique d'inclure une version texte
-(Listing
-[\[lst:order\_mailer\_send\_confirmation\_text\]](#lst:order_mailer_send_confirmation_text){reference-type="ref"
-reference="lst:order_mailer_send_confirmation_text"}) en plus de la
-version HTML (Listing
-[\[lst:order\_mailer\_send\_confirmation\_html\]](#lst:order_mailer_send_confirmation_html){reference-type="ref"
-reference="lst:order_mailer_send_confirmation_html"}).
+Après avoir ajouté ce code, nous devons maintenant ajouter les vues correspondantes. C'est une bonne pratique d'inclure une version texte (Listing [\[lst:order\_mailer\_send\_confirmation\_text\]](#lst:order_mailer_send_confirmation_text){reference-type="ref"reference="lst:order_mailer_send_confirmation_text"}) en plus de la version HTML (Listing [\[lst:order\_mailer\_send\_confirmation\_html\]](#lst:order_mailer_send_confirmation_html){reference-type="ref"reference="lst:order_mailer_send_confirmation_html"}).
 
-~~~ {#lst:order_mailer_send_confirmation_text caption="Vue de l'email de confirmation de commande au format texte" label="lst:order_mailer_send_confirmation_text"}
-      <%# app/views/order_mailer/send_confirmation.txt.erb %>
-      Order: #<%= @order.id %>
-      You ordered <%= @order.products.count %> products:
-      <% @order.products.each do |product| %>
-        <%= product.title %> - <%= number_to_currency product.price %>
-      <% end %>
-
+~~~erb
+<%# app/views/order_mailer/send_confirmation.txt.erb %>
+Order: #<%= @order.id %>
+You ordered <%= @order.products.count %> products:
+<% @order.products.each do |product| %>
+  <%= product.title %> - <%= number_to_currency product.price %>
+<% end %>
 ~~~
 
-~~~ {#lst:order_mailer_send_confirmation_html language="html" caption="Vue de l'email de confirmation de commande au format HTML" label="lst:order_mailer_send_confirmation_html"}
-      <!-- app/views/order_mailer/send_confirmation.html.erb -->
-      <h1>Order: #<%= @order.id %></h1>
-      <p>You ordered <%= @order.products.count %> products:</p>
-      <ul>
-        <% @order.products.each do |product| %>
-          <li><%= product.title %> - <%= number_to_currency product.price %></li>
-        <% end %>
-      </ul>
-
+~~~erb
+<!-- app/views/order_mailer/send_confirmation.html.erb -->
+<h1>Order: #<%= @order.id %></h1>
+<p>You ordered <%= @order.products.count %> products:</p>
+<ul>
+  <% @order.products.each do |product| %>
+    <li><%= product.title %> - <%= number_to_currency product.price %></li>
+  <% end %>
+</ul>
 ~~~
 
 Maintenant, nos tests devraient passer:
 
 ~~~bash
 $ rspec spec/mailers/order_mailer_spec.rb
-      .....
+.....
 
-      Finished in 0.24919 seconds (files took 0.75369 seconds to load)
-      5 examples, 0 failures
-
+Finished in 0.24919 seconds (files took 0.75369 seconds to load)
+5 examples, 0 failures
 ~~~
 
-Et maintenant, il suffit d'appeler la méthode
-`OrderMailer#send_confirmation` dans l'action de création sur le
-contrôleur des ordres:
+Et maintenant, il suffit d'appeler la méthode `OrderMailer#send_confirmation` dans l'action de création sur le contrôleur des ordres:
 
 ~~~ruby
-      # app/controllers/api/v1/orders_controller.rb
-      class Api::V1::OrdersController < ApplicationController
-        # ...
+# app/controllers/api/v1/orders_controller.rb
+class Api::V1::OrdersController < ApplicationController
+  # ...
 
-        def create
-          order = current_user.orders.build(order_params)
+  def create
+    order = current_user.orders.build(order_params)
 
-          if order.save
-            OrderMailer.send_confirmation(order).deliver
-            render json: order, status: 201, location: [:api, current_user, order]
-          else
-            render json: { errors: order.errors }, status: 422
-          end
-        end
+    if order.save
+      OrderMailer.send_confirmation(order).deliver
+      render json: order, status: 201, location: [:api, current_user, order]
+    else
+      render json: { errors: order.errors }, status: 422
+    end
+  end
 
-        # ...
-      end
+  # ...
+end
 
 ~~~
 
@@ -6156,15 +5329,14 @@ Pour être sûr que nous n'avons rien cassé, lançons tous les tests:
 
 ~~~bash
 $ rspec spec
-      ..................................................................................................
+..................................................................................................
 
-      Finished in 1.82 seconds (files took 0.78532 seconds to load)
-      98 examples, 0 failures
+Finished in 1.82 seconds (files took 0.78532 seconds to load)
+98 examples, 0 failures
 
 ~~~
 
-*Commitons* tout ce que nous venons de faire pour terminer cette
-section:
+*Commitons* tout ce que nous venons de faire pour terminer cette section:
 
 ~~~bash
 $ git add .
@@ -6175,34 +5347,23 @@ $ git commit -m "Adds order confirmation mailer"
 Conclusion
 ----------
 
-Ça y est! Vous avez réussi! Vous pouvez vous applaudir. Je sais que ça a
-été long mais c'est presque finit, croyez moi.
+Ça y est! Vous avez réussi! Vous pouvez vous applaudir. Je sais que ça a été long mais c'est presque finit, croyez moi.
 
-Sur les chapitres à venir, nous continuerons à travailler sur le modèle
-de commande pour ajouter des validations lors de la passation d'une
-commande. Certains scénarios sont:
+Sur les chapitres à venir, nous continuerons à travailler sur le modèle de commande pour ajouter des validations lors de la passation d'une commande. Certains scénarios sont:
 
 - Que se passe-t-il lorsque les produits ne sont pas disponibles?
+- Diminuer la quantité du produit en cours lors de la passation d'une commande
 
-- Diminuer la quantité du produit en cours lors de la passation d'une
-    commande
+Le prochain chapitre sera court, mais il est très important pour la santé l'application. Alors ne le sautez pas.
 
-Le prochain chapitre sera court, mais il est très important pour la
-santé l'application. Alors ne le sautez pas.
 
-Améliorer les commandes {#chapter:9}
-=======================
+---
 
-Dans le chapitre [11](#chapter:8){reference-type="ref"
-reference="chapter:8"}, nous avons amélioré notre API pour passer des
-commandes et envoyer un e-mail de confirmation à l'utilisateur (juste
-pour améliorer l'expérience utilisateur). Ce chapitre va s'occuper de
-quelques validations sur le modèle de commande afin de s'assurer qu'elle
-est valide. C'est-à-dire:
+# Améliorer les commandes {#chapter:9}
 
-- Diminuer la quantité du produit en cours lors de la passation d'une
-    commande
+Dans le chapitre [11](#chapter:8){reference-type="ref"reference="chapter:8"}, nous avons amélioré notre API pour passer des commandes et envoyer un e-mail de confirmation à l'utilisateur (juste pour améliorer l'expérience utilisateur). Ce chapitre va s'occuper de quelques validations sur le modèle de commande afin de s'assurer qu'elle est valide. C'est-à-dire:
 
+- Diminuer la quantité du produit en cours lors de la passation d'une commande
 - Que se passe-t-il lorsque les produits ne sont pas disponibles?
 
 Nous aurons aussi besoin de mettre à jour un peu la sortie JSON pour les
@@ -6212,45 +5373,36 @@ Maintenant que tout est clair, on peut mettre les mains dans le
 cambouis. Vous pouvez cloner le projet jusqu'à ce point avec:
 
 ~~~bash
-    $ git clone https://github.com/madeindjs/market_place_api.git -b chapter8
+$ git clone https://github.com/madeindjs/market_place_api.git -b chapter8
 
 ~~~
 
 Créons une branche pour commencer
 
 ~~~bash
-    $ git checkout -b chapter9
+$ git checkout -b chapter9
 
 ~~~
 
-Diminution de la quantité de produit
-------------------------------------
+## Diminution de la quantité de produit
 
-Dans cette partie nous travaillerons sur la mise à jour de la quantité
-du produit pour nous assurer que chaque commande livrera le produit
-réel. Actuellement, le modèle de produit n'a pas d'attribut de quantité,
-alors faisons-le:
+Dans cette partie nous travaillerons sur la mise à jour de la quantité du produit pour nous assurer que chaque commande livrera le produit réel. Actuellement, le modèle de produit n'a pas d'attribut de quantité, alors faisons-le:
 
 ~~~bash
 $ rails generate migration add_quantity_to_products quantity:integer
-
 ~~~
 
-Attendez! N'exécutez pas encore cette migrations! Nous allons y apporter
-une petite modification. Comme bonne pratique, j'aime ajouter des
-valeurs par défaut pour la base de données juste pour être sûr de ne pas
-tout gâcher avec des valeurs nulles. C'est un cas parfait!
+Attendez! N'exécutez pas encore cette migrations! Nous allons y apporter une petite modification. Comme bonne pratique, j'aime ajouter des valeurs par défaut pour la base de données juste pour être sûr de ne pas tout gâcher avec des valeurs nulles. C'est un cas parfait!
 
 Votre fichier de migration devrait ressembler à ceci:
 
 ~~~ruby
-      # db/migrate/20181227092237_add_quantity_to_products.rb
-      class AddQuantityToProducts < ActiveRecord::Migration[5.2]
-        def change
-          add_column :products, :quantity, :integer, default: 0
-        end
-      end
-
+# db/migrate/20181227092237_add_quantity_to_products.rb
+class AddQuantityToProducts < ActiveRecord::Migration[5.2]
+  def change
+    add_column :products, :quantity, :integer, default: 0
+  end
+end
 ~~~
 
 Maintenant nous pouvons lancer la migration:
@@ -6260,82 +5412,62 @@ $ rake db:migrate
 
 ~~~
 
-Il est maintenant temps de diminuer la quantité du `Product` une fois l'
-`Order` passée. La première chose qui vous vient probablement à l'esprit
-est de le faire dans le modèle `Order` et c'est une erreur fréquente.
-Lorsque vous travaillez avec des associations *Many-to-Many*, nous
-oublions totalement le modèle de jointure qui dans ce cas est
-`Placement`. Le `Placement` est un meilleur endroit pour gérer cela car
-nous avons accès à la commande et au produit. Ainsi, nous pouvons
-facilement diminuer le stock du produit.
+Il est maintenant temps de diminuer la quantité du `Product` une fois l'`Order` passée. La première chose qui vous vient probablement à l'esprit est de le faire dans le modèle `Order` et c'est une erreur fréquente. Lorsque vous travaillez avec des associations *Many-to-Many*, nous oublions totalement le modèle de jointure qui dans ce cas est `Placement`. Le `Placement` est un meilleur endroit pour gérer cela car nous avons accès à la commande et au produit. Ainsi, nous pouvons facilement diminuer le stock du produit.
 
-Avant de commencer à implémenter le code, nous devons changer la façon
-dont nous gérons la création de la commande car nous devons maintenant
-accepter une quantité pour chaque produit. Si vous vous souvenez de
-Listing
-[\[lst:orders\_controller\_create\]](#lst:orders_controller_create){reference-type="ref"
-reference="lst:orders_controller_create"}, nous attendons un tableau
-d'identifiants de produits. Je vais essayer de garder les choses simples
-et je vais envoyer un tableau de tableaux où la première position de
-chaque tableau interne sera l'identifiant du produit et la seconde la
-quantité.
+Avant de commencer à implémenter le code, nous devons changer la façon dont nous gérons la création de la commande car nous devons maintenant accepter une quantité pour chaque produit. Si vous vous souvenez de Listing [\[lst:orders\_controller\_create\]](#lst:orders_controller_create){reference-type="ref"reference="lst:orders_controller_create"}, nous attendons un tableau d'identifiants de produits. Je vais essayer de garder les choses simples et je vais envoyer un tableau de tableaux où la première position de chaque tableau interne sera l'identifiant du produit et la seconde la quantité.
 
 Un exemple rapide serait quelque chose comme cela:
 
 ~~~ruby
-      product_ids_and_quantities = [
-        [1,4],
-        [3,5]
-      ]
-
+product_ids_and_quantities = [
+  [1,4],
+  [3,5]
+]
 ~~~
 
-Ça va être difficile, alors restez avec moi. Construisons d'abord des
-tests unitaires:
+Ça va être difficile, alors restez avec moi. Construisons d'abord des tests unitaires:
 
 ~~~ruby
-      # spec/models/order_spec.rb
-      require 'rails_helper'
+# spec/models/order_spec.rb
+require 'rails_helper'
 
-      RSpec.describe Order, type: :model do
-        # ...
+RSpec.describe Order, type: :model do
+  # ...
 
-        describe '#build_placements_with_product_ids_and_quantities' do
-          before(:each) do
-            product_1 = FactoryBot.create :product, price: 100, quantity: 5
-            product_2 = FactoryBot.create :product, price: 85, quantity: 10
+  describe '#build_placements_with_product_ids_and_quantities' do
+    before(:each) do
+      product_1 = FactoryBot.create :product, price: 100, quantity: 5
+      product_2 = FactoryBot.create :product, price: 85, quantity: 10
 
-            @product_ids_and_quantities = [[product_1.id, 2], [product_2.id, 3]]
-          end
+      @product_ids_and_quantities = [[product_1.id, 2], [product_2.id, 3]]
+    end
 
-          it 'builds 2 placements for the order' do
-            expect { order.build_placements_with_product_ids_and_quantities(@product_ids_and_quantities) }.to change { order.placements.size }.from(0).to(2)
-          end
-        end
-      end
-
+    it 'builds 2 placements for the order' do
+      expect { order.build_placements_with_product_ids_and_quantities(@product_ids_and_quantities) }.to change { order.placements.size }.from(0).to(2)
+    end
+  end
+end
 ~~~
 
 Et maintenant l'implémentation
 
 ~~~ruby
-      # app/models/order.rb
-      class Order < ApplicationRecord
-        # ...
+# app/models/order.rb
+class Order < ApplicationRecord
+  # ...
 
-        # @param product_ids_and_quantities [Array] something like this
-        #        `[[product_1.id, 2], [product_2.id, 3]]`. Where first item is
-        #        `product_id` and the second is the quantity
-        # @yield [Placement] placement build
-        def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
-          product_ids_and_quantities.each do |product_id_and_quantity|
-            id, quantity = product_id_and_quantity # [1,5]
-            placement = placements.build(product_id: id)
-            yield placement if block_given?
-          end
-        end
-      end
-
+  # @param product_ids_and_quantities [Array] something like this
+  #        `[[product_1.id, 2], [product_2.id, 3]]`. Where first item is
+  #        `product_id` and the second is the quantity
+  # @yield [Placement] placement build
+  def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
+    product_ids_and_quantities.each do |product_id_and_quantity|
+      id, quantity = product_id_and_quantity # [1,5]
+      placement = placements.build(product_id: id)
+      yield placement if block_given?
+    end
+  end
+end
 ~~~
 
 Et maintenant, si nous lançons les tests, ils devraient passer:
@@ -6346,89 +5478,78 @@ $ rspec spec/models/order_spec.rb
 
       Finished in 0.33759 seconds (files took 3.54 seconds to load)
       8 examples, 0 failures
-
 ~~~
 
-Les `build_placements_with_product_ids_and_quantities` construiront les
-objets `Placement` et une fois que nous déclencherons la méthode de
-sauvegarde de l'ordre, tout sera inséré dans la base de données. Une
-dernière étape avant de valider ceci est de mettre à jour
-`orders_controller_spec` avec son implémentation.
+Les `build_placements_with_product_ids_and_quantities` construiront les objets `Placement` et une fois que nous déclencherons la méthode de sauvegarde de l'ordre, tout sera inséré dans la base de données. Une dernière étape avant de valider ceci est de mettre à jour `orders_controller_spec` avec son implémentation.
 
 Tout d'abord, nous mettons à jour le fichier `orders_controller_spec`:
 
 ~~~ruby
-      # spec/controllers/api/v1/orders_controller_spec.rb
-      require 'rails_helper'
+# spec/controllers/api/v1/orders_controller_spec.rb
+require 'rails_helper'
 
-      RSpec.describe Api::V1::OrdersController, type: :controller do
-        # ...
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  # ...
 
-        describe 'POST #create' do
-          before(:each) do
-            current_user = FactoryBot.create :user
-            api_authorization_header current_user.auth_token
+  describe 'POST #create' do
+    before(:each) do
+      current_user = FactoryBot.create :user
+      api_authorization_header current_user.auth_token
 
-            product_1 = FactoryBot.create :product
-            product_2 = FactoryBot.create :product
-            order_params = {
-              product_ids_and_quantities: [[product_1.id, 2], [product_2.id, 3]]
-            }
-            post :create, params: { user_id: current_user.id, order: order_params }
-          end
+      product_1 = FactoryBot.create :product
+      product_2 = FactoryBot.create :product
+      order_params = {
+        product_ids_and_quantities: [[product_1.id, 2], [product_2.id, 3]]
+      }
+      post :create, params: { user_id: current_user.id, order: order_params }
+    end
 
-          it 'embeds the two product objects related to the order' do
-            expect(json_response[:products].size).to eql 2
-          end
+    it 'embeds the two product objects related to the order' do
+      expect(json_response[:products].size).to eql 2
+    end
 
-          # ...
-        end
-      end
-
+    # ...
+  end
+end
 ~~~
 
 Nous devons ensuite mettre un peu à jour notre contrôleur des commandes:
 
 ~~~ruby
-      # app/controllers/api/v1/orders_controller.rb
-      class Api::V1::OrdersController < ApplicationController
-        # ...
+# app/controllers/api/v1/orders_controller.rb
+class Api::V1::OrdersController < ApplicationController
+  # ...
 
-        def create
-          order = Order.create! user: current_user
-          order.build_placements_with_product_ids_and_quantities(params[:order][:product_ids_and_quantities])
+  def create
+    order = Order.create! user: current_user
+    order.build_placements_with_product_ids_and_quantities(params[:order][:product_ids_and_quantities])
 
-          if order.save
-            order.reload # need to reload associations
-            OrderMailer.send_confirmation(order).deliver
-            render json: order, status: 201, location: [:api, current_user, order]
-          else
-            render json: { errors: order.errors }, status: 422
-          end
-        end
-      end
-
+    if order.save
+      order.reload # need to reload associations
+      OrderMailer.send_confirmation(order).deliver
+      render json: order, status: 201, location: [:api, current_user, order]
+    else
+      render json: { errors: order.errors }, status: 422
+    end
+  end
+end
 ~~~
 
-Notez que j'ai aussi supprimé la méthode `OrdersController#order_params`
-qui devient inutile.
+Notez que j'ai aussi supprimé la méthode `OrdersController#order_params` qui devient inutile.
 
-Enfin et surtout, nous devons mettre à jour le fichier d'usine des
-produits afin d'attribuer une valeur de quantité élevée pour avoir au
-moins quelques produits en stock.
+Enfin et surtout, nous devons mettre à jour le fichier d'usine des produits afin d'attribuer une valeur de quantité élevée pour avoir au moins quelques produits en stock.
 
 ~~~ruby
-      # spec/factories/products.rb
-      FactoryBot.define do
-        factory :product do
-          title { FFaker::Product.product_name }
-          price { rand * 100 }
-          published { false }
-          user
-          quantity { 5 }
-        end
-      end
-
+# spec/factories/products.rb
+FactoryBot.define do
+  factory :product do
+    title { FFaker::Product.product_name }
+    price { rand * 100 }
+    published { false }
+    user
+    quantity { 5 }
+  end
+end
 ~~~
 
 *Commitons* nos changements avant d'aller plus loin:
@@ -6439,81 +5560,65 @@ $ git commit -m "Allows the order to be placed along with product quantity"
 
 ~~~
 
-Avez-vous remarqué que nous ne mettons pas à jour la quantité des
-produits? Actuellement, il n'y a aucun moyen d'en faire le suivi. Cela
-peut être corrigé très facilement, en ajoutant simplement un attribut de
-quantité au modèle `Placement` de sorte que pour chaque produit, nous
-sauvegardons la quantité correspondante. Commençons par créer la
-migration:
+Avez-vous remarqué que nous ne mettons pas à jour la quantité des produits? Actuellement, il n'y a aucun moyen d'en faire le suivi. Cela peut être corrigé très facilement, en ajoutant simplement un attribut de quantité au modèle `Placement` de sorte que pour chaque produit, nous sauvegardons la quantité correspondante. Commençons par créer la migration:
 
 ~~~bash
 $ rails generate migration add_quantity_to_placements quantity:integer
-
 ~~~
 
-Comme pour la migration des attributs de quantité de produit, nous
-devrions ajouter une valeur par défaut égale à 0. N'oubliez pas que
-c'est facultatif mais c'est mieux. Le fichier de migration devrait
-ressembler à cela:
+Comme pour la migration des attributs de quantité de produit, nous devrions ajouter une valeur par défaut égale à 0. N'oubliez pas que c'est facultatif mais c'est mieux. Le fichier de migration devrait ressembler à cela:
 
 ~~~ruby
-      # db/migrate/20181227104830_add_quantity_to_placements.rb
-      class AddQuantityToPlacements < ActiveRecord::Migration[5.2]
-        def change
-          add_column :placements, :quantity, :integer, default: 0
-        end
-      end
-
+# db/migrate/20181227104830_add_quantity_to_placements.rb
+class AddQuantityToPlacements < ActiveRecord::Migration[5.2]
+  def change
+    add_column :placements, :quantity, :integer, default: 0
+  end
+end
 ~~~
 
 Lancez ensuite la migration:
 
 ~~~bash
 $ rake db:migrate
-
 ~~~
 
 Documentons l'attribut `quantity` par un test unitaire:
 
 ~~~ruby
-      # spec/models/placement_spec.rb
-      # ...
-      RSpec.describe Placement, type: :model do
-        # ...
-        it { should respond_to :quantity }
-        # ...
-      end
-
+# spec/models/placement_spec.rb
+# ...
+RSpec.describe Placement, type: :model do
+  # ...
+  it { should respond_to :quantity }
+  # ...
+end
 ~~~
 
-Il ne nous reste plus qu'à mettre à jour la méthode
-`build_placements_with_product_ids_and_quantities` pour ajouter la
-quantité pour les placements:
+Il ne nous reste plus qu'à mettre à jour la méthode `build_placements_with_product_ids_and_quantities` pour ajouter la quantité pour les placements:
 
 ~~~ruby
-      # app/models/order.rb
-      class Order < ApplicationRecord
-        # ...
+# app/models/order.rb
+class Order < ApplicationRecord
+  # ...
 
-        def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
-          product_ids_and_quantities.each do |product_id_and_quantity|
-            product_id, quantity = product_id_and_quantity # [1,5]
-            placements.build(product_id: product_id, quantity: quantity)
-          end
-        end
-      end
-
+  def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
+    product_ids_and_quantities.each do |product_id_and_quantity|
+      product_id, quantity = product_id_and_quantity # [1,5]
+      placements.build(product_id: product_id, quantity: quantity)
+    end
+  end
+end
 ~~~
 
 Maintenant, nos tests devraient passer:
 
 ~~~bash
 $ rspec spec/models/order_spec.rb
-      ........
+........
 
-      Finished in 0.09898 seconds (files took 0.74936 seconds to load)
-      8 examples, 0 failures
-
+Finished in 0.09898 seconds (files took 0.74936 seconds to load)
+8 examples, 0 failures
 ~~~
 
 *Commitons* nos changement:
@@ -6526,169 +5631,136 @@ $ git commit -m "Adds quantity to placements"
 
 ### Étendre le modèle de placement
 
-Il est temps de mettre à jour la quantité du produit une fois la
-commande enregistrée ou plus précisément: une fois le placement créé.
-Pour ce faire, nous allons ajouter une méthode et la connecter au
-*callback* `after_create`.
+Il est temps de mettre à jour la quantité du produit une fois la commande enregistrée ou plus précisément: une fois le placement créé. Pour ce faire, nous allons ajouter une méthode et la connecter au *callback* `after_create`.
 
-Commençons par mettre à jour notre usine de placement pour qu'elle soit
-plus logique:
+Commençons par mettre à jour notre usine de placement pour qu'elle soit plus logique:
 
-~~~ {language="ruby" caption="Mise à jour de l'usine des placements"}
-      # spec/factories/placements.rb
-      FactoryBot.define do
-        factory :placement do
-          order
-          product
-          quantity { 1 }
-        end
-      end
-
+~~~ruby
+# spec/factories/placements.rb
+FactoryBot.define do
+  factory :placement do
+    order
+    product
+    quantity { 1 }
+  end
+end
 ~~~
 
 Et puis nous pouvons simplement ajouter quelques tests:
 
-~~~ {language="ruby" caption="Test de la mise à jour de la quantité des produits"}
-      # spec/models/placement_spec.rb
-      # ...
+~~~ruby
+# spec/models/placement_spec.rb
+# ...
 
-      RSpec.describe Placement, type: :model do
-        # ...
-        it { should respond_to :quantity }
-        # ...
-        describe '#decrement_product_quantity!' do
-          it 'decreases the product quantity by the placement quantity' do
-            product = placement.product
-            expect { placement.decrement_product_quantity! }.to change { product.quantity }.by(-placement.quantity)
-          end
-        end
-      end
-
+RSpec.describe Placement, type: :model do
+  # ...
+  it { should respond_to :quantity }
+  # ...
+  describe '#decrement_product_quantity!' do
+    it 'decreases the product quantity by the placement quantity' do
+      product = placement.product
+      expect { placement.decrement_product_quantity! }.to change { product.quantity }.by(-placement.quantity)
+    end
+  end
+end
 ~~~
 
-La mise en œuvre est assez simple comme le montre le listing
-[\[lst:placement\_decrement\_product\_quantity\]](#lst:placement_decrement_product_quantity){reference-type="ref"
-reference="lst:placement_decrement_product_quantity"}.
+La mise en œuvre est assez simple comme le montre le listing [\[lst:placement\_decrement\_product\_quantity\]](#lst:placement_decrement_product_quantity){reference-type="ref"reference="lst:placement_decrement_product_quantity"}.
 
-~~~ {#lst:placement_decrement_product_quantity language="ruby" caption="Implémentation de la mise à jour de la quantité des produits" label="lst:placement_decrement_product_quantity"}
-      # app/models/placement.rb
-      class Placement < ApplicationRecord
-        # ...
-        after_create :decrement_product_quantity!
+~~~ruby
+# app/models/placement.rb
+class Placement < ApplicationRecord
+  # ...
+  after_create :decrement_product_quantity!
 
-        def decrement_product_quantity!
-          product.decrement!(:quantity, quantity)
-        end
-      end
-
+  def decrement_product_quantity!
+    product.decrement!(:quantity, quantity)
+  end
+end
 ~~~
 
 Validation du stock des produits
 --------------------------------
 
-Depuis le début du chapitre, nous avons ajouté l'attribut `quantity` au
-modèle de produit. il est maintenant temps de valider que la quantité de
-produit est suffisante pour que la commande soit passée.
-
-Afin de rendre les choses plus intéressantes, nous allons le faire à
-l'aide d'un validateur personnalisé[^19]. Pour les validateurs
-personnalisés, vous pouvez consulter la
+Depuis le début du chapitre, nous avons ajouté l'attribut `quantity` au modèle de produit. il est maintenant temps de valider que la quantité de produit est suffisante pour que la commande soit passée. Afin de rendre les choses plus intéressantes, nous allons le faire à l'aide d'un validateur personnalisé[^19]. Pour les validateurs personnalisés, vous pouvez consulter la
 [documentation](https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations).
 
-Tout d'abord, nous devons créer un répertoire de `validators` dans le
-répertoire `app` (Rails le charge par défaut) et ensuite créons un
-fichier dedans:
+Tout d'abord, nous devons créer un répertoire de `validators` dans le répertoire `app` (Rails le charge par défaut) et ensuite créons un fichier dedans:
 
 ~~~bash
 $ mkdir app/validators
 $ touch app/validators/enough_products_validator.rb
-
 ~~~
 
-Avant de commencer à implémenter la classe, nous devons nous assurer
-d'ajouter un test au modèle de commande pour vérifier si la commande
-peut être passée (Listing
-[\[lst:order\_valid\_spec\]](#lst:order_valid_spec){reference-type="ref"
-reference="lst:order_valid_spec"}).
-
-~~~ {#lst:order_valid_spec language="ruby" caption="Test de la validation de la commande" label="lst:order_valid_spec"}
-      # spec/models/order_spec.rb
-      require 'rails_helper'
-
-      RSpec.describe Order, type: :model do
-        # ...
-
-        describe "#valid?" do
-          before do
-            product_1 = FactoryBot.create :product, price: 100, quantity: 5
-            product_2 = FactoryBot.create :product, price: 85, quantity: 10
-
-
-            placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
-            placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
-
-            @order = FactoryBot.build :order
-
-            @order.placements << placement_1
-            @order.placements << placement_2
-          end
-
-          it "becomes invalid due to insufficient products" do
-            expect(@order).to_not be_valid
-          end
-        end
-      end
-
-~~~
-
-Comme vous pouvez le voir sur les tests (Listing
-[\[lst:order\_valid\_spec\]](#lst:order_valid_spec){reference-type="ref"
-reference="lst:order_valid_spec"}), nous nous assurons d'abord que
-`placement_2` essaie de demander plus de produits que ce qui est
-disponible. Donc dans ce cas la commande n'est pas supposée être valide.
-
-Le test est en train d'échouer. Faisons le passer en implémentant le
-code pour le validateur:
+Avant de commencer à implémenter la classe, nous devons nous assurer d'ajouter un test au modèle de commande pour vérifier si la commande peut être passée (Listing [\[lst:order\_valid\_spec\]](#lst:order_valid_spec){reference-type="ref"reference="lst:order_valid_spec"}).
 
 ~~~ruby
-      # app/validators/enough_products_validator.rb
-      class EnoughProductsValidator < ActiveModel::Validator
-        def validate(record)
-          record.placements.each do |placement|
-            product = placement.product
-            if placement.quantity > product.quantity
-              record.errors[product.title.to_s] << "Is out of stock, just #{product.quantity} left"
-            end
-          end
-        end
+# spec/models/order_spec.rb
+require 'rails_helper'
+
+RSpec.describe Order, type: :model do
+  # ...
+
+  describe "#valid?" do
+    before do
+      product_1 = FactoryBot.create :product, price: 100, quantity: 5
+      product_2 = FactoryBot.create :product, price: 85, quantity: 10
+
+
+      placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
+      placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
+
+      @order = FactoryBot.build :order
+
+      @order.placements << placement_1
+      @order.placements << placement_2
+    end
+
+    it "becomes invalid due to insufficient products" do
+      expect(@order).to_not be_valid
+    end
+  end
+end
+~~~
+
+Comme vous pouvez le voir sur les tests (Listing [\[lst:order\_valid\_spec\]](#lst:order_valid_spec){reference-type="ref"reference="lst:order_valid_spec"}), nous nous assurons d'abord que `placement_2` essaie de demander plus de produits que ce qui est disponible. Donc dans ce cas la commande n'est pas supposée être valide.
+
+Le test est en train d'échouer. Faisons le passer en implémentant le code pour le validateur:
+
+~~~ruby
+# app/validators/enough_products_validator.rb
+class EnoughProductsValidator < ActiveModel::Validator
+  def validate(record)
+    record.placements.each do |placement|
+      product = placement.product
+      if placement.quantity > product.quantity
+        record.errors[product.title.to_s] << "Is out of stock, just #{product.quantity} left"
       end
+    end
+  end
+end
 
 ~~~
 
-J'ajoute simplement un message pour chacun des produits en rupture de
-stock, mais vous pouvez le gérer différemment si vous le souhaitez. Il
-ne nous reste plus qu'à ajouter ce validateur au modèle `Order` comme
-cela:
+J'ajoute simplement un message pour chacun des produits en rupture de stock, mais vous pouvez le gérer différemment si vous le souhaitez. Il ne nous reste plus qu'à ajouter ce validateur au modèle `Order` comme cela:
 
 ~~~ruby
-      # app/models/order.rb
-      class Order < ApplicationRecord
-        # ...
-        validates_with EnoughProductsValidator
-        # ...
-      end
-
+# app/models/order.rb
+class Order < ApplicationRecord
+  # ...
+  validates_with EnoughProductsValidator
+  # ...
+end
 ~~~
 
 Et maintenant, si vous lancer vos tests, tout devrait être beau et vert:
 
 ~~~bash
 $ rspec spec/models/order_spec.rb
-      .........
+.........
 
-      Finished in 0.19136 seconds (files took 0.74912 seconds to load)
-      9 examples, 0 failures
-
+Finished in 0.19136 seconds (files took 0.74912 seconds to load)
+9 examples, 0 failures
 ~~~
 
 *Commitons* nos changements:
@@ -6696,85 +5768,78 @@ $ rspec spec/models/order_spec.rb
 ~~~bash
 $ git add .
 $ git commit -m "Adds validator for order with not enough products on stock"
-
 ~~~
 
 Mettre à jour le prix total
 ---------------------------
 
-Réalisez vous que le prix total est mal calculé? Actuellement, nous
-ajoutons le prix des produits sur la commande, quelle que soit la
-quantité demandée. Permettez-moi d'ajouter le code pour clarifier le
-problème:
+Réalisez vous que le prix total est mal calculé? Actuellement, nous ajoutons le prix des produits sur la commande, quelle que soit la quantité demandée. Permettez-moi d'ajouter le code pour clarifier le problème:
 
-Actuellement, dans le modèle de commande, nous avons cette méthode pour
-calculer le montant à payer:
+Actuellement, dans le modèle de commande, nous avons cette méthode pour calculer le montant à payer:
 
 ~~~ruby
-      # app/models/order.rb
-      class Order < ApplicationRecord
-        # ...
+# app/models/order.rb
+class Order < ApplicationRecord
+  # ...
 
-        def set_total!
-          self.total = products.map(&:price).sum
-        end
+  def set_total!
+    self.total = products.map(&:price).sum
+  end
 
-        # ...
-      end
+  # ...
+end
 
 ~~~
 
-Maintenant, au lieu de calculer le total en additionnant simplement les
-prix des produits, nous devons le multiplier par la quantité. Alors
-mettons d'abord à jour les tests:
+Maintenant, au lieu de calculer le total en additionnant simplement les prix des produits, nous devons le multiplier par la quantité. Alors mettons d'abord à jour les tests:
 
 ~~~ruby
-      # spec/models/order_spec.rb
-      require 'rails_helper'
+# spec/models/order_spec.rb
+require 'rails_helper'
 
-      RSpec.describe Order, type: :model do
-        # ...
+RSpec.describe Order, type: :model do
+  # ...
 
-        describe '#set_total!' do
-          before(:each) do
-            product_1 = FactoryBot.create :product, price: 100
-            product_2 = FactoryBot.create :product, price: 85
+  describe '#set_total!' do
+    before(:each) do
+      product_1 = FactoryBot.create :product, price: 100
+      product_2 = FactoryBot.create :product, price: 85
 
-            placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
-            placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
+      placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
+      placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
 
-            @order = FactoryBot.build :order
+      @order = FactoryBot.build :order
 
-            @order.placements << placement_1
-            @order.placements << placement_2
-          end
+      @order.placements << placement_1
+      @order.placements << placement_2
+    end
 
-          it 'returns the total amount to pay for the products' do
-            expect { @order.set_total! }.to change { @order.total.to_f }.from(0).to(1575)
-          end
-        end
+    it 'returns the total amount to pay for the products' do
+      expect { @order.set_total! }.to change { @order.total.to_f }.from(0).to(1575)
+    end
+  end
 
-        # ...
-      end
+  # ...
+end
 
 ~~~
 
 L'implémentation est assez simple:
 
 ~~~ruby
-      # app/models/order.rb
-      class Order < ApplicationRecord
-        # ...
+# app/models/order.rb
+class Order < ApplicationRecord
+  # ...
 
-        def set_total!
-          self.total = 0.0
-          placements.each do |placement|
-            self.total += placement.product.price.to_f * placement.quantity
-          end
-        end
+  def set_total!
+    self.total = 0.0
+    placements.each do |placement|
+      self.total += placement.product.price.to_f * placement.quantity
+    end
+  end
 
-        # ...
-      end
+  # ...
+end
 
 ~~~
 
@@ -6782,10 +5847,10 @@ Et maintenant, les tests devraient passer:
 
 ~~~bash
 $ rspec spec/models/order_spec.rb
-      .........
+.........
 
-      Finished in 0.20537 seconds (files took 0.74555 seconds to load)
-      9 examples, 0 failures
+Finished in 0.20537 seconds (files took 0.74555 seconds to load)
+9 examples, 0 failures
 
 ~~~
 
@@ -6800,216 +5865,160 @@ $ git commit -am "Updates the total calculation for order"
 Conclusion
 ----------
 
-Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long
-chemin depuis le chapitre [4](#chapter:1){reference-type="ref"
-reference="chapter:1"}, mais vous êtes à un pas de plus. En fait, le
-chapitre suivant serait le dernier. Alors essayez d'en tirer le
-meilleur.
+Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le chapitre [4](#chapter:1){reference-type="ref"reference="chapter:1"}, mais vous êtes à un pas de plus. En fait, le chapitre suivant serait le dernier. Alors essayez d'en tirer le meilleur.
 
-Le dernier chapitre portera sur la façon d'optimiser l'API en utilisant
-la pagination, la mise en cache et les tâches d'arrière-plan. Donc
-bouclez vos ceintures, ça va être un parcours mouvementé.
+Le dernier chapitre portera sur la façon d'optimiser l'API en utilisant la pagination, la mise en cache et les tâches d'arrière-plan. Donc bouclez vos ceintures, ça va être un parcours mouvementé.
 
-Optimisations {#chapter:10}
-=============
+---
 
-Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais
-vous n'êtes qu'à un pas de la fin. Dans le chapitre
-[12](#chapter:9){reference-type="ref" reference="chapter:9"}, nous avons
-terminé la modélisation du modèle de commandes. Nous pourrions dire que
-le projet est maintenant terminé mais je veux couvrir quelques détails
-importants sur l'optimisation. Les sujets que je vais aborder ici
-seront:
+# Optimisations {#chapter:10}
 
-- La mise en place de la spécification
-    [JSON:API](https://jsonapi.org/)
+Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'êtes qu'à un pas de la fin. Dans le chapitre [12](#chapter:9){reference-type="ref" reference="chapter:9"}, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l'optimisation. Les sujets que je vais aborder ici seront:
 
+- La mise en place de la spécification [JSON:API](https://jsonapi.org/)
 - la pagination
-
 - les tâhces en arrière plan
-
 - la mise en cache
 
-J'essaierai d'aller aussi loin que possible en essayant de couvrir
-certains scénarios courants. J'espère que ces scénarions vous serons
-utiles pour certains de vos projets.
+J'essaierai d'aller aussi loin que possible en essayant de couvrir certains scénarios courants. J'espère que ces scénarions vous serons utiles pour certains de vos projets.
 
-Si vous commencez à lire à ce stade, vous voudrez probablement que le
-code fonctionne, vous pouvez le cloner comme ça:
+Si vous commencez à lire à ce stade, vous voudrez probablement que le code fonctionne, vous pouvez le cloner comme ça:
 
 ~~~bash
-    $ git clone https://github.com/madeindjs/market_place_api.git -b chapter9
-
+$ git clone https://github.com/madeindjs/market_place_api.git -b chapter9
 ~~~
 
 Créons une nouvelle branche pour ce chapitre:
 
 ~~~bash
-  $ git checkout -b chapter10
-
+$ git checkout -b chapter10
 ~~~
 
 Mise en place de la spécification [JSON:API](https://jsonapi.org/)
 ------------------------------------------------------------------
 
-Comme je vous le dis depuis le début de ce livre, une partie importante
-et difficile lors de la création de votre API est de décider le format
-de sortie. Heuresement, certaines organisations ont déjà fait face à ce
-genre de problème et elles ont ainsi établies certaines conventions.
+Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heuresement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établies certaines conventions.
 
-Une des convention les plus appliquée est très certainement
-[JSON:API](https://jsonapi.org/). JSON:API nous impose certaines règles
+Une des convention les plus appliquée est très certainement [JSON:API](https://jsonapi.org/). JSON:API nous impose certaines règles
 à suivre comme:
 
 - Comment formater la présentation de
 
-Cette convention nous permettra d'aborder la pagination (section
-[13.2](#sec:pagination){reference-type="ref"
-reference="sec:pagination"}) plus sereinement.
+Cette convention nous permettra d'aborder la pagination (section [13.2](#sec:pagination){reference-type="ref"reference="sec:pagination"}) plus sereinement.
 
 Pagination
 ----------
 
-Une stratégie très commune pour optimiser la récupération
-d'enregistrements dans une base de données est de charger seulement une
-qunatité limité en les paginant. Si vous êtes familier avec cette
-technique, vous savez qu'avec Rails c'est vraiment très facile à mettre
-en place avec des gemmes telles que
-[will\_paginate](https://github.com/mislav/will_paginate) ou
-[kaminari](https://github.com/kaminari/kaminari).
+Une stratégie très commune pour optimiser la récupération d'enregistrements dans une base de données est de charger seulement une qunatité limité en les paginant. Si vous êtes familier avec cette technique, vous savez qu'avec Rails c'est vraiment très facile à mettre en place avec des gemmes telles que [will\_paginate](https://github.com/mislav/will_paginate) ou [kaminari](https://github.com/kaminari/kaminari).
 
-La seule partie délicate ici est de savoir comment gérer la sortie JSON
-pour donner assez d'informations au client sur la façon dont le tableau
-est paginé. Si vous vous souvenez du chapitre
-[4](#chapter:1){reference-type="ref" reference="chapter:1"}, j'ai
-partagé quelques ressources sur les pratiques que j'allais suivre ici.
-L'une d'entre elles était <http://jsonapi.org/> qui est une page
-incontournable des signets.
+La seule partie délicate ici est de savoir comment gérer la sortie JSON pour donner assez d'informations au client sur la façon dont le tableau est paginé. Si vous vous souvenez du chapitre [4](#chapter:1){reference-type="ref" reference="chapter:1"}, j'ai partagé quelques ressources sur les pratiques que j'allais suivre ici. L'une d'entre elles était <http://jsonapi.org/> qui est une page incontournable des signets.
 
-Si nous lisons la section sur le format, nous arriverons à une
-sous-section appelée [Top
-Level](https://jsonapi.org/format/#document-top-level). Pour vous
-expliquer rapidement, ils mentionnent quelque chose sur la pagination:
+Si nous lisons la section sur le format, nous arriverons à une sous-section appelée [Top Level](https://jsonapi.org/format/#document-top-level). Pour vous expliquer rapidement, ils mentionnent quelque chose sur la pagination:
 
-"\"meta\": méta-information sur une ressource, telle que la pagination."
+> "meta": méta-information sur une ressource, telle que la pagination.
 
-Ce n'est pas très descriptif mais au moins nous avons un indice sur ce
-qu'il faut regarder ensuite au sujet de l'implémentation de la
-pagination. Ne vous inquiétez pas, c'est exactement ce que nous allons
-faire ici.
+Ce n'est pas très descriptif mais au moins nous avons un indice sur ce qu'il faut regarder ensuite au sujet de l'implémentation de la pagination. Ne vous inquiétez pas, c'est exactement ce que nous allons faire ici.
 
 Commençons par la liste des produits.
 
 ### Les produits
 
-Nous allons commencer par paginer la liste des produits car nous n'avons
-aucune restriction d'accès. Cela nous facilitera les tests.
+Nous allons commencer par paginer la liste des produits car nous n'avons aucune restriction d'accès. Cela nous facilitera les tests.
 
 Nous devons d'abord ajouter la gemme de kaminari à notre `Gemfile`:
 
 ~~~bash
 $ bundle add kaminari
-
 ~~~
 
-Maintenant nous pouvons aller à l'action `Products#index` et ajouter les
-méthodes de pagination comme indiqué dans la documentation:
+Maintenant nous pouvons aller à l'action `Products#index` et ajouter les méthodes de pagination comme indiqué dans la documentation:
 
 ~~~ruby
-      # app/controllers/api/v1/products_controller.rb
-      class Api::V1::ProductsController < ApplicationController
-        # ...
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  # ...
 
-        def index
-          render json: Product.page(params[:page]).per(params[:per_page]).search(params)
-        end
+  def index
+    render json: Product.page(params[:page]).per(params[:per_page]).search(params)
+  end
 
-        # ...
-      end
+  # ...
+end
 
 ~~~
 
-Jusqu'à présent, la seule chose qui a changé est la requête sur la base
-de données pour limiter le résultat à 25 par page (ce qui est la valeur
-par défaut). Mais nous n'avons toujours pas ajouté d'informations
-supplémentaires à la sortie JSON.
+Jusqu'à présent, la seule chose qui a changé est la requête sur la base de données pour limiter le résultat à 25 par page (ce qui est la valeur par défaut). Mais nous n'avons toujours pas ajouté d'informations supplémentaires à la sortie JSON.
 
-Nous devons fournir les informations de pagination sur la balise meta
-dans le formulaire suivant:
+Nous devons fournir les informations de pagination sur la balise meta dans le formulaire suivant:
 
-          "meta": {
-              "pagination": {
-                  "per_page": 25,
-                  "total_page": 6,
-                  "total_objects": 11
-              }
-          }
+~~~json
+"meta": {
+    "pagination": {
+        "per_page": 25,
+        "total_page": 6,
+        "total_objects": 11
+    }
+}
+~~~
 
 
-Maintenant que nous avons la structure finale de la balise meta, il ne
-nous reste plus qu'à la sortir sur la réponse JSON. Ajoutons d'abord
-quelques tests:
+Maintenant que nous avons la structure finale de la balise meta, il ne nous reste plus qu'à la sortir sur la réponse JSON. Ajoutons d'abord quelques tests:
 
 ~~~ruby
-      # spec/controllers/api/v1/products_controller_spec.rb
-      require 'rails_helper'
+# spec/controllers/api/v1/products_controller_spec.rb
+require 'rails_helper'
 
-      RSpec.describe Api::V1::ProductsController, type: :controller do
-        # ...
+RSpec.describe Api::V1::ProductsController, type: :controller do
+  # ...
 
-        describe 'GET #index' do
-          before(:each) do
-            4.times { FactoryBot.create :product }
-            get :index
-          end
+  describe 'GET #index' do
+    before(:each) do
+      4.times { FactoryBot.create :product }
+      get :index
+    end
 
-          # ...
+    # ...
 
-          it 'Have a meta pagination tag' do
-            expect(json_response).to have_key(:meta)
-            expect(json_response[:meta]).to have_key(:pagination)
-            expect(json_response[:meta][:pagination]).to have_key(:per_page)
-            expect(json_response[:meta][:pagination]).to have_key(:total_pages)
-            expect(json_response[:meta][:pagination]).to have_key(:total_objects)
-          end
+    it 'Have a meta pagination tag' do
+      expect(json_response).to have_key(:meta)
+      expect(json_response[:meta]).to have_key(:pagination)
+      expect(json_response[:meta][:pagination]).to have_key(:per_page)
+      expect(json_response[:meta][:pagination]).to have_key(:total_pages)
+      expect(json_response[:meta][:pagination]).to have_key(:total_objects)
+    end
 
-          it { expect(response.response_code).to eq(200) }
-        end
+    it { expect(response.response_code).to eq(200) }
+  end
 
-        # ...
-      end
+  # ...
+end
 
 ~~~
 
-Le test que nous venons d'ajouter devrait échouer or, si nous executons
-les tests, deux tests échouent. Cela veux dire que nous avons cassé
-quelque chose d'autre:
+Le test que nous venons d'ajouter devrait échouer or, si nous executons les tests, deux tests échouent. Cela veux dire que nous avons cassé quelque chose d'autre:
 
 ~~~bash
 $ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb
-      ...F....F...........
+...F....F...........
 
-      Failures:
+Failures:
 
-        1) Api::V1::ProductsController GET #index Have a meta pagination tag
-           ...
+  1) Api::V1::ProductsController GET #index Have a meta pagination tag
+     ...
 
-        2) Api::V1::ProductsController GET #index when product_ids parameter is sent returns just the products that belong to the user
-           Failure/Error: total_pages: products.total_pages,
+  2) Api::V1::ProductsController GET #index when product_ids parameter is sent returns just the products that belong to the user
+     Failure/Error: total_pages: products.total_pages,
 
-           NoMethodError:
-             undefined method `total_pages' for #<Array:0x0000556f1ef85c68>
-           # ./app/controllers/api/v1/products_controller.rb:12:in `index'
-           ...
+     NoMethodError:
+       undefined method 'total_pages' for #<Array:0x0000556f1ef85c68>
+     # ./app/controllers/api/v1/products_controller.rb:12:in 'index'
+     ...
 
-      Finished in 0.40801 seconds (files took 0.62979 seconds to load)
-      20 examples, 2 failures
-
+Finished in 0.40801 seconds (files took 0.62979 seconds to load)
+20 examples, 2 failures
 ~~~
 
-L'erreur est en fait sur la méthode `Product.search`. En fait, Kaminari
-attend une relation d'enregistrement au lieu d'un tableau. C'est très
-facile à réparer:
+L'erreur est en fait sur la méthode `Product.search`. En fait, Kaminari attend une relation d'enregistrement au lieu d'un tableau. C'est très facile à réparer:
 
 ~~~ruby
 # app/models/product.rb
@@ -7023,14 +6032,9 @@ class Product < ApplicationRecord
 end
 ~~~
 
-Vous avez remarqué le changement? Laissez moi vous l'expliquer. Nous
-avons simplement remplacé la méthode `Product.find` par `Product.where`
-en utilisant les paramètres `product_ids`. La différence est que la
-méthode `where` retourne une `ActiveRecord::Relation` et c'est
-exactement ce dont nous avons besoin.
+Vous avez remarqué le changement? Laissez moi vous l'expliquer. Nous avons simplement remplacé la méthode `Product.find` par `Product.where` en utilisant les paramètres `product_ids`. La différence est que la méthode `where` retourne une `ActiveRecord::Relation` et c'est exactement ce dont nous avons besoin.
 
-Maintenant, si nous relançons les tests, le test que nous avions cassé
-devrait maintenant passer:
+Maintenant, si nous relançons les tests, le test que nous avions cassé devrait maintenant passer:
 
 ~~~bash
 $ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb
@@ -7045,9 +6049,7 @@ Finished in 0.41533 seconds (files took 0.5997 seconds to load)
 20 examples, 1 failure
 ~~~
 
-Maintenant que nous avons corrigé cela, ajoutons les informations de
-pagination. Nous devons le faire dans le fichier
-`products_controller.rb`:
+Maintenant que nous avons corrigé cela, ajoutons les informations de pagination. Nous devons le faire dans le fichier `products_controller.rb`:
 
 [^1]: Kaishi ne fonctionne actuellement que pour Mac OS
 
