@@ -6,19 +6,14 @@ Traduction française  et MàJ de l'excellent livre [API on Rails (EN)](http://a
 
 <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
-## Export as PDF
+## Export as PDF, epub, HTML, etc..
 
-You should install all dependencies. This example with a Debian Linux distribution
-
-~~~bash
-$ sudo apt install tex-common texlive-lang-french texlive-latex-recommended texlive-latex-extra texlive-publishers latexmk
-~~~
-
-There are so many way to build a PDF from LaTeX but this is a common using [`latexmk`](https://mg.readthedocs.io/latexmk.html)
+You should install and use [pandoc](http://pandoc.org/). Clone the project & this is simply as this:
 
 ~~~bash
-$ latexmk -pdf
+$ pandoc api-on-rail.md -o api-on-rail.pdf
 ~~~
+
 
 ## License
 

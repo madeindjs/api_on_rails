@@ -15,7 +15,7 @@ rights: © 2019 Alexandre Rousseau, CC BY-SA 4.0
 toc: true
 lang: fr-FR
 documentclass: book
-links-as-notes: false
+links-as-notes: true
 
 
 ---
@@ -24,17 +24,19 @@ links-as-notes: false
 
 ## Avant-propos
 
-"API on Rails: Construction d'API REST avec Rails" est une mise à jour et une traduction française du livre ["APIs on Rails: Building REST APIs with Rails"](http://apionrails.icalialabs.com/book/). Celui-ci fut initialement publié en 2014 par [Abraham Kuri](https://twitter.com/kurenn) sous les licences [MIT](http://opensource.org/licenses/MIT) et [Beerware](http://people.freebsd.org/~phk/).
+"API on Rails 5" est une mise à jour et une traduction française du livre ["APIs on Rails: Building REST APIs with Rails"](http://apionrails.icalialabs.com/book/). Celui-ci fut initialement publié en 2014 par [Abraham Kuri](https://twitter.com/kurenn) sous les licences [MIT](http://opensource.org/licenses/MIT) et [Beerware](http://people.freebsd.org/~phk/).
 
 ## A propos de l'autheur original
+
+[Alexandre Rousseau](http://rousseau-alexandre.fr) est un développeur Rails avec plus de 4 ans d'experience. Mon experienxe 
 
 [Abraham Kuri](https://twitter.com/kurenn) est un développeur de Rails avec 5 ans d'expérience. Son expérience inclut le travail en tant que *freelance* dans la construction de produits logiciels et plus récemment dans la collaboration au sein de la communauté open source. Il a développé [Furatto](http://icalialabs.github.io/furatto/) un cadre frontal construit avec Sass, [Sabisu](https://github.com/IcaliaLabs/sabisu-rails) la prochaine génération d'explorateur d'API pour votre application Rails et a collaboré sur d'autres projets. Diplômé en informatique d'ITESM, il a fondé deux sociétés au Mexique ([Icalia Labs](http://icalialabs.com/) et [Codeando Mexico](http://codeandomexico.org/)).
 
 ## Droits d'auteur et licence
 
-Cette traduction est disponible sous [licence MIT](http://opensource.org/licenses/MIT). Tout le code source de ce livre est disponible au format [LaTeX](https://fr.wikipedia.org/wiki/LaTeX) sur [Github](https://github.com/madeindjs/api_on_rails)
+Cette traduction est disponible sous [licence MIT](http://opensource.org/licenses/MIT). Tout le code source de ce livre est disponible au format [Markdown](https://fr.wikipedia.org/wiki/Markdown) sur [Github][api_on_rails_git]
 
-> La licence MIT Copyright (c) 2018 Alexandre Rousseau
+> La licence MIT Copyright (c) 2019 Alexandre Rousseau
 >
 > Permission est accordée, à titre gratuit, à toute personne obtenant une copie de ce logiciel et la documentation associée, pour faire des modification dans le logiciel sans restriction et sans limitation des droits d'utiliser, copier, modifier, fusionner, publier, distribuer, concéder sous licence, et / ou de vendre les copies du Logiciel, et à autoriser les personnes auxquelles le Logiciel est meublé de le faire, sous réserve des conditions suivantes:
 >
@@ -42,30 +44,30 @@ Cette traduction est disponible sous [licence MIT](http://opensource.org/license
 >
 > LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D'AUCUNE SORTE, EXPLICITE OU IMPLICITE, Y COMPRIS, MAIS SANS S'Y LIMITER, LES GARANTIES DE QUALITÉ MARCHANDE, ADAPTATION À UN USAGE PARTICULIER ET D'ABSENCE DE CONTREFAÇON. EN AUCUN CAS LES AUTEURS OU TITULAIRES DU ETRE TENU RESPONSABLE DE TOUT DOMMAGE, RÉCLAMATION OU AUTRES RESPONSABILITÉ, SOIT DANS UNE ACTION DE CONTRAT, UN TORT OU AUTRE, PROVENANT DE, DE OU EN RELATION AVEC LE LOGICIEL OU L'UTILISATION OU DE TRANSACTIONS AUTRES LE LOGICIEL.
 
-API on Rails de [Alexandre Rousseau](https://github.com/madeindjs/api_on_rails) est mis à disposition selon les termes de la licence [Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International](http://creativecommons.org/licenses/by-sa/4.0/). Fondé sur une œuvre à <http://apionrails.icalialabs.com/book/>.
+"API on Rails 5" de [Alexandre Rousseau][api_on_rails_git] est mis à disposition selon les termes de la licence [Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International](http://creativecommons.org/licenses/by-sa/4.0/). Fondé sur une œuvre à <http://apionrails.icalialabs.com/book/>.
 
 ---
 
 # Introduction {#chapter:1}
 
-Bienvenue sur APIs on Rails, un tutoriel sous stéroïdes sur la façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec les API Rails, vous devriez être en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit sur Ruby on Rails 5 qui est la version actuelle, pour plus d'informations à ce sujet, consultez [rubyonrails.org](http://rubyonrails.org/). La version la plus récente de APIs on Rails se trouve sur [apionrails.icalialabs.com](https://apionrails.icalialabs.com) ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
+Bienvenue sur API on Rails 5, un tutoriel sous stéroïdes à propos de la meilleur façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 5.2 qui est la version actuelle (pour plus d'informations à ce sujet, consultez [rubyonrails.org](http://rubyonrails.org/)). La version la plus récente de APIs on Rails se trouve sur [Github][api_on_rails_git] ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
 
-L'intention de ce livre n'est pas d'enseigner comment construire une API avec Rails, mais plutôt de vous apprendre comment construire une API évolutive et maintenable avec Rails. C'est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendrez à:
+L'intention de ce livre n'est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API évolutive et maintenable avec Rails. C'est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendrez à:
 
 - Construire des réponses JSON
 - Utiliser Git pour le contrôle de version
 - Test de vos points finaux
 - Optimiser et mettre en cache l'API
 
-Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vous donne des conseils et des faits intéressants pour améliorer vos compétences. Vous pouvez vous considérer comme le personnage principal d'un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
+Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vais vous donner des conseils et des astuces pour vous améliorer tout au long du livre. Vous pouvez vous considérer comme le personnage principal d'un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
 
-Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon expérience. Cela signifie qu'après avoir initialisé le projet, nous commencerons à utiliser Git .
+Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon expérience. Cela signifie qu'après avoir initialisé le projet, nous commencerons à utiliser **Git** .
 
-Dans les prochains chapitres, nous allons construire l'application en suivant un *workflow* simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le développement piloté par les tests (TDD). Je vous expliquerai l'intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant tous les routes nécessaires. Nous sécuriserons aussi l'accès à l'API en gérant l'authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d'optimisation pour améliorer la structure et le temp de réponse du serveur.
+Dans les prochains chapitres, nous allons construire l'application en suivant une métode de travail simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le **développement piloté par les tests** (TDD). Je vous expliquerai aussi l'intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant tous les routes nécessaires. Nous sécuriserons aussi l'accès à l'API en construisant une authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d'optimisation pour améliorer la structure et les temps de réponse du serveur.
 
 L'application finale sera une fonction pour une application de place de marché où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme [Shopify](http://shopify.com/), [Spree](http://spreecommerce.com/) ou [Magento](http://magento.com/).
 
-À la fin ou au cours du processus (cela dépend vraiment de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J'ai aussi pris certaines des pratiques que j'ai trouvé sur ces sites:
+Tout au long de ce voyage (cela dépend vraiment de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J'ai aussi pris certaines des pratiques que j'ai trouvé sur ces sites:
 
 - [Railscasts](http://railscasts.com/)
 - [CodeSchool](http://codeschool.com/)
@@ -73,7 +75,7 @@ L'application finale sera une fonction pour une application de place de marché 
 
 ## Conventions sur ce livre
 
-Les conventions de ce livre sont basées sur celles du Tutoriel Ruby on Rails. Dans cette section, j'en mentionnerai quelques-unes qui ne sont peut-être pas aussi claires.
+Les conventions de ce livre sont basées sur celles du Tutoriel Ruby on Rails. Dans cette section, je vais en mentionner quelques-unes que vous ne connaissez peut-être pas.
 
 Je vais utiliser de nombreux exemples en utilisant des ligne de commande. Je ne vais pas traiter avec Windows `cmd` (désolé les gars). Je vais baser tous les exemples en utilisant l'invite de ligne de commande de style Unix. Voici un exemple:
 
@@ -84,70 +86,42 @@ A command-line command
 
 J'utiliserai quelques principes spécifiques à Ruby. C'est-à-dire:
 
-- *"Éviter"* signifie que tu n'es pas censé le faire.
+- *"Éviter"* signifie que vous n'êtes pas censé le faire.
 - *"Préférer"* indique que parmi les 2 options, la première est la plus appropriée.
 - *"Utiliser"* signifie que vous êtes en mesure d'utiliser la ressource.
 
 Si vous rencontrez une erreur quelconque lors de l'exécution d'une commande, je vous recommande d'utiliser votre moteur de recherche pour trouver votre solution. Malheureusement, je ne peux pas couvrir toutes les erreurs possibles. Si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours [m'envoyer un email](mailto:contact@rousseau-alexandre.fr).
 
-## Pour commencer
-
-Pour presque tous les développeurs, l'une des parties les plus douloureuses est de mettre en place un environnement de développement confortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d'enfant. Afin de vous faciliter la tâche et de vous motiver, nous utiliserons un script bash que je maintiens appelé Kaishi[^1]. il inclut tous les outils nécessaires (encadré [\[box:kaishi\_tools\]](#box:kaishi_tools){reference-type="ref" reference="box:kaishi_tools"}) et plus encore pour configurer votre environnement de développement.
-
-Outils de développement Kaishi[\[box:kaishi\_tools\]]{#box:kaishi_tools
-label="box:kaishi_tools"}
-
-- [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) en tant que Shell par défaut
-- [Homebrew](http://brew.sh/) pour la gestion des paquets
-- [Git](http://git-scm.com/) en tant que gestionnaire de base de données
-- [Postresql](http://www.postgresql.org/) en tant que gestionnaire de base de données
-- [Vim](http://www.vim.org/) pour l'édition de texte
-- [ImageMagick](http://www.imagemagick.org/) pour le traitement d'images
-- [Rbenv](https://github.com/sstephenson/rbenv) pour la gestion de l'environnement rubis
-- [Bundler](http://bundler.io/)
-- [Foreman](https://github.com/ddollar/foreman) pour l'exécution d'applications
-- [Rails](http://rubyonrails.org/) pour la création de n'importe quelle application rails
-- [Heroku](https://toolbelt.heroku.com/) pour interagir avec l'API Heroku
-- [RailsAppCustomGenerator](https://github.com/IcaliaLabs/railsAppCustomGenerator) pour initialiser n'importe quelle application Rails avec le modèle d'Icalia
-- [Pow](http://pow.cx/) pour exécuter des applications locales en
-    local comme un super-héros
 
 ## Environnements de développement
 
+Pour presque tous les développeurs, l'une des parties les plus douloureuses est de mettre en place un environnement de développement confortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d'enfant. Afin de vous faciliter la tâche et de vous motiver, je vais vous guider dans cette étape.
+
 ### Éditeurs de texte et Terminal
 
-Les environnements de développement diffèrent d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd
+Les environnements de développement diffèrent d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant, certains pensent que c'est la meilleure façon de travailler. Si c'est votre cas, je vous recommande d'essayer [RadRails](http://www.aptana.com/products/radrails) ou [RubyMine](http://www.jetbrains.com/ruby/index.html). Tout deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux comme moi qui comme moi préfère des outils simples, je peux vous dire qu'il y a beaucoup d'outils disponibles que vous pourrez personnaliser via des plugins et plus.
 
+- **Éditeur de texte**: J'utilise personnellement [Vim](http://www.vim.org/) comme éditeur. Au cas où vous n'êtes pas un fan de Vim, il y a beaucoup d'autres solutions comme [Sublime Text](http://www.sublimetext.com/) qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par [TextMate](http://macromates.com/). Une troisième option est d'utiliser un éditeur de texte plus récent comme [Atom](https://atom.io/) de [Github](http://gitub.com/). C'est un éditeur de texte prometteur fait en Javascript. Il est facile à personnaliser pour répondre à vos besoins. N'importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui ou vous êtes le plus à l'aise.
 
-Certains pensent que c'est la meilleure façon de travailler et, si c'est votre cas, je vous recommande d'essayer [RadRails](http://www.aptana.com/products/radrails) ou [RubyMine](http://www.jetbrains.com/ruby/index.html). Tout deux sont bien soutenus et possèdent de nombreuses intégrations par défaut. Maintenant pour ceux qui sont comme moi, je peux vous dire qu'il y a beaucoup d'outils disponibles que vous pouvez personnaliser via des plugins et plus.
-
-- **Éditeur de texte**: J'utilise personnellement [Vim](http://www.vim.org/) comme éditeur par défaut avec [Janus](https://github.com/carlhuda/janus) qui ajoute et gère plusieurs des plugins que vous pouvez probablement utiliser. Au cas où vous n'êtes pas un fan de Vim, il y a beaucoup d'autres solutions comme [Sublime Text](http://www.sublimetext.com/) qui est une multi-plateforme facile à apprendre et à personnaliser (c'est probablement votre meilleure option), il est fortement inspiré par [TextMate](http://macromates.com/)[^3]. Une troisième option est d'utiliser un éditeur de texte plus récent des gars de [Github](http://gitub.com/) appelé [Atom](https://atom.io/), c'est un éditeur de texte prometteur fait en Javascript. Il est facile à personnaliser pour répondre à vos besoins, faites un essai. N'importe lequel des éditeurs que je vous présente fera le travail, donc je vous laisserai décider lequel vous convient.
-
-- **Terminal**: Si vous avez décidé d'utiliser [kaishi](http://icalialabs.github.io/kaishi/) pour paramétrer l'environnement, vous remarquerez qu'il définit le shell par défaut à `zsh`, ce que je recommande vivement. Pour le terminal, je ne suis pas un fan de l'application Terminal par défault sous Mac OS. Je recommande [iTerm2](http://www.iterm2.com/#/section/home), qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
+- **Terminal**: Je ne suis pas un fan de l'application Terminal par défault sous Mac OS. Je recommande [iTerm2](http://www.iterm2.com/#/section/home), qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
 
 ### Navigateur web
 
 Quand il s'agit de navigateurs, je conseillerai directement [Firefox](http://www.mozilla.org/en-US/firefox/new/). Mais d'autres développeurs utilisent [Chrome](https://www.google.com/intl/en/chrome/browser/) ou même [Safari](https://www.apple.com/safari/). N'importe lequel d'entre eux vous aidera à construire l'application que vous voulez. Ils proposent tous un bon inspecteur pour le DOM, un analyseur de réseau et de nombreuses autres fonctionnalités que vous connaissez peut-être déjà.
 
-### Note sur les outils
-
-Vous ne voudrez peut-être pas inclure tous les paquets que [kaishi](http://icalialabs.github.io/kaishi/) installe (et je vous comprends). Peut-être que vous avez déjà quelques outils installés. Je vais vous décrire comment installer seulement ce dont vous avez besoin pour commencer.
 
 ### Gestionnaire de paquets
 
 - **Mac OS**: Il existe de nombreuses options pour gérer la façon dont vous installez les paquets sur votre Mac, comme [Mac Ports](https://www.macports.org/) ou [Homebrew](http://brew.sh/). Les deux sont de bonnes options, mais je choisirais la dernière. J'ai rencontré moins de problèmes lors de l'installation de logiciels avec Homebrew. Pour installer `brew` il suffit d'exécuter la commande ci-dessous:
 ~~~bash
-$ ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+$ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ~~~
 
-- **Linux**: Vous êtes quasiment prêts! Peu importe si vous utilisez `apt`, `pacman`, `yum` tant que vous vous sentez à l'aise et que vous savez comment installer des paquets.
+- **Linux**: Vous êtes déjà prêts! Peu importe si vous utilisez `apt`, `pacman`, `yum` tant que vous vous sentez à l'aise et que vous savez comment installer des paquets.
 
-### Git {#setup_git}
+### Git
 
-Nous utiliserons beaucoup Git et vous devriez aussi l'utiliser (non
-seulement pour le but de ce tutoriel mais pour tout vos projet).
-
-Installation de Git:
+Nous utiliserons beaucoup Git et vous devriez aussi l'utiliser (non seulement pour ce tutoriel mais aussi pour tout vos projets). Pour l'installer, c'est très facile:
 
 - sous Mac OS: `$ brew install git`
 - sous Linux: `$ sudo apt-get install git`
@@ -160,49 +134,22 @@ Il existe de nombreuses façons d'installer et de gérer Ruby. Vous devriez prob
 $ ruby -v
 ~~~
 
-Rails 5 nécessite l'installation de la version 2.2.2 ou supérieure. Pour l'installer, je vous recommande d'utiliser [Ruby Version Manager (RVM)](http://rvm.io/) ou [rbenv](http://rbenv.org/). Ces outils vous permettrons d'installer plusieurs versions de `ruby`. J'ai récemment changé de RVM à rbenv mais peu importe laquelle de ces deux options que vous utiliserez. Dans ce tutoriel, nous allons utiliser rbenv[^4]
+Rails 5 nécessite l'installation de la version 2.2.2 ou supérieure. Pour l'installer, je vous recommande d'utiliser [Ruby Version Manager (RVM)](http://rvm.io/) ou [rbenv](http://rbenv.org/). Ces outils vous permettrons d'installer plusieurs versions de `ruby`. Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
 
-#### Mac OS
+Pour installer RVM, rendez vous sur <https://rvm.io/> et installez la clé GPG[^gpg]. Une fois fais
 
-Pour commencer l'installation de Ruby, tapez:
-
-~~~bash
-$ rbenv install 2.1.2
-~~~
-
-Ensuite, vous devez configurer la version de Ruby qui vient d'être
-installée comme version par défaut:
+[^gpg]: La clé GPG vous permet de vérifier l'iddentité de l'auteur des sources que vous téléchargez.
 
 ~~~bash
-$ rbenv global 2.1.2
-$ rbenv rehash
+$ gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+$ \curl -sSL https://get.rvm.io | bash
 ~~~
 
-La commande `rehash` est supposée s'exécuter à chaque fois que vous installez une nouvelle version de Ruby ou une Gemme. Pour plus d'informations sur la personnalisation ou d'autres types d'installation, consultez la [documentation du projet](https://github.com/sstephenson/rbenv).
-
-#### Linux
-
-La première étape est de configurer quelques dépendances pour Ruby:
-
-~~~bash
-$ sudo apt-get update
-$ sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev zlib1g-dev python-software-properties
-~~~
 
 Ensuite, vous pouvez installer la dernière version de Ruby:
 
 ~~~bash
-$ cd
-$ git clone git://github.com/sstephenson/rbenv.git .rbenv
-$ echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
-$ echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
-
-$ git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
-$ echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bash_profile
-$ source ~/.bash_profile
-
-$ rbenv install 2.5.3
-$ rbenv global 2.5.3
+$ rvm install 2.5
 ~~~
 
 Si tout s'est bien passé, il est temps d'installer le reste des dépendances que nous allons utiliser.
@@ -215,15 +162,13 @@ Tout d'abord, nous mettons à jour les Gemmes sur l'ensemble du système:
 $ gem update --system
 ~~~
 
-Dans la plupart des cas, si vous êtes sous Mac OS, vous devriez
-installer des bibliothèques supplémentaires:
+Dans la plupart des cas, si vous êtes sous Mac OS, vous devriez installer des bibliothèques supplémentaires:
 
 ~~~bash
 $ brew install libtool libxslt libksba openssl
 ~~~
 
-Nous installons ensuite les gemmes nécessaires et ignorons la
-documentation pour chaque gemme:
+Nous installons ensuite les gemmes nécessaires et ignorons la documentation pour chaque gemme:
 
 ~~~bash
 $ printf 'gem: --no-document' >> ~/.gemrc
@@ -231,7 +176,6 @@ $ gem install bundler
 $ gem install foreman
 $ gem install rails -v 5.2
 ~~~
-
 
 Vérifiez que tout fonctionne bien:
 
@@ -256,13 +200,15 @@ $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 
 ## Initialisation du projet
 
-Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d'œil au listing suivant.
+Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d'œil à cette section.
 
-Sachez que nous utiliserons [Rspec](http://rspec.info/) comme suite de test. Assurez-vous d'inclure l'option `--skip-test` lors de la création de l'application[^5] et l'option `--api`[^6].
+Sachez que nous utiliserons [Rspec](http://rspec.info/) comme suite de test. Assurez-vous donc d'inclure l'option `--skip-test` lors de la création de l'application[^5] et l'option `--api`. L'option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et *Middleware* inclue dans l'application. Cela permet aussi d'éviter de générer les vues HTML lors de l'utilisation des générateurs de Rails
+
+La commande est donc la suivante
 
 ~~~bash
 $ mkdir ~/workspace
-$ cd workspace
+$ cd ~/workspace
 $ rails new market_place_api --skip-test --api
 ~~~
 
@@ -272,8 +218,7 @@ Comme vous pouvez le deviner, les commandes ci-dessus généreront les élément
 
 Vous pouvez vous demander
 
-> Pourquoi diable voudrais-je installer ce type
-de paquet?
+> Pourquoi diable voudrais-je installer ce type de paquet?
 
 La réponse est simple. Nous allons travailler avec des [sous-domaines](http://en.wikipedia.org/wiki/Subdomain). [Pow](http://pow.cx/) et [Prax](https://github.com/ysbaddaden/prax.cr) vont nous aider a les créer très facilement.
 
@@ -285,10 +230,7 @@ Pow ne fonctionne que sous Mac OS. Ne vous inquiétez pas, il existe une alterna
 $ curl get.pow.cx | sh
 ~~~
 
-Et c'est tout ce que vous avez à faire. Il suffit d'établir un lien
-symbolique avec l'application pour configurer l'application Rack.
-
-D'abord vous allez dans le répertoire `~/.pow`:
+Et c'est tout ce que vous avez à faire. Il suffit d'établir un lien symbolique avec l'application pour configurer l'application Rack. D'abord vous allez dans le répertoire `~/.pow`:
 
 ~~~bash
 $ cd ~/.pow
@@ -300,9 +242,9 @@ Ensuite, vous pouvez créer le [lien symbolique](http://en.wikipedia.org/wiki/Sy
 $ ln -s ~/workspace/market_place_api
 ~~~
 
-N'oubliez pas de changer le répertoire utilisateur pour celui qui correspond au votre. Vous pouvez maintenant accéder à l'application via [http://market\_place\_api.dev](http://market_place_api.dev/). Votre application devrait être en cours d'exécution comme celle illustrée à la Figure [\[lst:rails\_new\]](#lst:rails_new){reference-type="ref" reference="lst:rails_new"}.
+N'oubliez pas de changer le répertoire utilisateur pour celui qui correspond au votre. Vous pouvez maintenant accéder à l'application via <http://market_place_api.dev/>. Votre application devrait être en cours d'exécution.
 
-#### Installer Prax {#subsubsect:prax}
+#### Installer Prax
 
 Pour les utilisateurs de Linux uniquement, [Prax](https://github.com/ysbaddaden/prax.cr) distribue des paquets déjà compilé pour les distributions Debian / Ubuntu. Il suffit donc de télécharger le paquet `.deb` et de l'installer avec `dpkg`.
 
@@ -325,15 +267,13 @@ Si vous voulez démarrer le prax server automatiquement, ajoutez cette ligne au 
 prax start
 ~~~
 
-Lors de l'utilisation de [Prax](https://github.com/ysbaddaden/prax.cr), vous devez spécifier le port de l'URL, dans ce cas-ci: <http://market_place_api.dev:3000>: Vous devriez voir l'application en marche, voir Figure [\[fig:pow\_running\]](#fig:pow_running){reference-type="ref" reference="fig:pow_running"}.
+Lors de l'utilisation de [Prax](https://github.com/ysbaddaden/prax.cr), vous devez spécifier le port de l'URL, dans ce cas-ci: <http://market_place_api.dev:3000>: Vous devriez voir l'application en marche comme le montre l'image suivante.
 
-![http://market_place_api.dev/](img/pow_running.png){width="\linewidth"}
+![L'application tourne sur l'URL http://market_place_api.dev/](img/pow_running.png)
 
-[\[fig:pow\_running\]]{#fig:pow_running label="fig:pow_running"}
+Une fois l'application Rails créée, l'étape suivante consiste à ajouter une gemme simple (mais très puissante) pour sérialiser les ressources que nous allons exposer avec l'API. La gemme s'appelle `active_model_serializers`. C'est un excellent choix pour la construction de ce type d'application car la librairie est bien maintenue et la [documentation](https://github.com/rails-api/active_model_serializers) est incroyable.
 
-Une fois l'application Rails créée, l'étape suivante consiste à ajouter une Gem simple mais très puissante pour sérialiser les ressources que nous allons exposer sur l'API. La Gem s'appelle `active_model_serializers`. C'est un excellent choix pour la construction de ce type d'application car la librairie est bien entretenu et la [documentation](https://github.com/rails-api/active_model_serializers) est incroyable.
-
-Votre `Gemfile` devrait donc ressembler à ceci (Listing ) après avoir ajouté la gemme `active _model_serializers`:
+Votre `Gemfile` devrait donc ressembler à ceci après avoir ajouté la gemme `active _model_serializers`:
 
 
 ~~~ruby
@@ -364,10 +304,10 @@ Notez que j'enlève les gemmes `jbuilder` et `turbolinks` et `coffee-rails` car 
 
 C'est une bonne pratique aussi d'inclure la version Ruby utilisée sur l'ensemble du projet, ce qui empêche les dépendances de casser si le code est partagé entre différents développeurs, que ce soit pour un projet privé ou public.
 
-Il est également important que vous mettiez à jour le Gemfile pour regrouper les différentes gemmes dans l'environnement correct:
+Il est également important que vous mettiez à jour le *Gemfile* pour regrouper les différentes gemmes dans l'environnement correct:
 
 
-~~~{.ruby caption="Le Gemfile mis à jour pour différents groupes."}
+~~~ruby
 # Gemfile
 # ...
 group :development do
@@ -376,9 +316,9 @@ end
 # ...
 ~~~
 
-Ceci, comme vous vous en souvenez peut-être, empêchera l'installation ou l'utilisation de sqlite lorsque vous déployez votre application chez un fournisseur de serveurs comme Heroku[^7].
+Ceci, comme vous vous en souvenez peut-être, empêchera l'installation ou l'utilisation de sqlite lorsque vous déployez votre application chez un fournisseur de serveurs comme Heroku[^heroku].
 
-Pow est un serveur Rack zéro-configuration pour Mac OS X. Servez vos applications localement en moins d'une minute. - [Basecamp](https://basecamp.com/)
+[^heroku]: Heroku facilite le déploiement de votre application en installant les dépendances sur un serveur en analysant votre *Gemfile*
 
 Une fois cette configuration configurée, il est temps d'exécuter la commande d'installation du paquet pour intégrer les dépendances correspondantes:
 
@@ -386,13 +326,13 @@ Une fois cette configuration configurée, il est temps d'exécuter la commande d
 $ bundle install
 ~~~
 
-Une fois que la commande a terminé son exécution, il est temps de commencer à suivre le projet avec git (Section [4.5](#section:git){reference-type="ref" reference="section:git"})
+Une fois que la commande a terminé son exécution, il est temps de commencer à **versionner le projet** avec Git.
 
-## Contrôle de version {#section:git}
+## Contrôle de version
 
-Rappelez-vous que Git vous aide à suivre et à maintenir l'historique de votre code. Gardez à l'esprit que le code source de l'application est publié sur Github. Vous pouvez suivre le référentiel sur [github.com/madeindjs/market\_place\_api](https://github.com/madeindjs/market_place_api)
+Rappelez-vous que Git vous aide à suivre et à maintenir l'historique de votre code. Gardez à l'esprit que le code source de l'application est publié sur Github. Vous pouvez suivre le projet sur [Github][api_on_rails_git]
 
-À ce stade, je suppose que vous avez déjà configuré git et que vous êtes prêt à l'utiliser pour suivre le projet. Si ce n'est pas votre cas, suivez les étapes de première installation:
+À ce stade, je suppose que vous avez déjà configuré Git et que vous êtes prêt à l'utiliser pour suivre le projet. Si ce n'est pas votre cas, initialisez simplement les paramètres basiques suivants:
 
 ~~~bash
 $ git config --global user.name "Type in your name"
@@ -436,24 +376,22 @@ L'étape suivante est d'ignorer certains fichiers que nous ne voulons pas suivre
 /config/master.key
 ~~~
 
-Après avoir modifié le fichier `.gitignore`, il suffit d'ajouter les fichiers et de valider les modifications. Les commandes nécessaires sont indiquées ci-dessous:
+Après avoir modifié le fichier *.gitignore*, il suffit d'ajouter les fichiers et de valider les modifications. Les commandes nécessaires sont indiquées ci-dessous:
 
 ~~~bash
 $ git add .
 $ git commit -m "Initial commit"
 ~~~
 
-Bonne pratique : J'ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu'il a fait. De cette façon il est plus facile de lire et de comprendre l'historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu'à la fin du tutoriel.
+> Bonne pratique: J'ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu'il a fait. De cette façon il est plus facile de lire et de comprendre l'historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu'à la fin du tutoriel.
 
-Enfin, et c'est une étape optionnelle, nous installons le projet Github (je ne vais pas l'expliquer ici) et poussons notre code vers le serveur distant:
-
-On ajoute d'abord le serveur distant:
+Enfin, et c'est une étape optionnelle, nous déployons le projet sur **Github** (je ne vais pas l'expliquer ici) et poussons notre code vers le serveur distant. On commence donc par ajouter un serveur distant:
 
 ~~~bash
 $ git remote add origin git@github.com:madeindjs/market_place_api.git
 ~~~
 
-ensuite:
+Ensuite on pousse le code:
 
 ~~~bash
 $ git push -u origin master
@@ -464,6 +402,8 @@ Au fur et à mesure que nous avançons dans le tutoriel, j'utiliserai les pratiq
 ## Conclusion
 
 Cela a été un chapitre assez long. Si vous êtes arrivé ici, permettez-moi de vous féliciter. Les choses vont s'améliorer à partir de ce point. Commençons à mettre les mains dans le code!
+
+---
 
 # L'API
 
@@ -477,11 +417,11 @@ $ cd market_place_api
 $ git checkout -b chapter1 b98a9a7a328017640482af95beebc1d6e612e0ac
 ~~~
 
-Pour résumer, nous avons mis à jour le Gemfile pour ajouter la Gem `active_model_serializers`.
+Pour résumer, nous avons mis à jour le *Gemfile* pour ajouter la Gem `active_model_serializers`.
 
 ## Planification de l'application
 
-Notre application sera assez simple, elle se composera de 5 modèles (Figure suivante). Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
+Notre application sera assez simple. Elle se composera de 5 modèles. Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
 
 ![Schéma des liaisons entre les différent modèles](img/data_model.png)
 
@@ -489,17 +429,23 @@ En bref, nous avons l'utilisateur (`User`) qui sera en mesure de passer de nombr
 
 Nous n'allons pas construire d'interface pour l'interaction avec l'API afin de ne pas surcharger le tutoriel. Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks javascript ([Angular](https://angularjs.org/), [Vue.JS](https://vuejs.org/), [React](https://reactjs.org/)) ou des librairies mobile ([AFNetworking](https://github.com/AFNetworking/AFNetworking)).
 
-À ce stade, vous devez vous poser la question "d'accord, mais j'ai besoin d'explorer et de visualiser l'API que nous allons construire", et c'est juste. Si vous *googlez* quelque chose lié à l'exploration d'une API, vous allez sûrement entendre parler de [Postman](https://www.getpostman.com/). C'est un excellent complément si vous utilisez chrome, mais nous ne l'utiliserons pas de toute façon, car probablement pas tous les développeurs utilisent le navigateur Google. Au lieu de cela, nous utiliserons une gemme que j'ai construite appelée qui est un puissant client de moteur de type facteur pour explorer votre application Rails API's. Nous traiterons de l'intégration des pierres précieuses à la section 3.3.
+À ce stade, vous devriez vous poser cette question:
+
+> D'accord, mais j'ai besoin d'explorer et de visualiser l'API que je vais construire, non?
+
+C'est juste. Si vous *googlez* quelque chose lié à l'exploration d'une API, vous allez trouvez pas mal de résultats. Vous pouvez par exemple utiliser [Postman](https://www.getpostman.com/) qui est devnu incontournable.
 
 ## Mettre en place l'API
 
-Une API est définie par [wikipedia](https://fr.wikipedia.org/wiki/Interface_de_programmation) comme une interface de programmation d'application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d'autres logiciels. En d'autres termes, il s'agit d'une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)[^8].
+Une API est définie par [wikipedia](https://fr.wikipedia.org/wiki/Interface_de_programmation) comme une interface de programmation d'application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d'autres logiciels. En d'autres termes, il s'agit d'une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)[^json_method].
 
-JSON est devenu incontournable en tant sur média Internet en raison de sa lisibilité, de son extensibilité et sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l'utilisent comme protocole par défaut comme [Angular](https://angularjs.org/) ou [EmberJS](http://emberjs.com/). D'autres grandes bibliothèques en Objective-C l'utilisent comme [AFNetworking](https://github.com/AFNetworking/AFNetworking) ou [RESTKit](http://restkit.org/). Il existe probablement de bonnes solutions pour Android, mais en raison de mon manque d'expérience sur cette plate-forme de développement je ne suis peut-être pas la bonne personne pour vous recommander quelque chose.
+[^json_method]: Il existe d'autres types de protocoles de communication comme SOAP, mais nous n'en parlons pas ici.
 
-Très bien, donc nous allons construire notre API avec JSON. La première chose qui pourrait vous venir à l'esprit serait de commencer à créer des routes en vrac. Le problème est qu'elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner qu'elle ressource est renvoyée par une route.
+JSON est devenu incontournable en tant sur média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l'utilisent comme protocole par défaut comme [Angular](https://angularjs.org/) ou [EmberJS](http://emberjs.com/). D'autres grandes bibliothèques en Objective-C l'utilisent comme [AFNetworking](https://github.com/AFNetworking/AFNetworking) ou [RESTKit](http://restkit.org/). Il existe probablement de bonnes solutions pour Android, mais en raison de mon manque d'expérience sur cette plate-forme de développement je ne suis peut-être pas la bonne personne pour vous recommander quelque chose.
 
-C'est pourquoi une norme existe: REST *(Representational State Transfer)*. REST impose une norme pour les routes qui crée, lise, mette à jour ou supprime des informations sur un serveur en utilisant de simples appels HTTP. C'est une alternative aux mécanismes plus complexes comme SOAP, CORBA et RPC. Un appel REST est simplement une requête GET HTTP vers le serveur.
+Nous allons donc l'utiliser pour construire notre API. La première chose qui pourrait vous venir à l'esprit serait de commencer à créer des routes en vrac. Le problème est quelles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner qu'elle ressource est renvoyée par une route.
+
+C'est pourquoi une norme existe: **REST** *(Representational State Transfer)*. REST impose une norme pour les routes qui crée, lise, mette à jour ou supprime des informations sur un serveur en utilisant de simples appels HTTP. C'est une alternative aux mécanismes plus complexes comme SOAP, CORBA et RPC. Un appel REST est simplement une requête GET HTTP vers le serveur.
 
 ~~~soap
 aService.getUser("1")
@@ -522,9 +468,9 @@ Les API RESTful doivent suivre aux minimum trois règles:
     - **PUT**: Mise à jour d'une collection ou d'un membre des ressources
     - **DELETE**: Détruit une collection ou un membre des ressources
 
-Cela n'est peut-être pas assez clair ou peut sembler compliqué. Mais à mesure que nous avancerons dans le tutoriel, cela deviendra beaucoup plus facile à comprendre.
+Cela peut sembler compliqué mais au fur et à mesure que nous avancerons dans le tutoriel cela deviendra beaucoup plus facile à comprendre.
 
-### Routes, contraintes et Namespaces {#subsec:routes_constraints_namespaces}
+### Routes, contraintes et *Namespaces*
 
 Avant de commencer à taper du code, nous allons préparer le répertoire Git. Le *workflow* que nous allons suivre est le suivant:
 
@@ -548,20 +494,20 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Effacez tout le code commenté qui se trouve dans le fichier. Nous n'en aurons pas besoin. Ensuite, faites un `commit`, juste pour s'échauffer:
+Effacez tout le code commenté qui se trouve dans le fichier. Nous n'en aurons pas besoin. Ensuite, faites un *commit*, juste pour s'échauffer:
 
 ~~~bash
 $ git add config/routes.rb
 $ git commit -m "Removes comments from the routes file"
 ~~~
 
-Nous allons isoler les contrôleurs API dans des `Namespace`. Avec Rails, c'est assez simple. Il suffit de créer un dossier sous `app/controllers` nommé `api`. Le nom est important car c'est le `Namespace` que nous allons utiliser pour gérer les contrôleurs pour les points d'entrée de l'API
+Nous allons isoler les contrôleurs API dans des *Namespace*. Avec Rails, c'est assez simple. Il suffit de créer un dossier sous `app/controllers` nommé `api`. Le nom est important car c'est le *Namespace* que nous allons utiliser pour gérer les contrôleurs pour les points d'entrée de l'API
 
 ~~~bash
 $ mkdir app/controllers/api
 ~~~
 
-Nous ajoutons ensuite ce `Namespace` dans notre fichier `routes.rb`:
+Nous ajoutons ensuite ce *Namespace* dans notre fichier `routes.rb`:
 
 ~~~ruby
 # config/routes.rb
@@ -573,9 +519,9 @@ Rails.application.routes.draw do
 end
 ~~~
 
-En définissant un `Namespace` dans le fichier `routes.rb`, Rails mappera automatiquement ce `Namespace` à un répertoire correspondant au nom sous le dossier controllers (dans notre cas le répertoire `api/`).
+En définissant un *Namespace* dans le fichier `routes.rb`, Rails mappera automatiquement ce *Namespace* à un répertoire correspondant au nom sous le dossier controllers (dans notre cas le répertoire `api/`).
 
-Rails supporte jusqu'à 35 types de médias différents, vous pouvez les lister en accédant à la classe `SET` sous le module de `Mime`:
+Rails supporte jusqu'à 35 types de médias différents! Vous pouvez les lister en accédant à la classe `SET` sous le module de `Mime`:
 
 ~~~bash
 $ rails c
@@ -584,9 +530,7 @@ irb(main):001:0> Mime::SET.collect(&:to_s)
 => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip", "application/vnd.web-console.v2"]
 ~~~
 
-C'est important parce que nous allons travailler avec JSON, l'un des
-types MIME intégrés par Rails. Ainsi nous avons juste besoin de
-spécifier ce format comme format par défaut:
+C'est important parce que nous allons travailler avec JSON, l'un des types MIME intégrés par Rails. Ainsi nous avons juste besoin de spécifier ce format comme format par défaut:
 
 ~~~ruby
 # config/routes.rb
@@ -610,26 +554,24 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Vous voyez la différence? Nous n'avons pas seulement ajouté un `Hash` de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l'option chemin d'accès et lui avons donné un *backslash*. Cel indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
+Vous voyez la différence? Nous n'avons pas seulement ajouté un [`Hash`][ruby_hash] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l'option chemin d'accès et lui avons donné un *backslash*. Cel indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
 
 ### Les conventions des API
 
 Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d'une API. En supposant que nous versionnons notre api:
 
-- `api.example.com/`: Je suis d'avis que c'est la voie à suivre, vous donne une meilleure interface et l'isolement, et à long terme peut vous aider à mettre rapidement à l'échelle <http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/>
+- `api.example.com/`: Je suis d'avis que c'est la voie à suivre, vous donne une meilleure interface et l'isolement, et à long terme peut vous aider à [mettre rapidement à l'échelle](http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/)
 - `example.com/api/`: Ce modèle est très commun. C'est un bon moyen de commencer quand vous ne voulez pas de Namespace de votre API avec sous un sous-domaine
 - `example.com/api/v1`: Cela semble être une bonne idée. En définissant la version de l'API par l'URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version àl'URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
 
-Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnement plus tard.
-
-Il est temps de *commiter*:
+Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnement plus tard. Il est temps de *commiter*:
 
 ~~~bash
 $ git add config/routes.rb
 $ git commit -m "Set the routes contraints for the api"
 ~~~
 
-## Versionnement de l'API {#section:api_versioning}
+## Versionnement de l'API
 
 A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l'espacement des noms des requêtes. Votre fichier `routes.rb` devrait ressembler à ceci:
 
@@ -643,7 +585,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Il est maintenant temps de mettre en place d'autres contraintes pour le *versioning*. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une meilleure structure à votre API. Lorsque des changements interviendrons sur votre API, vous pouvez ainsi proposer aux développeurs de s'adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées[^9].
+Il est maintenant temps de mettre en place d'autres contraintes pour le *versioning*. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une **meilleure structure** à votre API. Lorsque des changements interviendrons sur votre API, vous pouvez ainsi proposer aux développeurs de s'adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées.
 
 Afin de définir la version de l'API, nous devons d'abord ajouter un autre répertoire sous le dossier `api/` que nous avons créé:
 
@@ -665,17 +607,14 @@ Rails.application.routes.draw do
 end
 ~~~
 
-L'API est désormais *scopée* via l'URL. Par exemple, avec la configuration actuelle, la récupération d'un produit via l'API se ferait avec cette url: `http://api.marketplace.dev/v1/products/1`
+L'API est désormais *scopée* via l'URL. Par exemple, avec la configuration actuelle, la récupération d'un produit via l'API se ferait avec cette url: <http://api.marketplace.dev/v1/products/1>.
 
 
-## Améliorer le versionnement {#section:improve_api_versioning}
+## Améliorer le versionnement
 
 Jusqu'à présent, l'API est versionnée via l'URL. Mais quelque chose ne va pas. De mon point de vue, le développeur ne devrait pas être au courant de la version qu'il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir?
 
-Tout d'abord, nous devons améliorer l'accès à la version de l'API via les [en-têtes HTTP](http://en.wikipedia.org/wiki/List_of_HTTP_header_fields). Cela présente deux avantages:
-
-- supprimer la version de l'API situé dans l'URL
-- La
+Tout d'abord, nous devons améliorer l'accès à la version de l'API via les [en-têtes HTTP](http://en.wikipedia.org/wiki/List_of_HTTP_header_fields). Cela permet de supprimer la version de l'API situé dans l'URL.
 
 ## Description des en-têtes de requête
 
@@ -689,7 +628,7 @@ Une liste commune des en-têtes utilisés est présentée ci-dessous:
 - **Origin**: Lance une demande de partage de ressources d'origine croisée (demande au serveur un en-tête de réponse `Access-Controle-Autorisation-Autorisation-Origin`). Exemple: `Origin: http://www.example-social-network.com`
 - **User-Agent**: La chaîne d'agent utilisateur de l'agent utilisateur. Exemple: `User-Agent: Mozilla/5.0`
 
-Il est important que vous vous sentiez à l'aise et que vous les compreniez ces en-tête HTTP[^10].
+Il est important que vous vous sentiez à l'aise et que vous les compreniez ces en-tête HTTP.
 
 Avec Rails, il est très facile d'ajouter ce type de versionnement par le biais d'un en-tête HTTP `Accept`. Nous allons créer une classe sous le répertoire `lib`. N'oubliez pas que nous faisons du TDD[^11] donc nous allons commencer par un test.
 
@@ -749,8 +688,7 @@ $ mkdir lib/spec
 $ touch lib/spec/api_constraints_spec.rb
 ~~~
 
-Nous ajoutons ensuite une série de spécifications décrivant notre
-classe:
+Nous ajoutons ensuite une série de spécifications décrivant notre classe:
 
 ~~~ruby
 # lib/spec/api_constraints_spec.rb
@@ -776,7 +714,7 @@ describe ApiConstraints do
 end
 ~~~
 
-Laissez-moi vous expliquer le code. Nous initialisons la classe avec un `Hash` d'options qui contiendra:
+Laissez-moi vous expliquer le code. Nous initialisons la classe avec un [`Hash`][ruby_hash] d'options qui contiendra:
 
 - la version de l'API
 - une valeur par défaut pour gérer la version par défaut
@@ -834,7 +772,6 @@ Finished in 0.00294 seconds (files took 0.06292 seconds to load)
 
 Je n'en parle pas ici puisque nous essayons d'apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu'ici est disponnible
 [ici](https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd).
-
 
 
 ---
@@ -6065,34 +6002,19 @@ Finished in 0.41533 seconds (files took 0.5997 seconds to load)
 
 Maintenant que nous avons corrigé cela, ajoutons les informations de pagination. Nous devons le faire dans le fichier `products_controller.rb`:
 
+[api_on_rails_git]: https://github.com/madeindjs/api_on_rails
+
+
+
+[ruby_hash]: https://ruby-doc.org/core-2.6/Hash.html
+
+
 [^1]: Kaishi ne fonctionne actuellement que pour Mac OS
+[^4]: Note pour Mac OS: si vous utilisez Mac, n'oubliez pas que vous devez avoir installé les [outils en ligne de commande pour Xcode](https://developer.apple.com/downloads/).
 
 
-[^3]: disponible uniquement pour Mac OS
 
-[^4]: Note pour Mac OS: si vous utilisez Mac, n'oubliez pas que vous
-    devez avoir installé les [outils en ligne de commande pour
-    Xcode](https://developer.apple.com/downloads/).
 
-[^5]: Nous utiliserons la libraire Rspec au lieu du framework de test
-    pas défaut de Rails
-
-[^6]: L'otpion API est apparue lors de la version 5 de Rails. Elle
-    permet de limiter les librairies et *Middleware* inclue dans
-    l'application. Cela permet aussi d'éviter de générer les vues HTML
-    lors de l'utilisation des générateurs de Rails
-
-[^7]: En raison de la structure de l'application, nous n'allons déployer
-    l'application sur aucun serveur, mais nous allons utiliser
-    [Pow](http://pow.cx/) de [Basecamp](https://basecamp.com/). Si vous
-    utilisez Linux, il existe une solution similaire appelée
-    [Prax](https://github.com/ysbaddaden/prax.cr) par
-    [ysbaddaden](https://github.com/ysbaddaden). Voir la section
-    [4.4.1](#subsection:install_pow){reference-type="ref"
-    reference="subsection:install_pow"}
-
-[^8]: Il existe d'autres types de protocoles de communication comme
-    SOAP, mais nous n'en parlons pas ici.
 
 [^9]: Il y a un excellent
     [railscast](http://railscasts.com/episodes/350-rest-api-versioning)
