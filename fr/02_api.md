@@ -1,6 +1,6 @@
 # L'API
 
-Dans ce chapitre, je vais vous donner les grandes lignes de l'application. Vous devriez avoir lu le chapitre précedent. Si ce n'est pas le cas, je vous recommande de le faire.
+Dans ce chapitre, je vais vous donner les grandes lignes de l'application. Vous devriez avoir lu le chapitre précédent. Si ce n'est pas le cas, je vous recommande de le faire.
 
 Vous pouvez cloner le projet jusqu'ici avec :
 
@@ -10,7 +10,7 @@ $ cd market_place_api
 $ git checkout -b chapter1 b98a9a7a328017640482af95beebc1d6e612e0ac
 ~~~
 
-Pour résumer, nous avons mis à jour le *Gemfile* pour ajouter la Gem `active_model_serializers`.
+Pour résumer, nous avons mis à jour le `Gemfile` pour ajouter la gemme `active_model_serializers`.
 
 ## Planification de l'application
 
@@ -20,13 +20,13 @@ Notre application sera assez simple. Elle se composera de 5 modèles. Ne vous in
 
 En bref, nous avons l'utilisateur (`User`) qui sera en mesure de passer de nombreuses commandes (`Order`), télécharger de multiples produits (`product`) qui peuvent avoir de nombreuses images (`Image`) ou commentaires (`Comment`) d'autres utilisateurs sur l'application.
 
-Nous n'allons pas construire d'interface pour l'interaction avec l'API afin de ne pas surcharger le tutoriel. Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks javascript ([Angular](https://angularjs.org/), [Vue.JS](https://vuejs.org/), [React](https://reactjs.org/)) ou des librairies mobile ([AFNetworking](https://github.com/AFNetworking/AFNetworking)).
+Nous n'allons pas construire d'interface pour l'interaction avec l'API afin de ne pas surcharger le tutoriel. Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks JavaScript ([Angular](https://angularjs.org/), [Vue.JS](https://vuejs.org/), [React](https://reactjs.org/)) ou des librairies mobile ([AFNetworking](https://github.com/AFNetworking/AFNetworking)).
 
 À ce stade, vous devriez vous poser cette question:
 
 > D'accord, mais j'ai besoin d'explorer et de visualiser l'API que je vais construire, non?
 
-C'est juste. Si vous *googlez* quelque chose lié à l'exploration d'une API, vous allez trouvez pas mal de résultats. Vous pouvez par exemple utiliser [Postman](https://www.getpostman.com/) qui est devnu incontournable.
+C'est juste. Si vous *googlez* quelque chose lié à l'exploration d'une API, vous allez trouvez pas mal de résultats. Vous pouvez par exemple utiliser [Postman](https://www.getpostman.com/) qui est devenu incontournable.
 
 ## Mettre en place l'API
 
@@ -50,7 +50,7 @@ Et avec REST, vous pouvez appeler une URL avec une requête HTTP spécifique. Da
 http://domain.com/resources_name/uri_pattern
 ~~~
 
-Les API RESTful doivent suivre aux minimum trois règles:
+Les API *RESTful* doivent suivre aux minimum trois règles:
 
 - Une URI de base comme <http://example.com/resources/>
 - Un type de média Internet pour représenter les données, il est communément JSON et est communément défini par l'échange d'en-têtes.
@@ -68,7 +68,7 @@ Cela peut sembler compliqué mais au fur et à mesure que nous avancerons dans l
 Avant de commencer à taper du code, nous allons préparer le répertoire Git. Le *workflow* que nous allons suivre est le suivant:
 
 - Nous allons créer une branche par chapitre
-- Une fois terminé, nous le pousserons la branche sur github
+- Une fois terminé, nous le pousserons la branche sur Github
 - Nous la fusionnerons avec master
 
 Commençons donc par ouvrir le terminal dans le répertoire `market_place_api` et tapez la commande suivante pour créer la branche:
@@ -112,7 +112,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-En définissant un *Namespace* dans le fichier `routes.rb`, Rails mappera automatiquement ce *Namespace* à un répertoire correspondant au nom sous le dossier controllers (dans notre cas le répertoire `api/`).
+En définissant un *Namespace* dans le fichier `routes.rb`, Rails mappera automatiquement ce *Namespace* à un répertoire correspondant au nom sous le dossier contrôleurs (dans notre cas le répertoire `api/`).
 
 Rails supporte jusqu'à 35 types de médias différents! Vous pouvez les lister en accédant à la classe `SET` sous le module de `Mime`:
 
@@ -147,14 +147,14 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Vous voyez la différence? Nous n'avons pas seulement ajouté un [`Hash`][ruby_hash] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l'option chemin d'accès et lui avons donné un *backslash*. Cel indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
+Vous voyez la différence? Nous n'avons pas seulement ajouté un [`Hash`][ruby_hash] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l'option chemin d'accès et lui avons donné un *backslash*. Cela indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
 
-### Les conventions des API
+### Les conventions des API
 
 Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d'une API. En supposant que nous versionnons notre api:
 
 - `api.example.com/`: Je suis d'avis que c'est la voie à suivre, vous donne une meilleure interface et l'isolement, et à long terme peut vous aider à [mettre rapidement à l'échelle](http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/)
-- `example.com/api/`: Ce modèle est très commun. C'est un bon moyen de commencer quand vous ne voulez pas de Namespace de votre API avec sous un sous-domaine
+- `example.com/api/`: Ce modèle est très commun. C'est un bon moyen de commencer quand vous ne voulez pas de *Namespace* de votre API avec sous un sous-domaine
 - `example.com/api/v1`: Cela semble être une bonne idée. En définissant la version de l'API par l'URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version àl'URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
 
 Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnement plus tard. Il est temps de *commiter*:
@@ -203,17 +203,13 @@ end
 L'API est désormais *scopée* via l'URL. Par exemple, avec la configuration actuelle, la récupération d'un produit via l'API se ferait avec cette url: <http://api.marketplace.dev/v1/products/1>.
 
 
-## Améliorer le versionnement
+## Améliorer le versionnement
 
 Jusqu'à présent, l'API est versionnée via l'URL. Mais quelque chose ne va pas. De mon point de vue, le développeur ne devrait pas être au courant de la version qu'il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir?
 
 Tout d'abord, nous devons améliorer l'accès à la version de l'API via les [en-têtes HTTP](http://en.wikipedia.org/wiki/List_of_HTTP_header_fields). Cela permet de supprimer la version de l'API situé dans l'URL.
 
-## Description des en-têtes de requête
-
-Les champs d'en-tête HTTP sont des composants de l'en-tête de demandes et de réponses dans le protocole HTTP. Ils définissent les paramètres de fonctionnement d'une transaction HTTP.
-
-Une liste commune des en-têtes utilisés est présentée ci-dessous:
+Les champs d'en-tête HTTP sont des composants de l'en-tête de demandes et de réponses dans le protocole HTTP. Ils définissent les paramètres de fonctionnement d'une transaction HTTP. Voici une liste commune des en-têtes couramment utilisés:
 
 - **Accept**: Types de contenu acceptables pour la réponse. Exemple: `Accept: text/plain`
 - **Authorization**: Identifiants d'authentification pour l'authentification HTTP. Exemple: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
@@ -223,7 +219,7 @@ Une liste commune des en-têtes utilisés est présentée ci-dessous:
 
 Il est important que vous vous sentiez à l'aise et que vous les compreniez ces en-tête HTTP.
 
-Avec Rails, il est très facile d'ajouter ce type de versionnement par le biais d'un en-tête HTTP `Accept`. Nous allons créer une classe sous le répertoire `lib`. N'oubliez pas que nous faisons du TDD[^11] donc nous allons commencer par un test.
+Avec Rails, il est très facile d'ajouter ce type de versionnement par le biais d'un en-tête HTTP `Accept`. Nous allons créer une classe sous le répertoire `lib`. N'oubliez pas que nous faisons du TDD donc nous allons commencer par un test.
 
 Tout d'abord, nous devons ajouter notre suite de tests, qui dans notre cas sera [Rspec](http://rspec.info/):
 
@@ -312,9 +308,7 @@ Laissez-moi vous expliquer le code. Nous initialisons la classe avec un [`Hash`]
 - la version de l'API
 - une valeur par défaut pour gérer la version par défaut
 
-Nous fournissons une méthode `match?` afin que le routeur devine si la version par défaut est requise ou si l'en-tête `Accept` correspond à la chaîne donnée.
-
-L'implémentation ressemble à ceci
+Nous fournissons une méthode `match?` afin que le routeur devine si la version par défaut est requise ou si l'en-tête `Accept` correspond à la chaîne donnée. L'implémentation ressemble à ceci
 
 ~~~ruby
 # lib/api_constraints.rb
@@ -363,5 +357,5 @@ Finished in 0.00294 seconds (files took 0.06292 seconds to load)
 - [RocketPants](https://github.com/Sutto/rocket_pants)
 - [Versionist](https://github.com/bploetz/versionist)
 
-Je n'en parle pas ici puisque nous essayons d'apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu'ici est disponnible
+Je n'en parle pas ici puisque nous essayons d'apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu'ici est disponible
 [ici](https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd).

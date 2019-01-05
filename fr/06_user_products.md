@@ -1,7 +1,6 @@
 # Produits des utilisateurs
 
-Dans le chapitre précédent, nous avons implémenté le mécanisme d'authentification que nous allons utiliser tout au long de l'application. Pour l'instant, nous avons une implémentation très simple du modèle `User`, mais le moment de vérité est venu où nous allons personnaliser la sortie JSON et ajouter une deuxième ressource : les produits utilisateurs. Ce sont les éléments que l'utilisateur vendra dans l'application, et par conséquent sera directement associé. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de *Active Record*. (voir figure [\[fig:data\_model\]](#fig:data_model){reference-type="ref"
-reference="fig:data_model"}).
+Dans le chapitre précédent, nous avons implémenté le mécanisme d'authentification que nous allons utiliser tout au long de l'application. Pour l'instant, nous avons une implémentation très simple du modèle `User`, mais le moment de vérité est venu où nous allons personnaliser la sortie JSON et ajouter une deuxième ressource : les produits utilisateurs. Ce sont les éléments que l'utilisateur vendra dans l'application, et par conséquent sera directement associé. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de *Active Record*.
 
 Dans ce chapitre, nous allons construire le modèle de `Product` à partir de zéro, l'associer à l'utilisateur et créer les entrées nécessaires pour que tout client puisse accéder aux informations.
 
@@ -59,7 +58,7 @@ end
 
 Notez que nous avons défini des valeurs par défaut pour tous les attributs à l'exception de `user_id`, de cette façon nous gardons un haut niveau de cohérence dans notre base de données car nous ne traitons pas beaucoup de valeurs `NULL`.
 
-Ensuite, nous ajouterons quelques tests de base au modèle de produit. Nous nous assurerons simplement que l'objet répond aux champs que nous avons ajoutés, comme indiqué dans le listing [\[lst:create\_product\_spec\]](#lst:create_product_spec){reference-type="ref"reference="lst:create_product_spec"}:
+Ensuite, nous ajouterons quelques tests de base au modèle de produit. Nous nous assurerons simplement que l'objet répond aux champs que nous avons ajoutés:
 
 ~~~ruby
 # spec/models/product_spec.rb
@@ -88,7 +87,7 @@ Et maintenant nous pouvons nous assurer que les tests passent:
 $ rspec spec/models/product_spec.rb
 ~~~
 
-Bien que nos tests réussissent, nous avons besoin de faire un peu de travail au niveau de la *factory* des produits. Pour l'instant, tout est codé en dur. Comme vous vous en souvenez, nous avons utilisé un `Faker` pour falsifier les valeurs de nos modèles de tests (Listing [\[lst:user\_factory\_with\_attrs\]](#lst:user_factory_with_attrs){reference-type="ref"reference="lst:user_factory_with_attrs"}). Il est donc temps de faire de même avec le modèle de `Product`. Voir le listing [\[lst:create\_factories\_products\]](#lst:create_factories_products){reference-type="ref"reference="lst:create_factories_products"}:
+Bien que nos tests réussissent, nous avons besoin de faire un peu de travail au niveau de la *factory* des produits. Pour l'instant, tout est codé en dur. Comme vous vous en souvenez, nous avons utilisé un `Faker` pour falsifier les valeurs de nos modèles de tests. Il est donc temps de faire de même avec le modèle de `Product`:
 
 ~~~ruby
 # spec/factories/products.rb
@@ -102,13 +101,13 @@ FactoryBot.define do
 end
 ~~~
 
-Maintenant, chaque produit que nous créons ressemblera un peu plus à un vrai produit. Nous devons encore travailler sur le `user_id` tel quel, mais nous y reviendrons à la section [9.1.3](#subsec:user_has_products){reference-type="ref"reference="subsec:user_has_products"}.
+Maintenant, chaque produit que nous créons ressemblera un peu plus à un vrai produit. Nous devons encore travailler sur le `user_id` tel quel, mais nous y reviendrons plus tard.
 
 ### Validations des produits
 
 Comme nous l'avons vu avec l'utilisateur, les validations sont une partie importante lors de la construction de tout type d'application. Cela nous permet d'empêcher toute donnée indésirable d'être enregistrée dans la base de données. Pour le produit, nous devons nous assurer, par exemple, que le prix est un nombre et qu'il n'est pas négatif.
 
-Une autre chose importante à propos de la validation, lorsque l'on travaille avec des associations, est de valider que chaque `Product` a un `User`. Donc, dans ce cas, nous devons valider la présence de l'`user_id`. Dans Listing [\[lst:add\_presence\_to\_product\_test\]](#lst:add_presence_to_product_test){reference-type="ref"reference="lst:add_presence_to_product_test"} vous pouvez voir de quoi je parle.
+Une autre chose importante à propos de la validation, lorsque l'on travaille avec des associations, est de valider que chaque `Product` a un `User`. Donc, dans ce cas, nous devons valider la présence de l'`user_id`. Vous allez voir de quoi je parle:
 
 ~~~ruby
 # spec/models/product_spec.rb
@@ -124,8 +123,7 @@ RSpec.describe Product, type: :model do
 end
 ~~~
 
-Il nous faut maintenant ajouter l'implémentation pour faire passer les
-tests:
+Il nous faut maintenant ajouter l'implémentation pour faire passer les tests:
 
 ~~~ruby
 # app/models/product.rb
@@ -153,7 +151,7 @@ $ git commit -m "Adds product model bare bones along with some validations"
 
 ~~~
 
-### Liaison des produits et des utilisateurs {#subsec:user_has_products}
+### Liaison des produits et des utilisateurs
 
 Dans cette section, nous allons construire l'association entre le produit et le modèle utilisateur. Nous avons déjà les champs nécessaires, nous avons donc juste besoin de mettre à jour quelques fichiers et nous serons prêts à commencer. Tout d'abord, nous devons modifier la *factory* de `Product` pour la relier à l'utilisateur. Alors comment faire?
 
@@ -169,7 +167,7 @@ FactoryBot.define do
 end
 ~~~
 
-Comme vous pouvez le voir, nous venons de renommer l'attribut `user_id` en `user` et nous n'avons pas spécifié de valeur. FactoryBot est assez intelligent pour créer un objet `user` pour chaque produit et les associer automatiquement. Maintenant nous devons ajouter quelques tests pour l'association (Listing [\[lst:add\_should\_belong\_to\_user\]](#lst:add_should_belong_to_user){reference-type="ref"reference="lst:add_should_belong_to_user"}):
+Comme vous pouvez le voir, nous venons de renommer l'attribut `user_id` en `user` et nous n'avons pas spécifié de valeur. FactoryBot est assez intelligent pour créer un objet `user` pour chaque produit et les associer automatiquement. Maintenant nous devons ajouter quelques tests pour l'association:
 
 ~~~ruby
 # spec/models/product_spec.rb
@@ -227,8 +225,7 @@ class User < ApplicationRecord
 end
 ~~~
 
-Maintenant, si nous exécutons les tests de l'utilisateur, elles
-devraient toutes être correctes:
+Maintenant, si nous exécutons les tests de l'utilisateur, elles devraient toutes être correctes:
 
 ~~~bash
 $ rspec spec/models/user_spec.rb
@@ -252,7 +249,7 @@ products.each do |product|
 end
 ~~~
 
-Nous sauvegardons d'abord les produits dans une variable pour un accès ultérieur, puis nous détruisons l'utilisateur et bouclons la variable des produits en nous attendant à ce que chacun des produits lance une exception. Tout mettre ensemble devrait ressembler au code dans Listing [\[lst:create\_destroy\_user\_spec\]](#lst:create_destroy_user_spec){reference-type="ref"reference="lst:create_destroy_user_spec"}:
+Nous sauvegardons d'abord les produits dans une variable pour un accès ultérieur, puis nous détruisons l'utilisateur et bouclons la variable des produits en nous attendant à ce que chacun des produits lance une exception. Tout mettre ensemble devrait ressembler au code suivants:
 
 ~~~ruby
 # spec/models/user_spec.rb
@@ -278,7 +275,7 @@ RSpec.describe User, type: :model do
 end
 ~~~
 
-Le code nécessaire pour rendre le code sur Listing [\[lst:create\_destroy\_user\_spec\]](#lst:create_destroy_user_spec){reference-type="ref"reference="lst:create_destroy_user_spec"} à passer est juste une option sur la méthode d'association `has_many`:
+Le code nécessaire pour faire passer le test est juste une option sur la méthode d'association `has_many`:
 
 ~~~ruby
 # app/models/user.rb
@@ -315,19 +312,17 @@ Nous devons d'abord créer le `products_controller`, et nous pouvons facilement 
 $ rails generate controller api/v1/products
 ~~~
 
-La commande ci-dessus va générer pas mal de fichiers qui nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c'est qu'il va générer le contrôleur et les fichiers de test déjà *scopés* à la version 1 de l'API (Listing [\[lst:generate\_products\_controller\]](#lst:generate_products_controller){reference-type="ref"reference="lst:generate_products_controller"} et [\[lst:generate\_products\_controller\_spec\]](#lst:generate_products_controller_spec){reference-type="ref"reference="lst:generate_products_controller_spec"}).
+La commande ci-dessus va générer pas mal de fichiers qui nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c'est qu'il va générer le contrôleur et les fichiers de test déjà *scopés* à la version 1 de l'API.
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
 end
-
 ~~~
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
@@ -336,7 +331,7 @@ En guise d'échauffement, nous allons commencer par construire l'action du `show
 
 ### Action d'affichage d'un produit
 
-Comme d'habitude, nous commençons par ajouter quelques test du contrôleur des produits (Listing [\[lst:products\_controller\_spec\_show\]](#lst:products_controller_spec_show){reference-type="ref"reference="lst:products_controller_spec_show"}). La stratégie ici est très simple, il suffit de créer un seul produit et de s'assurer que la réponse du serveur est celle que nous attendons.
+Comme d'habitude, nous commençons par ajouter quelques test du contrôleur des produits. La stratégie ici est très simple, il suffit de créer un seul produit et de s'assurer que la réponse du serveur est celle que nous attendons.
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
@@ -370,8 +365,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ~~~
 
-Attendez! N'exécutez pas encore les tests. N'oubliez pas que nous devons
-ajouter la route au fichier `routes.rb`:
+Attendez! N'exécutez pas encore les tests. N'oubliez pas que nous devons ajouter la route au fichier `routes.rb`:
 
 ~~~ruby
 # config/routes.rb
@@ -402,14 +396,13 @@ Comme vous pouvez déjà le constater, les tests et l'implémentation sont très
 
 ### Liste des produits
 
-Il est maintenant temps de créer une entrée pour liste de produits, qui pourrait permettre d'afficher le catalogue de produits d'un marché par exemple. Pour ce point d'accès, nous n'exigeons pas que l'utilisateur soit connecté. Comme d'habitude, nous allons commencer à écrire quelques tests (Listing [\[lst:create\_index\_products\_controller\_spec\]](#lst:create_index_products_controller_spec){reference-type="ref"reference="lst:create_index_products_controller_spec"}):
+Il est maintenant temps de créer une entrée pour liste de produits, qui pourrait permettre d'afficher le catalogue de produits d'un marché par exemple. Pour ce point d'accès, nous n'exigeons pas que l'utilisateur soit connecté. Comme d'habitude, nous allons commencer à écrire quelques tests:
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
 
 RSpec.describe Api::V1::ProductsController, type: :controller do
-
   # ...
 
   describe 'GET #index' do
@@ -429,7 +422,7 @@ end
 
 ~~~
 
-Attention, la méthode `have` que nous utilisons dance ce test par exemple:
+Attention, la méthode `have` que nous utilisons dans ce ce test par exemple:
 
 ~~~ruby
 expect(products_response[:products]).to have(4).items
@@ -446,7 +439,7 @@ group :test do
 end
 ~~~
 
-Passons maintenant à la mise en œuvre, qui, pour l'instant, va être une triste méthode toutes classes (Listing [\[lst:create\_index\_products\_controller\]](#lst:create_index_products_controller){reference-type="ref"reference="lst:create_index_products_controller"}):
+Passons maintenant à la mise en œuvre, qui, pour l'instant, va être une triste méthode toutes classes:
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
@@ -465,27 +458,24 @@ Et n'oubliez pas, vous devez ajouter la route correspondante dans le fichier `co
 resources :products, only: %i[show index]
 ~~~
 
-Dans les chapitres suivants, nous allons améliorer ce point d'entré et donner la possibilité de recevoir des paramètres pour les filtrer.
-
-*Commitons* ces changements et continuons d'avancer:
+Dans les chapitres suivants, nous allons améliorer ce point d'entré et donner la possibilité de recevoir des paramètres pour les filtrer. *Commitons* ces changements et continuons d'avancer:
 
 ~~~bash
 $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
 ~~~
 
-### Création des produits {#subsec:create_products}
+### Création des produits
 
 Créer des produits est un peu plus délicat parce que nous aurons besoin d'une configuration supplémentaire pour donner une meilleure structure à ce point d'entré. La stratégie que nous suivrons est d'imbriquer les produits, dans les actions des utilisateurs. Ceci nous permettra d'avoir un point d'entrée plus descriptif comme `/users/:user_id/products`.
 
-Notre premier arrêt sera donc le fichier `products_controller_spec.rb` (Listing [\[lst:create\_create\_products\_controller\_spec\]](#lst:create_create_products_controller_spec){reference-type="ref"reference="lst:create_create_products_controller_spec"}).
+Notre premier arrêt sera donc le fichier `products_controller_spec.rb`.
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
 
 RSpec.describe Api::V1::ProductsController, type: :controller do
-
   # ...
 
   describe 'POST #create' do
@@ -529,13 +519,13 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
 
-Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez de la Section [6.3.2](#subsec:create_users){reference-type="ref"reference="subsec:create_users"}, les tests sont en fait les mêmes que ceux de la création de l'utilisateur exépté quelques changements mineurs. Rappelez-vous que nous avons cette route imbriquée, nous devons donc nous assurer d'envoyer le paramètre `user_id` à chaque requête, comme vous pouvez le voir sur:
+Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez, les tests sont en fait les mêmes que ceux de la création de l'utilisateur exépté quelques changements mineurs. Rappelez-vous que nous avons cette route imbriquée, nous devons donc nous assurer d'envoyer le paramètre `user_id` à chaque requête, comme vous pouvez le voir sur:
 
 ~~~ruby
 post :create, params: { user_id: user.id, product: @product_attributes }
 ~~~
 
-De cette façon, nous pouvons voir l'utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux, si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d'autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l'utilisateur à partir de l'en-tête `Authorization` et lui avons assigné une méthode `current_user`. C'est donc assez facile à mettre en place en ajoutant simplement l'en-tête d'autorisation dans la requête et en récupérant l'utilisateur à partir de celui-ci. Alors faisons-le (Listing [\[lst:create\_create\_products\_controller\]](#lst:create_create_products_controller){reference-type="ref"reference="lst:create_create_products_controller"}):
+De cette façon, nous pouvons voir l'utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux, si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d'autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l'utilisateur à partir de l'en-tête `Authorization` et lui avons assigné une méthode `current_user`. C'est donc assez facile à mettre en place en ajoutant simplement l'en-tête d'autorisation dans la requête et en récupérant l'utilisateur à partir de celui-ci. Alors faisons-le:
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
@@ -590,7 +580,7 @@ end
 
 Si vous faites les tests maintenant, ils devraient tous passer:
 
-~~~bash
+~~~
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
 .........
 
@@ -604,7 +594,7 @@ J'espère que maintenant vous comprenez la logique pour construire les actions �
 
 Nous ajoutons d'abord l'action aux routes pour ne pas oublier plus tard:
 
-~~~bash
+~~~ruby
 # config/routes.rb
 require 'api_constraints'
 
@@ -625,7 +615,7 @@ end
 
 Avant de commencer à coder certains tests je veux juste préciser que, de la même manière que pour l'action `create`, nous allons délimiter le produit à l'utilisateur courant. Nous voulons nous assurer que le produit que nous mettons à jour appartient bien à l'utilisateur. Nous allons donc chercher ce produit dans l'association `user.products` fournie par *Active Record*.
 
-Tout d'abord, nous ajoutons quelques tests (Listing [\[lst:update\_index\_products\_controller\_spec\]](#lst:update_index_products_controller_spec){reference-type="ref"reference="lst:update_index_products_controller_spec"}):
+Tout d'abord, nous ajoutons quelques tests:
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
@@ -675,9 +665,9 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
 
-Les tests peuvent paraître complexes, mais en jetant un coup d'oeil, ils sont presque identiques à ceux des utilisateurs (Listing [\[lst:add\_spec\_users\_controller\_update\]](#lst:add_spec_users_controller_update){reference-type="ref"reference="lst:add_spec_users_controller_update"}). La seule différence ici étant que les routes sont imbriquées comme nous l'avons vu à la Section [9.2.3](#subsec:create_products){reference-type="ref"reference="subsec:create_products"}. Nous devons donc envoyer le `user_id` comme paramètre.
+Les tests peuvent paraître complexes, mais en jetant un coup d’œil, ils sont presque identiques à ceux des utilisateurs . La seule différence ici étant que les routes sont imbriquées comme nous l'avons vu précedement. Nous devons donc envoyer le `user_id` comme paramètre.
 
-Maintenant implémentons le code pour faire passer nos tests avec succès (Listing [\[lst:update\_index\_products\_controller\]](#lst:update_index_products_controller){reference-type="ref"reference="lst:update_index_products_controller"}):
+Maintenant implémentons le code pour faire passer nos tests avec succès:
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
@@ -734,7 +724,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Après cela, nous devons ajouter quelques tests comme indiqué dans le listing [\[lst:create\_destroy\_products\_controller\_spec\]](#lst:create_destroy_products_controller_spec){reference-type="ref"reference="lst:create_destroy_products_controller_spec"}:
+Après cela, nous devons ajouter quelques tests:
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
@@ -756,7 +746,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
 
-Maintenant, ajoutons simplement le code nécessaire pour faire passer les tests (Listing [\[lst:create\_destroy\_products\_controller\]](#lst:create_destroy_products_controller){reference-type="ref"reference="lst:create_destroy_products_controller"}):
+Maintenant, ajoutons simplement le code nécessaire pour faire passer les tests:
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
@@ -792,7 +782,7 @@ $ git add .
 $ git commit -m "Adds the products create, update and destroy action nested on the user resources"
 ~~~
 
-## Remplir la base de données
+Remplir la base de données
 
 Avant de continuer avec plus de code, remplissons la base de données avec de fausses données. Nous avons des usines qui devraient faire le travail à notre place. Alors utilisons-les.
 
@@ -811,7 +801,7 @@ Loading development environment (Rails 5.2.1)
 
 Oups, vous avez probablement des erreurs qui se sont produites:
 
-~~~bahs
+~~~
 Traceback (most recent call last):
         3: from (irb):1
         2: from (irb):1:in `times'
@@ -823,7 +813,6 @@ C'est parce que nous utilisons la console sur l'environnement de développement.
 
 ~~~ruby
 # Gemfile
-
 # ...
 group :test do
   gem 'factory_bot_rails'
@@ -832,14 +821,12 @@ group :test do
   gem 'rspec-rails', '~> 3.8'
   gem 'shoulda-matchers'
 end
-
 ~~~
 
 Vous voyez où est le problème? Si vous faites attention, vous remarquerez que la gemme `factory_bot_rails` n'est disponible que pour l'environnement de test et non pour le développement. Cela peut être corrigé très rapidement:
 
 ~~~ruby
 # Gemfile
-
 # ...
 group :development, :test do
   gem 'factory_bot_rails'
@@ -853,11 +840,10 @@ end
 
 Notez que nous avons déplacé la gemme `ffaker` vers le groupe partagé comme nous l'utilisons à l'intérieur des usines que nous décrivons plus haut. Lancez maintenant la commande `bundle` pour mettre à jour les bibliothèques. Alors construisez les produits que vous voulez comme ça:
 
-~~~bash
+~~~
 $ rails console
 Loading development environment (Rails 5.2.1)
 2.5.3 :001 > 20.times { FactoryBot.create :product }
-
 ~~~
 
 Désormais, vous pourrez créer n'importe quel objet à partir d'usines, comme les utilisateurs, les produits, les commandes, etc.

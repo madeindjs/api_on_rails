@@ -59,7 +59,7 @@ gem 'active_model_serializers', '~> 0.10.8'
 
 Exécutez la commande d'installation du paquet pour installer la gemme... et c'est tout! Vous devriez être prêt à continuer avec ce tutoriel.
 
-## Sérialiser l'utilisateur
+Sérialiser l'utilisateur
 
 Nous devons d'abord ajouter un fichier `user_serializer`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
@@ -724,6 +724,6 @@ Finished in 1.49 seconds (files took 6.53 seconds to load)
 $ git commit -am "Adds search class method to filter products"
 ~~~
 
-## Conclusion
+Conclusion
 
 Jusqu'à présent, et grâce à la gemme [active\_model\_serializers](https://github.com/rails-api/active_model_serializers), c'était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle `Order` qui associera les utilisateurs aux produits.

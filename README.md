@@ -11,7 +11,8 @@ Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com
 You should install and use [pandoc](http://pandoc.org/). Clone the project & this is simply as this:
 
 ~~~bash
-$ pandoc *.md -o api-on-rail.pdf
+$ cd fr
+$ pandoc *.md -o api-on-rail-fr.pdf
 ~~~
 
 

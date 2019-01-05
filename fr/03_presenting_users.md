@@ -1,6 +1,6 @@
 # Présentation des utilisateurs
 
-Dans le dernier chapitre, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le *versioning* par le biais des en-têtes HTTP. Dans le chapitre [8](#chapter:5){reference-type="ref" reference="chapter:5"}, nous traiterons l'authentification des utilisateurs à l'aide de jetons d'authentification ainsi que la définition de permissions pour limiter l'accès aux utilisateurs connectés. Dans les chapitres à venir, nous relierons les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
+Dans le chapitre précédent, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le *versioning* par le biais des **en-têtes HTTP**. Dans les prochains chapitres, nous traiterons l'authentification des utilisateurs à l'aide de jetons d'authentification ainsi que la définition de permissions pour limiter l'accès aux utilisateurs connectés. Nous relierons ensuite les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
 
 Vous pouvez cloner le projet jusqu'à ce point avec:
 
@@ -8,11 +8,9 @@ Vous pouvez cloner le projet jusqu'à ce point avec:
 $ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_2
 ~~~
 
-Comme vous pouvez déjà l'imaginer, il existe de nombreuses solutions d'authentification pour Rails comme [AuthLogic](https://github.com/binarylogic/authlogic), [Clearance](https://github.com/thoughtbot/clearance) et [Devise](https://github.com/plataformatec/devise). Nous utiliserons le dernier (Encadré [\[box:devise\_for\_authentification\]](#box:devise_for_authentification){reference-type="ref"reference="box:devise_for_authentification"}), qui offre un excellent moyen d'intégrer non seulement l'authentification de base, mais de nombreux autres modules pour une utilisation ultérieure.
+Comme vous pouvez déjà l'imaginer, il existe de nombreuses solutions d'authentification pour Rails comme [AuthLogic](https://github.com/binarylogic/authlogic), [Clearance](https://github.com/thoughtbot/clearance) et [Devise](https://github.com/plataformatec/devise). Nous utiliserons le dernier, qui offre un excellent moyen d'intégrer non seulement l'authentification de base, mais de nombreux autres modules pour une utilisation ultérieure.
 
-### Devise pour l'authentification
-
-Devise est livré avec jusqu'à 10 modules pour la gestion de l'authentification :
+Devise est livré avec jusqu'à dix modules pour la gestion de l'authentification :
 
 - Database Authenticable
 - Omniauthable
@@ -27,7 +25,7 @@ Devise est livré avec jusqu'à 10 modules pour la gestion de l'authentification
 
 Si vous n'avez jamais travaillé avec devise auparavant, je vous recommande de visiter [le répertoire Github](https://github.com/plataformatec/devise) et de lire la documentation. Vous y trouverez beaucoup de bons exemples.
 
-Ce chapitre sera complet. Il sera peut-être long mais j'essaie d'aborder autant de sujets que possible et d'aborder les meilleures pratiques. N'hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validations et la gestion des erreurs.
+Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d'aborder autant de sujets que possible. N'hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validations et la gestion des erreurs.
 
 Nous voulons suivre ce chapitre, c'est donc un bon moment pour créer une nouvelle branche:
 
@@ -91,7 +89,7 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'devise'
 ~~~
 
-Lancez ensuite la commande `bundle install` pour installer la Gem. Une fois que la commande est terminée, nous devons lancer le générateur d'installation de Devise:
+Lancez ensuite la commande `bundle install` pour installer la gemme. Une fois que la commande est terminée, nous devons lancer le générateur d'installation de Devise:
 
 ~~~bash
 $ rails g devise:install
@@ -100,7 +98,7 @@ $ rails g devise:install
   ...
 ~~~
 
-Maintenant et si tout s'est bien passé, nous serons en mesure de générer le modèle `user` à l'aide du générateur de Devise:
+Maintenant et si tout s'est bien passé, nous serons en mesure de générer le modèle `user` à l'aide du **générateur** de Devise:
 
 ~~~bash
 $ rails g devise User
@@ -126,8 +124,7 @@ FactoryBot.define do
 end
 ~~~
 
-Ensuite, nous allons migrer la base de données et préparer la base de
-données de test.
+Ensuite, nous allons migrer la base de données et préparer la base de données de test.
 
 ~~~bash
 $ rake db:migrate
@@ -139,7 +136,6 @@ $ rake db:migrate
 -- add_index(:users, :reset_password_token, {:unique=>true})
    -> 0.0007s
 == 20181113070805 DeviseCreateUsers: migrated (0.0023s) =======================
-
 ~~~
 
 ~~~bash
@@ -206,9 +202,7 @@ $ git commit -am 'Adds user firsts specs'
 
 ## Construire les utilisateurs
 
-Il est temps de faire notre premier point d'entrée. Nous allons juste commencer à construire l'action `show` pour l'utilisateur qui va afficher un utilisateur en JSON. Nous devons d'abord générer le `users_controller`, ajouter les tests correspondants et ensuite construire le code réel.
-
-Tout d'abord, nous générons le contrôleur utilisateur:
+Il est temps de faire notre premier point d'entrée. Nous allons juste commencer à construire l'action `show` pour l'utilisateur qui va afficher un utilisateur en JSON. Nous devons d'abord générer le `users_controller`, ajouter les tests correspondants et ensuite construire le code réel. Tout d'abord, nous générons le contrôleur utilisateur:
 
 ~~~bash
 $ rails generate controller users
@@ -217,25 +211,23 @@ $ rails generate controller users
 Cette commande var créer le fichier `users_controller_spec.rb`. Avant d'entrer dans le vif du sujet, il y a deux choses que nous voulons tester pour une API:
 
 - La structure du JSON renvoyée par le serveur
-- Le code de réponse HTTP renvoyée par le serveur (encadré 3.2).
+- Le code de réponse HTTP renvoyée par le serveur
 
 ### Les codes HTTP courants
 
 Le premier chiffre du code d'état spécifie l'une des cinq classes de réponse. Le strict minimum pour un client HTTP est qu'il utilise une ces cinq classes. Voici une liste des codes HTTP couramment utilisés:
 
-- `200`: Réponse standard pour les requêtes HTTP réussies. C'est généralement sur les requêtes GET
-- `201`: La demande a été satisfaite et a donné lieu à la création d'une nouvelle ressource. Après les demandes de POST
-- `204`: Le serveur a traité la requête avec succès, mais ne renvoie aucun contenu. Il s'agit généralement d'une requête DELETE réussie.
+- `200`: Réponse standard pour les requêtes HTTP réussies. C'est généralement sur les requêtes `GET`
+- `201`: La demande a été satisfaite et a donné lieu à la création d'une nouvelle ressource. Après les demandes de `POST`
+- `204`: Le serveur a traité la requête avec succès, mais ne renvoie aucun contenu. Il s'agit généralement d'une requête `DELETE` réussie.
 - `400`: La requête ne peut pas être exécutée en raison d'une mauvaise syntaxe. Peut arriver pour tout type de requête.
-- `401`: Similaire au 403 Interdit, mais spécifiquement pour une utilisation lorsque l'authentification est requise et qu'elle a échoué ou n'a pas encore été fournie. Peut arriver pour tout type de requête.
-- `404`: La ressource demandée n'a pas pu être trouvée mais peut être à nouveau disponible à l'avenir. Habituellement, concerne les requêtes GET
+- `401`: Similaire au 403, mais spécifiquement pour une utilisation lorsque l'authentification est requise et qu'elle a échoué ou n'a pas encore été fournie. Peut arriver pour tout type de requête.
+- `404`: La ressource demandée n'a pas pu être trouvée mais peut être à nouveau disponible à l'avenir. Habituellement, concerne les requêtes `GET`
 - `500`: Un message d'erreur générique, donné lorsqu'une condition inattendue a été rencontrée et qu'aucun autre message spécifique ne convient.
 
-Peut arriver pour tout type de requête.
+> Pour une liste complète des codes de réponse HTTP, consultez l'[article sur Wikipedia](https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP).
 
-Pour une liste complète des codes de réponse HTTP, consultez l'[article sur Wikipedia](https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP).
-
-Pour garder notre code bien découpé, nous allons créer quelques répertoires sous le répertoire des tests des contrôleurs afin d'être cohérent la configuration (Listing [\[lst:mkdir\_controllers\_api\]](#lst:mkdir_controllers_api){reference-type="ref"reference="lst:mkdir_controllers_api"}). Il existe aussi une autre convention qui utilise à la place du répertoire `controllers` un répertoire de `request` ou `integration`. Dans notre cas, je préfère rester cohérent avec le répertoire `app/controllers`.
+Pour garder notre code bien découpé, nous allons créer quelques répertoires sous le répertoire des tests des contrôleurs afin d'être cohérent la configuration. Il existe aussi une autre convention qui utilise à la place du répertoire `controllers` un répertoire de `request` ou `integration`. Dans notre cas, je préfère rester cohérent avec le répertoire `app/controllers`.
 
 ~~~bash
 $ mkdir -p spec/controllers/api/v1
@@ -245,14 +237,13 @@ $ mv spec/controllers/users_controller_spec.rb spec/controllers/api/v1
 Après avoir créé les répertoires, nous devons changer le nom de la classe `UsersController` en `Api::V1::UsersController`. Le fichier doit ressembler à ça:
 
 ~~~ruby
-# ...
-
+# spec/controllers/api/v1/users_controller_spec.rb
 RSpec.describe Api::V1::UsersController, type: :controller do
 
 end
 ~~~
 
-Maintenant, voici le fichier avec les tests crée:
+Maintenant, voici le fichier avec les tests crées:
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
@@ -277,7 +268,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Il suffit ensuite d'ajouter l'action à notre contrôleur (Listing [\[lst:add\_show\_to\_users\_controller\_spec\]](#lst:add_show_to_users_controller_spec){reference-type="ref"reference="lst:add_show_to_users_controller_spec"}). C'est extrêmement simple:
+Il suffit ensuite d'ajouter l'action à notre contrôleur. C'est extrêmement simple:
 
 ~~~ruby
 # app/controllers/api/v1/users\_controller.rb
@@ -301,28 +292,29 @@ end
 
 Si vous exécutez les tests avec `bundle exec rspec spec/controllers` vous obtenez l'erreur suivante:
 
-~~~bash
+~~~
 $ bundle exec rspec spec/controllers
-        FF
+FF
 
-        Failures:
+Failures:
 
-          1) Api::V1::UsersController GET #show returns the information about a reporter on a hash
-            Failure/Error: get :show, params: { id: @user.id, format: :json}
+  1) Api::V1::UsersController GET #show returns the information about a reporter on a hash
+    Failure/Error: get :show, params: { id: @user.id, format: :json}
 
-            ActionController::UrlGenerationError:
-            No route matches {:action=>"show", :controller=>"api/v1/users", :format=>:json, :id=>1}
-              ...
+    ActionController::UrlGenerationError:
+    No route matches {:action=>"show", :controller=>"api/v1/users", :format=>:json, :id=>1}
+      ...
 
-          2) Api::V1::UsersController GET #show
-            Failure/Error: get :show, params: { id: @user.id, format: :json}
+  2) Api::V1::UsersController GET #show
+    Failure/Error: get :show, params: { id: @user.id, format: :json}
 
-            ActionController::UrlGenerationError:
-            No route matches {:action=>"show", :controller=>"api/v1/users", :format=>:json, :id=>1}
-              ...
 
-        Finished in 0.01632 seconds (files took 0.47675 seconds to load)
-          2 examples, 2 failures
+    ActionController::UrlGenerationError:
+    No route matches {:action=>"show", :controller=>"api/v1/users", :format=>:json, :id=>1}
+      ...
+
+Finished in 0.01632 seconds (files took 0.47675 seconds to load)
+  2 examples, 2 failures
 ~~~
 
 Ce type d'erreur est très courant lorsque vous générer vos ressources à la main! En effet, nous avons totalement oublié les routes. Alors ajoutons-les:
@@ -364,7 +356,7 @@ $ git commit -m "Adds show action the users controller"
 
 Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions pour la tester. La première qui me vient à l'esprit est l'utilisation de cURL qui est intégré dans presque toutes les distributions Linux. Alors, essayons:
 
-Rappelez-vous que notre URI de base est `api.market_place_api.dev`.
+> Rappelez-vous que notre URI de base est `api.market_place_api.dev`.
 
 ~~~bash
 $ curl -H 'Accept: application/vnd.marketplace.v1' http://api.market_place_api.dev/users/1
@@ -398,28 +390,26 @@ class ApplicationController < ActionController::API
 end
 ~~~
 
-Comme suggéré même par Rails, nous devrions utiliser `null_session` pour empêcher les attaques CSFR. Je vous recommande fortement de le faire sinon les requêtes POST et PUT ne fonctionnerons pas. Après avoir mis à jour le fichier `application_controller.rb` c'est le moment de faire un `commit`:
+Comme suggéré même par Rails, nous devrions utiliser `null_session` pour empêcher **les attaques CSFR**. Je vous recommande fortement de le faire sinon les requêtes `POST` et `PUT` ne fonctionnerons pas. Après avoir mis à jour le fichier `application_controller.rb` c'est le moment de faire un `commit`:
 
 ~~~bash
 $ git add .
 $ git commit -m "Updates application controller to prevent CSRF exception from being raised"
 ~~~
 
-### Créer les utilisateurs {#subsec:create_users}
+### Créer les utilisateurs
 
 Maintenant que nous avons une meilleure compréhension de la façon de construire des points d'entrée, il est temps d'étendre notre API. Une des fonctionnalités les plus importante est de laisser les utilisateurs créer un profil sur notre application. Comme d'habitude, nous allons écrire des tests avant d'implémenter notre code pour étendre notre suite de tests.
 
-Assurez-vous que votre répertoire Git est propre et que vous n'avez pas de fichier en `staging`. Si c'est le cas, *committez*-les pour que nous puissions recommencer à zéro.
+Assurez-vous que votre répertoire Git est propre et que vous n'avez pas de fichier en *staging*. Si c'est le cas, *committez*-les pour que nous puissions recommencer à zéro.
 
 Commençons donc par écrire notre test tests en ajoutant une entrée pour créer un utilisateur sur le fichier `users_controller_spec.rb` :
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
-
 # ...
 
 RSpec.describe Api::V1::UsersController, type: :controller do
-
   # ...
 
   describe 'POST #create' do
@@ -461,11 +451,11 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Cela fait beaucoup de code (Listing [\[lst:add\_spec\_users\_controller\_create\]](#lst:add_spec_users_controller_create){reference-type="ref"reference="lst:add_spec_users_controller_create"}). Ne vous inquiétez pas, je vous explique tout:
+Cela fait beaucoup de code. Ne vous inquiétez pas, je vous explique tout:
 
 - Nous devons valider les états sur lesquels l'enregistrement peut être valide ou invalide. Dans ce cas, nous utilisons les `context` pour réaliser ces scénarios.
-- Au cas où tout se passe bien, nous devrions retourner un code HTTP 201[^12] ainsi que la représentation JSON de cet objet.
-- En cas d'erreur, nous devons renvoyer un code HTTP 422[^13]. Nous retournons également un JSON représentant la raison pour laquelle la ressource n'a pas pu être sauvegardée.
+- Au cas où tout se passe bien, nous devrions retourner un code HTTP **201** ainsi que la représentation JSON de cet objet.
+- En cas d'erreur, nous devons renvoyer un code HTTP **422**. Nous retournons également un JSON représentant la raison pour laquelle la ressource n'a pas pu être sauvegardée.
 
 A ce moment là, Les tests doivent échouer:
 
@@ -474,7 +464,7 @@ $ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
 .FFFFFF
 ~~~
 
-Il est donc temps d'implémenter le code pour que nos tests reussissent (Listing [\[lst:add\_users\_controller\_create\]](#lst:add_users_controller_create){reference-type="ref"reference="lst:add_users_controller_create"})
+Il est donc temps d'implémenter le code pour que nos tests réussissent:
 
 ~~~ruby
 # app/controllers/api/v1/users_controller.rb
@@ -533,12 +523,12 @@ $ git commit -m "Adds the user create endpoint"
 
 ### Mettre à jour les utilisateurs
 
-Le schéma de mise à jour des utilisateurs est très similaire à celui de la création (Section [6.3.2](#subsec:create_users){reference-type="ref"reference="subsec:create_users"}). Si vous êtes un développeur de Rails expérimenté, vous connaissez peut-être déjà les différences entre ces deux actions:
+Le schéma de mise à jour des utilisateurs est très similaire à celui de la création. Si vous êtes un développeur de Rails expérimenté, vous connaissez peut-être déjà les différences entre ces deux actions:
 
 - L'action de mise à jour répond à une requête PUT/PATCH .
 - Seul un utilisateur connecté devrait être en mesure de mettre à jour ses informations. Ce qui signifie que nous devrons forcer un utilisateur à s'authentifier. Nous en parlerons au chapitre 5.
 
-Comme d'habitude, nous commençons par écrire nos tests (Listing [\[lst:add\_spec\_users\_controller\_update\]](#lst:add_spec_users_controller_update){reference-type="ref"reference="lst:add_spec_users_controller_update"}):
+Comme d'habitude, nous commençons par écrire nos tests:
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
@@ -591,9 +581,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Pour que les tests réussissent, nous devons construire l'action de mise à jour sur le fichier `users_controller.rb` et ajouter la route au fichier `routes.rb`. Comme vous pouvez le voir, nous avons trop de code dupliqué, nous remanierons nos tests au chapitre 4.
-
-Tout d'abord nous ajoutons l'action le fichier routes.rb:
+Pour que les tests réussissent, nous devons construire l'action de mise à jour sur le fichier `users_controller.rb` et ajouter la route au fichier `routes.rb`. Comme vous pouvez le voir, nous avons trop de code dupliqué, nous remanierons nos tests au chapitre 4. Tout d'abord nous ajoutons l'action le fichier `routes.rb`:
 
 ~~~ruby
 # config/routes.rb
@@ -605,8 +593,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Ensuite nous implémentons l'action de mise à jour sur le contrôleur
-utilisateur et faisons passer nos tests:
+Ensuite nous implémentons l'action de mise à jour sur le contrôleur utilisateur et faisons passer nos tests:
 
 ~~~ruby
 # app/controllers/api/v1/users_controller.rb
@@ -637,7 +624,7 @@ Finished in 0.08826 seconds (files took 0.47286 seconds to load)
 12 examples, 0 failures
 ~~~
 
-Vue que tout fonctionne, on effectue un `commit`:
+Vue que tout fonctionne, on effectue un *commit*:
 
 ~~~bash
 $ git add .
@@ -646,11 +633,10 @@ $ git commit -m "Adds update action the users controller"
 
 ### Supprimer l'utilisateur
 
-Jusqu'à présent, nous avons construit un tas d'actions sur le contrôleur des utilisateurs avec leurs tests mais ce n'est terminé. Il nous en manque juste une dernière qui est l'action de destruction. Créons donc le test (liste [\[lst:add\_spec\_users\_controller\_destroy\]](#lst:add_spec_users_controller_destroy){reference-type="ref"reference="lst:add_spec_users_controller_destroy"}):
+Jusqu'à présent, nous avons construit pas mal d'actions sur le contrôleur des utilisateurs avec leurs tests mais ce n'est terminé. Il nous en manque juste une dernière qui est l'action de destruction. Créons donc le test:
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
-
 # ...
 
 RSpec.describe Api::V1::UsersController, type: :controller do
@@ -669,7 +655,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Comme vous pouvez le voir, le test est très simple. Nous ne répondons qu'avec un statut de 204 qui signifie `No Content`[^14]. Nous pourrions aussi retourner un code d'état de 200, mais je trouve plus naturel de répondre sans rien dans ce cas car nous supprimons une ressource et une réponse réussie peut suffire.
+Comme vous pouvez le voir, le test est très simple. Nous ne répondons qu'avec un statut de **204** qui signifie `No Content`. Nous pourrions aussi retourner un code d'état de **200**, mais je trouve plus naturel de répondre sans rien dans ce cas car nous supprimons une ressource et une réponse réussie peut suffire.
 
 La mise en œuvre de l'action de destruction est également assez simple:
 
@@ -710,13 +696,13 @@ Finished in 0.09255 seconds (files took 0.4618 seconds to load)
 13 examples, 0 failures
 ~~~
 
-Rappelez-vous qu'après avoir apporté quelques modifications à notre code, il est de bonne pratique de les commettre afin que nous gardions un bon historique.
+Rappelez-vous qu'après avoir apporté quelques modifications à notre code, il est de bonne pratique de les *commiter* afin que nous gardions un historique bien découpé.
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds destroy action to the users controller"
 ~~~
 
-## Conclusion
+## Conclusion
 
 Oh vous êtes là! Bien joué! Je sais que c'était probablement long mais n'abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s'améliorer, dans le chapitre 4, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!
