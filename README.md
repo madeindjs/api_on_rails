@@ -2,7 +2,7 @@
 
 Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com/book) book.
 
-![Book cover](img/cover.svg)
+![Book cover](fr/img/cover.svg)
 
 <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
@@ -11,7 +11,7 @@ Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com
 You should install and use [pandoc](http://pandoc.org/). Clone the project & this is simply as this:
 
 ~~~bash
-$ pandoc api-on-rail.md -o api-on-rail.pdf
+$ pandoc *.md -o api-on-rail.pdf
 ~~~
 
 
