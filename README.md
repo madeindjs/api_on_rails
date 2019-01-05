@@ -2,7 +2,7 @@
 
 Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com/book) book.
 
-Traduction française  et MàJ de l'excellent livre [API on Rails (EN)](http://apionrails.icalialabs.com/book) 
+![Book cover](img/cover.svg)
 
 <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
