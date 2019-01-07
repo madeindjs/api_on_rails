@@ -1,5 +1,5 @@
 ---
-title: API on Rails
+title: API on Rails 5
 subtitle: Construction d'API REST avec Rails
 
 author: Alexandre Rousseau <contact@rousseau-alexandre.fr>

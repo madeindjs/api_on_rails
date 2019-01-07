@@ -25,7 +25,7 @@ Tout au long de ce voyage (cela dépend vraiment de votre expertise), vous allez
 
 ## Conventions sur ce livre
 
-Les conventions de ce livre sont basées sur celles du Tutoriel Ruby on Rails. Dans cette section, je vais en mentionner quelques-unes que vous ne connaissez peut-être pas.
+Les conventions de ce livre sont basées sur celles du [Tutoriel Ruby on Rails](http://www.railstutorial.org/book/beginning#sec-conventions). Dans cette section, je vais en mentionner quelques-unes que vous ne connaissez peut-être pas.
 
 Je vais utiliser de nombreux exemples en utilisant des ligne de commande. Je ne vais pas traiter avec Windows `cmd` (désolé les gars). Je vais baser tous les exemples en utilisant l'invite de ligne de commande de style Unix. Voici un exemple:
 
