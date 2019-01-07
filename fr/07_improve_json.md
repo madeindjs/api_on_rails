@@ -2,7 +2,7 @@
 
 Dans le chapitre précédent, nous avons ajouté les produits à l'application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
 
-Maintenant, vous devriez être satisfait de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n'est pas parfaite. La sortie JSON ressemble au Listing [\[lst:products\_json\]](#lst:products_json){reference-type="ref"reference="lst:products_json"} or nous voulons un sortie correspondante au Listing [\[lst:wanted\_products\_json\]](#lst:wanted_products_json){reference-type="ref"reference="lst:wanted_products_json"}.
+Maintenant, vous devriez être satisfait de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n'est pas parfaite. La sortie JSON ressemble à celle-ci:
 
 ~~~json
 {
@@ -20,7 +20,9 @@ Maintenant, vous devriez être satisfait de tout ce travail. Mais nous avons enc
 }
 ~~~
 
-~~~ruby
+Or nous voulons un sortie correspondante à celle-là.
+
+~~~json
 {
   "products": [
       {
@@ -59,7 +61,7 @@ gem 'active_model_serializers', '~> 0.10.8'
 
 Exécutez la commande d'installation du paquet pour installer la gemme... et c'est tout! Vous devriez être prêt à continuer avec ce tutoriel.
 
-Sérialiser l'utilisateur
+## Sérialiser l'utilisateur
 
 Nous devons d'abord ajouter un fichier `user_serializer`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
@@ -69,14 +71,13 @@ $ rails generate serializer user
 
 ~~~
 
-Ceci a créé un fichier appelé `user_serializer.rb` sous le répertoire `app/serializers`, qui devrait ressembler à celui de Listing [\[lst:generated\_user\_serializer\]](#lst:generated_user_serializer){reference-type="ref"reference="lst:generated_user_serializer"}:
+Ceci a créé un fichier appelé `user_serializer.rb` sous le répertoire `app/serializers`, qui devrait ressembler au fichier suivant:
 
 ~~~ruby
 # app/serializers/user_serializer.rb
 class UserSerializer < ActiveModel::Serializer
   attributes :id
 end
-
 ~~~
 
 Nous devrions avoir des tests qui échouent. Essayez par vous même:
@@ -84,14 +85,9 @@ Nous devrions avoir des tests qui échouent. Essayez par vous même:
 ~~~bash
 $ rspec spec/controllers/api/v1/users_controller_spec.rb
 F.F....F.....
-
 ~~~
 
-Si vous jetez un coup d'oeil rapide au `users_controller`, vous devez avoir quelque chose correspondant au listing [\[lst:add\_show\_to\_users\_controller\_spec\]](#lst:add_show_to_users_controller_spec){reference-type="ref"reference="lst:add_show_to_users_controller_spec"} pour l'action `show`. La documentation de la gemme explique ce qui vient de ce passer:
-
-> Rails recherchera automatiquement un sérialiseur nommé `PostSerializer`, et s'il existe, l'utilisera pour sérialiser un `Post`.
-
-Cela fonctionne aussi avec `respond_with`, qui utilise `to_json` sous le capot. Notez également que toutes les options passées pour rendre `:json` seront passées à votre sérialiseur et disponibles comme `@options` à l'intérieur.
+Rails recherchera automatiquement un sérialiseur nommé `PostSerializer`, et s'il existe, l'utilisera pour sérialiser un `Post`. Cela fonctionne aussi avec `respond_with`, qui utilise `to_json` sous le capot. Notez également que toutes les options passées pour rendre `:json` seront passées à votre sérialiseur et disponibles comme `@options` à l'intérieur.
 
 Cela signifie que peu importe si nous utilisons la méthode `render json` ou `respond_with`. A partir de maintenant, Rails recherchera le sérialiseur correspondant en premier.
 
@@ -130,10 +126,9 @@ Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il
 ~~~bash
 $ rails generate serializer product
     create  app/serializers/product_serializer.rb
-
 ~~~
 
-Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l'avons fait avec l'utilisateur dans la Section [10.2](#sec:serialize_user){reference-type="ref"reference="sec:serialize_user"}:
+Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l'avons fait avec l'utilisateur dans la section précédente:
 
 ~~~ruby
 # app/serializers/product_serializer.rb
@@ -157,7 +152,7 @@ Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que 
 
 Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre. Ici, je vais expliquer ce que j'ai trouvé et ce fonctionne pour moi. Ce n'est pas la seule manière de faire, je vous laisse juger si elle vous convient. Dans cette section, nous allons étendre notre API pour gérer l'association produit/utilisateur. Je vais aussi vous expliquer certaines des erreurs courantes dans lesquels vous pouvez tomber.
 
-Pour résumer, nous avons une association de type `has_many` entre l'utilisateur et le modèle de produit. Regardez le Listing [\[lst:user\_assocations\]](#lst:user_assocations){reference-type="ref"reference="lst:user_assocations"} et Listing [\[lst:product\_assocations\]](#lst:product_assocations){reference-type="ref"reference="lst:product_assocations"}.
+Pour résumer, nous avons une association de type `has_many` entre l'utilisateur et le modèle de produit.
 
 ~~~ruby
 # app/models/user.rb
@@ -175,7 +170,7 @@ class Product < ApplicationRecord
 end
 ~~~
 
-C'est une bonne idée d'intégrer des modèles dans d'autres modèles dans d'autres modèle car cela évite au client de l'API d'exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d'étranglement. Permettez-moi d'expliquer, à l'aide d'un cas d'utilisation, l'application réelle telle qu'elle est illustrée dans l'encadré [\[box:association\_embeded\]](#box:association_embeded){reference-type="ref"reference="box:association_embeded"}.
+C'est une bonne idée d'intégrer des modèles dans d'autres modèles dans d'autres modèle car cela évite au client de l'API d'exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d'étranglement.
 
 ## Cas d'utilisation d'un objet incorporé dans une association
 
@@ -190,7 +185,7 @@ Face à ce problème, je suis venu avec deux alternatives possibles:
 {
   "meta": { "user_ids": [1,2,3] },
   "products": [
-  //  ...
+    ...
   ]
 }
 ~~~
@@ -213,12 +208,12 @@ Cela peut nécessiter une configuration supplémentaire sur le terminal de l'uti
             "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
           }
       }
-      // ...
+      ...
    ]
 }
 ~~~
 
-Donc, selon l'encadré [\[box:association\_embeded\]](#box:association_embeded){reference-type="ref"reference="box:association_embeded"}, nous allons incorporer l'objet utilisateur dans le produit. Commençons par ajouter quelques tests. Nous allons simplement modifier les tests des routes `Products#index` et `Products#show` Listing [\[lst:spec\_product\_assocations\]](#lst:spec_product_assocations){reference-type="ref"reference="lst:spec_product_assocations"}.
+Donc, nous allons incorporer l'objet utilisateur dans le produit. Commençons par ajouter quelques tests. Nous allons simplement modifier les tests des routes `Products#index` et `Products#show` .
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
@@ -227,7 +222,6 @@ Donc, selon l'encadré [\[box:association\_embeded\]](#box:association_embeded){
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
     # ...
-
     it 'has the user as a embeded object' do
       expect(json_response[:user][:email]).to eql @product.user.email
     end
@@ -235,14 +229,12 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 
   describe 'GET #index' do
     # ...
-
     it 'returns the user object into each product' do
       json_response.each do |product_response|
         expect(product_response[:user]).to be_present
       end
     end
   end
-
   # ...
 end
 ~~~
@@ -265,7 +257,6 @@ $ rspec spec
 
 Finished in 0.57068 seconds (files took 0.67788 seconds to load)
 60 examples, 0 failures
-
 ~~~
 
 ### Récupérer les produits pour des utilisateurs
@@ -288,7 +279,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       expect(json_response[:product_ids]).to eql []
     end
   end
-
   # ...
 end
 ~~~
@@ -315,7 +305,7 @@ Finished in 0.16791 seconds (files took 0.65902 seconds to load)
 14 examples, 0 failures
 ~~~
 
-Nous devons maintenant étendre l'action `index` depuis le `products_controller` pour qu'il puisse gérer le paramètre `product_ids` et afficher les enregistrements scopés. Commençons par ajouter quelques tests (Listing [\[lst:parameter\_products\_controller\_spec\]](#lst:parameter_products_controller_spec){reference-type="ref"reference="lst:parameter_products_controller_spec"}):
+Nous devons maintenant étendre l'action `index` depuis le `products_controller` pour qu'il puisse gérer le paramètre `product_ids` et afficher les enregistrements *scopés*. Commençons par ajouter quelques tests:
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
@@ -323,7 +313,6 @@ Nous devons maintenant étendre l'action `index` depuis le `products_controller`
 
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
-
   describe 'GET #index' do
     before(:each) do
       4.times { FactoryBot.create :product }
@@ -362,14 +351,11 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
       end
     end
   end
-
   # ...
 end
 ~~~
 
-Comme vous pouvez le voir dans Listing [\[lst:parameter\_products\_controller\_spec\]](#lst:parameter_products_controller_spec){reference-type="ref"reference="lst:parameter_products_controller_spec"}, nous venons d'envelopper l'action index dans deux contextes séparés: l'un qui recevra les `product_ids` et l'autre l'ancien que nous avions écris.
-
-Ajoutons le code nécessaire pour faire passer les tests:
+Comme vous pouvez le voir, nous venons d'envelopper l'action index dans deux contextes séparés: l'un qui recevra les `product_ids` et l'autre l'ancien que nous avions écris. Ajoutons le code nécessaire pour faire passer les tests:
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
@@ -380,7 +366,6 @@ class Api::V1::ProductsController < ApplicationController
     products = params[:product_ids].present? ? Product.find(params[:product_ids]) : Product.all
     render json: products
   end
-
   # ...
 end
 ~~~
@@ -401,8 +386,7 @@ Finished in 0.35027 seconds (files took 0.65369 seconds to load)
 $ git commit -am "Embeds the products_ids into the user serialiser and fetches the correct products from the index action endpoint"
 ~~~
 
-Rechercher les produits
------------------------
+## Rechercher les produits
 
 Dans cette dernière section, nous continuerons à renforcer l'action d'`Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n'importe quel client de filtrer les résultats. Cette section est facultative car elle n'aura aucun impact sur les modules de l'application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
 
@@ -418,7 +402,7 @@ Cela peut sembler court et facile, mais croyez-moi, cela vous donnera mal à la 
 
 ### Le mot-clé by
 
-Nous allons créer un *scope* pour trouver les enregistrements qui correspondent à un motif particulier de caractères. Appelons-le `filter_by_title`. Ajoutons d'abord quelques tests (Listing [\[lst:product\_filter\_by\_title\_spec\]](#lst:product_filter_by_title_spec){reference-type="ref"reference="lst:product_filter_by_title_spec"}):
+Nous allons créer un *scope* pour trouver les enregistrements qui correspondent à un motif particulier de caractères. Appelons-le `filter_by_title`. Ajoutons d'abord quelques tests:
 
 ~~~ruby
 # spec/models/product_spec.rb
@@ -426,7 +410,6 @@ Nous allons créer un *scope* pour trouver les enregistrements qui correspondent
 
 RSpec.describe Product, type: :model do
   # ...
-
   describe '.filter_by_title' do
     before(:each) do
       @product1 = FactoryBot.create :product, title: 'A plasma TV'
@@ -448,7 +431,7 @@ RSpec.describe Product, type: :model do
 end
 ~~~
 
-Le test ici est de s'assurer que quel que soit le cas du titre envoyé, nous devons l'aseptiser afin de faire la comparaison appropriée. Dans notre cas nous utiliserons l'approche en minuscules. Implémentons le code nécessaire (Listing [\[lst:product\_filter\_by\_title\]](#lst:product_filter_by_title){reference-type="ref"reference="lst:product_filter_by_title"}):
+Le test ici est de s'assurer que quel que soit le cas du titre envoyé, nous devons l'aseptiser afin de faire la comparaison appropriée. Dans notre cas nous utiliserons l'approche en minuscules. Implémentons le code nécessaire:
 
 ~~~ruby
 # app/models/product.rb
@@ -474,7 +457,7 @@ Finished in 0.17178 seconds (files took 3.59 seconds to load)
 
 Pour filtrer par prix, les choses peuvent devenir un peu plus délicates. Nous allons briser la logique de filtrer par prix en deux méthodes différentes: l'une qui va chercher les produits plus grands que le prix reçu et l'autre qui va chercher ceux qui sont sous ce prix. De cette façon, nous garderons une certaine flexibilité et nous pouvons facilement tester les *scope*.
 
-Commençons par construire les tests du *scope* `above_or_equal_to_price` (Listing [\[lst:product\_above\_or\_equal\_to\_price\_spec\]](#lst:product_above_or_equal_to_price_spec){reference-type="ref"reference="lst:product_above_or_equal_to_price_spec"}):
+Commençons par construire les tests du *scope* `above_or_equal_to_price`:
 
 ~~~ruby
 # spec/models/product_spec.rb
@@ -498,7 +481,7 @@ RSpec.describe Product, type: :model do
 end
 ~~~
 
-L'implémentation est très très simple (Listing [\[lst:product\_above\_or\_equal\_to\_price\]](#lst:product_above_or_equal_to_price){reference-type="ref"reference="lst:product_above_or_equal_to_price"}):
+L'implémentation est très très simple:
 
 ~~~ruby
 # app/models/product.rb
@@ -528,7 +511,6 @@ Vous pouvez maintenant imaginer le comportement de la méthode opposée. Voici l
 
 RSpec.describe Product, type: :model do
   # ...
-
   describe '.below_or_equal_to_price' do
     before(:each) do
       @product1 = FactoryBot.create :product, price: 100
@@ -544,7 +526,7 @@ RSpec.describe Product, type: :model do
 end
 ~~~
 
-Et l'implémentation (Listing [\[lst:product\_below\_or\_equal\_to\_price\]](#lst:product_below_or_equal_to_price){reference-type="ref"reference="lst:product_below_or_equal_to_price"}):
+Et l'implémentation:
 
 ~~~ruby
 # app/models/product.rb
@@ -570,7 +552,7 @@ Comme vous pouvez le voir, nous n'avons pas eu beaucoup de problèmes. Ajoutons 
 
 ### Tri par date de création
 
-Ce *scope* est très facile. Ajoutons d'abord quelques tests (Listing [\[lst:product\_recent\_spec\]](#lst:product_recent_spec){reference-type="ref"reference="lst:product_recent_spec"}):
+Ce *scope* est très facile. Ajoutons d'abord quelques tests:
 
 ~~~ruby
 # spec/models/product_spec.rb
@@ -578,7 +560,6 @@ Ce *scope* est très facile. Ajoutons d'abord quelques tests (Listing [\[lst:pro
 
 RSpec.describe Product, type: :model do
   # ...
-
   describe '.recent' do
     before(:each) do
       @product1 = FactoryBot.create :product, price: 100
@@ -598,7 +579,7 @@ RSpec.describe Product, type: :model do
 end
 ~~~
 
-Et l'implémentation (Listing [\[lst:product\_recent\]](#lst:product_recent){reference-type="ref"reference="lst:product_recent"}):
+Et l'implémentation:
 
 ~~~ruby
 # app/models/product.rb
@@ -633,7 +614,6 @@ La méthode consistera à enchaîner tous les `scope` que nous avons construits 
 
 RSpec.describe Product, type: :model do
   # ...
-
   describe '.search' do
     before(:each) do
       @product1 = FactoryBot.create :product, price: 100, title: 'Plasma tv'
@@ -724,6 +704,6 @@ Finished in 1.49 seconds (files took 6.53 seconds to load)
 $ git commit -am "Adds search class method to filter products"
 ~~~
 
-Conclusion
+## Conclusion
 
 Jusqu'à présent, et grâce à la gemme [active\_model\_serializers](https://github.com/rails-api/active_model_serializers), c'était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle `Order` qui associera les utilisateurs aux produits.
