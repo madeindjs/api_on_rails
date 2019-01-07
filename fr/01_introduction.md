@@ -1,6 +1,6 @@
 # Introduction
 
-Bienvenue sur API on Rails 5, un tutoriel sous stéroïdes à propos de la meilleur façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 5.2 qui est la version actuelle (pour plus d'informations à ce sujet, consultez [rubyonrails.org](http://rubyonrails.org/)). La version la plus récente de APIs on Rails se trouve sur [Github][api_on_rails_git] ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
+Bienvenue sur API on Rails 5, un tutoriel sous stéroïdes à propos de la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 5.2 qui est la version actuelle (pour plus d'informations à ce sujet, consultez [rubyonrails.org](http://rubyonrails.org/)). La version la plus récente de APIs on Rails se trouve sur [Github][api_on_rails_git] ; n'oubliez pas de mettre à jour votre version hors ligne si c'est le cas.
 
 L'intention de ce livre n'est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API évolutive et maintenable avec Rails. C'est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendrez à:
 
@@ -13,11 +13,11 @@ Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez d
 
 Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon expérience. Cela signifie qu'après avoir initialisé le projet, nous commencerons à utiliser **Git** .
 
-Dans les prochains chapitres, nous allons construire l'application en suivant une méthode de travail simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le **développement piloté par les tests** (TDD). Je vous expliquerai aussi l'intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant tous les routes nécessaires. Nous sécuriserons aussi l'accès à l'API en construisant une authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d'optimisation pour améliorer la structure et les temps de réponse du serveur.
+Dans les prochains chapitres, nous allons construire l'application en suivant une méthode de travail simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le **développement piloté par les tests** (TDD). Je vous expliquerai aussi l'intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant toutes les routes nécessaires. Nous sécuriserons aussi l'accès à l'API en construisant une authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d'optimisation pour améliorer la structure et les temps de réponse du serveur.
 
 L'application finale sera une fonction pour une application de place de marché où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme [Shopify](http://shopify.com/), [Spree](http://spreecommerce.com/) ou [Magento](http://magento.com/).
 
-Tout au long de ce voyage (cela dépend vraiment de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J'ai aussi pris certaines des pratiques que j'ai trouvé sur ces sites:
+Tout au long de ce voyage (cela dépend vraiment de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J'ai aussi pris certaines des pratiques que j'ai trouvées sur ces sites:
 
 - [Railscasts](http://railscasts.com/)
 - [CodeSchool](http://codeschool.com/)
@@ -49,9 +49,9 @@ Pour presque tous les développeurs, l'une des parties les plus douloureuses est
 
 ### Éditeurs de texte et Terminal
 
-Les environnements de développement diffèrent d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant, certains pensent que c'est la meilleure façon de travailler. Si c'est votre cas, je vous recommande d'essayer [RadRails](http://www.aptana.com/products/radrails) ou [RubyMine](http://www.jetbrains.com/ruby/index.html). Tout deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux comme moi qui comme moi préfère des outils simples, je peux vous dire qu'il y a beaucoup d'outils disponibles que vous pourrez personnaliser via des plugins et plus.
+Les environnements de développement diffèrent d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant, certains pensent que c'est la meilleure façon de travailler. Si c'est votre cas, je vous recommande d'essayer [RadRails](http://www.aptana.com/products/radrails) ou [RubyMine](http://www.jetbrains.com/ruby/index.html). Tous deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux qui comme moi préfèrent des outils simples, je peux vous dire qu'il y a beaucoup d'outils disponibles que vous pourrez personnaliser via des plugins et plus.
 
-- **Éditeur de texte**: J'utilise personnellement [Vim](http://www.vim.org/) comme éditeur. Au cas où vous n'êtes pas un fan de Vim, il y a beaucoup d'autres solutions comme [Sublime Text](http://www.sublimetext.com/) qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par [TextMate](http://macromates.com/). Une troisième option est d'utiliser un éditeur de texte plus récent comme [Atom](https://atom.io/) de [Github](http://gitub.com/). C'est un éditeur de texte prometteur fait en JavaScript. Il est facile à personnaliser pour répondre à vos besoins. N'importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui ou vous êtes le plus à l'aise.
+- **Éditeur de texte**: J'utilise personnellement [Vim](http://www.vim.org/) comme éditeur. Au cas où vous n'êtes pas un fan de Vim, il y a beaucoup d'autres solutions comme [Sublime Text](http://www.sublimetext.com/) qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par [TextMate](http://macromates.com/). Une troisième option est d'utiliser un éditeur de texte plus récent comme [Atom](https://atom.io/) de [Github](http://gitub.com/). C'est un éditeur de texte prometteur fait en JavaScript. Il est facile à personnaliser pour répondre à vos besoins. N'importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui où vous êtes le plus à l'aise.
 
 - **Terminal**: Je ne suis pas un fan de l'application Terminal par défaut sous Mac OS. Je recommande [iTerm2](http://www.iterm2.com/#/section/home), qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
 
@@ -71,7 +71,7 @@ $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/inst
 
 ### Git
 
-Nous utiliserons beaucoup Git et vous devriez aussi l'utiliser (non seulement pour ce tutoriel mais aussi pour tout vos projets). Pour l'installer, c'est très facile:
+Nous utiliserons beaucoup Git et vous devriez aussi l'utiliser (non seulement pour ce tutoriel mais aussi pour tous vos projets). Pour l'installer, c'est très facile:
 
 - sous Mac OS: `$ brew install git`
 - sous Linux: `$ sudo apt-get install git`
@@ -84,9 +84,9 @@ Il existe de nombreuses façons d'installer et de gérer Ruby. Vous devriez prob
 $ ruby -v
 ~~~
 
-Rails 5 nécessite l'installation de la version 2.2.2 ou supérieure. Pour l'installer, je vous recommande d'utiliser [Ruby Version Manager (RVM)](http://rvm.io/) ou [rbenv](http://rbenv.org/). Ces outils vous permettrons d'installer plusieurs versions de `ruby`. Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
+Rails 5 nécessite l'installation de la version 2.2.2 ou supérieure. Pour l'installer, je vous recommande d'utiliser [Ruby Version Manager (RVM)](http://rvm.io/) ou [rbenv](http://rbenv.org/). Ces outils vous permettront d'installer plusieurs versions de `ruby`. Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
 
-Pour installer RVM, rendez vous sur <https://rvm.io/> et installez la clé GPG[^gpg]. Une fois fais
+Pour installer RVM, rendez vous sur <https://rvm.io/> et installez la clé GPG[^gpg]. Une fois fait
 
 [^gpg]: La clé GPG vous permet de vérifier l’identité de l'auteur des sources que vous téléchargez.
 
@@ -136,7 +136,7 @@ $ rails -v 5.2
 
 #### Bases de données
 
-Je vous recommande fortement d'installer [Postgresql](http://www.postgresql.org/) pour gérer vos bases de données. Mais ici, plus de simplicité, nous allons utiliser [SQlite](http://www.sqlite.org/). Si vous utilisez Mac OS vous n'avez pas de bibliothèques supplémentaire à installer. Si vous êtes sous Linux, ne vous inquiétez pas, je vous guide:
+Je vous recommande fortement d'installer [Postgresql](http://www.postgresql.org/) pour gérer vos bases de données. Mais ici, pour plus de simplicité, nous allons utiliser [SQlite](http://www.sqlite.org/). Si vous utilisez Mac OS vous n'avez pas de bibliothèques supplémentaires à installer. Si vous êtes sous Linux, ne vous inquiétez pas, je vous guide:
 
 ~~~bash
 $ sudo apt-get install libxslt-dev libxml2-dev libsqlite3-dev
@@ -152,7 +152,7 @@ $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 
 Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d'œil à cette section.
 
-Sachez que nous utiliserons [Rspec](http://rspec.info/) comme suite de test. Assurez-vous donc d'inclure l'option `--skip-test` lors de la création de l'application[^5] et l'option `--api`. L'option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et *Middleware* inclue dans l'application. Cela permet aussi d'éviter de générer les vues HTML lors de l'utilisation des générateurs de Rails
+Sachez que nous utiliserons [Rspec](http://rspec.info/) comme suite de test. Assurez-vous donc d'inclure l'option `--skip-test` lors de la création de l'application[^5] et l'option `--api`. L'option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et *Middleware* inclus dans l'application. Cela permet aussi d'éviter de générer les vues HTML lors de l'utilisation des générateurs de Rails
 
 La commande est donc la suivante
 
@@ -192,11 +192,11 @@ Ensuite, vous pouvez créer le [lien symbolique](http://en.wikipedia.org/wiki/Sy
 $ ln -s ~/workspace/market_place_api
 ~~~
 
-N'oubliez pas de changer le répertoire utilisateur pour celui qui correspond au votre. Vous pouvez maintenant accéder à l'application via <http://market_place_api.dev/>. Votre application devrait être en cours d'exécution.
+N'oubliez pas de changer le répertoire utilisateur pour celui qui correspond au vôtre. Vous pouvez maintenant accéder à l'application via <http://market_place_api.dev/>. Votre application devrait être en cours d'exécution.
 
 #### Installer Prax
 
-Pour les utilisateurs de Linux uniquement, [Prax](https://github.com/ysbaddaden/prax.cr) distribue des paquets déjà compilé pour les distributions Debian / Ubuntu. Il suffit donc de télécharger le paquet `.deb` et de l'installer avec `dpkg`.
+Pour les utilisateurs de Linux uniquement, [Prax](https://github.com/ysbaddaden/prax.cr) distribue des paquets déjà compilés pour les distributions Debian / Ubuntu. Il suffit donc de télécharger le paquet `.deb` et de l'installer avec `dpkg`.
 
 ~~~bash
 $ cd /tmp
@@ -351,4 +351,4 @@ Au fur et à mesure que nous avançons dans le tutoriel, j'utiliserai les pratiq
 
 ## Conclusion
 
-Cela a été un chapitre assez long. Si vous êtes arrivé ici, permettez-moi de vous féliciter. Les choses vont s'améliorer à partir de ce point. Commençons à mettre les mains dans le code!
+Cela a été un chapitre assez long. Si vous êtes arrivés ici, permettez-moi de vous féliciter. Les choses vont s'améliorer à partir de ce point. Commençons à mettre les mains dans le code!
