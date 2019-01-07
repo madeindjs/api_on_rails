@@ -4,7 +4,7 @@ Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'
 
 - La mise en place de la spécification [JSON:API](https://jsonapi.org/)
 - la pagination
-- les tâhces en arrière plan
+- les tâches en arrière plan
 - la mise en cache
 
 J'essaierai d'aller aussi loin que possible en essayant de couvrir certains scénarios courants. J'espère que ces scénario vous serons utiles pour certains de vos projets.
@@ -25,15 +25,32 @@ $ git checkout -b chapter10
 
 Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établies certaines conventions.
 
-Une des convention les plus appliquée est très certainement [JSON:API](https://jsonapi.org/). JSON:API nous impose certaines règles
-à suivre comme:
+Une des convention les plus appliquée est très certainement [JSON:API](https://jsonapi.org/). JSON:API nous impose certaines règles à suivre comme:
 
-- Comment formater la présentation de
+- Comment formater le JSON
+- Comment organiser nos routes
+- Quel type de réponse HTTP appliquer
+- Quels en-tête fournir dans la réponse HTTP
 
-Cette convention nous permettra d'aborder la pagination plus sereinement.
+Tout au long du livre, nous en avons suivit certaines.
 
-Pagination
-----------
+Cette convention nous permettra d'aborder la pagination plus sereinement dans la prochaine section.
+
+### L'en-tête `Content-Type`
+
+### Structure de la réponse JSON
+
+Que je le disais plus haut, la [documentation de JSON:API][jsonapi_documentation] nous donne quelques règles à suivre sur le formatage du document JSON.
+
+Ainsi, notre document **doit** contenir ces clefs:
+
+- `data`: qui doit contenir les données que nous renvoyons
+- `errors` qui doit contenir un tableau des erreurs qui sont survenues.
+- `meta` qui contient un [objet meta][jsonapi_meta]
+
+Les clés `data` et `errors` ne doivent pas être présente en même temps et c'est logique puisque si une erreur survient nous ne devrions pas être en mesure de rendre des données correctes. 
+
+## Pagination
 
 Une stratégie très commune pour optimiser la récupération d'enregistrements dans une base de données est de charger seulement une quantité limité en les paginant. Si vous êtes familier avec cette technique, vous savez qu'avec Rails c'est vraiment très facile à mettre en place avec des gemmes telles que [will\_paginate](https://github.com/mislav/will_paginate) ou [kaminari](https://github.com/kaminari/kaminari).
 
@@ -173,3 +190,9 @@ Finished in 0.41533 seconds (files took 0.5997 seconds to load)
 ~~~
 
 Maintenant que nous avons corrigé cela, ajoutons les informations de pagination. Nous devons le faire dans le fichier `products_controller.rb`:
+
+
+
+
+[jsonapi_documentation]: https://jsonapi.org/format/#document-structure
+[jsonapi_meta]: https://jsonapi.org/format/#document-meta
