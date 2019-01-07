@@ -1,13 +1,13 @@
-# Optimisations {#chapter:10}
+# Optimisations
 
-Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'êtes qu'à un pas de la fin. Dans le chapitre [12](#chapter:9){reference-type="ref" reference="chapter:9"}, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l'optimisation. Les sujets que je vais aborder ici seront:
+Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'êtes qu'à un pas de la fin. Dans le chapitre précédent, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l'optimisation. Les sujets que je vais aborder ici seront:
 
 - La mise en place de la spécification [JSON:API](https://jsonapi.org/)
 - la pagination
 - les tâhces en arrière plan
 - la mise en cache
 
-J'essaierai d'aller aussi loin que possible en essayant de couvrir certains scénarios courants. J'espère que ces scénarions vous serons utiles pour certains de vos projets.
+J'essaierai d'aller aussi loin que possible en essayant de couvrir certains scénarios courants. J'espère que ces scénario vous serons utiles pour certains de vos projets.
 
 Si vous commencez à lire à ce stade, vous voudrez probablement que le code fonctionne, vous pouvez le cloner comme ça:
 
@@ -21,24 +21,23 @@ Créons une nouvelle branche pour ce chapitre:
 $ git checkout -b chapter10
 ~~~
 
-Mise en place de la spécification [JSON:API](https://jsonapi.org/)
-------------------------------------------------------------------
+## Mise en place de la spécification [JSON:API](https://jsonapi.org/)
 
-Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heuresement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établies certaines conventions.
+Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établies certaines conventions.
 
 Une des convention les plus appliquée est très certainement [JSON:API](https://jsonapi.org/). JSON:API nous impose certaines règles
 à suivre comme:
 
 - Comment formater la présentation de
 
-Cette convention nous permettra d'aborder la pagination (section [13.2](#sec:pagination){reference-type="ref"reference="sec:pagination"}) plus sereinement.
+Cette convention nous permettra d'aborder la pagination plus sereinement.
 
 Pagination
 ----------
 
-Une stratégie très commune pour optimiser la récupération d'enregistrements dans une base de données est de charger seulement une qunatité limité en les paginant. Si vous êtes familier avec cette technique, vous savez qu'avec Rails c'est vraiment très facile à mettre en place avec des gemmes telles que [will\_paginate](https://github.com/mislav/will_paginate) ou [kaminari](https://github.com/kaminari/kaminari).
+Une stratégie très commune pour optimiser la récupération d'enregistrements dans une base de données est de charger seulement une quantité limité en les paginant. Si vous êtes familier avec cette technique, vous savez qu'avec Rails c'est vraiment très facile à mettre en place avec des gemmes telles que [will\_paginate](https://github.com/mislav/will_paginate) ou [kaminari](https://github.com/kaminari/kaminari).
 
-La seule partie délicate ici est de savoir comment gérer la sortie JSON pour donner assez d'informations au client sur la façon dont le tableau est paginé. Si vous vous souvenez du chapitre [4](#chapter:1){reference-type="ref" reference="chapter:1"}, j'ai partagé quelques ressources sur les pratiques que j'allais suivre ici. L'une d'entre elles était <http://jsonapi.org/> qui est une page incontournable des signets.
+La seule partie délicate ici est de savoir comment gérer la sortie JSON pour donner assez d'informations au client sur la façon dont le tableau est paginé. Dans la section précédente, j'ai partagé quelques ressources sur les pratiques que j'allais suivre ici. L'une d'entre elles était <http://jsonapi.org/> qui est une page incontournable des signets.
 
 Si nous lisons la section sur le format, nous arriverons à une sous-section appelée [Top Level](https://jsonapi.org/format/#document-top-level). Pour vous expliquer rapidement, ils mentionnent quelque chose sur la pagination:
 
@@ -71,7 +70,6 @@ class Api::V1::ProductsController < ApplicationController
 
   # ...
 end
-
 ~~~
 
 Jusqu'à présent, la seule chose qui a changé est la requête sur la base de données pour limiter le résultat à 25 par page (ce qui est la valeur par défaut). Mais nous n'avons toujours pas ajouté d'informations supplémentaires à la sortie JSON.
@@ -87,7 +85,6 @@ Nous devons fournir les informations de pagination sur la balise meta dans le fo
     }
 }
 ~~~
-
 
 Maintenant que nous avons la structure finale de la balise meta, il ne nous reste plus qu'à la sortir sur la réponse JSON. Ajoutons d'abord quelques tests:
 
@@ -119,10 +116,9 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 
   # ...
 end
-
 ~~~
 
-Le test que nous venons d'ajouter devrait échouer or, si nous executons les tests, deux tests échouent. Cela veux dire que nous avons cassé quelque chose d'autre:
+Le test que nous venons d'ajouter devrait échouer or, si nous exécutons les tests, deux tests échouent. Cela veux dire que nous avons cassé quelque chose d'autre:
 
 ~~~bash
 $ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb

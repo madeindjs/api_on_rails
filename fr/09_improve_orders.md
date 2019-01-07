@@ -1,26 +1,24 @@
-# Améliorer les commandes {#chapter:9}
+# Améliorer les commandes
 
-Dans le chapitre [11](#chapter:8){reference-type="ref"reference="chapter:8"}, nous avons amélioré notre API pour passer des commandes et envoyer un e-mail de confirmation à l'utilisateur (juste pour améliorer l'expérience utilisateur). Ce chapitre va s'occuper de quelques validations sur le modèle de commande afin de s'assurer qu'elle est valide. C'est-à-dire:
+Précédemment nous avons amélioré notre API pour passer des commandes et envoyer un e-mail de confirmation à l'utilisateur (juste pour améliorer l'expérience utilisateur). Ce chapitre va s'occuper de quelques validations sur le modèle de commande afin de s'assurer qu'elle est valide. C'est-à-dire:
 
 - Diminuer la quantité du produit en cours lors de la passation d'une commande
 - Que se passe-t-il lorsque les produits ne sont pas disponibles?
 
 Nous aurons aussi besoin de mettre à jour un peu la sortie JSON pour les
-commandes Mais ne *spoilons* pas la suite.
+commandes. Mais ne *spoilons* pas la suite.
 
 Maintenant que tout est clair, on peut mettre les mains dans le
 cambouis. Vous pouvez cloner le projet jusqu'à ce point avec:
 
 ~~~bash
 $ git clone https://github.com/madeindjs/market_place_api.git -b chapter8
-
 ~~~
 
 Créons une branche pour commencer
 
 ~~~bash
 $ git checkout -b chapter9
-
 ~~~
 
 ## Diminution de la quantité de produit
@@ -53,7 +51,7 @@ $ rake db:migrate
 
 Il est maintenant temps de diminuer la quantité du `Product` une fois l'`Order` passée. La première chose qui vous vient probablement à l'esprit est de le faire dans le modèle `Order` et c'est une erreur fréquente. Lorsque vous travaillez avec des associations *Many-to-Many*, nous oublions totalement le modèle de jointure qui dans ce cas est `Placement`. Le `Placement` est un meilleur endroit pour gérer cela car nous avons accès à la commande et au produit. Ainsi, nous pouvons facilement diminuer le stock du produit.
 
-Avant de commencer à implémenter le code, nous devons changer la façon dont nous gérons la création de la commande car nous devons maintenant accepter une quantité pour chaque produit. Si vous vous souvenez de Listing [\[lst:orders\_controller\_create\]](#lst:orders_controller_create){reference-type="ref"reference="lst:orders_controller_create"}, nous attendons un tableau d'identifiants de produits. Je vais essayer de garder les choses simples et je vais envoyer un tableau de tableaux où la première position de chaque tableau interne sera l'identifiant du produit et la seconde la quantité.
+Avant de commencer à implémenter le code, nous devons changer la façon dont nous gérons la création de la commande car nous devons maintenant accepter une quantité pour chaque produit. Si vous vous souvenez, nous attendons un tableau d'identifiants de produits. Je vais essayer de garder les choses simples et je vais envoyer un tableau de tableaux où la première position de chaque tableau interne sera l'identifiant du produit et la seconde la quantité.
 
 Un exemple rapide serait quelque chose comme cela:
 
@@ -113,10 +111,10 @@ Et maintenant, si nous lançons les tests, ils devraient passer:
 
 ~~~ruby
 $ rspec spec/models/order_spec.rb
-      ........
+........
 
-      Finished in 0.33759 seconds (files took 3.54 seconds to load)
-      8 examples, 0 failures
+Finished in 0.33759 seconds (files took 3.54 seconds to load)
+8 examples, 0 failures
 ~~~
 
 Les `build_placements_with_product_ids_and_quantities` construiront les objets `Placement` et une fois que nous déclencherons la méthode de sauvegarde de l'ordre, tout sera inséré dans la base de données. Une dernière étape avant de valider ceci est de mettre à jour `orders_controller_spec` avec son implémentation.
@@ -304,7 +302,7 @@ RSpec.describe Placement, type: :model do
 end
 ~~~
 
-La mise en œuvre est assez simple comme le montre le listing [\[lst:placement\_decrement\_product\_quantity\]](#lst:placement_decrement_product_quantity){reference-type="ref"reference="lst:placement_decrement_product_quantity"}.
+La mise en œuvre est assez simple comme le montre le code suivant.
 
 ~~~ruby
 # app/models/placement.rb
@@ -331,7 +329,7 @@ $ mkdir app/validators
 $ touch app/validators/enough_products_validator.rb
 ~~~
 
-Avant de commencer à implémenter la classe, nous devons nous assurer d'ajouter un test au modèle de commande pour vérifier si la commande peut être passée (Listing [\[lst:order\_valid\_spec\]](#lst:order_valid_spec){reference-type="ref"reference="lst:order_valid_spec"}).
+Avant de commencer à implémenter la classe, nous devons nous assurer d'ajouter un test au modèle de commande pour vérifier si la commande peut être passée.
 
 ~~~ruby
 # spec/models/order_spec.rb
@@ -362,7 +360,7 @@ RSpec.describe Order, type: :model do
 end
 ~~~
 
-Comme vous pouvez le voir sur les tests (Listing [\[lst:order\_valid\_spec\]](#lst:order_valid_spec){reference-type="ref"reference="lst:order_valid_spec"}), nous nous assurons d'abord que `placement_2` essaie de demander plus de produits que ce qui est disponible. Donc dans ce cas la commande n'est pas supposée être valide.
+Comme vous pouvez le voir sur les tests suivants, nous nous assurons d'abord que `placement_2` essaie de demander plus de produits que ce qui est disponible. Donc dans ce cas la commande n'est pas supposée être valide.
 
 Le test est en train d'échouer. Faisons le passer en implémentant le code pour le validateur:
 
@@ -378,7 +376,6 @@ class EnoughProductsValidator < ActiveModel::Validator
     end
   end
 end
-
 ~~~
 
 J'ajoute simplement un message pour chacun des produits en rupture de stock, mais vous pouvez le gérer différemment si vous le souhaitez. Il ne nous reste plus qu'à ajouter ce validateur au modèle `Order` comme cela:
@@ -409,8 +406,7 @@ $ git add .
 $ git commit -m "Adds validator for order with not enough products on stock"
 ~~~
 
-Mettre à jour le prix total
----------------------------
+## Mettre à jour le prix total
 
 Réalisez vous que le prix total est mal calculé? Actuellement, nous ajoutons le prix des produits sur la commande, quelle que soit la quantité demandée. Permettez-moi d'ajouter le code pour clarifier le problème:
 
@@ -460,7 +456,6 @@ RSpec.describe Order, type: :model do
 
   # ...
 end
-
 ~~~
 
 L'implémentation est assez simple:
@@ -479,7 +474,6 @@ class Order < ApplicationRecord
 
   # ...
 end
-
 ~~~
 
 Et maintenant, les tests devraient passer:
@@ -490,7 +484,6 @@ $ rspec spec/models/order_spec.rb
 
 Finished in 0.20537 seconds (files took 0.74555 seconds to load)
 9 examples, 0 failures
-
 ~~~
 
 *Commitons* nos changements et récapitulons tout ce que nous venons de
@@ -498,12 +491,10 @@ faire:
 
 ~~~bash
 $ git commit -am "Updates the total calculation for order"
-
 ~~~
 
-Conclusion
-----------
+## Conclusion
 
-Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le chapitre [4](#chapter:1){reference-type="ref"reference="chapter:1"}, mais vous êtes à un pas de plus. En fait, le chapitre suivant serait le dernier. Alors essayez d'en tirer le meilleur.
+Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le premier chapitre. Mais vous êtes à un pas de plus. En fait, le chapitre suivant serait le dernier. Alors essayez d'en tirer le meilleur.
 
 Le dernier chapitre portera sur la façon d'optimiser l'API en utilisant la pagination, la mise en cache et les tâches d'arrière-plan. Donc bouclez vos ceintures, ça va être un parcours mouvementé.
