@@ -1,8 +1,6 @@
-# API on Rails
+# ![API on Rails](fr/img/cover.svg)
 
 Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com/book) book.
-
-![Book cover](fr/img/cover.svg)
 
 <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
