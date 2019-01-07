@@ -1,8 +1,8 @@
-# L'API
+# The API
 
-Dans ce chapitre, je vais vous donner les grandes lignes de l'application. Vous devriez avoir lu le chapitre précédent. Si ce n'est pas le cas, je vous recommande de le faire.
+In this section I’ll outline the application. By now you should have the bare bones of the application. If you did not read it I recommend you to do it.
 
-Vous pouvez cloner le projet jusqu'ici avec :
+You can clone the project until this point with:
 
 ~~~bash
 $ git clone https://github.com/madeindjs/market_place_api
@@ -10,75 +10,60 @@ $ cd market_place_api
 $ git checkout -b chapter1 b98a9a7a328017640482af95beebc1d6e612e0ac
 ~~~
 
-Pour résumer, nous avons mis à jour le `Gemfile` pour ajouter la gemme `active_model_serializers`.
+And as a quick recap, we really just update the `Gemfile` to add the `active_model_serializers` gem.
 
 ## Planification de l'application
 
-Notre application sera assez simple. Elle se composera de 5 modèles. Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
+As we want to go simple with the application, it consists on 5 models. Don’t worry if you don’t fully understand what is going on, we will review and build each of these resources as we move on with the tutorial.
 
 ![Schéma des liaisons entre les différent modèles](img/data_model.png)
 
-En bref, nous avons l'utilisateur (`User`) qui sera en mesure de passer de nombreuses commandes (`Order`), télécharger de multiples produits (`product`) qui peuvent avoir de nombreuses images (`Image`) ou commentaires (`Comment`) d'autres utilisateurs sur l'application.
+In short terms we have the `user` who will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
 
-Nous n'allons pas construire d'interface pour l'interaction avec l'API afin de ne pas surcharger le tutoriel. Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks JavaScript ([Angular](https://angularjs.org/), [Vue.JS](https://vuejs.org/), [React](https://reactjs.org/)) ou des librairies mobile ([AFNetworking](https://github.com/AFNetworking/AFNetworking)).
+We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there, from javascript frameworks([Angular](https://angularjs.org/), [EmberJS](http://emberjs.com/), [Backbone](http://backbonejs.org/)) to mobile consumption([AFNetworking](https://github.com/AFNetworking/AFNetworking)).
 
-À ce stade, vous devriez vous poser cette question:
+By this point you must be asking yourself, all right but I need to explore or visualize the api we are going to be building, and that’s fair. Probably if you google something related to api exploring, an application called [Postman](https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en) will pop, it is a great add on if you are using chrome, but we won’t be using that anyway, as probably not every developer uses the Google browser. Instead of that we will be using a gem I built called `sabisu_rails` which is a powerful postman-like engine client to explore your Rails application api’s. We will cover the gem integration
 
-> D'accord, mais j'ai besoin d'explorer et de visualiser l'API que je vais construire, non?
+## Setting the API
 
-C'est juste. Si vous *googlez* quelque chose lié à l'exploration d'une API, vous allez trouvez pas mal de résultats. Vous pouvez par exemple utiliser [Postman](https://www.getpostman.com/) qui est devenu incontournable.
+An API is defined by [wikipedia](http://en.wikipedia.org/wiki/Application_programming_interface) as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with `json`. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 
-## Mettre en place l'API
+JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement in fact many of the current frameworks consume json api’s by default, in Javascript there is [Angular](https://angularjs.org/) or [EmberJS](http://emberjs.com/), but there are great libraries for objective-c too like [AFNetworking](https://github.com/AFNetworking/AFNetworking) or [RESTKit](http://restkit.org/). There are probably good solutions for Android, but because of my lack of experience on that development platform I might not be the right person to recommend you something.
 
-Une API est définie par [wikipedia](https://fr.wikipedia.org/wiki/Interface_de_programmation) comme une interface de programmation d'application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d'autres logiciels. En d'autres termes, il s'agit d'une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)[^json_method].
-
-[^json_method]: Il existe d'autres types de protocoles de communication comme SOAP, mais nous n'en parlons pas ici.
-
-JSON est devenu incontournable en tant sur média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l'utilisent comme protocole par défaut comme [Angular](https://angularjs.org/) ou [EmberJS](http://emberjs.com/). D'autres grandes bibliothèques en Objective-C l'utilisent comme [AFNetworking](https://github.com/AFNetworking/AFNetworking) ou [RESTKit](http://restkit.org/). Il existe probablement de bonnes solutions pour Android, mais en raison de mon manque d'expérience sur cette plate-forme de développement je ne suis peut-être pas la bonne personne pour vous recommander quelque chose.
-
-Nous allons donc l'utiliser pour construire notre API. La première chose qui pourrait vous venir à l'esprit serait de commencer à créer des routes en vrac. Le problème est quelles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner qu'elle ressource est renvoyée par une route.
-
-C'est pourquoi une norme existe: **REST** *(Representational State Transfer)*. REST impose une norme pour les routes qui crée, lise, mette à jour ou supprime des informations sur un serveur en utilisant de simples appels HTTP. C'est une alternative aux mécanismes plus complexes comme SOAP, CORBA et RPC. Un appel REST est simplement une requête GET HTTP vers le serveur.
+All right, so we are building our api with `json`, but there are many ways to achieve this, the first thing that could come to your mind would be just to start dropping some routes defining the [end points](http://en.wikipedia.org/wiki/Web_Services_Description_Language#Objects_in_WSDL_1.1_.2F_WSDL_2.0) but they may not have a [URI pattern](http://www.w3.org/2005/Incubator/wcl/matching.html) clear enough to know which resource is being exposed. The protocol or structure I’m talking about is [REST](http://en.wikipedia.org/wiki/Representational_state_transfer) which stands for Representational State Transfer and by wikipedia definition _is a way to create, read, update or delete information on a server using simple HTTP calls. It is an alternative to more complex mechanisms like SOAP, CORBA and RPC. A REST call is simply a GET HTTP request to the server._
 
 ~~~soap
 aService.getUser("1")
 ~~~
 
-Et avec REST, vous pouvez appeler une URL avec une requête HTTP spécifique. Dans ce cas avec une requête GET:
-
+And in REST you may call a URL with an especific HTTP request, in this case with a GET request:
 ~~~
 http://domain.com/resources_name/uri_pattern
 ~~~
 
-Les API *RESTful* doivent suivre aux minimum trois règles:
+RESTful APIs must follow at least 3 simple guidelines:
 
-- Une URI de base comme <http://example.com/resources/>
-- Un type de média Internet pour représenter les données, il est communément JSON et est communément défini par l'échange d'en-têtes.
-- Suivez les méthodes [HTTP](https://fr.wikipedia.org/wiki/Hypertext_Transfer_Protocol) standard telles que GET, POST, PUT, PUT, DELETE.
+- A base [URI](http://en.wikipedia.org/wiki/Uniform_resource_identifier), such as `http://example.com/resources/`.
+- An Internet media type to represent the data, it is commonly `JSON` and is commonly set through headers exchange.
+- Follow the standard [HTTP Methods](http://en.wikipedia.org/wiki/HTTP_method#Request_methods) such as GET, POST, PUT, DELETE.
 
-    - **GET**: Lit la ou les ressources définies par le modèle URI
-    - **POST**: Crée une nouvelle entrée dans la collection de ressources
-    - **PUT**: Mise à jour d'une collection ou d'un membre des ressources
-    - **DELETE**: Détruit une collection ou un membre des ressources
+    - **GET**: Reads the resource or resources defined by the URI pattern
+    - **POST**: Creates a new entry into the resources collection
+    - **PUT**: Updates a collection or member of the resources
+    - **DELETE**: Destroys a collection or member of the resources
 
-Cela peut sembler compliqué mais au fur et à mesure que nous avancerons dans le tutoriel cela deviendra beaucoup plus facile à comprendre.
+This might not be clear enough or may look like a lot of information to digest but as we move on with the tutorial, hopefully it’ll get a lot easier to understand.
 
-### Routes, contraintes et *Namespaces*
+### Routes, Constraints and Namespaces
 
-Avant de commencer à taper du code, nous allons préparer le répertoire Git. Le *workflow* que nous allons suivre est le suivant:
-
-- Nous allons créer une branche par chapitre
-- Une fois terminé, nous le pousserons la branche sur Github
-- Nous la fusionnerons avec master
-
-Commençons donc par ouvrir le terminal dans le répertoire `market_place_api` et tapez la commande suivante pour créer la branche:
+Before start typing any code, we prepare the code with git, the workflow we’ll be using a branch per chapter, upload it to github and then merge it with master, so let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
 
 ~~~bash
 $ git checkout -b setting-api
 Switched to a new branch 'setting-api'
 ~~~
 
-Nous allons seulement travailler sur le fichier `config/routes.rb` car nous allons simplement définir les contraintes et le format de réponse par défaut pour chaque requête.
+We are only going to be working on the `config/routes.rb`, as we are just going to set the `constraints`, the `base_uri` and the default response `format` for each request.
 
 ~~~ruby
 # config/routes.rb
@@ -87,20 +72,20 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Effacez tout le code commenté qui se trouve dans le fichier. Nous n'en aurons pas besoin. Ensuite, faites un *commit*, juste pour s'échauffer:
+First of all erase all commented code that comes within the file, we are not gonna need it. Then commit it, just as a warm up:
 
 ~~~bash
 $ git add config/routes.rb
 $ git commit -m "Removes comments from the routes file"
 ~~~
 
-Nous allons isoler les contrôleurs API dans des *Namespace*. Avec Rails, c'est assez simple. Il suffit de créer un dossier sous `app/controllers` nommé `api`. Le nom est important car c'est le *Namespace* que nous allons utiliser pour gérer les contrôleurs pour les points d'entrée de l'API
+We are going to isolate the api controllers under a namespace, in Rails this is fairly simple, just create a folder under the `app/controllers` named `api`, the name is important as it is the namespace we’ll use for managing the controllers for the api endpoints.
 
 ~~~bash
 $ mkdir app/controllers/api
 ~~~
 
-Nous ajoutons ensuite ce *Namespace* dans notre fichier `routes.rb`:
+We then add that namespace into our `routes.rb` file:
 
 ~~~ruby
 # config/routes.rb
@@ -112,9 +97,9 @@ Rails.application.routes.draw do
 end
 ~~~
 
-En définissant un *Namespace* dans le fichier `routes.rb`, Rails mappera automatiquement ce *Namespace* à un répertoire correspondant au nom sous le dossier contrôleurs (dans notre cas le répertoire `api/`).
+By defining a namespace under the `routes.rb` file. Rails will automatically map that namespace to a directory matching the name under the `controllers` folder, in our case the `api/` directory.
 
-Rails supporte jusqu'à 35 types de médias différents! Vous pouvez les lister en accédant à la classe `SET` sous le module de `Mime`:
+Rails can handle up to 35 different media types, you can list them by accessing the SET class under de Mime module:
 
 ~~~bash
 $ rails c
@@ -123,7 +108,7 @@ irb(main):001:0> Mime::SET.collect(&:to_s)
 => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip", "application/vnd.web-console.v2"]
 ~~~
 
-C'est important parce que nous allons travailler avec JSON, l'un des types MIME intégrés par Rails. Ainsi nous avons juste besoin de spécifier ce format comme format par défaut:
+This is important because we are going to be working with JSON, one of the built-in [MIME types](http://en.wikipedia.org/wiki/Internet_media_type) accepted by Rails, so we just need to specify this format as the default one:
 
 ~~~ruby
 # config/routes.rb
@@ -135,7 +120,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Jusqu'à présent, nous n'avons rien fait de compliqué. Nous voulons maintenant générer une `base_uri` sous un sous-domaine. C'est-à-dire quelque chose comme `api.market_place_api.dev`. Définir l'API sous un sous-domaine est une bonne pratique car cela permet d'adapter l'application à un niveau DNS. Alors, comment y parvenir?
+Up to this point we have not made anything crazy, what we want to achieve next is how to generate a *base_uri* under a subdomain, in our case something like `api.market_place_api.dev`. Setting the api under a subdomain is a good practice because it allows to scale the application to a DNS level. So how do we achieve that?
 
 ~~~ruby
 # config/routes.rb
@@ -147,26 +132,28 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Vous voyez la différence? Nous n'avons pas seulement ajouté un [`Hash`][ruby_hash] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l'option chemin d'accès et lui avons donné un *backslash*. Cela indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
+Notice the changes?, we didn’t just add a `constraints` hash to specify the subdomain, but we also add the `path` option, and set it a _backslash_. This is telling Rails to set the starting path for each request to be root in relation to the subdomain, achieving what we are looking for.
 
-### Les conventions des API
+### Common api patterns
 
-Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d'une API. En supposant que nous versionnons notre api:
+You can find many approaches to set up the *base_uri* when building an api following different patterns, assuming we are versioning our api:
 
-- `api.example.com/`: Je suis d'avis que c'est la voie à suivre, vous donne une meilleure interface et l'isolement, et à long terme peut vous aider à [mettre rapidement à l'échelle](http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/)
-- `example.com/api/`: Ce modèle est très commun. C'est un bon moyen de commencer quand vous ne voulez pas de *Namespace* de votre API avec sous un sous-domaine
-- `example.com/api/v1`: Cela semble être une bonne idée. En définissant la version de l'API par l'URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version àl'URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
+- `api.example.com/`: I my opinion this is the way to go, gives you a better interface and isolation, and in the long term can help you to [quickly scalate](http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/)
+- `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don’t want to namespace your api under a subdomain
+- `example.com/api/v1`: his seems like a good idea, by setting the version of the api through the URL seems like a more descriptive pattern, but this way you enforce the version to be included on URL on each request, so if you ever decide to change this pattern, this becomes a problem of maintenance in the long-term
 
-Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnement plus tard. Il est temps de *commiter*:
+Don’t worry about versioning right now, I’ll walk through it later. Time to commit:
 
 ~~~bash
 $ git add config/routes.rb
 $ git commit -m "Set the routes contraints for the api"
 ~~~
 
-## Versionnement de l'API
+All right take a deep breath, drink some water, and let’s get going.
 
-A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l'espacement des noms des requêtes. Votre fichier `routes.rb` devrait ressembler à ceci:
+## Api versioning
+
+At this point we should have a nice routes mapping using a subdomain for name spacing the requests, your `routes.rb` file should look like this:
 
 ~~~ruby
 # config/routes.rb
@@ -178,15 +165,15 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Il est maintenant temps de mettre en place d'autres contraintes pour le *versioning*. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une **meilleure structure** à votre API. Lorsque des changements interviendrons sur votre API, vous pouvez ainsi proposer aux développeurs de s'adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées.
+Now it is time to set up some other constraints for versioning purposes. You should care about versioning your application from the beginning since this will give a better structure to your api, and when changes need to be done, you can give developers who are consuming your api the opportunity to adapt for the new features while the old ones are being deprecated. There is an excellent [railscast](http://railscasts.com/episodes/350-rest-api-versioning) explaining this.
 
-Afin de définir la version de l'API, nous devons d'abord ajouter un autre répertoire sous le dossier `api/` que nous avons créé:
+In order to set the version for the api, we first need to add another directory under the `api` we created
 
 ~~~bash
 $ mkdir app/controllers/api/v1
 ~~~
 
-De cette façon, nous pouvons très facilement définir la portée de notre API dans différentes versions. Il ne nous reste plus qu'à ajouter le code nécessaire dans le fichier `routes.rb`
+This way we can scope our api into different versions very easily, now we just need to add the necessary code to the `routes.rb` file
 
 ~~~ruby
 # config/routes.rb
@@ -200,28 +187,31 @@ Rails.application.routes.draw do
 end
 ~~~
 
-L'API est désormais *scopée* via l'URL. Par exemple, avec la configuration actuelle, la récupération d'un produit via l'API se ferait avec cette url: <http://api.marketplace.dev/v1/products/1>.
+By this point the API is now scoped via de URL. For example with the current configuration an end point for retrieving a product would be like: <http://api.marketplace.dev/v1/products/1>.
 
 
-## Améliorer le versionnement
+## Improving the versioning
 
-Jusqu'à présent, l'API est versionnée via l'URL. Mais quelque chose ne va pas. De mon point de vue, le développeur ne devrait pas être au courant de la version qu'il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir?
+So far we have the API versioned scoped via the URL, but something doesn’t feel quite right, isn’t it?. What I mean by this is that from my point of view the developer should not be aware of the version using it, as by default they should be using the last version of your endpoints, but how do we accomplish this?.
 
-Tout d'abord, nous devons améliorer l'accès à la version de l'API via les [en-têtes HTTP](http://en.wikipedia.org/wiki/List_of_HTTP_header_fields). Cela permet de supprimer la version de l'API situé dans l'URL.
+Well first of all, we need to improve the API version access through [HTTP Headers](http://en.wikipedia.org/wiki/List_of_HTTP_header_fields). This has two benefits:
 
-Les champs d'en-tête HTTP sont des composants de l'en-tête de demandes et de réponses dans le protocole HTTP. Ils définissent les paramètres de fonctionnement d'une transaction HTTP. Voici une liste commune des en-têtes couramment utilisés:
+- Removes the version from the URL
+- The API description is handle through request headers
 
-- **Accept**: Types de contenu acceptables pour la réponse. Exemple: `Accept: text/plain`
-- **Authorization**: Identifiants d'authentification pour l'authentification HTTP. Exemple: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
-- **Content-Type**: Le type MIME du corps de la requête (utilisé avec les requêtes POST et PUT). Exemple: `Content-Type: application/x-www-form-urlencoded`
-- **Origin**: Lance une demande de partage de ressources d'origine croisée (demande au serveur un en-tête de réponse `Access-Controle-Autorisation-Autorisation-Origin`). Exemple: `Origin: http://www.example-social-network.com`
-- **User-Agent**: La chaîne d'agent utilisateur de l'agent utilisateur. Exemple: `User-Agent: Mozilla/5.0`
+HTTP header fields are components of the message header of requests and responses in the Hypertext Transfer Protocol (HTTP). They define operating parameters of an HTTP transaction. A common list of used headers is presented below:
 
-Il est important que vous vous sentiez à l'aise et que vous les compreniez ces en-tête HTTP.
+- **Accept**: Content-Types that are acceptable for the response. Example: `Accept: text/plain`
+- **Authorization**: Authentication credentials for HTTP authentication. Example: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
+- **Content-Type**: The MIME type of the body of the request (used with POST and PUT requests). Example: `Content-Type: application/x-www-form-urlencoded`
+- **Origin**: Initiates a request for cross-origin resource sharing (asks server for an ‘Access-Control-Allow-Origin’ response header). Example: `Origin: http://www.example-social-network.com`
+- **User-Agent**: The user agent string of the user agent. Example: `User-Agent: Mozilla/5.0`
 
-Avec Rails, il est très facile d'ajouter ce type de versionnement par le biais d'un en-tête HTTP `Accept`. Nous allons créer une classe sous le répertoire `lib`. N'oubliez pas que nous faisons du TDD donc nous allons commencer par un test.
+It is important that you feel comfortable with this ones and understand them.
 
-Tout d'abord, nous devons ajouter notre suite de tests, qui dans notre cas sera [Rspec](http://rspec.info/):
+In Rails is very easy to add this type versioning through an _Accept_ header. We will create a class under the `lib` directory of your rails app, and remember we are doing [TDD](http://en.wikipedia.org/wiki/Test-driven_development) so first things first.
+
+First we need to add our testing suite, which in our case is going to be [Rspe](http://rspec.info/):
 
 ~~~ruby
 # Gemfile
@@ -232,13 +222,13 @@ group :test do
 end
 ~~~
 
-Ensuite nous lançons la commande `bundle` pour installer les gemmes:
+Then we run the bundle command to install the gems
 
 ~~~bash
 $ bundle install
 ~~~
 
-Enfin, nous installons `rspec` et ajoutons de la configuration pour éviter que des *views* et des *helpers* ne soient générés:
+Finally we install the `rspec` and add some configuration to prevent views and helpers tests from being generated:
 
 ~~~bash
 $ rails generate rspec:install
@@ -270,14 +260,14 @@ module MarketPlaceApi
 end
 ~~~
 
-Si tout s'est bien passé, il est maintenant temps d'ajouter un répertoire `spec` sous `lib` et d'ajouter le fichier `api_constraints_spec.rb`:
+If everything went well it is now time to add a `spec` directory under `lib` and add the `api_constraints_spec.rb`:
 
 ~~~bash
 $ mkdir lib/spec
 $ touch lib/spec/api_constraints_spec.rb
 ~~~
 
-Nous ajoutons ensuite une série de spécifications décrivant notre classe:
+We then add a bunch of specs describing our class:
 
 ~~~ruby
 # lib/spec/api_constraints_spec.rb
@@ -303,12 +293,9 @@ describe ApiConstraints do
 end
 ~~~
 
-Laissez-moi vous expliquer le code. Nous initialisons la classe avec un [`Hash`][ruby_hash] d'options qui contiendra:
+Let me walk you through the code. We are initializing the class with an options hash, which will contain the version of the api, and a default value for handling the default version. We provide a `matches?` method which the router will trigger for the constraint to see if the default version is required or the `Accept` header matches the given string.
 
-- la version de l'API
-- une valeur par défaut pour gérer la version par défaut
-
-Nous fournissons une méthode `match?` afin que le routeur devine si la version par défaut est requise ou si l'en-tête `Accept` correspond à la chaîne donnée. L'implémentation ressemble à ceci
+The implementation looks likes this
 
 ~~~ruby
 # lib/api_constraints.rb
@@ -324,7 +311,7 @@ class ApiConstraints
 end
 ~~~
 
-Comme vous l'imaginez, nous devons ajouter la classe à notre fichier `routes.rb` et la définir comme option de portée de contrainte:
+As you imagine we need to add the class to our `routes.rb` file and set it as a constraint scope option.
 
 ~~~ruby
 # config/routes.rb
@@ -340,7 +327,9 @@ Rails.application.routes.draw do
 end
 ~~~
 
-La configuration ci-dessus gère maintenant le *versioning* par le biais des en-têtes HTTP. Pour l'instant la version 1 est la version par défaut. Chaque requête sera redirigée vers cette version, peu importe si l'en-tête avec la version est présent ou non. Avant de nous dire au revoir, faisons nos premiers tests et assurons-nous que notre test fonctionne:
+The configuration above now handles versioning through headers, and for now the version 1 is the default one, so every request will be redirected to that version, no matter if the header with the version is present or not.
+
+Before we say goodbye, let’s run our first tests and make sure everything is nice and green:
 
 ~~~bash
 $ bundle exec rspec lib/spec/api_constraints_spec.rb
@@ -352,10 +341,10 @@ Finished in 0.00294 seconds (files took 0.06292 seconds to load)
 
 ## Conclusion
 
-Ça a été un long, je sais, mais vous avez réussi! N'abandonnez pas, c'est juste notre petite fondation pour quelque chose de grand, alors continuez comme ça. Sachez qu'il y a des gemmes qui gèrent ce genre de configuration pour nous:
+It’s been a long way, I know, but you made it, don’t give up this is just our small scaffolding for something big, so keep it up. In the meantime and I you feel curious there are some gems that handle this kind of configuration:
 
 - [RocketPants](https://github.com/Sutto/rocket_pants)
 - [Versionist](https://github.com/bploetz/versionist)
 
-Je n'en parle pas ici puisque nous essayons d'apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu'ici est disponible
-[ici](https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd).
+I’m not covering those in here, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way the code up to this point is
+[here](https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd).

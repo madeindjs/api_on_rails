@@ -221,9 +221,11 @@ Lors de l'utilisation de [Prax](https://github.com/ysbaddaden/prax.cr), vous dev
 
 ![L'application tourne sur l'URL http://market_place_api.dev/](img/pow_running.png)
 
-Une fois l'application Rails créée, l'étape suivante consiste à ajouter une gemme simple (mais très puissante) pour sérialiser les ressources que nous allons exposer avec l'API. La gemme s'appelle `active_model_serializers`. C'est un excellent choix pour la construction de ce type d'application car la librairie est bien maintenue et la [documentation](https://github.com/rails-api/active_model_serializers) est incroyable.
+## Gemfile t Bundler
 
-Votre `Gemfile` devrait donc ressembler à ceci après avoir ajouté la gemme `active _model_serializers`:
+Once the Rails application is created, the next step is adding a simple but very powerful gem to serialize the resources we are going to expose on the api. The gem is called `active_model_serializers` which is an excellent choice to go when building this type of application, is well maintained and the [documentation](https://github.com/rails-api/active_model_serializers) is amazing.
+
+So your `Gemfile` should look like this after adding the `active _model_serializers` gem:
 
 
 ~~~ruby
@@ -250,12 +252,11 @@ gem 'active_model_serializers'
 # ...
 ~~~
 
-Notez que j'enlève les gemmes `jbuilder` et `turbolinks` et `coffee-rails` car nous n'allons pas les utiliser.
+Notice that I remove the `jbuilder` and `turbolinks` gems, as we are not really going to use them anyway.
 
-C'est une bonne pratique aussi d'inclure la version Ruby utilisée sur l'ensemble du projet, ce qui empêche les dépendances de casser si le code est partagé entre différents développeurs, que ce soit pour un projet privé ou public.
+It is a good practice also to include the ruby version used on the whole project, this prevents dependencies to break if the code is shared among different developers, whether if is a private or public project.
 
-Il est également important que vous mettiez à jour le `Gemfile` pour regrouper les différentes gemmes dans l'environnement correct:
-
+It is also important that you update the `Gemfile` to group the different gems into the correct environment
 
 ~~~ruby
 # Gemfile
@@ -266,23 +267,25 @@ end
 # ...
 ~~~
 
-Ceci, comme vous vous en souvenez peut-être, empêchera l'installation ou l'utilisation de Sqlite lorsque vous déployez votre application chez un fournisseur de serveurs comme Heroku[^heroku].
+This as you may recall will prevent `sqlite` from being installed or required when you deploy your application to a server provider like [Heroku](http://heroku.com/).
 
-[^heroku]: Heroku facilite le déploiement de votre application en installant les dépendances sur un serveur en analysant votre *Gemfile*
+> **Note about deployment:** Due to the structure of the application we are not going to deploy the app to any server, but we will be using [Pow](http://pow.cx/) by [Basecamp](https://basecamp.com/). If you are using Linux there is a similar solution called [Prax](https://github.com/ysbaddaden/prax) by ysbaddaden
 
-Une fois cette configuration effectuée, il est temps d'exécuter la commande d'installation du paquet pour intégrer les dépendances correspondantes:
+Pow is a zero-config Rack server for Mac OS X. Have it serving your apps locally in under a minute. \- Basecamp
+
+Once you have this configuration set up, it is time to run the `bundle install` command to integrate the corresponding dependencies:
 
 ~~~bash
 $ bundle install
 ~~~
 
-Une fois que la commande a terminé son exécution, il est temps de commencer à **versionner le projet** avec Git.
+After the command finish its execution, it is time to start tracking the project with Git.
 
 ## Contrôle de version
 
-Rappelez-vous que Git vous aide à suivre et à maintenir l'historique de votre code. Gardez à l'esprit que le code source de l'application est publié sur Github. Vous pouvez suivre le projet sur [Github][api_on_rails_git]
+Remember that Git helps you track and maintain history of your code. Keep in mind source code of the application is published on Github. You can follow the repository at [Github][api_on_rails_git]
 
-À ce stade, je suppose que vous avez déjà configuré Git et que vous êtes prêt à l'utiliser pour suivre le projet. Si ce n'est pas votre cas, initialisez simplement les paramètres basiques suivants:
+By this point I’ll asume you have git already configured and ready to use to start tracking the project. If that is not your case, follow these first-time setup steps:
 
 ~~~bash
 $ git config --global user.name "Type in your name"
@@ -290,14 +293,18 @@ $ git config --global user.email "Type in your email"
 $ git config --global core.editor "vim"
 ~~~
 
-Il est donc temps d'initier le projet avec Git. N'oubliez pas de naviguer dans le répertoire racine de l'application `market_place_api`:
+> Replace the last command editor(`"mvim -f"`) with the one you installed `"subl -w"` for SublimeText ,`"mate -w"` for TextMate, or `"gvim -f"` for gVim.
+
+So it is now time to **init** the project with git. Remember to navigate to the root directory of the `market_place_api` application:
+
+So it is now time to **init** the project with git. Remember to navigate to the root directory of the `market_place_api` application:
 
 ~~~bash
 $ git init
 Initialized empty Git repository in ~/workspace/market_place_api/.git/
 ~~~
 
-L'étape suivante est d'ignorer certains fichiers que nous ne voulons pas suivre. Votre fichier `.gitignore` devrait ressembler à celui montré ci-dessous:
+The next step is to ignore some files that we don’t want to track, so your `.gitignore` file should look like the one shown below:
 
 ~~~
 # Ignore bundler config.
@@ -326,29 +333,29 @@ L'étape suivante est d'ignorer certains fichiers que nous ne voulons pas suivre
 /config/master.key
 ~~~
 
-Après avoir modifié le fichier `.gitignore`, il suffit d'ajouter les fichiers et de valider les modifications. Les commandes nécessaires sont indiquées ci-dessous:
+After modifiying the `.gitignore` file we just need to add the files and commit the changes, the commands necessary are shown below:
 
 ~~~bash
 $ git add .
 $ git commit -m "Initial commit"
 ~~~
 
-> Bonne pratique: J'ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu'il a fait. De cette façon il est plus facile de lire et de comprendre l'historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu'à la fin du tutoriel.
+> **Good practice:** I have encounter that commiting with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand(or at least for me). I’ll follow this practice until the end of the tutorial.
 
-Enfin, et c'est une étape optionnelle, nous déployons le projet sur **Github** (je ne vais pas l'expliquer ici) et poussons notre code vers le serveur distant. On commence donc par ajouter un serveur distant:
+Lastly and as an optional step we setup the Github (I’m not going through that in here) project and push our code to the remote server: We first add the remote:
 
 ~~~bash
 $ git remote add origin git@github.com:madeindjs/market_place_api.git
 ~~~
 
-Ensuite on pousse le code:
+Then:
 
 ~~~bash
 $ git push -u origin master
 ~~~
 
-Au fur et à mesure que nous avançons dans le tutoriel, j'utiliserai les pratiques que j'utilise quotidiennement. Cela inclut le travail avec les branches, le rebasage, le squash et bien d'autres. Vous n'avez pas à vous inquiéter si vous ne connaissez pas tous ces termes, je les expliquerai le temps venu.
+As we move forward with the tutorial, I’ll be using the practices I follow on my daily basis, this includes working with `branches`, `rebasing`, `squash` and some more. For now you don’t have to worry if some of these don’t sound familiar to you, I walk you through them in time.
 
 ## Conclusion
 
-Cela a été un chapitre assez long. Si vous êtes arrivé ici, permettez-moi de vous féliciter. Les choses vont s'améliorer à partir de ce point. Commençons à mettre les mains dans le code!
+It’s been a long way through this chapter, if you reach here let me congratulate you and be sure that from this point things will get better. So let’s get our hands dirty and start typing some code!

@@ -149,13 +149,13 @@ or
 $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 ~~~
 
-## Initialisation du projet
+## Initializing the project
 
-Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d'œil à cette section.
+Initializing a Rails application must be pretty straightforward for you, if that is not the case, here is a super quick tutorial.
 
-Sachez que nous utiliserons [Rspec](http://rspec.info/) comme suite de test. Assurez-vous donc d'inclure l'option `--skip-test` lors de la création de l'application[^5] et l'option `--api`. L'option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et *Middleware* inclue dans l'application. Cela permet aussi d'éviter de générer les vues HTML lors de l'utilisation des générateurs de Rails
+Be aware that we’ll be using [Rspec](http://rspec.info/) as the testing suite. So we will use the  donc `--skip-test` option. Also we will use `--api` option. This option came with Rails 5 and it allow to limit gems and Middleware. It will also avoid to generate HTML views when using Rails generators.
 
-La commande est donc la suivante
+There is the command:
 
 ~~~bash
 $ mkdir ~/workspace
@@ -163,41 +163,42 @@ $ cd ~/workspace
 $ rails new market_place_api --skip-test --api
 ~~~
 
-Comme vous pouvez le deviner, les commandes ci-dessus généreront les éléments indispensables à votre application Rails. La prochaine étape est d'ajouter quelques gemmes que nous utiliserons pour construire l'API.
+As you may guess, the commands above will generate the bare bones of your Rails application. The next step is to add some `gems` we’ll be using to build the api.
 
-### Installer Pow ou Prax
+### Installing Pow or Prax
 
-Vous pouvez vous demander
+You may ask yourself
 
-> Pourquoi diable voudrais-je installer ce type de paquet?
+> Why in the hell would I want to install this type of package?
 
-La réponse est simple. Nous allons travailler avec des [sous-domaines](http://en.wikipedia.org/wiki/Subdomain). [Pow](http://pow.cx/) et [Prax](https://github.com/ysbaddaden/prax.cr) vont nous aider a les créer très facilement.
+and the answer is simple, we will be working with [subdomains](http://en.wikipedia.org/wiki/Subdomain), and in this case using services like [Pow](http://pow.cx/) or [Prax](https://github.com/ysbaddaden/prax) help us achieve that very easily
 
-#### Installer Pow
 
-Pow ne fonctionne que sous Mac OS. Ne vous inquiétez pas, il existe une alternative qui imite les fonctionnalités sous Linux. Pour l'installer, tapez simplement:
+#### Installing Pow
+
+Pow only works on Mac OS, but don’t worry there is an alternative which mimics the functionality on Linux. To install it just type in:
 
 ~~~bash
 $ curl get.pow.cx | sh
 ~~~
 
-Et c'est tout ce que vous avez à faire. Il suffit d'établir un lien symbolique avec l'application pour configurer l'application Rack. D'abord vous allez dans le répertoire `~/.pow`:
+And that’s it you are all set. You just have to symlink the application in order to set up the Rack app. First you go the `~/.pow` directory:
 
 ~~~bash
 $ cd ~/.pow
 ~~~
 
-Ensuite, vous pouvez créer le [lien symbolique](http://en.wikipedia.org/wiki/Symbolic_link)
+Then you create the [symlink](http://en.wikipedia.org/wiki/Symbolic_link):
 
 ~~~bash
 $ ln -s ~/workspace/market_place_api
 ~~~
 
-N'oubliez pas de changer le répertoire utilisateur pour celui qui correspond au votre. Vous pouvez maintenant accéder à l'application via <http://market_place_api.dev/>. Votre application devrait être en cours d'exécution.
+Remember to change the user directory to the one matches yours. You can now access the application through [http://market\_place\_api.dev/](http://market_place_api.dev/). Your application should be up a running by now.
 
-#### Installer Prax
+#### Installing Prax
 
-Pour les utilisateurs de Linux uniquement, [Prax](https://github.com/ysbaddaden/prax.cr) distribue des paquets déjà compilé pour les distributions Debian / Ubuntu. Il suffit donc de télécharger le paquet `.deb` et de l'installer avec `dpkg`.
+For linux users only, [Prax](https://github.com/ysbaddaden/prax.cr) distribute some Debian/Ubuntu precompiled packages. You only have to download `.deb` eand instal with `dpkg`.
 
 ~~~bash
 $ cd /tmp
@@ -205,20 +206,24 @@ $ wget https://github.com/ysbaddaden/prax.cr/releases/download/v0.8.0/prax_0.8.0
 $ sudo dpkg -i prax_0.8.0-1_amd64.deb
 ~~~
 
-Ensuite, il ne nous reste plus qu'à lier les applications:
+Then we just need to link the apps:
 
 ~~~bash
 $ cd ~/workspace/market_place_api
 $ prax link
 ~~~
 
-Si vous voulez démarrer le Prax automatiquement, ajoutez cette ligne au fichier `.profile`:
+If you want to start the prax server automatically, add this line to the `.profile` file:
 
 ~~~
 prax start
 ~~~
 
-Lors de l'utilisation de [Prax](https://github.com/ysbaddaden/prax.cr), vous devez spécifier le port de l'URL, dans ce cas-ci: <http://market_place_api.dev:3000>: Vous devriez voir l'application en marche comme le montre l'image suivante.
+> When using prax, you have to specify the port for the URL, in this case <http://market_place_api.dev:3000>
+
+You should see the application up and running, see image bellow:
+
+### Gemfile and Bundler
 
 ![L'application tourne sur l'URL http://market_place_api.dev/](img/pow_running.png)
 
