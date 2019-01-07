@@ -463,11 +463,9 @@ Maintenant nous pouvons aller à l'action `Products#index` et ajouter les métho
 # app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   # ...
-
   def index
     render json: Product.page(params[:page]).per(params[:per_page]).search(params)
   end
-
   # ...
 end
 ~~~
@@ -494,26 +492,22 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
-
   describe 'GET #index' do
     before(:each) do
       4.times { FactoryBot.create :product }
       get :index
     end
-
     # ...
-
     it 'Have a meta pagination tag' do
       expect(json_response).to have_key(:meta)
       expect(json_response[:meta]).to have_key(:pagination)
-      expect(json_response[:meta][:pagination]).to have_key(:per_page)
-      expect(json_response[:meta][:pagination]).to have_key(:total_pages)
-      expect(json_response[:meta][:pagination]).to have_key(:total_objects)
+      expect(json_response[:meta][:pagination]).to have_key(:'per-page')
+      expect(json_response[:meta][:pagination]).to have_key(:'total-pages')
+      expect(json_response[:meta][:pagination]).to have_key(:'total-objects')
     end
 
     it { expect(response.response_code).to eq(200) }
   end
-
   # ...
 end
 ~~~
@@ -547,7 +541,6 @@ L'erreur est en fait sur la méthode `Product.search`. En fait, Kaminari attend 
 # app/models/product.rb
 class Product < ApplicationRecord
   # ...
-
   def self.search(params = {})
     products = params[:product_ids].present? ? Product.where(id: params[:product_ids]) : Product.all
     # ...
@@ -573,6 +566,349 @@ Finished in 0.41533 seconds (files took 0.5997 seconds to load)
 ~~~
 
 Maintenant que nous avons corrigé cela, ajoutons les informations de pagination. Nous devons le faire dans le fichier `products_controller.rb`:
+
+~~~ruby
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  before_action :authenticate_with_token!, only: %i[create update destroy]
+
+  def index
+    products = Product.search(params).page(params[:page]).per(params[:per_page])
+    render(
+      json: products,
+      include: [:user],
+      meta: {
+        pagination: {
+          per_page: params[:per_page],
+          total_pages: products.total_pages,
+          total_objects: products.total_count
+        }
+      }
+    )
+  end
+  # ...
+end
+~~~
+
+Maintenant, si on vérifie les spécifications, elles devraient toutes passer:
+
+~~~bash
+$ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb
+....................
+
+Finished in 0.66813 seconds (files took 2.72 seconds to load)
+20 examples, 0 failures
+~~~
+
+Maintenant que nous avons fait une superbe optimisation pour la route de la liste des produits, c'est au client de récupérer la `page` avec le bon paramètre `per_page` pour les enregistrements.
+
+*Commitons* ces changements et continuons avec la liste des commandes.
+
+~~~bash
+$ git add .
+$ git commit -m "Adds pagination for the products index action to optimize response"
+~~~
+
+### Liste des commandes
+
+Maintenant, il est temps de faire exactement la même chose pour la route de la liste des commandes. Cela devrait être très facile à mettre en œuvre. Mais d'abord, ajoutons quelques test au fichier `orders_controller_spec.rb`:
+
+
+~~~ruby
+# spec/controllers/api/v1/orders_controller_spec.rb
+require 'rails_helper'
+
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  describe 'GET #index' do
+    before(:each) do
+      current_user = FactoryBot.create :user
+      api_authorization_header current_user.auth_token
+      4.times { FactoryBot.create :order, user: current_user }
+      get :index, params: { user_id: current_user.id }
+    end
+
+    it 'returns 4 order records from the user' do
+      expect(json_response[:data]).to have(4).items
+    end
+
+    it 'Have a meta pagination tag' do
+      expect(json_response).to have_key(:meta)
+      expect(json_response[:meta]).to have_key(:pagination)
+      expect(json_response[:meta][:pagination]).to have_key(:'per-page')
+      expect(json_response[:meta][:pagination]).to have_key(:'total-pages')
+      expect(json_response[:meta][:pagination]).to have_key(:'total-objects')
+    end
+
+    it { expect(response.response_code).to eq(200) }
+  end
+  # ...
+end
+~~~
+
+Et, comme vous vous en doutez peut-être déjà, nos tests ne passent plus:
+
+~~~bash
+$ rspec spec/controllers/api/v1/orders_controller_spec.rb
+.F........
+
+Failures:
+
+  1) Api::V1::OrdersController GET #index Have a meta pagination tag
+     Failure/Error: expect(json_response).to have_key(:meta)
+       expected #has_key?(:meta) to return true, got false
+     # ./spec/controllers/api/v1/orders_controller_spec.rb:18:in `block (3 levels) in <top (required)>'
+
+Finished in 0.66262 seconds (files took 2.74 seconds to load)
+10 examples, 1 failure
+~~~
+
+Transformons le rouge en vert:
+
+~~~ruby
+# app/controllers/api/v1/orders_controller.rb
+class Api::V1::OrdersController < ApplicationController
+  before_action :authenticate_with_token!
+
+  def index
+    orders = current_user.orders.page(params[:page]).per(params[:per_page])
+    render(
+      json: orders,
+      meta: {
+        pagination: {
+          per_page: params[:per_page],
+          total_pages: orders.total_pages,
+          total_objects: orders.total_count
+        }
+      }
+    )
+  end
+  # ...
+end
+~~~
+
+Les tests devraient maintenant passer:
+
+~~~bash
+$ rspec spec/controllers/api/v1/orders_controller_spec.rb
+..........
+
+Finished in 0.35201 seconds (files took 0.9404 seconds to load)
+10 examples, 0 failures
+~~~
+
+Faisons un *commit* avant d'avancer
+
+~~~bash
+$ git commit -am "Adds pagination for orders index action"
+~~~
+
+### Factorisation de la pagination
+
+Si vous avez suivi ce tutoriel ou si vous êtes un développeur Rails expérimenté, vous aimez probablement garder les choses DRY. Vous avez sûrement remarqué que le code que nous venons d'écrire est dupliqué. Je pense que c'est une bonne habitde de nettoyer un peu le code une fois la fonctionnalité implémentée.
+
+Nous allons d'abord commencer par nettoyer ces tests qu'on a dupliqué dans le fichier `orders_controller_spec.rb` et `products_controller_spec.rb`:
+
+~~~ruby
+it 'Have a meta pagination tag' do
+  expect(json_response).to have_key(:meta)
+  expect(json_response[:meta]).to have_key(:pagination)
+  expect(json_response[:meta][:pagination]).to have_key(:'per-page')
+  expect(json_response[:meta][:pagination]).to have_key(:'total-pages')
+  expect(json_response[:meta][:pagination]).to have_key(:'total-objects')
+end
+~~~
+
+Afin de le factoriser, nous allons créer un dossier `shared_examples` dans le dossier `spec/support/`.
+
+~~~bash
+$ mkdir spec/support/shared_examples
+~~~
+
+Et maintenant, créons un fichier qui contiendra le code dupliqué
+
+~~~ruby
+# spec/support/shared_examples/pagination.rb
+shared_examples 'paginated list' do
+  it 'Have a meta pagination tag' do
+    expect(json_response).to have_key(:meta)
+    expect(json_response[:meta]).to have_key(:pagination)
+    expect(json_response[:meta][:pagination]).to have_key(:'per-page')
+    expect(json_response[:meta][:pagination]).to have_key(:'total-pages')
+    expect(json_response[:meta][:pagination]).to have_key(:'total-objects')
+  end
+end
+~~~
+
+Cet exemple partagé peut maintenant être utilisé pour remplacer les cinq tests des fichiers `orders_controller_spec.rb` et `products_controller_spec.rb`:
+
+~~~ruby
+# spec/controllers/api/v1/orders_controller_spec.rb
+# ...
+
+RSpec.describe Api::V1::OrdersController, type: :controller do
+  describe 'GET #index' do
+    # ...
+    it_behaves_like 'paginated list'
+    # ...
+  end
+end
+~~~
+
+~~~ruby
+# spec/controllers/api/v1/products_controller_spec.rb
+# ...
+
+RSpec.describe Api::V1::ProductsController, type: :controller do
+  # ...
+  describe 'GET #index' do
+    # ...
+    it_behaves_like 'paginated list'
+    # ...
+  end
+  # ...
+end
+~~~
+
+Et les deux tests devraient passer.
+
+~~~bash
+$ rspec spec/controllers/api/v1/
+.................................................
+
+Finished in 0.96778 seconds (files took 1.59 seconds to load)
+49 examples, 0 failures
+~~~
+
+Maintenant que nous avons fait cette simple factorisation pour les tests, nous pouvons passer à l'implémentation de la pagination pour les contrôleurs et nettoyer les choses. Si vous vous souvenez de l'action d'indexation pour les deux contrôleurs de produits et de commandes, ils ont tous les deux le même format de pagination. Alors déplaçons cette logique dans une méthode appelée `pagination` sous le fichier `application_controller.rb`, de cette façon nous pouvons y accéder sur tout contrôleur qui aurait besoin de pagination.
+
+~~~ruby
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::API
+  include Authenticable
+
+  # @return [Hash]
+  def pagination(paginated_array)
+    {
+      pagination: {
+        per_page: params[:per_page],
+        total_pages: paginated_array.total_pages,
+        total_objects: paginated_array.total_count
+      }
+    }
+  end
+end
+~~~
+
+Il suffit ensuite d'utiliser cette méthode dans nos deux contrôlleurs:
+
+~~~ruby
+# app/controllers/api/v1/orders_controller.rb
+class Api::V1::OrdersController < ApplicationController
+  # ...
+  def index
+    orders = current_user.orders.page(params[:page]).per(params[:per_page])
+    render(
+      json: orders,
+      meta: pagination(orders)
+    )
+  end
+  # ...
+end
+~~~
+
+~~~ruby
+# app/controllers/api/v1/products_controller.rb
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    products = Product.search(params).page(params[:page]).per(params[:per_page])
+    render(
+      json: products,
+      include: [:user],
+      meta: pagination(products)
+    )
+  end
+  # ...
+end
+~~~
+
+Lançons les tests pour nous assurer que tout fonctionne:
+
+~~~bash
+$ rspec spec/controllers/api/v1/
+.................................................
+
+Finished in 0.92996 seconds (files took 0.95615 seconds to load)
+49 examples, 0 failures
+~~~
+
+Ce serait un bon moment pour *commiter* les changements et passer à la prochaine section sur la mise en cache.
+
+~~~bash
+$ git add .
+~~~
+
+## Mise en cache
+
+Il y a actuellement une implémentation pour faire de la mise en cache avec la gemme `active_model_serializers` qui est vraiment facile à manipuler. Bien que dans les anciennes versions de la gemme, cette implémentation peut changer, elle fait le travail.
+
+Si nous effectuons une demande à la liste des produits, nous remarquerons que le temps de réponse prend environ 174 milisecondes en utilisant cURL
+
+~~~bash
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/products
+Total: 0,174111
+~~~
+
+> L'option `-w` nous permet de récupérer le temps de la requête, `-o` redirige la réponse vers un fichier et `-s` masque l'affichage de cURL
+
+
+En ajoutant seulement une ligne à la classe `ProductSerializer`, nous verrons une nette amélioration du temps de réponse!
+
+~~~ruby
+# app/serializers/product_serializer.rb
+class ProductSerializer < ActiveModel::Serializer
+  # ...
+  cache key: 'product', expires_in: 3.hours
+end
+~~~
+
+~~~ruby
+# app/serializers/order_serializer.rb
+class OrderSerializer < ActiveModel::Serializer
+  # ...
+  cache key: 'order', expires_in: 3.hours
+end
+~~~
+
+~~~ruby
+# app/serializers/user_serializer.rb
+class UserSerializer < ActiveModel::Serializer
+  # ...
+  cache key: 'user', expires_in: 3.hours
+end
+~~~
+
+
+Et c'est tout! Vérifions l'amélioration:
+
+~~~bash
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/products
+Total: 0,021599
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/products
+Total: 0,021979
+~~~
+
+Nous sommes donc passé de 174 ms à 21 ms. L'amélioration est donc énorme! *Comittons* une dernière fois nos changements.
+
+## Conclusion
+
+Si vous arrivez à ce point, cela signifie que vous en avez fini avec le livre. Bon travail! Vous venez de devenir un grand développeur API Rails, c'est sûr.
+
+Merci d'avoir emmené cette grande aventure avec moi, j'espère que vous avez apprécié le voyage autant que moi. On devrait prendre une bière un de ces jours.
+
+~~~ruby
+$ git commit -am "Adds caching for the serializers"
+~~~
 
 
 
