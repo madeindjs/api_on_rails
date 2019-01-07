@@ -1,4 +1,4 @@
-# Factoriser les tests {#chapter:4}
+# Factoriser les tests
 
 Dans le chapitre précédent nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n'avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c'est une introduction aux réponses JSON.
 

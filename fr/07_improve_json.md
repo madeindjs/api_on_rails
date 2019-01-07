@@ -1,4 +1,4 @@
-# Modélisation du JSON {#chapter:7}
+# Modélisation du JSON
 
 Dans le chapitre précédent, nous avons ajouté les produits à l'application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
 
