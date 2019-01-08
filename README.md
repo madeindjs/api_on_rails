@@ -1,4 +1,4 @@
-# ![API on Rails](fr/img/cover.svg)
+# ![API on Rails](logo.svg)
 
 Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com/book) book.
 
