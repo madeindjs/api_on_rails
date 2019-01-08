@@ -23,9 +23,9 @@ Devise est livré avec jusqu'à dix modules pour la gestion de l'authentificatio
 - Validatable
 - Lockable
 
-Si vous n'avez jamais travaillé avec devise auparavant, je vous recommande de visiter [le répertoire Github](https://github.com/plataformatec/devise) et de lire la documentation. Vous y trouverez beaucoup de bons exemples.
+Si vous n'avez jamais travaillé avec le devise auparavant, je vous recommande de visiter [le répertoire Github](https://github.com/plataformatec/devise) et de lire la documentation. Vous y trouverez beaucoup de bons exemples.
 
-Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d'aborder autant de sujets que possible. N'hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validations et la gestion des erreurs.
+Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d'aborder autant de sujets que possible. N'hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validation et la gestion des erreurs.
 
 Nous voulons suivre ce chapitre, c'est donc un bon moment pour créer une nouvelle branche:
 
@@ -98,7 +98,7 @@ $ rails g devise:install
   ...
 ~~~
 
-Maintenant et si tout s'est bien passé, nous serons en mesure de générer le modèle `user` à l'aide du **générateur** de Devise:
+Maintenant, et si tout s'est bien passé, nous serons en mesure de générer le modèle `user` à l'aide du **générateur** de Devise:
 
 ~~~bash
 $ rails g devise User
@@ -208,10 +208,10 @@ Il est temps de faire notre premier point d'entrée. Nous allons juste commencer
 $ rails generate controller users
 ~~~
 
-Cette commande var créer le fichier `users_controller_spec.rb`. Avant d'entrer dans le vif du sujet, il y a deux choses que nous voulons tester pour une API:
+Cette commande va créer le fichier `users_controller_spec.rb`. Avant d'entrer dans le vif du sujet, il y a deux choses que nous voulons tester pour une API:
 
 - La structure du JSON renvoyée par le serveur
-- Le code de réponse HTTP renvoyée par le serveur
+- Le code de réponse HTTP renvoyé par le serveur
 
 ### Les codes HTTP courants
 
@@ -227,7 +227,7 @@ Le premier chiffre du code d'état spécifie l'une des cinq classes de réponse.
 
 > Pour une liste complète des codes de réponse HTTP, consultez l'[article sur Wikipedia](https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP).
 
-Pour garder notre code bien découpé, nous allons créer quelques répertoires sous le répertoire des tests des contrôleurs afin d'être cohérent la configuration. Il existe aussi une autre convention qui utilise à la place du répertoire `controllers` un répertoire de `request` ou `integration`. Dans notre cas, je préfère rester cohérent avec le répertoire `app/controllers`.
+Pour garder notre code bien découpé, nous allons créer quelques répertoires sous le répertoire des tests des contrôleurs afin d'être cohérent dans la configuration. Il existe aussi une autre convention qui utilise à la place du répertoire `controllers` un répertoire de `request` ou `integration`. Dans notre cas, je préfère rester cohérent avec le répertoire `app/controllers`.
 
 ~~~bash
 $ mkdir -p spec/controllers/api/v1
@@ -243,7 +243,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Maintenant, voici le fichier avec les tests crées:
+Maintenant, voici le fichier avec les tests créés:
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
@@ -279,7 +279,7 @@ class  Api::V1::UsersController < ApplicationController
 end
 ~~~
 
-Les codes HTTP courants Il est possible qu'il faille activer le module `Devise::Test::ControllerHelpers` au fichier `spec/rails_helper.rb` afin de charger les utilitaires Devise aux test. Si c'est le cas, ajouter la ligne suivante
+Les codes HTTP courants. Il est possible qu'il faille activer le module `Devise::Test::ControllerHelpers` au fichier `spec/rails_helper.rb` afin de charger les utilitaires Devise aux test. Si c'est le cas, ajoutez la ligne suivante
 
 ~~~ruby
 #  ...
@@ -345,7 +345,7 @@ Finished in 0.02652 seconds (files took 0.47291 seconds to load)
 2 examples, 0 failures
 ~~~
 
-Comme d'habitude, après avoir ajouté un des fonctionnalités dont nous sommes satisfaits, nous faisons un `commit`:
+Comme d'habitude, après avoir ajouté une des fonctionnalités dont nous sommes satisfaits, nous faisons un `commit`:
 
 ~~~bash
 $ git add .
@@ -390,7 +390,7 @@ class ApplicationController < ActionController::API
 end
 ~~~
 
-Comme suggéré même par Rails, nous devrions utiliser `null_session` pour empêcher **les attaques CSFR**. Je vous recommande fortement de le faire sinon les requêtes `POST` et `PUT` ne fonctionnerons pas. Après avoir mis à jour le fichier `application_controller.rb` c'est le moment de faire un `commit`:
+Comme suggéré même par Rails, nous devrions utiliser `null_session` pour empêcher **les attaques CSFR**. Je vous recommande fortement de le faire sinon les requêtes `POST` et `PUT` ne fonctionneront pas. Après avoir mis à jour le fichier `application_controller.rb` c'est le moment de faire un `commit`:
 
 ~~~bash
 $ git add .
@@ -457,7 +457,7 @@ Cela fait beaucoup de code. Ne vous inquiétez pas, je vous explique tout:
 - Au cas où tout se passe bien, nous devrions retourner un code HTTP **201** ainsi que la représentation JSON de cet objet.
 - En cas d'erreur, nous devons renvoyer un code HTTP **422**. Nous retournons également un JSON représentant la raison pour laquelle la ressource n'a pas pu être sauvegardée.
 
-A ce moment là, Les tests doivent échouer:
+A ce moment là, les tests doivent échouer:
 
 ~~~bash
 $ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
@@ -502,7 +502,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Comme vous pouvez le constater, l'implémentation est assez simple. Nous avons également ajouté la méthode privée `user_params` pour protéger les assignation d'attributs en masse. Maintenant, nos tests devraient passer:
+Comme vous pouvez le constater, l'implémentation est assez simple. Nous avons également ajouté la méthode privée `user_params` pour protéger les assignations d'attributs en masse. Maintenant, nos tests devraient passer:
 
 ~~~bash
 $ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
@@ -655,7 +655,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Comme vous pouvez le voir, le test est très simple. Nous ne répondons qu'avec un statut de **204** qui signifie `No Content`. Nous pourrions aussi retourner un code d'état de **200**, mais je trouve plus naturel de répondre sans rien dans ce cas car nous supprimons une ressource et une réponse réussie peut suffire.
+Comme vous pouvez le voir, le test est très simple. Nous ne répondons qu'avec un statut de **204** qui signifie `No Content`. Nous pourrions aussi retourner un code d'état de **200**, mais je trouve plus naturel de répondre `No Content` dans ce cas car nous supprimons une ressource et une réponse réussie peut suffire.
 
 La mise en œuvre de l'action de destruction est également assez simple:
 
@@ -705,4 +705,4 @@ $ git commit -m "Adds destroy action to the users controller"
 
 ## Conclusion
 
-Oh vous êtes là! Bien joué! Je sais que c'était probablement long mais n'abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s'améliorer, dans le chapitre 4, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!
+Oh vous êtes là! Bien joué! Je sais que c'était probablement long mais n'abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s'améliorer, dans le prochain chapitre, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!
