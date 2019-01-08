@@ -1,49 +1,46 @@
-# Création des commandes
+# Placing Orders
 
-Dans les chapitres précédents nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir *scaler*[^scaler] rapidement et facilement. Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre les trois modèles. Nous devons être assez malin pour gérer la sortie JSON que nous fournissons.
+Back in previous chapter we handle associations between the product and user models, and how to serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation, because we will handle associations between 3 models and we have to be smart enough to handle the JSON output we are delivering.
 
-[^scaler]: *Scaler* signifie mettre son application à l'échelle afin de pouvoir répondre à une forte demande.
+In this chapter we will make several things which I list below:
 
-Dans ce chapitre, nous allons faire plusieurs choses:
+1. Create an `Order` model with its corresponding specs
+2. Handle JSON output association between the order user and product models
+3. Send a confirmation email with the order summary
 
-- Créer un modèle de commande avec les spécifications correspondantes
-- Gérer l'association de sortie JSON entre l'utilisateur de la commande et les modèles de produits
-- Envoyer un courriel de confirmation avec le récapitulatif de la commande
-
-Maintenant que tout est clair, on peut commencer à travailler. Vous pouvez cloner le projet jusqu'à ce point avec:
+So now that we have everything clear, we can get our hands dirty. You can clone the project up to this point with:
 
 ~~~bash
 $ git clone --branch chapter7 https://github.com/madeindjs/market_place_api
 ~~~
 
-Créons une nouvelle branche afin de commencer à travailler:
+Let’s create a branch to start working:
 
 ~~~bash
 $ git checkout -b chapter8
 ~~~
 
-## Modélisation de l'ordre
+## Modeling the order
 
-Si vous vous souvenez des associations entre les modèles, vous devez vous souvenir que le modèle `Order` est associé au modèle `User` et `Product`. C'est en fait très simple de gérer cela avec Rails. La partie délicate est quand vient la sérialisation de ces objets. J'en parlerai plus en détail plus tard.
+If you remember associations model, the `Order` model is associated with users and products at the same time, it is actually really simply to achieve this in Rails. The tricky part is whens comes to serializing this objects. I talk about more about this in a next section.
 
-Commençons par créer le modèle de la commande:
+Let’s start by creating the order model, with a special form:
 
 ~~~bash
 $ rails generate model order user:references total:decimal
 ~~~
 
-La commande ci-dessus va générer le modèle `Order`. Je profite de la méthode des `references` pour créer la clé étrangère correspondante pour que la commande appartienne à un utilisateur. Elle ajoute aussi la directive `belongs_to` dans le modèle des commandes. Migrons la base de données:
+The command above will generate the order model, but I’m taking advantage of the `references` method to create the corresponding foreign key for the order to belong to a user, it also adds the `belongs_to` directive into the order model. Let’s migrate the database and jump into the `order_spec.rb` file.
 
 ~~~bash
 $ rake db:migrate
 ~~~
 
-Il est maintenant temps de créer quelques tests dans le fichier `order_spec.rb`:
+Now it is time to drop some tests into the `order_spec.rb` file:
 
 ~~~ruby
 # spec/models/order_spec.rb
 # ...
-
 RSpec.describe Order, type: :model do
   let(:order) { FactoryBot.build :order }
   subject { order }
@@ -59,7 +56,7 @@ RSpec.describe Order, type: :model do
 end
 ~~~
 
-L'implémentation est assez simple:
+The implementation is fairly simple:
 
 ~~~ruby
 # app/models/order.rb
@@ -71,9 +68,9 @@ class Order < ApplicationRecord
 end
 ~~~
 
-Les tests devraient passer:
+If we run the tests now, they should be all green:
 
-~~~ruby
+~~~bash
 $ rspec spec/models/order_spec.rb
 ......
 
@@ -81,35 +78,35 @@ Finished in 0.16229 seconds (files took 4.08 seconds to load)
 6 examples, 0 failures
 ~~~
 
-### Les commandes et les produits
+### Orders and Products
 
-Nous devons établir l'association entre la commande et le produit. Cela se fait avec une association de plusieurs à plusieurs car de nombreux produits seront placés sur plusieurs commandes et les commandes auront plusieurs produits. Dans ce cas, nous avons donc besoin d'un modèle supplémentaire qui joindra ces deux autres objets et mappera l'association appropriée. Générons ce modèle:
+We need to setup the association between the `order` and the `product`, and this is build with a `has-many-to-many` association, as many products will be placed on many orders and the orders will have multiple products. So in this case we need a model in the middle which will join these two other objects and map the appropiate association.
+
+Let’s generate this model:
 
 ~~~bash
 $ rails generate model placement order:references product:references
 ~~~
 
-Migrons la base de données:
+Let’s migrate the database:
 
 ~~~bash
 $ rake db:migrate
 ~~~
 
-Ajoutons d'abord les tests de l'association des commandes aux produits:
+Let’s add the order association specs first:
 
 ~~~ruby
 # spec/models/order_spec.rb
 # ...
-
 RSpec.describe Order, type: :model do
   # ...
-
   it { should have_many(:placements) }
   it { should have_many(:products).through(:placements) }
 end
 ~~~
 
-L'implémentation est la suivante:
+The implementation is like so:
 
 ~~~ruby
 # app/models/order.rb
@@ -120,12 +117,11 @@ class Order < ApplicationRecord
 end
 ~~~
 
-Il est maintenant temps de se lancer dans l'association `product-placement`:
+Now it is time to jump into the `product-placement` association:
 
 ~~~ruby
 # spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
   it { should have_many(:placements) }
@@ -134,7 +130,7 @@ RSpec.describe Product, type: :model do
 end
 ~~~
 
-Ajoutons le code pour le faire passer:
+Let’s add the code to make it pass:
 
 ~~~ruby
 # app/models/product.rb
@@ -146,12 +142,11 @@ class Product < ApplicationRecord
 end
 ~~~
 
-Enfin, et ce n'est pas le moins important, les tests de placement:
+And lastly but not least, the `placement` specs:
 
 ~~~ruby
 # spec/models/placement_spec.rb
 # ...
-
 RSpec.describe Placement, type: :model do
   let(:placement) { FactoryBot.build :placement }
   subject { placement }
@@ -162,10 +157,9 @@ RSpec.describe Placement, type: :model do
   it { should belong_to :order }
   it { should belong_to :product }
 end
-
 ~~~
 
-Si vous avez suivi le tutoriel jusqu'à présent, l'implémentation est déjà là, à cause du type de références que nous passons au générateur de commandes du modèle. Nous devrions ajouter l'option inverse au modèle de placement pour chaque appel aux `belongs_to`. Cela donne un petit coup de pouce lors du référencement de l'objet parent.
+If you have been following the tutorial so far, the implementation is already there, because of the `references` type we pass on the model command generator. We should add the inverse option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
 
 ~~~ruby
 # app/models/placement.rb
@@ -175,7 +169,7 @@ class Placement < ApplicationRecord
 end
 ~~~
 
-Et maintenant, lançons tous les tests des modèles afin de nous assurer que tout est bon:
+Let’s run the `models` spec and make sure everything is green:
 
 ~~~bash
 $ rspec spec/models
@@ -185,23 +179,20 @@ Finished in 0.53127 seconds (files took 0.73125 seconds to load)
 43 examples, 0 failures
 ~~~
 
-Maintenant que tout est beau et vert, *commitons* les changements:
+Now that everything is nice and green, let’s commit the changes and continue.
 
 ~~~bash
 $ git add .
 $ git commit -m "Associates products and orders with a placements model"
 ~~~
 
-## Commandes de l'utilisateur
+## User orders
 
-Il nous manque juste une petite (mais très importante) partie qui est de relier l'utilisateur aux commandes. Alors faisons-le :
-
-Ouvrez d'abord le fichier `user_model_spec.rb` pour ajouter les tests correspondants:
+We are just missing one little but very important part, which is to relate the user to the orders. But we did no complete the implementation. So let’s do that. First open the `user_model_spec.rb` file to add the corresponding tests:
 
 ~~~ruby
 # spec/models/user_spec.rb
 # ...
-
 RSpec.describe User, type: :model do
   # ...
   it { should have_many(:orders) }
@@ -209,7 +200,7 @@ RSpec.describe User, type: :model do
 end
 ~~~
 
-Et puis il suffit d'ajouter l'implémentation qui est très simple:
+And then just add the implementation, which is super simple:
 
 ~~~ruby
 # app/models/user.rb
@@ -220,7 +211,7 @@ class User < ApplicationRecord
 end
 ~~~
 
-Vous pouvez exécuter les tests pour les deux fichiers, et ils devraient tous passer:
+You can run the tests for both files, and they should be all nice and green:
 
 ~~~ruby
 $ rspec spec/models/{order,user}_spec.rb
@@ -230,41 +221,38 @@ Finished in 0.14279 seconds (files took 0.72848 seconds to load)
 20 examples, 0 failures
 ~~~
 
-*Commitons* ces changements et continuons d'avancer:
+Let’s commit this small changes and move next:
 
-~~~ruby
+~~~bash
 $ git add .
 $ git commit -m 'Adds user order has many relation'
 ~~~
 
-## Exposer le modèle d'utilisateur
+## Exposing the order model
 
-Il est maintenant temps de préparer le contrôleur de commandes à exposer la bonne commande. Si vous vous souvenez des chapitres précédents ou l'on avait utilisé [ActiveModelSerializers](https://github.com/rails-api/active_model_serializers) vous devez vous rappeler que c'était vraiment facile.
+It is now time to prepare the orders controller to expose the correct order object, and if you recall past chapters, with [ActiveModelSerializers](https://github.com/rails-api/active_model_serializers) this is really easy.
 
-Vous devez vous demander:
+> But wait, what are we suppose to expose?
 
-> Mais attendez, que sommes-nous censés exposer?
+.. You may be wondering. And you are right. Let’s first define which actions are we going to build up:
 
-Vous avez raison! Définissons d'abord quelles actions nous allons mettre en place:
+1. An index action to retrieve the current user orders
+2. A show action to retrieve a particular order from the current user
+3. A create action to actually place the order
 
-- Une action d'indexation pour récupérer les commandes des utilisateurs en cours
-- Une action show pour récupérer une commande particulière de l'utilisateur courant
-- Une action de création pour passer réellement la commande
+Let’s start with the `index` action, so first we have to create the orders controller.
 
-Commençons par l'action `index`. Nous devons d'abord créer le contrôleur de commandes:
-
-~~~ruby
+~~~bash
 $ rails g controller api/v1/orders
 ~~~
 
-Jusqu'ici, et avant de commencer à taper du code, nous devons nous demander, "Est-ce que je dois laisser les routes de ma commande imbriqués dans le `UsersController` ou bien je dois les isoler?". La réponse est vraiment simple. Je dirais que cela dépend de la quantité d'informations dans ce cas en particulier que vous voulez exposer au développeur Pas du point de vue de la sortie JSON mais au niveau de l'URI.
+Up to this point and before start typing some code, we have to ask ourselves, should I leave my order endpoints nested into the `UsersController`, or should I isolate them, and the answer is really simple. I would say it depends on how much information in this case in particular you want to expose to the developer, not from a json output point of view, but from the URI format.
 
-Dans notre cas, je vais emboîter les routes, parce que j'aime donner ce type d'information aux développeurs. Je pense que cela donne plus de contexte à la requête elle-même. Commençons par quelques tests:
+I’ll nest the routes, because I like to give this type of information to the developers, as I think it gives more context to the request itself. Let’s start by dropping some tests:
 
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   describe 'GET #index' do
     before(:each) do
@@ -283,12 +271,11 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
 end
 ~~~
 
-Si nous exécutons la suite de tests maintenant, comme vous pouvez vous y attendre, les deux tests échoueront. C'est normal car nous n'avons même pas défini ni les bonnes routes ni l'action. Commençons donc par ajouter les routes:
+If we run the test suite now, as you may expect, both tests will fail, because have not even set the correct routes, nor the action. So let’s start by adding the routes:
 
 ~~~ruby
 # config/routes.rb
 # ...
-
 Rails.application.routes.draw do
   # ...
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
@@ -303,7 +290,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Il est maintenant temps d'implémenter le contrôleur des commandes:
+Now it is time for the orders controller implementation:
 
 ~~~ruby
 # app/controllers/api/v1/orders_controller.rb
@@ -316,7 +303,7 @@ class Api::V1::OrdersController < ApplicationController
 end
 ~~~
 
-Et maintenant nos tests devraient passer:
+And now all of our tests should pass:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
@@ -327,7 +314,7 @@ Finished in 0.07943 seconds (files took 0.7232 seconds to load)
 
 ~~~
 
-Nous aimons nos commits très petits. Alors *commitons* dès maintenant:
+We like our commits very atomic, so let’s commit this changes:
 
 ~~~bash
 $ git add .
@@ -335,19 +322,17 @@ $ git commit -m "Adds the show action for order"
 
 ~~~
 
-### Afficher une seule commande
+### Render a single order
 
-Comme vous pouvez déjà l'imaginer, cette route est très facile. Nous n'avons qu'à mettre en place quelques configurations (routes, action du contrôleur) et ce sera tout pour cette section.
+As you may imagine already, this endpoint is super easy, we just have to set up some configuration(routes, controller action) and that would be it for this section.
 
-Commençons par ajouter quelques tests:
+Let’s start by adding some specs:
 
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
-
   describe 'GET #show' do
     before(:each) do
       current_user = FactoryBot.create :user
@@ -365,12 +350,11 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
 end
 ~~~
 
-Ajoutons l'implémentation pour faire passer nos tests. Sur le fichier `routes.rb` ajoutez l'action `show` aux routes des commandes:
+Let’s add the implementation to make our tests pass. On the `routes.rb` file add the show action to the orders resources:
 
 ~~~ruby
 # config/routes.rb
 # ...
-
 Rails.application.routes.draw do
   # ...
   resources :orders, only: [:index, :show]
@@ -379,7 +363,7 @@ end
 
 ~~~
 
-Et l'implémentation devrait ressembler à ceci:
+And the the implementation should look like this:
 
 ~~~ruby
 # app/controllers/api/v1/orders_controller.rb
@@ -393,7 +377,7 @@ end
 
 ~~~
 
-Tous nos tests passent désormais:
+Our tests should be all green:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
@@ -401,38 +385,30 @@ $ rspec spec/controllers/api/v1/orders_controller_spec.rb
 
 Finished in 0.12767 seconds (files took 0.73322 seconds to load)
 4 examples, 0 failures
-
 ~~~
 
-*Commitons* les changements et passons à l'action `Product#create`.
+Let’s commit the changes and move onto the create order action:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds the show action for order"
-
 ~~~
 
-### Placement et commandes
+### Placing and order
 
-Il est maintenant temps de donner la possibilité à l'utilisateur de passer quelques commandes. Cela ajoutera de la complexité à l'application, mais ne vous inquiétez pas, nous allons faire les choses une étape à la fois.
+It is now time to let the user place some orders, this will add some complexity to the whole application, but don’t worry we will go one step at a time to keep things simple.
 
-Avant de lancer cette fonctionnalité, prenons le temps de réfléchir aux implications de la création d'une commande dans l'application. Je ne parle pas de la mise en place d'un service de transactions comme [Stripe](https://stripe.com/) ou [Braintree](https://www.braintreepayments.com/) mais de choses comme:
+Before start this feature, let’s sit back and think about the implications of creating an order in the app. I’m not talking about implementing a transactions service like [Stripe](https://stripe.com/) or [Braintree](https://www.braintreepayments.com/), but things like handling out of stock products, decrementing the product inventory, add some validation for the order placement to make sure there is enough products by the time the order is place. Did you already detected that?, it may look like we are way down on the hill, but believe, you are closer than you think, and is not as hard as it sounds.
 
-- la gestion des produits en rupture de stock
-- la diminution de l'inventaire de produits
-- ajouter une certaine validation pour le placement de la commande pour s'assurer qu'il y a suffisamment de produits au moment où la commande est passée
+For now let’s keep things simple an assume we always have enough products to place any number of orders, we just care about the server response for now.
 
-On dirait qu'il reste un paquet de chose à faire mais croyez-moi: vous êtes plus près que vous ne le pensez et ce n'est pas aussi dur que ça en a l'air. Pour l'instant, gardons les choses simples et supposons que nous avons toujours assez de produits pour passer un nombre quelconque de commandes. Nous nous soucions juste de la réponse du serveur pour le moment.
-
-Si vous vous rappelez le modèle de commande, nous avons besoin de trois choses: un total pour la commande, l'utilisateur qui passe la commande et les produits pour la commande. Compte tenu de cette information, nous pouvons commencer à ajouter quelques tests:
+If you recall the `order` model on [Section 8.1](http://apionrails.icalialabs.com/book/chapter_eight#sec-modeling_order) we need basically 3 things, a total for the order, the user who is placing the order and the products for the order. Given that information we can start adding some specs:
 
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
-
   describe 'POST #create' do
     before(:each) do
       current_user = FactoryBot.create :user
@@ -451,12 +427,11 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
     it { expect(response.response_code).to eq(201) }
   end
 end
-
 ~~~
 
-Comme vous pouvez le voir, nous sommes en train de créer une variable `order_params` avec les données de la commande. Vous voyez le problème ici? Je l'expliquerai plus tard. Ajoutons simplement le code nécessaire pour faire passer ce test.
+As you can see we are creating a `order_params` variable with the order data, can you see the problem here?, if not, I’ll explain it later, let’s just add the necessary code to make this test pass.
 
-Nous devons d'abord ajouter l'action aux routes:
+First we need to add the action to the resources on the routes file:
 
 ~~~ruby
 # config/routes.rb
@@ -468,7 +443,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Ensuite, la mise en œuvre qui est facile:
+Then the implementation which is easy:
 
 ~~~ruby
 # app/controllers/api/v1/orders_controller.rb
@@ -491,10 +466,9 @@ class Api::V1::OrdersController < ApplicationController
     params.require(:order).permit(:total, :user_id, product_ids: [])
   end
 end
-
 ~~~
 
-Et maintenant, nos tests devraient tous passer:
+And now our tests should all be green:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
@@ -504,21 +478,19 @@ Finished in 0.16817 seconds (files took 0.64624 seconds to load)
 6 examples, 0 failures
 ~~~
 
-Ok donc tout va bien. Nous devrions maintenant passer au chapitre suivant, non? Laissez-moi faire une pause avant. Nous avons de graves erreurs sur l'application et elles ne sont pas liées au code lui-même mais sur la partie métier.
+Ok, so we have everything nice and green. We now should move on to the next chapter right?, well let me stop you right there, we have some serious errors on the app, and they are not related to the code itself but on the business part.
 
-Ce n'est pas parce que les tests passent que l'application remplit la partie métier de l'application. Je voulais en parler parce que dans de nombreux cas, c'est super facile de simplement recevoir des paramètres et de construire des objets à partir de ces paramètres. Dans notre cas, nous ne pouvons pas nous fier aux données que nous recevons. En effet, nous laissons ici le client fixer le total de la commande! Ouais, c'est fou!
+Not because the tests are green, it means the app is filling the business part of the app, and I wanted to bring this up, because in many cases is super easy to just receive params, and build objects from those params, thinking that we are always receiving the correct data. In this particular case we cannot rely on that, and the simpliest way to see this, is that we are letting the client to set the order total, yeah crazy!
 
-Nous devons donc ajouter quelques validations et calculer le total de la commande dans le modèle. De cette façon, nous ne recevons plus cet attribut total et nous avons un contrôle complet sur cet attribut. Alors faisons-le.
+We have to add some validations, or better said a callback to calculate the order total an set it through the model. This way we don’t longer receive that total attribute and have complete control on this attribute. So let’s do that.
 
-Nous devons d'abord ajouter quelques tests pour le modèle de commande:
+We first need to add some specs for the order model:
 
 ~~~ruby
 # spec/models/order_spec.rb
 # ...
-
 RSpec.describe Order, type: :model do
   # ...
-
   describe '#set_total!' do
     before(:each) do
       product_1 = FactoryBot.create :product, price: 100
@@ -534,7 +506,7 @@ RSpec.describe Order, type: :model do
 end
 ~~~
 
-Nous pouvons maintenant ajouter l'implémentation:
+We can now add the implementation:
 
 ~~~ruby
 # app/models/order.rb
@@ -547,7 +519,7 @@ class Order < ApplicationRecord
 end
 ~~~
 
-Juste avant que vous ne lanciez vos tests, nous avons besoin de mettre à jour l'usine de commande:
+Just before you run your tests, we need to update the `order` factory, just to make it more useful:
 
 ~~~ruby
 # spec/factories/orders.rb
@@ -557,10 +529,9 @@ FactoryBot.define do
     total { 0.0 }
   end
 end
-
 ~~~
 
-Nous pouvons maintenant *hooker*[^17] la méthode `set_total!` à un rappel `before_validation` pour s'assurer qu'il a le bon total avant la validation.
+We can now hook the `set_total!` method to a `before_validation` callback to make sure it has the correct total before is validated.
 
 ~~~ruby
 # app/models/order.rb
@@ -568,10 +539,9 @@ class Order < ApplicationRecord
   before_validation :set_total!
   # ...
 end
-
 ~~~
 
-A ce stade, nous nous assurons que le total est toujours présent et supérieur ou égal à zéro, ce qui signifie que nous pouvons supprimer ces validations et supprimer les spécifications. Nos tests devraient passer maintenant:
+At this point, we are making sure the total is always present and bigger or equal to zero, meaning we can remove those validations and remove the specs. I’ll wait. Our tests should be passing by now:
 
 ~~~bash
 $ rspec spec/models/order_spec.rb
@@ -581,15 +551,13 @@ Finished in 0.06807 seconds (files took 0.66165 seconds to load)
 9 examples, 0 failures
 ~~~
 
-C'est maintenant le moment de voir le fichier `orders_controller_spec.rb` et de factoriser du code. Actuellement, nous avons quelque chose comme:
+This is now the moment to visit the `orders_controller_spec.rb` file and refactor some code. Currently we have something like:
 
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
-
   describe 'POST #create' do
     before(:each) do
       current_user = FactoryBot.create :user
@@ -610,12 +578,11 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
 end
 ~~~
 
-Il suffit de supprimer l'`user_id` et les paramètres `total` car l'identifiant utilisateur n'est pas vraiment nécessaire et le total est calculé par le modèle. Après avoir effectué les modifications, le code doit ressembler à ce qui suit:
+If you run the tests now, they will pass, but first, let’s remove the `total` and `user_id` from the permitted params and avoid the mass-assignment. The `order_params` method should look like this:
 
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
 
@@ -640,7 +607,7 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
 end
 ~~~
 
-Si vous exécutez les tests maintenant, ils passeront. Mais avant, supprimons le `total` et `user_id` des paramètres autorisés et évitons l'affectation en masse. La méthode `order_params` devrait ressembler à ceci:
+If you run the tests now, they will pass, but first, let’s remove the `total` and `user_id` from the permitted params and avoid the mass-assignment. The `order_params` method should look like this:
 
 ~~~ruby
 # app/controllers/api/v1/orders_controller.rb
@@ -655,37 +622,42 @@ class Api::V1::OrdersController < ApplicationController
 end
 ~~~
 
-Nos tests doivent continuer à passer. *Commitons* nos changements:
+Your tests should still passing:
 
 ~~~bash
 $ git commit -am "Adds the create method for the orders controller"
 ~~~
 
-## Customiser l'affichage JSON des commandes
+Let’s commit the changes:
 
-Maintenant que nous avons construit les routes nécessaires pour les commandes nous pouvons personnaliser les informations que nous voulons rendre sur la sortie JSON pour chaque commande.
+~~~bash
+$ git commit -am "Adds the create method for the orders controller"
+~~~
 
-Si vous vous souvenez du chapitre précédent, nous allons ici aussi utiliser *Active Model Serializers*. Commençons donc par créer un sérialiseur pour les commandes:
+## Customizing the Order json output
+
+Now that we built the necessary endpoints for the orders, we can customize the information we want to render on the JSON output for each order.
+
+If you remember previous chapter we also use Active Model Serializers gem now. Let's generate a brand new serializer:
 
 ~~~bash
 $ rails generate serializer order
 ~~~
 
-Ensuite, ouvrons le fichier `order_serializer.rb` qui doit ressembler à ça:
+Now let's open `order_serializer.rb` who should looks like:
 
-~~~bash
+~~~ruby
 # app/serializers/order_serializer.rb
 class OrderSerializer < ActiveModel::Serializer
   attributes :id
 end
 ~~~
 
-Nous allons ajouter l'association des produits et l'attribut `total` à la sortie JSON. Pour nous assurer que tout fonctionne bien, et comme d'habitude, nous ferons quelques tests. Afin d'éviter la duplication de code sur les tests, je vais juste ajouter une spécification pour le spectacle et m'assurer que les données supplémentaires sont rendues. C'est parce que j'utilise le même sérialiseur chaque fois qu'un objet d'ordre est analysé à JSON, donc dans ce cas, je dirais qu'il est très bien:
+We will add the products association and the total attribute to the order output, and to make sure everything is running smooth, we will some specs. In order to avoid duplication on tests, I’ll just add one spec for the `show` and make sure the extra data is being rendered, this is because I’m using the same serializer everytime an order object is being parsed to json, so in this case I would say it is just fine:
 
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
 
@@ -708,17 +680,15 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
     it 'includes the products on the order' do
       expect(json_response[:products]).to have(1).item
     end
-
     # ...
   end
-
   # ...
 end
 ~~~
 
-Ces tests devraient échouer mais ils sont faciles à faire passer sur le sérialiseur de commande:
+By now we should have failing tests. But they are easy to fix on the order serializer
 
-~~~bash
+~~~ruby
 # app/serializers/order_serializer.rb
 class OrderSerializer < ActiveModel::Serializer
   attributes :id, :total
@@ -726,7 +696,7 @@ class OrderSerializer < ActiveModel::Serializer
 end
 ~~~
 
-Et désormais nos tests devraient passer:
+And now all of our tests should be green:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
@@ -736,13 +706,13 @@ Finished in 0.22865 seconds (files took 0.70506 seconds to load)
 8 examples, 0 failures
 ~~~
 
-Dans le chapitre précédent nous avons intégré l'utilisateur dans le produit. Mais ici, cela ne sert à rien sachant nous connaissons toujours l'utilisateur car il s'agit de l'utilisateur courant. Il n'y a pas lieu de l'ajouter car ce n'est pas efficace. Corrigeons cela en ajoutant un nouveau sérialiseur:
+If you recall previous chapter, we embeded the user into the product, in order to retrieve some information, but in this we always know the user, because is actually the `current_user` so there is no point on adding it, it is not efficient, so let’s fix that by adding a new serializer:
 
 ~~~bash
 $ rails g serializer order_product
 ~~~
 
-Nous voulons que les informations sur les produits restent cohérentes avec celles que nous avons actuellement de sorte que nous puissions simplement en hériter le comportement comme cela:
+We want to keep the products information consistent with the one we currently have, so we can just inherit behavior from it like so:
 
 ~~~ruby
 # app/serializers/order_product_serializer.rb
@@ -750,19 +720,7 @@ class OrderProductSerializer < OrderSerializer
 end
 ~~~
 
-De cette façon, les deux sérialiseurs seront maintenant lié et il suffira d'ajouter un champ à `ProductSerializer` et il sera ajouté à `OrderProductSerializer`. Maintenant, nous voulons supprimer l'utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela[^18]:
-
-~~~ruby
-# app/serializers/order_product_serializer.rb
-class OrderProductSerializer < ProductSerializer
-  def include_user?
-    false
-  end
-end
-
-~~~
-
-Après avoir fait ce changement, nous devons dire au `order_serializer` d'utiliser le sérialiseur que nous venons de créer en passant simplement une option à l'association `has_many` sur le `order_serializer`:
+This will keep rendered data on sync, and now to remove the embebed user we simply add the following method on the gem documentation. For more information visit [ActiveModelSerializer](https://github.com/rails-api/active_model_serializers/tree/0-8-stable#associations):
 
 ~~~ruby
 # app/serializers/order_product_serializer.rb
@@ -773,7 +731,18 @@ class OrderProductSerializer < ProductSerializer
 end
 ~~~
 
-Et nos tests devraient continuer à passer:
+After making this change we need to tell the `order_serializer` to use the serializer we just created by just passing an option to the `has_many` association on the `order_serializer`:
+
+~~~ruby
+# app/serializers/order_product_serializer.rb
+class OrderProductSerializer < ProductSerializer
+  def include_user?
+    false
+  end
+end
+~~~
+
+And our tests should still passing:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/orders_controller_spec.rb
@@ -783,28 +752,26 @@ Finished in 0.24024 seconds (files took 0.70072 seconds to load)
 8 examples, 0 failures
 ~~~
 
-*Commitons* nos changements et passons à la section suivante:
+Let’s commit this and move onto the next section:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds a custom order product serializer to remove the user association"
 ~~~
 
-## Envoyer un email de confirmation
+## Send order confirmation email
 
-La dernière section de ce chapitre sera d'envoyer un courriel de confirmation à l'utilisateur qui vient de créer une commande. Si vous le voulez, vous pouvez sauter cette étape et passer au chapitre suivant! Cette section est plus à un bonus.
+The last section for this chapter will be to sent a confirmation email for the user who just placed it. If you want to skip this and jump into the next chapter go ahead. This section is more like a warmup.
 
-Vous êtes peut-être familier avec la manipulation des courriels avec Rails, je vais essayer de rendre cela simple et rapide:
-
-Nous commençons par créer le `order_mailer`:
+You may be familiar with email manipulation with Rails so I’ll try to make this fast and simple. We first create the `order_mailer`:
 
 ~~~bash
 $ rails generate mailer order_mailer
 ~~~
 
-Pour faciliter le test de l'email, nous utiliserons une gemme appelée [email\_spec](https://github.com/email-spec/email-spec). Elle inclut un tas de méthodes utiles pour tester les courriels.
+To make it easy to test the email, we will use a gem called [email_spec](https://github.com/bmabey/email-spec), it includes a bunch of useful matchers for mailers, which makes it easy and fun.
 
-Donc d'abord ajoutons la gemme au `Gemfile`:
+So first let’s add the gem to the `Gemfile`
 
 ~~~ruby
 # Gemfile
@@ -818,7 +785,7 @@ end
 # ...
 ~~~
 
-Lancez maintenant la commande `bundle install` pour installer toutes les dépendances. Je vais suivre [les étapes de documentation](https://github.com/email-spec/email-spec#rspec-31) pour configurer la gemme. Lorsque vous avez terminé, votre fichier `rails_helper.rb` devrait ressembler à ça:
+Now run the `bundle install` command to install all the dependencies. I’ll follow the documentation steps to setup the gem, you can do so on [documentation](https://github.com/bmabey/email-spec#rspec). When you are done, your `spec_helper.rb` file should look like:
 
 ~~~ruby
 # spec/rails_helper.rb
@@ -832,11 +799,10 @@ require 'spec_helper'
 require 'email_spec'
 require 'email_spec/rspec'
 require 'rspec/rails'
-
 # ...
 ~~~
 
-Maintenant, nous pouvons ajouter quelques tests pour les mails de commandes que nous venons de créer:
+Now we can add some tests for the order mailer we created earlier:
 
 ~~~ruby
 # spec/mailers/order_mailer_spec.rb
@@ -875,9 +841,7 @@ RSpec.describe OrderMailer, type: :mailer do
 end
 ~~~
 
-J'ai simplement copié/collé les tests de la documentation et je l'ai adapté à nos besoins. Nous devons maintenant nous assurer que ces tests passent.
-
-Tout d'abord, nous ajoutons la méthode `OrderMailer#send_confirmation`:
+I simply copied and pasted the one from the documentation and adapt it to our needs. We now have to make sure this tests pass. First we add the action on the order mailer:
 
 ~~~ruby
 # app/mailers/order_mailer.rb
@@ -891,7 +855,7 @@ class OrderMailer < ApplicationMailer
 end
 ~~~
 
-Après avoir ajouté ce code, nous devons maintenant ajouter les vues correspondantes. C'est une bonne pratique d'inclure une version texte en plus de la version HTML.
+After adding this code, we now have to add the corresponding views. It is a good practice to include a text version along with the html one.
 
 ~~~erb
 <%# app/views/order_mailer/send_confirmation.txt.erb %>
@@ -913,7 +877,7 @@ You ordered <%= @order.products.count %> products:
 </ul>
 ~~~
 
-Maintenant, nos tests devraient passer:
+Now if we run the mailer specs, they should be all green:
 
 ~~~bash
 $ rspec spec/mailers/order_mailer_spec.rb
@@ -923,13 +887,12 @@ Finished in 0.24919 seconds (files took 0.75369 seconds to load)
 5 examples, 0 failures
 ~~~
 
-Et maintenant, il suffit d'appeler la méthode `OrderMailer#send_confirmation` dans l'action de création sur le contrôleur des ordres:
+We just need to call the `send_confirmation` method into the create action on the orders controller:
 
 ~~~ruby
 # app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   # ...
-
   def create
     order = current_user.orders.build(order_params)
 
@@ -940,12 +903,11 @@ class Api::V1::OrdersController < ApplicationController
       render json: { errors: order.errors }, status: 422
     end
   end
-
   # ...
 end
 ~~~
 
-Pour être sûr que nous n'avons rien cassé, lançons tous les tests:
+To make sure we did not break anything on the orders, we can just run the specs from the orders controller:
 
 ~~~bash
 $ rspec spec
@@ -955,7 +917,7 @@ Finished in 1.82 seconds (files took 0.78532 seconds to load)
 98 examples, 0 failures
 ~~~
 
-*Commitons* tout ce que nous venons de faire pour terminer cette section:
+Let’s finish this section by commiting this:
 
 ~~~bash
 $ git add .
@@ -964,11 +926,13 @@ $ git commit -m "Adds order confirmation mailer"
 
 ## Conclusion
 
-Ça y est! Vous avez réussi! Vous pouvez vous applaudir. Je sais que ça a été long mais c'est presque finit, croyez moi.
+Hey you made it!, give yourself an applause, I know it’s been a long way now, but you are almost done, believe me!.
 
-Sur les chapitres à venir, nous continuerons à travailler sur le modèle de commande pour ajouter des validations lors de la passation d'une commande. Certains scénarios sont:
+On chapters to come we will keep working on the `Order` model to add some validations when placing an order, some scenarios are:
 
-- Que se passe-t-il lorsque les produits ne sont pas disponibles?
-- Diminuer la quantité du produit en cours lors de la passation d'une commande
+1. What happens when the products are not available?
+2. Decrement the current product quantity when an order is placed
 
-Le prochain chapitre sera court, mais il est très important pour la santé l'application. Alors ne le sautez pas.
+Next chapter will be short but is really important for the sanity of the app, so don’t skip it.
+
+After [chapter 9](http://apionrails.icalialabs.com/book/chapter_nine#cha-chapter_nine), we will focus on optimization, pagination and some other cool stuff that will definitely help you build a better app.

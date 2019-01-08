@@ -410,13 +410,7 @@ end
 
 ~~~
 
-Attention, la méthode `have` que nous utilisons dans ce ce test par exemple:
-
-~~~ruby
-expect(products_response[:products]).to have(4).items
-~~~
-
-n'est plus disponible depuis Rspec 3.0. Il faut donc installer une librairie supplémentaire:
+Warning, the `have` we use on previous test was no longer available since Rspec 3.0. We must install one more gem:
 
 ~~~ruby
 # Gemfile
@@ -427,7 +421,7 @@ group :test do
 end
 ~~~
 
-Passons maintenant à la mise en œuvre, qui, pour l'instant, va être une triste méthode toutes classes:
+Let’s move into the implementation, which for now is going to be a sad `all` class method.
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
@@ -435,34 +429,32 @@ class Api::V1::ProductsController < ApplicationController
   def index
     render json: Product.all
   end
-
   #...
 end
 ~~~
 
-Et n'oubliez pas, vous devez ajouter la route correspondante dans le fichier `config/routes.rb`:
+And remember, you have to add the corresponding route:
 
 ~~~ruby
 resources :products, only: %i[show index]
 ~~~
 
-Dans les chapitres suivants, nous allons améliorer ce point d'entré et donner la possibilité de recevoir des paramètres pour les filtrer. *Commitons* ces changements et continuons d'avancer:
+We are done for now with the public product endpoints, in the sections to come we will focus on building the actions that require a user to be logged in to access them. Said that we are committing this changes and continue.
 
 ~~~bash
 $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
 ~~~
 
-### Création des produits
+### Creating products
 
-Créer des produits est un peu plus délicat parce que nous aurons besoin d'une configuration supplémentaire pour donner une meilleure structure à ce point d'entré. La stratégie que nous suivrons est d'imbriquer les produits, dans les actions des utilisateurs. Ceci nous permettra d'avoir un point d'entrée plus descriptif comme `/users/:user_id/products`.
+Creating products is a bit tricky because we’ll need some extra configuration to give a better structure to this endpoint. The strategy we will follow is to nest the products `create` action into the users which will deliver us a more descriptive endpoint, in this case `/users/:user_id/products`.
 
-Notre premier arrêt sera donc le fichier `products_controller_spec.rb`.
+So our first stop will be the `products_controller_spec.rb` file.
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
 
@@ -507,19 +499,18 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
 
-Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez, les tests sont en fait les mêmes que ceux de la création de l'utilisateur exépté quelques changements mineurs. Rappelez-vous que nous avons cette route imbriquée, nous devons donc nous assurer d'envoyer le paramètre `user_id` à chaque requête, comme vous pouvez le voir sur:
+Wow!, we added a bunch of code, but if you recall from previous section, the spec actually looks the same as the user create action but with minor changes. Remember we have this endpoint nested so we need to make sure we send the `user_id` param on each request, as you can see on:
 
 ~~~ruby
 post :create, params: { user_id: user.id, product: @product_attributes }
 ~~~
 
-De cette façon, nous pouvons voir l'utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux, si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d'autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l'utilisateur à partir de l'en-tête `Authorization` et lui avons assigné une méthode `current_user`. C'est donc assez facile à mettre en place en ajoutant simplement l'en-tête d'autorisation dans la requête et en récupérant l'utilisateur à partir de celui-ci. Alors faisons-le:
+This way we can fetch the user and create the product for that specific user. But wait there is more, if we take this approach we will have to increment the scope of our authorization mechanism, because we have to fetch the user from the `user_id` param. Well in this case and if you remember we built the logic to get the user from the `authorization` header and assigned it a `current_user` method. This is rapidly fixable, by just adding the `authorization` header into the request, and fetch that user from it, so let’s do that.
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: [:create]
-
   # ...
 
   def create
@@ -539,13 +530,13 @@ class Api::V1::ProductsController < ApplicationController
 end
 ~~~
 
-Comme vous pouvez le voir, nous protégeons l'action de création avec la méthode `authenticate_with_token!`, et sur l'action `create` nous construisons le produit en associant l'utilisateur courant.
+As you can see we are protecting the create action with the `authenticate_with_token!` method, and on the `create` action we are building the product in relation to the `current_user`.
 
-A ce stade, vous vous demandez peut-être s'il est vraiment nécessaire d'imbriquer l'action? Parce qu'en fait, nous n'utilisons pas vraiment le paramètre `user_id` fournis de l'URL. Vous avez tout à fait raison, mon seul argument ici est qu'avec cette approche, la route est beaucoup plus descriptive de l'extérieur, car nous disons aux développeurs que pour créer un produit, il nous faut un utilisateur.
+By this point you may be asking yourself, well is it really necessary to nest the action?, because by the end of the day we don’t really use the `user_id` from the uri pattern. In my opinion you are totally right, my only argument here is that with this approach the endpoint is way more descriptive from the outside, as we are telling the developers that in order to create a product we need a user.
 
-Alors c'est vraiment à vous de décider comment vous voulez organiser vos routes et les exposer au monde. Ma façon n'est pas la seule et cela ne signifie pas non plus que c'est la bonne. En fait, je vous encourage à jouer avec différentes approches et choisir celle que vous trouvez le mieux.
+So it is really up to you how you want to organize your resources and expose them to the world, my way is not the only one and it does not mean is the correct one either, in fact I encourage you to play around with different approaches and choose the one that fills your eye.
 
-Une dernière chose avant de faire vos tests: la route nécessaire:
+One last thing before you run your tests, just the necessary route:
 
 ~~~ruby
 # config/routes.rb
@@ -566,7 +557,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Si vous faites les tests maintenant, ils devraient tous passer:
+Now if you run the tests now, they should be all green:
 
 ~~~
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
@@ -576,11 +567,11 @@ Finished in 0.21831 seconds (files took 0.75823 seconds to load)
 9 examples, 0 failures
 ~~~
 
-### Mise à jour des produits
+### Updating products
 
-J'espère que maintenant vous comprenez la logique pour construire les actions à venir. Dans cette section, nous nous concentrerons sur l'action de mise à jour qui fonctionnera de manière similaire à celle de création. Nous avons juste besoin d'aller chercher le produit dans la base de données et de le mettre à jour.
+Hopefully by now you understand the logic to build the upcoming actions, in this section we will focus on the `update` action, which will work similarly to the `create` one, we just need to fetch the product from the database and the update it.
 
-Nous ajoutons d'abord l'action aux routes pour ne pas oublier plus tard:
+We are first add the action to the routes, so we don’t forget later:
 
 ~~~ruby
 # config/routes.rb
@@ -601,9 +592,9 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Avant de commencer à coder certains tests je veux juste préciser que, de la même manière que pour l'action `create`, nous allons délimiter le produit à l'utilisateur courant. Nous voulons nous assurer que le produit que nous mettons à jour appartient bien à l'utilisateur. Nous allons donc chercher ce produit dans l'association `user.products` fournie par *Active Record*.
+Before we start dropping some tests, I just want to clarify that similarly to the `create` action we will scope the product to the `current_user`, in this case we want to make sure the product we are updating, actually belongs to the user, so we will fetch that product from the `user.products` association provided by rails.
 
-Tout d'abord, nous ajoutons quelques tests:
+First we add some specs:
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
@@ -653,15 +644,14 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
 
-Les tests peuvent paraître complexes, mais en jetant un coup d’œil, ils sont presque identiques à ceux des utilisateurs . La seule différence ici étant que les routes sont imbriquées comme nous l'avons vu précedement. Nous devons donc envoyer le `user_id` comme paramètre.
+The tests may look complex, but take a second peek, they are almost the same we built for users. The only difference here is the nested routes as we saw on previous section, which in this case we need to send the `user_id` as a parameter.
 
-Maintenant implémentons le code pour faire passer nos tests avec succès:
+Now let’s implement the code to make our tests pass:
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: %i[create update]
-
   # ...
 
   def update
@@ -672,14 +662,13 @@ class Api::V1::ProductsController < ApplicationController
       render json: { errors: product.errors }, status: 422
     end
   end
-
   # ...
 end
 ~~~
 
-Comme vous pouvez le constater, l'implémentation est assez simple. Nous allons simplement récupéré le produit auprès de l'utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au `before_action`, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
+As you can see the implementation is pretty straightforward, we simply fetch the product from the `current_user` and simply update it. We also added this action to the `before_action` hook, to prevent any unauthorised user to update a product.
 
-Si on lance les tests, ils devraient passer:
+Now if we run the tests, they should be all green:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
@@ -689,16 +678,15 @@ Finished in 0.24404 seconds (files took 0.75973 seconds to load)
 14 examples, 0 failures
 ~~~
 
-### Suppression des produits
+### Destroying products
 
-Notre dernier arrêt pour les route des produits, sera l'action `destroy`. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La stratégie ici sera assez similaire à l'action de `create` et `update`. Ce qui signifie que nous allons imbriquer la route dans les ressources des utilisateurs, puis récupérer le produit auprès de l'association `user.products` et enfin le supprimer en retournant un code 204.
+Our last stop for the products endpoints, will be the `destroy` action and you might now imagine how this would look like. The strategy in here will be pretty similar to the create and update action, which means we are going to nest the route into the `users` resources, then fecth the product from the `user.products` association and finally destroy it, returning a `204` code.
 
-Recommençons par ajouter la route:
+Let’s start again by adding the route name to the routes file:
 
 ~~~ruby
 # config/routes.rb
-require 'api_constraints'
-
+# ...
 Rails.application.routes.draw do
   # ...
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
@@ -712,15 +700,13 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Après cela, nous devons ajouter quelques tests:
+After this, we have to add some tests as shown on this code snippet:
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
-
   describe 'DELETE #destroy' do
     before(:each) do
       @user = FactoryBot.create :user
@@ -734,26 +720,23 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
 
-Maintenant, ajoutons simplement le code nécessaire pour faire passer les tests:
+Now we simply add the necessary code to make the tests pass:
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: %i[create update destroy]
-
   # ...
-
   def destroy
     product = current_user.products.find(params[:id])
     product.destroy
     head 204
   end
-
   # ...
 end
 ~~~
 
-Comme vous pouvez le voir, l'implémentation fait le travail en trois lignes. Nous pouvons lancer les tests pour nous assurer que tout est bon.
+As you can see the three-line implementation does the job, we can run the tests to make sure everything is good, and after that we will commit the changes as we added a bunch of new code. Also make sure you hook this action to the `before_action` callback as with the `update` action.
 
 ~~~bash
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
@@ -763,31 +746,31 @@ Finished in 0.25959 seconds (files took 0.80248 seconds to load)
 15 examples, 0 failures
 ~~~
 
-Après cela, nous *commitons* les changements.
+Let’s commit the changes:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds the products create, update and destroy action nested on the user resources"
 ~~~
 
-Remplir la base de données
+## Remplir la base de données
 
-Avant de continuer avec plus de code, remplissons la base de données avec de fausses données. Nous avons des usines qui devraient faire le travail à notre place. Alors utilisons-les.
+Before we continue with more code, let’s populate the database with some fake data. Thanfully we have some factories that should do the work for us. So let’s do use them.
 
-Tout d'abord, nous exécutons la commande de la console Rails à partir du Terminal:
+First we run the rails console command from the Terminal:
 
 ~~~bash
 $ rails console
 ~~~
 
-Nous créons ensuite un tas d'objets produits avec la gemme FactoryBot:
+We then create a bunch of product objects with the `FactoryBot` gem::
 
 ~~~ruby
 Loading development environment (Rails 5.2.1)
 2.5.3 :001 > 20.times { FactoryBot.create :product }
 ~~~
 
-Oups, vous avez probablement des erreurs qui se sont produites:
+Oops, you probably have some errors showing up:
 
 ~~~
 Traceback (most recent call last):
@@ -797,7 +780,7 @@ Traceback (most recent call last):
 NameError (uninitialized constant FactoryBot)
 ~~~
 
-C'est parce que nous utilisons la console sur l'environnement de développement. Mais ça n'a pas de sens avec notre `Gemfile` qui ressemble actuellement à ceci:
+This is because we are running the console on `development` environment but that does not make sense with our `Gemfile`, which currently looks like this:
 
 ~~~ruby
 # Gemfile
@@ -811,7 +794,7 @@ group :test do
 end
 ~~~
 
-Vous voyez où est le problème? Si vous faites attention, vous remarquerez que la gemme `factory_bot_rails` n'est disponible que pour l'environnement de test et non pour le développement. Cela peut être corrigé très rapidement:
+You see where the problem is?. If you pay attention you will notice that the `factory_bot_rails` gem is only available for the test environment, but no for the development one, which is what we need. This can be fix really fast:
 
 ~~~ruby
 # Gemfile
@@ -826,7 +809,7 @@ group :test do
 end
 ~~~
 
-Notez que nous avons déplacé la gemme `ffaker` vers le groupe partagé comme nous l'utilisons à l'intérieur des usines que nous décrivons plus haut. Lancez maintenant la commande `bundle` pour mettre à jour les bibliothèques. Alors construisez les produits que vous voulez comme ça:
+Notice the we moved the `ffaker` gem to the shared group as we use it inside the factories we describe earlier. Now just run the `bundle` command to update the libraries. Then build the products you want like so:
 
 ~~~
 $ rails console
@@ -834,9 +817,7 @@ Loading development environment (Rails 5.2.1)
 2.5.3 :001 > 20.times { FactoryBot.create :product }
 ~~~
 
-Désormais, vous pourrez créer n'importe quel objet à partir d'usines, comme les utilisateurs, les produits, les commandes, etc.
-
-*commitons* les changements!
+From now on, you will be able to create any object from factories, such as users, products, orders, etc. So let’s commit this tiny change:
 
 ~~~bash
 $ git add .
@@ -845,4 +826,6 @@ $ git commit -m "Updates test environment factory gems to work on development"
 
 ## Conclusion
 
-Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produit à l'aide de la gemme *active model serializers*. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
+On the next chapter we will focus on customizing the output from the `user` and `product` models using the active model serializers gem. It will help us to easily filter the attributes to display or handle associations as embebed objects for example.
+
+I hope you have enjoyed this chapter, it is a long one but the code we put together is an excellent base for the core app.

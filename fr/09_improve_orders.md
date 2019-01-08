@@ -46,7 +46,6 @@ Maintenant nous pouvons lancer la migration:
 
 ~~~bash
 $ rake db:migrate
-
 ~~~
 
 Il est maintenant temps de diminuer la quantité du `Product` une fois l'`Order` passée. La première chose qui vous vient probablement à l'esprit est de le faire dans le modèle `Order` et c'est une erreur fréquente. Lorsque vous travaillez avec des associations *Many-to-Many*, nous oublions totalement le modèle de jointure qui dans ce cas est `Placement`. Le `Placement` est un meilleur endroit pour gérer cela car nous avons accès à la commande et au produit. Ainsi, nous pouvons facilement diminuer le stock du produit.

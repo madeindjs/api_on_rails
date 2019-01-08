@@ -146,7 +146,7 @@ $ git add .
 $ git commit -a "Adds product serializer for custom json output"
 ~~~
 
-## Sérialiser les associations
+### Sérialiser les associations
 
 Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c'est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne.
 
@@ -600,6 +600,12 @@ $ rspec spec/models/product_spec.rb
 
 Finished in 0.18008 seconds (files took 0.6544 seconds to load)
 13 examples, 0 failures
+~~~
+
+*Commitons* nos changements:
+
+~~~bash
+$ git commit -am "Adds search scopes on the product model"
 ~~~
 
 ### Moteur de recherche

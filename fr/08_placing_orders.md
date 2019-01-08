@@ -73,7 +73,7 @@ end
 
 Les tests devraient passer:
 
-~~~ruby
+~~~bash
 $ rspec spec/models/order_spec.rb
 ......
 
@@ -100,10 +100,8 @@ Ajoutons d'abord les tests de l'association des commandes aux produits:
 ~~~ruby
 # spec/models/order_spec.rb
 # ...
-
 RSpec.describe Order, type: :model do
   # ...
-
   it { should have_many(:placements) }
   it { should have_many(:products).through(:placements) }
 end
@@ -125,7 +123,6 @@ Il est maintenant temps de se lancer dans l'association `product-placement`:
 ~~~ruby
 # spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
   it { should have_many(:placements) }
@@ -232,7 +229,7 @@ Finished in 0.14279 seconds (files took 0.72848 seconds to load)
 
 *Commitons* ces changements et continuons d'avancer:
 
-~~~ruby
+~~~bash
 $ git add .
 $ git commit -m 'Adds user order has many relation'
 ~~~
@@ -247,13 +244,13 @@ Vous devez vous demander:
 
 Vous avez raison! Définissons d'abord quelles actions nous allons mettre en place:
 
-- Une action d'indexation pour récupérer les commandes des utilisateurs en cours
-- Une action show pour récupérer une commande particulière de l'utilisateur courant
-- Une action de création pour passer réellement la commande
+1. Une action d'indexation pour récupérer les commandes des utilisateurs en cours
+2. Une action show pour récupérer une commande particulière de l'utilisateur courant
+3. Une action de création pour passer réellement la commande
 
 Commençons par l'action `index`. Nous devons d'abord créer le contrôleur de commandes:
 
-~~~ruby
+~~~bash
 $ rails g controller api/v1/orders
 ~~~
 
@@ -264,7 +261,6 @@ Dans notre cas, je vais emboîter les routes, parce que j'aime donner ce type d'
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   describe 'GET #index' do
     before(:each) do
@@ -288,7 +284,6 @@ Si nous exécutons la suite de tests maintenant, comme vous pouvez vous y attend
 ~~~ruby
 # config/routes.rb
 # ...
-
 Rails.application.routes.draw do
   # ...
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
@@ -324,7 +319,6 @@ $ rspec spec/controllers/api/v1/orders_controller_spec.rb
 
 Finished in 0.07943 seconds (files took 0.7232 seconds to load)
 2 examples, 0 failures
-
 ~~~
 
 Nous aimons nos commits très petits. Alors *commitons* dès maintenant:
@@ -332,7 +326,6 @@ Nous aimons nos commits très petits. Alors *commitons* dès maintenant:
 ~~~bash
 $ git add .
 $ git commit -m "Adds the show action for order"
-
 ~~~
 
 ### Afficher une seule commande
@@ -344,7 +337,6 @@ Commençons par ajouter quelques tests:
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
 
@@ -370,13 +362,11 @@ Ajoutons l'implémentation pour faire passer nos tests. Sur le fichier `routes.r
 ~~~ruby
 # config/routes.rb
 # ...
-
 Rails.application.routes.draw do
   # ...
   resources :orders, only: [:index, :show]
   # ...
 end
-
 ~~~
 
 Et l'implémentation devrait ressembler à ceci:
@@ -390,7 +380,6 @@ class Api::V1::OrdersController < ApplicationController
     render json: current_user.orders.find(params[:id])
   end
 end
-
 ~~~
 
 Tous nos tests passent désormais:
@@ -401,7 +390,6 @@ $ rspec spec/controllers/api/v1/orders_controller_spec.rb
 
 Finished in 0.12767 seconds (files took 0.73322 seconds to load)
 4 examples, 0 failures
-
 ~~~
 
 *Commitons* les changements et passons à l'action `Product#create`.
@@ -409,7 +397,6 @@ Finished in 0.12767 seconds (files took 0.73322 seconds to load)
 ~~~bash
 $ git add .
 $ git commit -m "Adds the show action for order"
-
 ~~~
 
 ### Placement et commandes
@@ -429,7 +416,6 @@ Si vous vous rappelez le modèle de commande, nous avons besoin de trois choses:
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
 
@@ -491,7 +477,6 @@ class Api::V1::OrdersController < ApplicationController
     params.require(:order).permit(:total, :user_id, product_ids: [])
   end
 end
-
 ~~~
 
 Et maintenant, nos tests devraient tous passer:
@@ -515,10 +500,8 @@ Nous devons d'abord ajouter quelques tests pour le modèle de commande:
 ~~~ruby
 # spec/models/order_spec.rb
 # ...
-
 RSpec.describe Order, type: :model do
   # ...
-
   describe '#set_total!' do
     before(:each) do
       product_1 = FactoryBot.create :product, price: 100
@@ -557,7 +540,6 @@ FactoryBot.define do
     total { 0.0 }
   end
 end
-
 ~~~
 
 Nous pouvons maintenant *hooker*[^17] la méthode `set_total!` à un rappel `before_validation` pour s'assurer qu'il a le bon total avant la validation.
@@ -673,7 +655,7 @@ $ rails generate serializer order
 
 Ensuite, ouvrons le fichier `order_serializer.rb` qui doit ressembler à ça:
 
-~~~bash
+~~~ruby
 # app/serializers/order_serializer.rb
 class OrderSerializer < ActiveModel::Serializer
   attributes :id
@@ -685,10 +667,8 @@ Nous allons ajouter l'association des produits et l'attribut `total` à la sorti
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
-
   describe 'GET #show' do
     before(:each) do
       current_user = FactoryBot.create :user
@@ -718,7 +698,7 @@ end
 
 Ces tests devraient échouer mais ils sont faciles à faire passer sur le sérialiseur de commande:
 
-~~~bash
+~~~ruby
 # app/serializers/order_serializer.rb
 class OrderSerializer < ActiveModel::Serializer
   attributes :id, :total

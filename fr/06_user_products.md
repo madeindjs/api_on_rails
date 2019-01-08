@@ -435,7 +435,6 @@ class Api::V1::ProductsController < ApplicationController
   def index
     render json: Product.all
   end
-
   #...
 end
 ~~~
@@ -519,7 +518,6 @@ De cette façon, nous pouvons voir l'utilisateur et lui créer un produit qui lu
 # app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: [:create]
-
   # ...
 
   def create
@@ -584,7 +582,7 @@ Nous ajoutons d'abord l'action aux routes pour ne pas oublier plus tard:
 
 ~~~ruby
 # config/routes.rb
-require 'api_constraints'
+# ...
 
 Rails.application.routes.draw do
   devise_for :users
@@ -608,10 +606,8 @@ Tout d'abord, nous ajoutons quelques tests:
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
-
   describe 'PUT/PATCH #update' do
     before(:each) do
       @user = FactoryBot.create :user
@@ -661,7 +657,6 @@ Maintenant implémentons le code pour faire passer nos tests avec succès:
 # app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: %i[create update]
-
   # ...
 
   def update
@@ -672,7 +667,6 @@ class Api::V1::ProductsController < ApplicationController
       render json: { errors: product.errors }, status: 422
     end
   end
-
   # ...
 end
 ~~~
@@ -697,8 +691,7 @@ Recommençons par ajouter la route:
 
 ~~~ruby
 # config/routes.rb
-require 'api_constraints'
-
+# ...
 Rails.application.routes.draw do
   # ...
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
@@ -770,7 +763,7 @@ $ git add .
 $ git commit -m "Adds the products create, update and destroy action nested on the user resources"
 ~~~
 
-Remplir la base de données
+## Remplir la base de données
 
 Avant de continuer avec plus de code, remplissons la base de données avec de fausses données. Nous avons des usines qui devraient faire le travail à notre place. Alors utilisons-les.
 

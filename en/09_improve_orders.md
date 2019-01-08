@@ -1,37 +1,35 @@
-# Améliorer les commandes
+# Improving orders
 
-Précédemment nous avons amélioré notre API pour passer des commandes et envoyer un e-mail de confirmation à l'utilisateur (juste pour améliorer l'expérience utilisateur). Ce chapitre va s'occuper de quelques validations sur le modèle de commande afin de s'assurer qu'elle est valide. C'est-à-dire:
+Back in previous chapter we extended our API to place orders and send a confirmation email to the user (just to improve the user experience). This chapter will take care of some validations on the order model, just to make sure it is placeable, just like:
 
-- Diminuer la quantité du produit en cours lors de la passation d'une commande
-- Que se passe-t-il lorsque les produits ne sont pas disponibles?
+1. Decrement the current product quantity when an order is placed
+2. What happens when the products are not available?
 
-Nous aurons aussi besoin de mettre à jour un peu la sortie JSON pour les
-commandes. Mais ne *spoilons* pas la suite.
+We’ll probably need to update a little bit the `json output` for the orders, but let’s not spoil things up.
 
-Maintenant que tout est clair, on peut mettre les mains dans le
-cambouis. Vous pouvez cloner le projet jusqu'à ce point avec:
+So now that we have everything clear, we can get our hands dirty. You can clone the project up to this point with:
 
-~~~bash
+~~~ruby
 $ git clone https://github.com/madeindjs/market_place_api.git -b chapter8
 ~~~
 
-Créons une branche pour commencer
+Let’s create a branch to start working:
 
-~~~bash
+~~~ruby
 $ git checkout -b chapter9
 ~~~
 
-## Diminution de la quantité de produit
+## Decrementing the product quantity
 
-Dans cette partie nous travaillerons sur la mise à jour de la quantité du produit pour nous assurer que chaque commande livrera le produit réel. Actuellement, le modèle de produit n'a pas d'attribut de quantité, alors faisons-le:
+On this first stop we will work on update the product quantity to make sure every order will deliver the actual product. Currently the `product` model doesn’t have a `quantity` attribute, so let’s do that:
 
 ~~~bash
 $ rails generate migration add_quantity_to_products quantity:integer
 ~~~
 
-Attendez! N'exécutez pas encore cette migrations! Nous allons y apporter une petite modification. Comme bonne pratique, j'aime ajouter des valeurs par défaut pour la base de données juste pour être sûr de ne pas tout gâcher avec des valeurs nulles. C'est un cas parfait!
+Wait, don’t run the migrations just yet, we are making a small modification to it. As a good practice I like to add default values for the database just to make sure I don’t mess things up with `null` values. This is a perfect case!
 
-Votre fichier de migration devrait ressembler à ceci:
+Your migration file should look like this:
 
 ~~~ruby
 # db/migrate/20181227092237_add_quantity_to_products.rb
@@ -42,18 +40,19 @@ class AddQuantityToProducts < ActiveRecord::Migration[5.2]
 end
 ~~~
 
-Maintenant nous pouvons lancer la migration:
+Now we can migrate database:
 
 ~~~bash
 $ rake db:migrate
-
 ~~~
 
-Il est maintenant temps de diminuer la quantité du `Product` une fois l'`Order` passée. La première chose qui vous vient probablement à l'esprit est de le faire dans le modèle `Order` et c'est une erreur fréquente. Lorsque vous travaillez avec des associations *Many-to-Many*, nous oublions totalement le modèle de jointure qui dans ce cas est `Placement`. Le `Placement` est un meilleur endroit pour gérer cela car nous avons accès à la commande et au produit. Ainsi, nous pouvons facilement diminuer le stock du produit.
+Now it is time to decrement the quantity for the `product` once an `order` is placed. Probably the first thing that comes to your mind is to take this to the `Order` model and this is a common mistake when working with _Many-to-Many_ associations, we totally forget about the joining model which in this case is `Placement`.
 
-Avant de commencer à implémenter le code, nous devons changer la façon dont nous gérons la création de la commande car nous devons maintenant accepter une quantité pour chaque produit. Si vous vous souvenez, nous attendons un tableau d'identifiants de produits. Je vais essayer de garder les choses simples et je vais envoyer un tableau de tableaux où la première position de chaque tableau interne sera l'identifiant du produit et la seconde la quantité.
+The `Placement` is a better place to handle this as we have access to the order and the product, so we can easily in this case decrement the product stock.
 
-Un exemple rapide serait quelque chose comme cela:
+Before we start implementing the code for the decrement, we have to change the way we handle the `order` creation as we now have to accept a quantity for each product. Remember we expecting we are expecting an array of product ids. I’m going to try to keep things simple and I will send an array of arrays where the first position of each inner array will be the product id and the second the quantity.
+
+A quick example on this would be something like:
 
 ~~~ruby
 product_ids_and_quantities = [
@@ -62,7 +61,7 @@ product_ids_and_quantities = [
 ]
 ~~~
 
-Ça va être difficile, alors restez avec moi. Construisons d'abord des tests unitaires:
+This is going to be tricky so stay with me, let’s first build some unit tests:
 
 ~~~ruby
 # spec/models/order_spec.rb
@@ -86,7 +85,7 @@ RSpec.describe Order, type: :model do
 end
 ~~~
 
-Et maintenant l'implémentation
+Then into the implementation:
 
 ~~~ruby
 # app/models/order.rb
@@ -107,9 +106,9 @@ class Order < ApplicationRecord
 end
 ~~~
 
-Et maintenant, si nous lançons les tests, ils devraient passer:
+And if we run our tests, they should be all nice and green:
 
-~~~ruby
+~~~bash
 $ rspec spec/models/order_spec.rb
 ........
 
@@ -117,9 +116,9 @@ Finished in 0.33759 seconds (files took 3.54 seconds to load)
 8 examples, 0 failures
 ~~~
 
-Les `build_placements_with_product_ids_and_quantities` construiront les objets `Placement` et une fois que nous déclencherons la méthode de sauvegarde de l'ordre, tout sera inséré dans la base de données. Une dernière étape avant de valider ceci est de mettre à jour `orders_controller_spec` avec son implémentation.
+The `build_placements_with_product_ids_and_quantities` will build the placement objects and once we trigger the `save` method for the order everything will be inserted into the database. One last step before commiting this is to update the `orders_controller_spec` along with its implementation.
 
-Tout d'abord, nous mettons à jour le fichier `orders_controller_spec`:
+First we update the `orders_controller_spec` file:
 
 ~~~ruby
 # spec/controllers/api/v1/orders_controller_spec.rb
@@ -150,7 +149,7 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
 end
 ~~~
 
-Nous devons ensuite mettre un peu à jour notre contrôleur des commandes:
+Then we need to update the `orders_controller`:
 
 ~~~ruby
 # app/controllers/api/v1/orders_controller.rb
@@ -172,9 +171,9 @@ class Api::V1::OrdersController < ApplicationController
 end
 ~~~
 
-Notez que j'ai aussi supprimé la méthode `OrdersController#order_params` qui devient inutile.
+_**Notice we removed the `order_params` method as we are handling the creation for the placements.**_
 
-Enfin et surtout, nous devons mettre à jour le fichier d'usine des produits afin d'attribuer une valeur de quantité élevée pour avoir au moins quelques produits en stock.
+And last but not least, we need to update the `products` factory file, to assign a high `quantity` value, to at least have some products to play around in stock.
 
 ~~~ruby
 # spec/factories/products.rb
@@ -189,21 +188,20 @@ FactoryBot.define do
 end
 ~~~
 
-*Commitons* nos changements avant d'aller plus loin:
+Let’s commit this changes and keep moving:
 
 ~~~bash
 $ git add .
 $ git commit -m "Allows the order to be placed along with product quantity"
-
 ~~~
 
-Avez-vous remarqué que nous ne mettons pas à jour la quantité des produits? Actuellement, il n'y a aucun moyen d'en faire le suivi. Cela peut être corrigé très facilement, en ajoutant simplement un attribut de quantité au modèle `Placement` de sorte que pour chaque produit, nous sauvegardons la quantité correspondante. Commençons par créer la migration:
+Did you notice we are not saving the quantity for each product anywhere?, there is no way to keep track of that. This can be fix really easy, by just adding a quantity attribute to the `Placement` model, so this way for each product we save its corresponding quantity. Let’s start by creating the migration:
 
 ~~~bash
 $ rails generate migration add_quantity_to_placements quantity:integer
 ~~~
 
-Comme pour la migration des attributs de quantité de produit, nous devrions ajouter une valeur par défaut égale à 0. N'oubliez pas que c'est facultatif mais c'est mieux. Le fichier de migration devrait ressembler à cela:
+As with the product quantity attribute migration we should add a default value equal to 0, remember this is optional but I do like this approach. The migration file should look like:
 
 ~~~ruby
 # db/migrate/20181227104830_add_quantity_to_placements.rb
@@ -214,13 +212,13 @@ class AddQuantityToPlacements < ActiveRecord::Migration[5.2]
 end
 ~~~
 
-Lancez ensuite la migration:
+Then run the migrations:
 
 ~~~bash
 $ rake db:migrate
 ~~~
 
-Documentons l'attribut `quantity` par un test unitaire:
+Let’s document the `quantity` attribute through a unit test like so:
 
 ~~~ruby
 # spec/models/placement_spec.rb
@@ -232,7 +230,7 @@ RSpec.describe Placement, type: :model do
 end
 ~~~
 
-Il ne nous reste plus qu'à mettre à jour la méthode `build_placements_with_product_ids_and_quantities` pour ajouter la quantité pour les placements:
+Now we just need to update the `build_placements_with_product_ids_and_quantities` to add the `quantity` for the placements:
 
 ~~~ruby
 # app/models/order.rb
@@ -248,7 +246,7 @@ class Order < ApplicationRecord
 end
 ~~~
 
-Maintenant, nos tests devraient passer:
+Our `order_spec.rb` should be still green:
 
 ~~~bash
 $ rspec spec/models/order_spec.rb
@@ -258,19 +256,18 @@ Finished in 0.09898 seconds (files took 0.74936 seconds to load)
 8 examples, 0 failures
 ~~~
 
-*Commitons* nos changement:
+Let’s commit the changes:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds quantity to placements"
-
 ~~~
 
-### Étendre le modèle de placement
+### Extending the Placement model
 
-Il est temps de mettre à jour la quantité du produit une fois la commande enregistrée ou plus précisément: une fois le placement créé. Pour ce faire, nous allons ajouter une méthode et la connecter au *callback* `after_create`.
+It is time to update the product quantity once the order is saved, or more accurate once the placement is created. In order to achieve this we are going to add a method and then hook it up to an `after_create` callback.
 
-Commençons par mettre à jour notre usine de placement pour qu'elle soit plus logique:
+Let’s first update our `placement` factory to make more sense:
 
 ~~~ruby
 # spec/factories/placements.rb
@@ -283,7 +280,7 @@ FactoryBot.define do
 end
 ~~~
 
-Et puis nous pouvons simplement ajouter quelques tests:
+And then we can simply add some specs:
 
 ~~~ruby
 # spec/models/placement_spec.rb
