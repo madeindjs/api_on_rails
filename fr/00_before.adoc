@@ -17,7 +17,8 @@ Tout le code source de ce livre est disponible au format https://asciidoctor.org
 
 Cette traduction est disponible sous http://opensource.org/licenses/MIT[licence MIT]. Tout le code source de ce livre est disponible au format https://asciidoctor.org[Asciidoctor] sur https://github.com/madeindjs/api_on_rails[Github]
 
-________________________________________________________________________________
+.licence MIT
+****
 La licence MIT Copyright (c) 2019 Alexandre Rousseau
 
 Permission est accordée, à titre gratuit, à toute personne obtenant une copie de ce logiciel et la documentation associée, pour faire des modification dans le logiciel sans restriction et sans limitation des droits d’utiliser, copier, modifier, fusionner, publier, distribuer, concéder sous licence, et / ou de vendre les copies du Logiciel, et à autoriser les personnes auxquelles le Logiciel est meublé de le faire, sous réserve des conditions suivantes:
@@ -25,6 +26,6 @@ Permission est accordée, à titre gratuit, à toute personne obtenant une copie
 L’avis de copyright ci-dessus et cette autorisation doit être inclus dans toutes les copies ou parties substantielles du Logiciel.
 
 LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D’AUCUNE SORTE, EXPLICITE OU IMPLICITE, Y COMPRIS, MAIS SANS S’Y LIMITER, LES GARANTIES DE QUALITÉ MARCHANDE, ADAPTATION À UN USAGE PARTICULIER ET D’ABSENCE DE CONTREFAÇON. EN AUCUN CAS LES AUTEURS OU TITULAIRES DU ETRE TENU RESPONSABLE DE TOUT DOMMAGE, RÉCLAMATION OU AUTRES RESPONSABILITÉ, SOIT DANS UNE ACTION DE CONTRAT, UN TORT OU AUTRE, PROVENANT DE, DE OU EN RELATION AVEC LE LOGICIEL OU L’UTILISATION OU DE TRANSACTIONS AUTRES LE LOGICIEL.
-________________________________________________________________________________
+****
 
 "API on Rails 5" de https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] est mis à disposition selon les termes de la licence http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International]. Fondé sur une œuvre à http://apionrails.icalialabs.com/book/.
