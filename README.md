@@ -1,6 +1,8 @@
-# ![API on Rails](logo.svg)
+<h1 align="center">
+  <img src="logo.svg" alt="Api on Rails 5" />
+</h1>
 
-Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com/book) book.
+Update & translations of the fantastic [API on Rails (EN)](http://apionrails.icalialabs.com/book) book.
 
 <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
