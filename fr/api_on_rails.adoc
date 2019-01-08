@@ -27,3 +27,23 @@ include::04_refactoring_tests.adoc[]
 <<<
 
 include::05_athentification.adoc[]
+
+<<<
+
+include::06_user_products.adoc[]
+
+<<<
+
+include::07_improve_json.adoc[]
+
+<<<
+
+include::08_placing_orders.adoc[]
+
+<<<
+
+include::09_improve_orders.adoc[]
+
+<<<
+
+include::10_optimization.adoc[]
