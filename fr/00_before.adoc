@@ -11,11 +11,11 @@ https://twitter.com/kurenn[Abraham Kuri] est un développeur Rails avec 5 ans d�
 
 De mon côté, je m’appelle http://rousseau-alexandre.fr[Alexandre Rousseau] et je suis un développeur Rails avec plus de 4 ans d’expérience (à l’heure ou j’écris ces lignes). Je suis actuellement associé dans une entreprise (https://isignif.fr[iSignif]) ou je construit et maintient un produit de type SAAS en utilisant Rails. Je contribue aussi à la communauté Ruby en produisant et maintenant quelques gemmes que vous pouvez consulter sur https://rubygems.org/profiles/madeindjs[mon profil Rubygems.org]. La plupart de mes projets sont sur Github donc n’http://github.com/madeindjs/[hésitez pas à me suivre].
 
-Tout le code source de ce livre est disponible au format https://fr.wikipedia.org/wiki/Markdown[Markdown] sur https://github.com/madeindjs/api_on_rails[Github]. Ainsi n’hesitez pas à https://github.com/madeindjs/api_on_rails/fork[forker] le projet si vous voulez l’améliorer ou corrigé une faute qui m’aurais échappé.
+Tout le code source de ce livre est disponible au format https://asciidoctor.org[Asciidoctor] sur https://github.com/madeindjs/api_on_rails[Github]. Ainsi n’hesitez pas à https://github.com/madeindjs/api_on_rails/fork[forker] le projet si vous voulez l’améliorer ou corrigé une faute qui m’aurais échappé.
 
 === Droits d’auteur et licence
 
-Cette traduction est disponible sous http://opensource.org/licenses/MIT[licence MIT]. Tout le code source de ce livre est disponible au format https://fr.wikipedia.org/wiki/Markdown[Markdown] sur https://github.com/madeindjs/api_on_rails[Github]
+Cette traduction est disponible sous http://opensource.org/licenses/MIT[licence MIT]. Tout le code source de ce livre est disponible au format https://asciidoctor.org[Asciidoctor] sur https://github.com/madeindjs/api_on_rails[Github]
 
 ________________________________________________________________________________
 La licence MIT Copyright (c) 2019 Alexandre Rousseau
