@@ -1,28 +1,28 @@
-# Produits des utilisateurs
+# User products
 
-Dans le chapitre précédent, nous avons implémenté le mécanisme d'authentification que nous allons utiliser tout au long de l'application. Pour l'instant, nous avons une implémentation très simple du modèle `User`, mais le moment de vérité est venu où nous allons personnaliser la sortie JSON et ajouter une deuxième ressource : les produits utilisateurs. Ce sont les éléments que l'utilisateur vendra dans l'application, et par conséquent sera directement associé. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de *Active Record*.
+On previous chapter we implemented the authentication mechanism we’ll be using all along the app. Right now we have a very simple implementation of the `user` model but the moment of truth has come where we will customise the json output but also add a second resource: _user products_. These are the items that the user will be selling in the app, and by consequence will be directly associated. If you are familiar with Rails you may already know what I’m talking about, but for those who doesn’t, we will associated the `User` to the `Product` model using the `has_many` and `belongs_to` active record methods.
 
-Dans ce chapitre, nous allons construire le modèle de `Product` à partir de zéro, l'associer à l'utilisateur et créer les entrées nécessaires pour que tout client puisse accéder aux informations.
+In this chapter we will build the `Product` model from the ground up, associate it with the user and create the necessary end points for any client to access the information.
 
-Vous pouvez cloner le projet jusqu'à ce point:
+You can clone the project up to this point:
 
 ~~~bash
 $ git clone --branch chapter6 https://github.com/madeindjs/market_place_api
 ~~~
 
-Avant de commencer,et comme d'habitude quand nous commençons de nouvelles fonctionnalités, nous créons une nouvelle branche:
+Before we start and as usual when starting new features, we need to branch it out:
 
 ~~~bash
 $ git checkout -b chapter6
 ~~~
 
-## Le modèle du produit
+## Product model
 
-Nous commencerons d'abord par créer un modèle de `Product` puis nous y ajouterons quelques validations et enfin nous l'associons au modèle `User`. Comme le modèle `User`, le `Product` sera entièrement testé et sera automatiquement supprimé si l'utilisateur est supprimé.
+We first start by creating Product model, then we add some validations to it, and finally we will associate it with the `user` model. As the user model the product will be fully tested, and will also have an _automatic destruction_ if the user in this case is destroyed.
 
-### Les fondements du produit
+### Product bare bones
 
-Le modèle `Product` aura besoin de plusieurs champs: un attribut `price` pour le prix du produit, un booléen `published` pour savoir si le produit est prêt à être vendu ou non, un `title` pour définir un titre de produit sexy, et enfin et surtout un `user_id` pour associer ce produit particulier à un utilisateur. Comme vous le savez peut-être déjà, nous le générons avec la commande `rails generate`:
+The product model will need several fields: a `price` attribute to hold the product price, a `published` boolean to know whether the product is ready to sell or not, a `title` to define a sexy product title, and last but not least a `user_id` to associate this particular product to a user. As you may already know, we generate it with the `rails generate` command:
 
 ~~~bash
 $ rails generate model Product title:string price:decimal published:boolean user_id:integer:index
@@ -35,9 +35,9 @@ $ rails generate model Product title:string price:decimal published:boolean user
     create        spec/factories/products.rb
 ~~~
 
-Comme vous pouvez le remarquer, nous avons également ajouté un `index` à l'attribut `user_id`. C'est une bonne pratique pour les clés d'association car cela optimise les requêtes de la base de données. Ce n'est pas obligatoire, mais je vous le recommande vivement.
+As you may notice we also added an `index` option to the user_id attribute, this is a good practice when using association keys, as it optimizes the query to a database level. It is not compulsory that you do that but I highly recommend it.
 
-Le fichier de migration devrait ressembler à ceci:
+The migration file should look like this:
 
 ~~~ruby
 # db/migrate/20181218064350_create_products.rb
@@ -56,14 +56,13 @@ class CreateProducts < ActiveRecord::Migration[5.2]
 end
 ~~~
 
-Notez que nous avons défini des valeurs par défaut pour tous les attributs à l'exception de `user_id`, de cette façon nous gardons un haut niveau de cohérence dans notre base de données car nous ne traitons pas beaucoup de valeurs `NULL`.
+Take note that we set some default values for all of the attributes except the `user_id`, this way we keep a high consistency level on our database as we don’t deal with many NULL values.
 
-Ensuite, nous ajouterons quelques tests de base au modèle de produit. Nous nous assurerons simplement que l'objet répond aux champs que nous avons ajoutés:
+Next we will add some basic tests to the Product model. We will just make sure the object responds to the fields we added, as shown next:
 
 ~~~ruby
 # spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   let(:product) { FactoryBot.build :product }
   subject { product }
@@ -75,19 +74,19 @@ RSpec.describe Product, type: :model do
 end
 ~~~
 
-Il suffit ensuite de lancer les migrations:
+Remember to migrate the database so we get out tests green:
 
 ~~~bash
 $ rake db:migrate
 ~~~
 
-Et maintenant nous pouvons nous assurer que les tests passent:
+Make sure the tests pass:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
 ~~~
 
-Bien que nos tests réussissent, nous avons besoin de faire un peu de travail au niveau de la *factory* des produits. Pour l'instant, tout est codé en dur. Comme vous vous en souvenez, nous avons utilisé un `Faker` pour falsifier les valeurs de nos modèles de tests. Il est donc temps de faire de même avec le modèle de `Product`:
+Although our tests are passing, we need to do some ground work for the product factory, as for now is all hardcoded. As you recall we have been using `Faker` to fake the values for our tests models. Now it is time to do the same with the `product` model.
 
 ~~~ruby
 # spec/factories/products.rb
@@ -101,21 +100,19 @@ FactoryBot.define do
 end
 ~~~
 
-Maintenant, chaque produit que nous créons ressemblera un peu plus à un vrai produit. Nous devons encore travailler sur le `user_id` tel quel, mais nous y reviendrons plus tard.
+Now each product we create will look a bit more like a real product. We still need to work on the `user_id` as is hardcoded, but we will get to that later.
 
-### Validations des produits
+### Product validations
 
-Comme nous l'avons vu avec l'utilisateur, les validations sont une partie importante lors de la construction de tout type d'application. Cela nous permet d'empêcher toute donnée indésirable d'être enregistrée dans la base de données. Pour le produit, nous devons nous assurer, par exemple, que le prix est un nombre et qu'il n'est pas négatif.
+As we saw with the user, validations are an important part when building any kind of application, this way we prevent any junk data from being saved onto the database. In the product we have to make sure for example the price is a `number` and that is not negative.
 
-Une autre chose importante à propos de la validation, lorsque l'on travaille avec des associations, est de valider que chaque `Product` a un `User`. Donc, dans ce cas, nous devons valider la présence de l'`user_id`. Vous allez voir de quoi je parle:
+Also an important thing about validation when working with associations, is in this case to validate that every product has a user, so in this case we need to validate the presence of the `user_id`. You can see what I’m talking about in next code snippet.
 
 ~~~ruby
 # spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
-
   it { should validate_presence_of :title }
   it { should validate_presence_of :price }
   it { should validate_numericality_of(:price).is_greater_than_or_equal_to(0) }
@@ -123,7 +120,7 @@ RSpec.describe Product, type: :model do
 end
 ~~~
 
-Il nous faut maintenant ajouter l'implémentation pour faire passer les tests:
+Now we need to add the implementation to make the tests pass:
 
 ~~~ruby
 # app/models/product.rb
@@ -133,7 +130,7 @@ class Product < ApplicationRecord
 end
 ~~~
 
-Les tests passent désormais:
+Tests are now green:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
@@ -143,17 +140,16 @@ Finished in 0.04173 seconds (files took 0.74322 seconds to load)
 8 examples, 0 failures
 ~~~
 
-*Commitons* ces changements et continuons d'avancer:
+We have a bunch of good quality code, let’s commit it and keep moving:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds product model bare bones along with some validations"
-
 ~~~
 
-### Liaison des produits et des utilisateurs
+### Product/User association
 
-Dans cette section, nous allons construire l'association entre le produit et le modèle utilisateur. Nous avons déjà les champs nécessaires, nous avons donc juste besoin de mettre à jour quelques fichiers et nous serons prêts à commencer. Tout d'abord, nous devons modifier la *factory* de `Product` pour la relier à l'utilisateur. Alors comment faire?
+In this section we will be building the association between the product and the user model, we already have the necessary fields, so we just need to update a couple of files and we will be ready to go. First we need to modify the products factory to relate it to the user, so how do we do that?:
 
 ~~~ruby
 # spec/factories/products.rb
@@ -167,20 +163,18 @@ FactoryBot.define do
 end
 ~~~
 
-Comme vous pouvez le voir, nous venons de renommer l'attribut `user_id` en `user` et nous n'avons pas spécifié de valeur. FactoryBot est assez intelligent pour créer un objet `user` pour chaque produit et les associer automatiquement. Maintenant nous devons ajouter quelques tests pour l'association:
+As you can see we just rename the `user_id` attribute to `user` and we did not specify a value, as FactoryGirl is smart enough to create a `user` object for every product and associate them automatically. Now we need to add some tests for the association.
 
 ~~~ruby
 # spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
-
   it { should belong_to :user }
 end
 ~~~
 
-Comme vous pouvez le voir, le test que nous avons ajouté est très simple, grâce à la puissance des *shoulda-matchers*. Nous poursuivons la mise en œuvre maintenant:
+As you can see the test we added is very simple, thanks to the power of [shoulda-matchers](https://github.com/thoughtbot/shoulda-matchers). We continue with the implementation now:
 
 ~~~ruby
 # app/models/product.rb
@@ -190,7 +184,7 @@ class Product < ApplicationRecord
 end
 ~~~
 
-N'oubliez pas de faire le test que nous avons ajouté juste pour vous assurer que tout va bien:
+Remember to run the test we added just to make sure everything is all right:
 
 ~~~bash
 $ rspec spec/models/product_spec.rb
@@ -200,14 +194,13 @@ Finished in 0.08815 seconds (files took 0.75134 seconds to load)
 9 examples, 0 failures
 ~~~
 
-Actuellement, nous n'avons qu'une partie de l'association. Mais comme vous vous en doutez peut-être déjà, nous devons ajouter une association `has_many` au modèle `User`.
+Currently we only have one part of the association, but as you may be wondering already we have to add a `has_many` association to the user model.
 
-Tout d'abord, nous ajoutons le test sur le fichier `user_spec.rb`:
+First we add the test on the `user_spec.rb` file:
 
 ~~~ruby
 # spec/models/user_spec.rb
 # ...
-
 RSpec.describe User, type: :model do
   # ...
   it { should have_many(:products) }
@@ -215,7 +208,7 @@ RSpec.describe User, type: :model do
 end
 ~~~
 
-L'implémentation sur le modèle utilisateur est extrêmement simple:
+The implementation on the `user` model is extremely easy:
 
 ~~~ruby
 # app/models/user.rb
@@ -225,7 +218,7 @@ class User < ApplicationRecord
 end
 ~~~
 
-Maintenant, si nous exécutons les tests de l'utilisateur, elles devraient toutes être correctes:
+Now if we run the user specs, they should be all nice and green:
 
 ~~~bash
 $ rspec spec/models/user_spec.rb
@@ -235,11 +228,11 @@ Finished in 0.08411 seconds (files took 0.74624 seconds to load)
 10 examples, 0 failures
 ~~~
 
-### Suppression en cascade
+### Dependency destroy
 
-Ce que j'ai vu dans le code d'autres développeurs, lorsqu'ils travaillent avec des associations, c'est qu'ils oublient la destruction des dépendances entre les modèles. Ce que je veux dire par là, c'est que si un utilisateur est supprimé, les produits de l'utilisateur devraient l'être aussi.
+Something I’ve seen in other developers code when working with associations, is that they forget about dependency destruction between models. What I mean by this is that if a user is destroyed, the user’s products in this case should be destroyed as well.
 
-Donc pour tester cette interaction entre les modèles, nous avons besoin d'un utilisateur avec un des produits. Puis, nous supprimerons cet utilisateur en espérant que les produits disparaissent avec lui. Une implémentation simple ressemblerait à ceci:
+So to test this interaction between models, we need a user with a bunch of products, then we destroy that user expecting the products disappear along with it. A simple implementation would look like this:
 
 ~~~ruby
 products = user.products
@@ -249,15 +242,13 @@ products.each do |product|
 end
 ~~~
 
-Nous sauvegardons d'abord les produits dans une variable pour un accès ultérieur, puis nous détruisons l'utilisateur et bouclons la variable des produits en nous attendant à ce que chacun des produits lance une exception. Tout mettre ensemble devrait ressembler au code suivants:
+We first save the products into a variable for later access, then we destroy the user and loop through the products variable expecting each of the products to raise an exception. Putting everything together should look like the code bellow:
 
 ~~~ruby
 # spec/models/user_spec.rb
 # ...
-
 RSpec.describe User, type: :model do
   # ...
-
   describe '#products association' do
     before do
       @user.save
@@ -275,7 +266,7 @@ RSpec.describe User, type: :model do
 end
 ~~~
 
-Le code nécessaire pour faire passer le test est juste une option sur la méthode d'association `has_many`:
+The necessary code to make tests pass is just an option on the `has_many` association method:
 
 ~~~ruby
 # app/models/user.rb
@@ -285,7 +276,7 @@ class User < ApplicationRecord
 end
 ~~~
 
-Avec ce code ajouté, tous nos tests devraient passer:
+With that code added all of our tests should be passing:
 
 ~~~bash
 $ rspec spec/
@@ -295,24 +286,24 @@ Finished in 0.44188 seconds (files took 0.8351 seconds to load)
 43 examples, 0 failures
 ~~~
 
-*Commitons* ces changements et continuons d'avancer:
+Let’s commit this and move on to the next sections.
 
 ~~~bash
 $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
 ~~~
 
-## Point d'entrée pour nos produits
+## Products endpoints
 
-Il est maintenant temps de commencer à construire les points d'entrée des produits. Pour l'instant, nous allons juste construire cinq actions REST et certaines d'entre elles seront imbriquées dans la ressource utilisateur. Dans le prochain chapitre, nous allons personnaliser la sortie JSON en implémentant la gemme `active_model_serializers`.
+It is now time to start building the products endpoints, for now we will just build 5 REST actions and some of them will be nested inside the `users` resource. In the next Chapter we will customise the `json` output by implementing the `active_model_serializers` gem.
 
-Nous devons d'abord créer le `products_controller`, et nous pouvons facilement y parvenir avec la commande ci-dessous:
+First we need to create the `products_controller`, and we can easily achieve this with the command below:
 
 ~~~bash
 $ rails generate controller api/v1/products
 ~~~
 
-La commande ci-dessus va générer pas mal de fichiers qui nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c'est qu'il va générer le contrôleur et les fichiers de test déjà *scopés* à la version 1 de l'API.
+The command above will generate a bunch of files ready to start working, what I mean by this is that it will generate the controller and specs files already scoped to the version 1 of the API.
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
@@ -327,16 +318,15 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
 
-En guise d'échauffement, nous allons commencer par construire l'action du `show` pour le produit.
+As a warmup we will start nice and easy by building the `show` action for the product.
 
-### Action d'affichage d'un produit
+### Show action for products
 
-Comme d'habitude, nous commençons par ajouter quelques test du contrôleur des produits. La stratégie ici est très simple, il suffit de créer un seul produit et de s'assurer que la réponse du serveur est celle que nous attendons.
+As usual we begin by adding some product `show` controller specs. The strategy here is very simple, we just need to create a single product and make sure the response from server is what we expect.
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
     before(:each) do
@@ -354,7 +344,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ~~~
 
-Nous ajoutons ensuite le code pour faire passer le test:
+We then add the code to make the test pass:
 
 ~~~ruby
 # app/controllers/api/v1/products_controller.rb
@@ -365,7 +355,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ~~~
 
-Attendez! N'exécutez pas encore les tests. N'oubliez pas que nous devons ajouter la route au fichier `routes.rb`:
+Wait!, don’t run the tests yet, remember we need to add the resource to the `routes.rb` file:
 
 ~~~ruby
 # config/routes.rb
@@ -382,7 +372,7 @@ Rails.application.routes.draw do
 end
 ~~~
 
-Maintenant, on s'assure que les tests passent:
+Now we make sure the tests are nice and green:
 
 ~~~bash
 $ rspec spec/controllers/api/v1/products_controller_spec.rb
@@ -392,19 +382,17 @@ Finished in 0.05474 seconds (files took 0.75052 seconds to load)
 2 examples, 0 failures
 ~~~
 
-Comme vous pouvez déjà le constater, les tests et l'implémentation sont très simples. En fait, cela ressemble beaucoup à ce que nous avons fait pour les utilisateurs.
+As you may notice already the specs and implementation are very simple, actually they behave the same as the users.
 
-### Liste des produits
+### Products list
 
-Il est maintenant temps de créer une entrée pour liste de produits, qui pourrait permettre d'afficher le catalogue de produits d'un marché par exemple. Pour ce point d'accès, nous n'exigeons pas que l'utilisateur soit connecté. Comme d'habitude, nous allons commencer à écrire quelques tests:
+Now it is time to output a list of products, which could be displayed as the market place product catalog. This endpoint is also accessible without credentials, that means we don’t require the user to be logged-in to access the data. As usual we will start writing some specs.
 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
-
   describe 'GET #index' do
     before(:each) do
       4.times { FactoryBot.create :product }

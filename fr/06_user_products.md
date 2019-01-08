@@ -63,7 +63,6 @@ Ensuite, nous ajouterons quelques tests de base au modèle de produit. Nous nous
 ~~~ruby
 # spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   let(:product) { FactoryBot.build :product }
   subject { product }
@@ -112,10 +111,8 @@ Une autre chose importante à propos de la validation, lorsque l'on travaille av
 ~~~ruby
 # spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
-
   it { should validate_presence_of :title }
   it { should validate_presence_of :price }
   it { should validate_numericality_of(:price).is_greater_than_or_equal_to(0) }
@@ -148,7 +145,6 @@ Finished in 0.04173 seconds (files took 0.74322 seconds to load)
 ~~~bash
 $ git add .
 $ git commit -m "Adds product model bare bones along with some validations"
-
 ~~~
 
 ### Liaison des produits et des utilisateurs
@@ -172,10 +168,8 @@ Comme vous pouvez le voir, nous venons de renommer l'attribut `user_id` en `user
 ~~~ruby
 # spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
-
   it { should belong_to :user }
 end
 ~~~
@@ -207,7 +201,6 @@ Tout d'abord, nous ajoutons le test sur le fichier `user_spec.rb`:
 ~~~ruby
 # spec/models/user_spec.rb
 # ...
-
 RSpec.describe User, type: :model do
   # ...
   it { should have_many(:products) }
@@ -254,10 +247,8 @@ Nous sauvegardons d'abord les produits dans une variable pour un accès ultérie
 ~~~ruby
 # spec/models/user_spec.rb
 # ...
-
 RSpec.describe User, type: :model do
   # ...
-
   describe '#products association' do
     before do
       @user.save
@@ -336,7 +327,6 @@ Comme d'habitude, nous commençons par ajouter quelques test du contrôleur des 
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
     before(:each) do
@@ -401,10 +391,8 @@ Il est maintenant temps de créer une entrée pour liste de produits, qui pourra
 ~~~ruby
 # spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
-
   describe 'GET #index' do
     before(:each) do
       4.times { FactoryBot.create :product }

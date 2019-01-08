@@ -1,44 +1,46 @@
-# Authentification des utilisateurs
+# Authenticating users
 
-Cela fait longtemps que vous avez commencé. J'espère que vous appréciez ce voyage autant que moi. Au chapitre 4, nous avons factorisé notre suite de tests et, comme nous n'avons pas ajouté beaucoup de code, cela n'a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
+It’s been a long way since you started, I hope you are enjoying this trip as much as me. On previous chapter we refactor our test suite and since we did not add much code. It didn’t take to much. If you skipped that chapter I recommend you read it, as we are going to be using some of the methods in the chapters to come.
 
-Vous pouvez cloner le projet jusqu'ici:
+You can clone the project up to this point:
 
 ~~~bash
 $ git clone --branch chapitre_4 https://github.com/madeindjs/market_place_api
 ~~~
 
-Dans ce chapitre, les choses vont devenir plus intéressantes. Nous allons mettre en place notre mécanisme d'authentification. À mon avis, ce sera l'un des chapitres les plus intéressants car nous allons introduire beaucoup de nouveaux concepts. A la fin, vous aurez un système d'authentification simple mais puissant. Ne paniquez pas, nous y arriverons.
+In this chapter things will get very interesting, and that is because we are going to set up our authentication mechanism. In my opinion this is going to be one of the most interesting chapters, as we will introduce a lot of new terms and you will end with a simple but powerful authentication system. Don’t feel panic we will get to that.
 
-Commençons par le commencement. Comme d'habitude quand nous démarrons un nouveau chapitre, nous allons créer une nouvelle branche:
+First things first, and as usual when starting a new chapter, we will create a new branch:
 
 ~~~bash
 $ git checkout -b chapter5
 ~~~
 
-Session sans état
+## Session sans état
 
-Avant d'aller plus loin, quelque chose doit être clair: **une API ne gère pas les sessions**. Si vous n'avez pas d'expérience dans la création de ce genre d'applications, cela peut paraître un peu fou. Une API doit être sans état. Ce qui signifie par définition qu'il s'agit d'une API qui fournit une réponse après votre demande et qui ne nécessite aucune autre attention. Cela à pour conséquence qu'aucun état antérieur ou futur n'est nécessaire pour que le système fonctionne.
+Before we go any further, something must be clear, **an API does not handle sessions**. If you don’t have experience building these kind of applications it might sound a little crazy, but stay with me. An API should be stateless which means by definition _is one that provides a response after your request, and then requires no further attention._, which means no previous or future state is required for the system to work.
 
-Le processus d'authentification de l'utilisateur via une API est très simple:
+The flow for authenticating the user through an API is very simple:
 
-- Le client **demande** une ressource de sessions avec les informations d'identification correspondantes (généralement un e-mail et un mot de passe).
-- Le serveur **renvoie** la ressource utilisateur avec son jeton d'authentification correspondant.
-- Pour chaque page qui nécessite une authentification, le client doit envoyer ce jeton d'authentification.
+1. The client request for `sessions` resource with the corresponding credentials, usually email and password.
+2. The server returns the `user` resource along with its corresponding authentication token
+3. Every page that requires authentication, the client has to send that `authentication token`
 
-Dans cette section et la suivante, nous nous concentrerons sur la construction d'un contrôleur de sessions avec ses actions correspondantes. Nous compléterons ensuite le flux de demandes en ajoutant l'accès d'autorisation nécessaire.
+Of course this is not the only 3-step to follow, and even on step 2 you might think, well do I really need to respond with the entire user or just the `authentication token`, I would say, it really depends on you, but I like to return the entire user, this way I can map it right away on my client and save another possible request from being placed.
 
-### Le jeton d'authentification
+In this section and the next we will be focusing on building a Sessions controller along with its corresponding actions. We’ll then complete the request flow by adding the necessary authorization access.
 
-Avant de procéder à la logique sur le contrôleur de sessions, nous devons d'abord ajouter le champ du jeton d'authentification au modèle utilisateur. Ensuite, il faudra ajouter une méthode pour définir ce jeton.
+### Authentication token
 
-Nous commençons donc par générer un fichier de migration:
+Before we proceed with the logic on the sessions controller, we have to first add the `authentication token` field to the `user` model and then add a method to actually set it.
+
+First we generate the migration file:
 
 ~~~bash
 $ rails generate migration add_authentification_token_to_users auth_token:string
 ~~~
 
-Comme une bonne pratique, j'aime configurer les valeurs `String` à une chaîne vide. Et dans ce cas, nous allons ajouter un index avec une condition d'unicité. Ainsi, nous garantissons qu'il n'y a pas d'utilisateurs avec le même jeton. Alors faisons-le:
+As a good practice I like to setup `string` values to an empty string and in this case let’s add an index with a unique condition to true. This way we warranty there are no users with the same token, at a database level, so let’s do that:
 
 ~~~ruby
 # db/migrate/20181114134521_add_authentification_token_to_users.rb
@@ -50,7 +52,7 @@ class AddauthentificationTokenToUsers < ActiveRecord::Migration[5.2]
 end
 ~~~
 
-Ensuite, nous exécutons les migrations pour ajouter le champ et préparer la base de données de test:
+Then we run the migrations to add the field and prepare the test database:
 
 ~~~bash
 $ rake db:migrate
@@ -62,7 +64,7 @@ $ rake db:migrate
 == 20181114134521 AddauthentificationTokenToUsers: migrated (0.0016s) ===========
 ~~~
 
-Il est maintenant temps d'ajouter quelques tests de réponse et d'unicité à nos spécifications de modèle utilisateur.
+Now it would be a good time to add some response and uniqueness tests to our `user` model spec:
 
 ~~~ruby
 RSpec.describe User, type: :model do
@@ -73,7 +75,7 @@ RSpec.describe User, type: :model do
 end
 ~~~
 
-Nous passons ensuite au fichier `user.rb` et ajoutons le code nécessaire pour faire passer nos tests:
+We then move to the `user.rb` file and add the necessary code to make our tests pass:
 
 ~~~ruby
 # app/models/user.rb
@@ -84,14 +86,12 @@ class User < ApplicationRecord
 end
 ~~~
 
-Maintenant nous allons implémenter une méthode qui générera un jeton d'authentification unique pour chaque utilisateur afin de les authentifier plus tard via l'API. Construisons donc d'abord les tests.
+Next we will work on a method that will generate a unique authentication token for each user in order to authenticate them later through the API. So let’s build the tests first.
 
 ~~~ruby
 # spec/models/user_spec.rb
-
 RSpec.describe User, type: :model do
   # ...
-
   describe "#generate_authentification_token!" do
     it "generates a unique token" do
       @user.generate_authentification_token!
@@ -107,11 +107,10 @@ RSpec.describe User, type: :model do
 end
 ~~~
 
-Afin d'utiliser la méthode `validate_uniqueness_of`, il faut installer la gemme `shoulda-matchers`. Pour cela, nous rajoutons la gemme dans le `Gemfile`:
+Before use `validate_uniqueness_of` method we have to install `shoulda-matchers` gem. To do so, add this gem in `Gemfile`:
 
 ~~~ruby
 # Gemfile
-
 # ...
 group :test do
   # ...
@@ -119,11 +118,10 @@ group :test do
 end
 ~~~
 
-Et nous la chargeons dans le fichier `rails_helper.rb`:
+And load it in `rails_helper.rb`:
 
 ~~~ruby
 # spec/rails_helper.rb
-
 # ...
 RSpec.configure do |config|
   # ...
@@ -134,7 +132,7 @@ RSpec.configure do |config|
 end
 ~~~
 
-Les tests échouent comme prévu:
+The tests initially fail, as expected:
 
 ~~~
 $ bundle exec rspec spec/models/user_spec.rb
@@ -157,16 +155,15 @@ Failures:
      # ./spec/models/user_spec.rb:29:in `block (3 levels) in <top (required)>'
 ~~~
 
-C'est normal, la méthode `generate_authentification_token` n'existe pas encore. Nous allons l'implémenter et l'accrocher à l'appel `before_create` pour garantir que chaque utilisateur a un jeton d'authentification. Il y a beaucoup de solutions pour créer le jeton. Je vais utiliser la méthode `friendly_token` qui conçoit déjà des jetons mais je pourrais aussi le faire avec la méthode `hex` de la classe [`SecureRandom`][ruby_securerandom].
+We are going to hook this `generate_authentication_token!` to a `before_create` callback to warranty every user has an authentication token which does not collides with an existing one. To create the token there are many solutions, I’ll go with the `friendly_token` that devise offers already, but I could also do it with the `hex` method from the [`SecureRandom`][ruby_securerandom] class.
 
-Le code pour générer le jeton est assez simple:
+The code to generate the token is fairly simple:
 
 ~~~ruby
 # app/models/user.rb
 class User < ApplicationRecord
   before_create :generate_authentification_token!
   # ...
-
   def generate_authentification_token!
     begin
       self.auth_token = Devise.friendly_token
@@ -175,42 +172,41 @@ class User < ApplicationRecord
 end
 ~~~
 
-Après avoir fait cela, nous tests devraient passer:
+After that we just need to hook it up to the `before_create` callback:
 
 ~~~bash
 $ bundle exec rspec spec/models/user_spec.rb
-        .........
+.........
 
-        Finished in 0.05079 seconds (files took 0.49029 seconds to load)
-        9 examples, 0 failures
-
+Finished in 0.05079 seconds (files took 0.49029 seconds to load)
+9 examples, 0 failures
 ~~~
 
-Comme d'habitude, nous *commitons* nos modifications:
+As usual, let’s commit the changes and move on:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds user authentification token"
 ~~~
 
-### Le contrôleur de session
+### Sessions controller
 
-De retour au contrôleur de sessions. Les actions que nous allons implémenter seront gérées en tant que services *RESTful*: la connexion sera gérée par une demande POST à l'action `create` et la déconnexion par une demande `DELETE` à l'action `destroy`.
+Back to the sessions controller the `actions` we’ll be implementing on it are going to be handled as RESTful services: the sign in will be handled by a _POST_ request to the `create` action and the sign out will be handled by a _DELETE_ request to the `destroy` action.
 
-Pour commencer, nous allons commencer par créer le contrôleur de sessions:
+To get started we will start by creating the sessions controller:
 
 ~~~bash
 $ rails generate controller sessions
 ~~~
 
-Ensuite, nous devons déplacer les fichiers dans le répertoire `api/v1`, à la fois pour le dossier `app` mais aussi pour le dossier `spec`:
+Then we need to move the files into the `api/v1` directory, for both on the `app` and `spec` folders:
 
 ~~~bash
 $ mv app/controllers/sessions_controller.rb app/controllers/api/v1
 $ mv spec/controllers/sessions_controller_spec.rb spec/controllers/api/v1
 ~~~
 
-Après avoir déplacé les fichiers, nous devons les mettre à jour pour qu'ils correspondent à la structure des répertoires que nous avons actuellement. Comme le montrent les listing suivants.
+After moving the files we have to update them to meet the directory structure we currently have as shown on followed snippets:
 
 ~~~ruby
 # app/controllers/api/v1/sessions_controller.rb
@@ -225,14 +221,13 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
 end
 ~~~
 
-#### Connexion réussie
+#### Sign in success
 
-Notre premier arrêt sera l'action de création. Mais d'abord, et comme d'habitude, générons nos tests (Listing 5.5).
+Our first stop will be the `create` action, but first and as usual let’s generate our tests:
 
 ~~~ruby
 # spec/controllers/api/v1/sessions_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::SessionsController, type: :controller do
   describe 'POST #create' do
     before(:each) do
@@ -271,14 +266,11 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
 end
 ~~~
 
-Les tests sont assez simples. Nous renvoyons simplement l'utilisateur au format JSON si les informations d'identification sont correctes, sinon nous envoyons simplement un JSON avec le message d'erreur.
-
-Nous devons maintenant implémenter le code pour que nos tests passent. Mais avant cela, nous ajouterons les routes à notre fichier `route.rb`.
+The tests are pretty straightforward we simply return the `user` in json format if the credentials are correct, but if not we just send a json with an error message. Next we need to implement the code to make our tests be green. But before that we will add the end points to our `route.rb` file (both the `create` and `destroy` end point).
 
 ~~~ruby
 # config/routes.rb
-require 'api_constraints'
-
+# ...
 Rails.application.routes.draw do
   # ...
   resources :sessions, :only => [:create, :destroy]
@@ -305,50 +297,47 @@ class Api::V1::SessionsController < ApplicationController
 end
 ~~~
 
-Avant d'exécuter nos tests, il est nécessaire d'ajouter les `helpers` dans le fichier `rails_helper.rb`:
+Before we run our tests, it is necessary to add the `devise` test helpers in the `spec_helper.rb` file:
 
 ~~~ruby
 # spec/rails_helper.rb
-require 'api_constraints'
-
+# ...
 RSpec.configure do |config|
   # ...
   config.include Devise::Test::ControllerHelpers, :type => :controller
 end
 ~~~
 
-Et maintenant nous pouvons lancer nos tests:
+Now if we run our tests they should be all passing:
 
 ~~~bash
 $ bundle exec rspec spec/controllers/api/v1/sessions_controller_spec.rb
-        ....
+....
 
-        Finished in 0.06515 seconds (files took 0.49218 seconds to load)
-        4 examples, 0 failures
+Finished in 0.06515 seconds (files took 0.49218 seconds to load)
+4 examples, 0 failures
 ~~~
 
-Ourah! Faisons un `commit`:
+Now this would be a nice moment to commit the changes:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds sessions controller create action"
 ~~~
 
-#### Déconnexion
+#### Sign out
 
-Nous avons maintenant l'entrée de l'API. Il est temps de construire un point de sortie. Vous vous demandez peut-être pourquoi, puisque nous ne gérons pas les sessions et qu'il n'y a rien à détruire. Et c'est bien vrai! Lors d'une destruction, nous devons mettre à jour le jeton d'authentification pour que ce dernier devienne inutile et ne puisse plus être utilisé.
+We currently have the `sign in` end point for the api, now it is time to build a `sign out` url, and you might wonder why, since we are not handling `sessions` and there is nothing to destroy. In this case we are going to update the authentication token so the last one becomes useless and cannot be used again.
 
-Il n'est en fait pas nécessaire d'inclure ce point final, mais j'aime l'inclure pour expirer les jetons d'authentification.
+> It is actually not necessary to include this end point, but I do like to include it to expire the authentication tokens.
 
-Comme d'habitude, nous commençons par les tests:
+As usual we start with the tests:
 
 ~~~ruby
 # spec/controllers/api/v1/sessions_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::SessionsController, type: :controller do
   # ...
-
   describe "DELETE #destroy" do
 
     before(:each) do
@@ -358,12 +347,11 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
     end
 
     it { expect(response.response_code).to eq(204) }
-
   end
 end
 ~~~
 
-Comme vous pouvez le voir le test est super simple! Maintenant nous avons juste besoin d'implémenter le code nécessaire pour faire passer nos tests:
+As you can see the `test` is super simple, now we just need to implement the necessary code to make our tests pass:
 
 ~~~ruby
 # app/controllers/api/v1/sessions_controller.rb
@@ -378,42 +366,43 @@ class Api::V1::SessionsController < ApplicationController
 end
 ~~~
 
-Ici, nous nous attendons à ce qu'un identifiant soit envoyé sur la requête (qui doit correspondre au jeton d'authentification de l'utilisateur). Nous ajouterons une méthode `current_user` pour gérer cela plus facilement plus tard. Pour l'instant, *commitons* notre avancée:
+In this case we are expecting an `id` to be sent on the request, which has to correspond to the _user authentication token_, we will add the `current_user` method to handle this smoothly. For now we will just leave it like that.
+
+Take a deep breath, we are almost there!, but in the meantime commit the changes:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds destroy session action added"
 ~~~
 
-## Utilisateur connecté
+## Current User
 
-Si vous avez déjà travaillé avec [devise](https://github.com/plataformatec/devise), vous connaissez sûrement déjà les méthodes générées pour gérer l'authentification ou bien pour obtenir l'utilisateur connecté (voir la [documentation](https://github.com/plataformatec/devise#getting-started)).
+If you have worked with [devise](https://github.com/plataformatec/devise) before you probably are familiar with the auto-generated methods for handling the authentication filters or getting the user that is currently on session.(See [documentation](https://github.com/plataformatec/devise#getting-started) on this for more details).
 
-Dans notre cas, nous allons remplacer la méthode `current_user` pour répondre à nos besoins. C'est-à-dire retrouver l'utilisateur grâce à son jeton d'authentification qui envoyé sur chaque requête. Laissez moi clarifier ce point.
+In our case we will need to override the `current_user` method to meet our needs, and that is finding the user by the authentication token that is going to be sent on each request to the api. Let me clarify that for you.
 
-Une fois que le client se connecte, l'API lui retourne son jeton d'authentification. A chaque fois que ce client demande une page protégée, nous devrons retrouver l'utilisateur à partir de ce jeton d'authentification que l'utilisateur aura passé en paramètre ou dans l'en-tête HTTP.
+Once the client sign ins a user with the correct credentials, the api will return the `authentication token` from that actual user, and each time that client requests for a protected page we will need to fetch the user from that `authentication token` that comes in the request and it could be as a `param` or as a `header`.
 
-Dans notre cas, nous utiliserons l'en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je le trouve que c'est la meilleur manière parce que cela donne un contexte à la requête sans polluer l'URL avec des paramètres supplémentaires.
+In our case we’ll be using an `Authorization` header which is commonly used for this type of purpose. I personally find it better because it gives context to the actual request without polluting the URL with extra parameters.
 
-Quand il s'agit de l'authentification, j'aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d'inclure le fichier dans le `ApplicationController`. De cette façon, il est très facile à tester de manière isolée. Créons-donc le fichier dans le répertoire `controllers/concerns`:
+When it comes to authentication I like to add all the related methods into a separate file, and after that just include the file inside the `ApplicationController`. This way it is really easy to test in isolation. Let’s create the file under de `controllers/concerns` directory:
 
 ~~~bash
 $ touch app/controllers/concerns/authenticable.rb
 ~~~
 
-Ensuite, créons un répertoire `concerns` sous `spec/controllers/` et un fichier `authenticable_spec.rb` pour nos tests d'authentification:
+After that let’s create a `concerns` directory under `spec/controllers/` and an `authenticable_spec.rb` file for our authentication tests.
 
 ~~~bash
 $ mkdir spec/controllers/concerns
 $ touch spec/controllers/concerns/authenticable_spec.rb
 ~~~
 
-Comme d'habitude, nous commençons par écrire nos tests. Dans ce cas, notre méthode `current_user`, va chercher un utilisateur par le jeton d'authentification dans l'en-tête HTTP `Authorization`.
+As usual we start by writing our tests, in this case for our `current_user` method, which will fetch a user by the authentication token ok the `Authorization` header.
 
 ~~~ruby
 # spec/controllers/concerns/authenticable_spec.rb
 # ...
-
 class Authentication < ActionController::API
   include Authenticable
 end
@@ -436,7 +425,9 @@ RSpec.describe Authenticable do
 end
 ~~~
 
-Notre test doivent échouer. Implémentons donc le code pour qu'il passe:
+> If you are wondering, why in the hell we created a Authentication class inside the spec file. The answer is simple, when it comes to test modules I find it easy to include them into a temporary class and stub any other methods I may require later, like the request shown above.
+
+Our tests should fail. Let’s implement the necessary code:
 
 ~~~ruby
 # app/controllers/concerns/authenticable.rb
@@ -458,7 +449,7 @@ Finished in 0.0149 seconds (files took 0.49496 seconds to load)
 1 example, 0 failures
 ~~~
 
-Nous n'avons plus qu'à inclure le module `Authenticable` dans la classe `ApplicationController`:
+Now we just need to include the `Authenticable` module into the `ApplicationController`:
 
 ~~~ruby
 # app/controllers/application_controller.rb
@@ -471,33 +462,29 @@ class ApplicationController < ActionController::API
 end
 ~~~
 
-Et maintenant il est temps de *commiter* nos changements:
+This would be a good time to commit the changes:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds authenticable module for managing authentication methods"
-
 ~~~
 
-## Authentification avec le jeton
+## Authenticate with token
 
-L'autorisation joue un rôle important dans la construction des applications car, contrairement à l'authentification qui permet d'identifier l'utilisateur, l'autorisation nous aide à définir ce qu'il a le droit de faire.
+Authorization is a big part when building applications because in contrary to authentication that allows us to identify the user in the system, authorization help us to define what they can do.
 
-Nous avons une route pour mettre à jour l'utilisateur mais il y a un problème: n'importe qui peut mettre à jour n'importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l'utilisateur soit connecté afin d'empêcher tout accès non autorisé. Nous retournerons un message d'erreur JSON avec un code HTTP
-correspondant.
+Although we have a good end point for updating the user it has a major security hole: allowing anyone to update any user on the application. In this section we’ll be implementing a method that will require the user to be signed in, preventing in this way any unauthorized access. We will return a not authorized json message along with its corresponding http code.
 
-Tout d'abord, nous allons ajouter quelques tests sur le fichier `authenticable_spec.rb` pour la méthode `authenticate_with_token` .
+First we have to add some tests on the `authenticable_spec.rb` for the `authenticate_with_token` method:
 
 ~~~ruby
 # spec/controllers/concerns/authenticable_spec.rb
 # ...
-
 class Authentication < ActionController::API
   include Authenticable
 end
 
 RSpec.describe Authenticable do
-
   # ...
 
   describe '#authenticate_with_token' do
@@ -518,14 +505,12 @@ RSpec.describe Authenticable do
 end
 ~~~
 
-Comme vous pouvez le voir, nous utilisons à nouveau la classe Authentification et nous écrasons la requête et la réponse pour traiter la réponse attendue du serveur. Il est maintenant temps d'implémenter le code pour faire passer nos tests.
+As you can see we are using the `Authentication` class again and stubbing the `request` and `response` for handling the expected answer from the server. Now it is time to implement the code to make our tests pass.
 
 ~~~ruby
 # app/controllers/concerns/authenticable.rb
 module Authenticable
-
   # ...
-
   def authenticate_with_token!
     unless current_user.present?
       render json: { errors: 'Not authenticated' },
@@ -543,18 +528,16 @@ A ce stade, nous venons de construire un mécanisme d'autorisation très simple 
 $ git commit -m "Adds the authenticate with token method to handle access to actions"
 ~~~
 
-Autoriser les actions
+## Authorize actions
 
-Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l'accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l'action `update` et `destroy` afin de s'assurer que l'utilisateur qui est connecté ne sera capable que de mettre à jour que ses données et qu'il ne pourra supprimer que (et uniquement) son compte.
+It is now time to update our `users_controller.rb` file to deny the access to some of the actions. Also we will implement the `current_user` method on the `update` and `destroy` actions to make sure that the user who is on **‘session’** will be capable only to `update` its data or self `destroy`.
 
-Nous allons commencer par l'action `update`. Nous n'irons plus chercher l'utilisateur par son identifiant mais par l' `auth_token` sur l'en-tête `Authorization` fourni par la méthode `current_user`.
+We will start with the `update` action. We will no longer fetch the user by id, instead of that by the `auth_token` on the `Authorization` header provided by the current_user method.
 
 ~~~ruby
 # app/controllers/api/v1/users_controller.rb
 class Api::V1::UsersController < ApplicationController
-
   # ...
-
   def update
     # on change juste la methode ici
     user = current_user
@@ -565,13 +548,11 @@ class Api::V1::UsersController < ApplicationController
       render json: { errors: user.errors }, status: 422
     end
   end
-
   # ...
-
 end
 ~~~
 
-Et comme vous pouvez vous y attendre, si nous exécutons les tests de notre *controller* utilisateurs, ils devraient échouer:
+And as you might expect, if we run our users controller specs they should fail:
 
 ~~~
 $ rspec spec/controllers/api/v1/users_controller_spec.rb
@@ -588,17 +569,13 @@ Failures:
    ...
 ~~~
 
-La solution est assez simple, il suffit d'ajouter l'en-tête `Authorization` à la requête:
+The solution is fairly simple, we just need to add the `Authorization` header to the request:
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
-
 # ...
-
 RSpec.describe Api::V1::UsersController, type: :controller do
-
   # ...
-
   describe 'PUT/PATCH #update' do
     context 'when is successfully updated' do
       before(:each) do
@@ -606,7 +583,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         request.headers['Authorization'] = @user.auth_token
         patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
       end
-
       # ...
     end
 
@@ -616,7 +592,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         request.headers['Authorization'] = @user.auth_token
         patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
       end
-
       # ...
     end
   end
@@ -625,17 +600,14 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Maintenant, les tests devraient passer. Mais attendez, quelque chose ne va pas, n'est-ce pas? Nous pouvons factoriser la ligne que nous venons d'ajouter et la mettre dans le module `HeadersHelpers`:
+Now the tests should be all green. But wait something does not feel quite right isn’t it?, we can refactor the line we just added and put it on the `HeadersHelpers` module we build:
 
 ~~~ruby
 # spec/support/request_helpers.rb
-
 module Request
   # ...
-
   module HeadersHelpers
     # ...
-
     def api_authorization_header(token)
       request.headers['Authorization'] = token
     end
@@ -643,14 +615,12 @@ module Request
 end
 ~~~
 
-Maintenant, chaque fois que nous avons besoin d'avoir l'utilisateur courant sur nos tests, nous appelons simplement la méthode `api_authorization_header`. Je vous laisse le faire avec `users_controller_spec.rb` pour la spécification de mise à jour:
+Now each time we need to have the `current_user` on our specs we simply call the `api_authorization_header` method. I’ll let you do that with the `users_controller_spec.rb` for the update spec. For the destroy action we will do the same, because we just have to make sure a user is capable to self destroy
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::UsersController, type: :controller do
-
   # ...
 
   describe 'PUT/PATCH #update' do
@@ -660,7 +630,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         api_authorization_header @user.auth_token
         patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
       end
-
       # ...
     end
 
@@ -670,7 +639,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         api_authorization_header @user.auth_token
         patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
       end
-
       # ...
     end
   end
@@ -679,32 +647,27 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Pour l'action `destroy`, nous ferons la même chose car nous devons juste nous assurer qu'un utilisateur est capable de se supprimer:
+Now for the spec file and as mentioned before, we just need to add the `api_authorization_header`:
 
 ~~~ruby
 # app/controllers/api/v1/users_controller.rb
 class Api::V1::UsersController < ApplicationController
-
   # ...
-
   def destroy
     current_user.destroy
     head 204
   end
-
   # ...
 end
 ~~~
 
-Maintenant, pour le fichier de spécification et comme mentionné précédemment, nous avons juste besoin d'ajouter l'en-tête `api_authorization_header`:
+Now for the spec file and as mentioned before, we just need to add the `api_authorization_header`:
 
 ~~~ruby
 # spec/controllers/api/v1/users_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::UsersController, type: :controller do
   # ...
-
   describe 'DELETE #destroy' do
     before(:each) do
       @user = FactoryBot.create :user
@@ -717,40 +680,37 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ~~~
 
-Tout nos tests devraient passer. La dernière étape de cette section consiste à ajouter les droits d'accès correspondants pour ces deux dernières actions.
+We should have all of our tests passing. The last step for this section consist on adding the corresponding authorization access for these last 2 actions.
 
-Il est courant de simplement empêcher les actions sur lesquelles l'utilisateur effectue des actions sur le modèle lui-même. Dans ce cas l'action `update` et `destroy`.
+**It is common to just prevent the actions on which the user is performing actions on the record itself, in this case the `destroy` and `update` action**
 
-Sur le `users_controller.rb` nous devons filtrer certaines de ces actions pour empêcher l'accès.
+On the `users_controller.rb` we have to filter some these actions to prevent the access
 
 ~~~ruby
 # app/controllers/api/v1/users_controller.rb
 class Api::V1::UsersController < ApplicationController
   before_action :authenticate_with_token!, only: %i[update destroy]
   respond_to :json
-
   # ...
 end
 ~~~
 
-Nos tests devraient être encore bons. Et à partir de maintenant, chaque fois que nous voulons éviter qu'une action ne soit déclenchée, nous ajoutons simplement la méthode `authenticate_with_token!` sur un *hook* `before_action`.
+Our tests should still be passing. And from now on everytime we want to prevent any action from being trigger, we simply add the `authenticate_with_token!` method on a `before_action` hook.
 
-*Commitons* tout ça:
+Let’s just commit this:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds authorization for the users controller"
 ~~~
 
-Enfin, nous terminerons le chapitre en remaniant la méthode `authenticate_with_token!`, C'est une petite amélioration mais cela rendra la méthode plus parlante. Vous comprendrez ce que je veux dire dans une minute, mais avant tout, ajoutons quelques tests.
+Lastly but not least we will finish the chapter by refactoring the `authenticate_with_token!` method, it is really a small enhancement, but it will make the method more descriptive. You’ll see what I mean in a minute, but first things first, let’s add some specs.
 
 ~~~ruby
 # spec/controllers/concerns/authenticable_spec.rb
 # ...
-
 RSpec.describe Authenticable do
   # ...
-
   describe '#user_signed_in?' do
     context "when there is a user on 'session'" do
       before do
@@ -773,13 +733,12 @@ RSpec.describe Authenticable do
 end
 ~~~
 
-Comme vous pouvez le voir, nous avons ajouté deux simples tests pour savoir si l'utilisateur est connecté ou non. Et comme je l'ai déjà dis, c'est juste pour la clarté visuelle. Mais continuons et ajoutons l'implémentation:
+As you can see we added two simple specs to know whether the user is signed in or not, and as I mentioned early it is just for visual clarity. But let’s keep going and add the implementation.
 
 ~~~ruby
 # app/controllers/concerns/authenticable.rb
 module Authenticable
   # ...
-
   def authenticate_with_token!
     unless user_signed_in?
       render json: { errors: 'Not authenticated' },
@@ -793,9 +752,9 @@ module Authenticable
 end
 ~~~
 
-Comme vous pouvez le voir, maintenant `authenticate_with_token!` est plus facile à lire non seulement pour vous mais pour aussi pour les autres développeurs qui rejoignerons le projet. Cette approche a également un avantage secondaire: si vous voulez modifier ou améliorer la façon de valider, vous pouvez simplement le faire sur la méthode `user_signed_in?`.
+As you can see, now the `authenticate_with_token!` it’s easier to read not just for you but for other developers joining the project. This approach has also another side benefit, which in any case you want to change or extend how to validate if the user is signed in you can just do it on the `user_signed_in?` method.
 
-Maintenant, nos tests devraient être tous verts:
+Now our tests should be all green:
 
 ~~~bash
 $ rspec spec/controllers/concerns/authenticable_spec.rb
@@ -805,7 +764,7 @@ Finished in 0.07415 seconds (files took 0.702 seconds to load)
 5 examples, 0 failures
 ~~~
 
-*Commitons* tout ça:
+Let’s commit the changes:
 
 ~~~bash
 $ git add .
@@ -814,9 +773,9 @@ $ git commit -m "Adds user_signed_in? method to know whether the user is logged 
 
 ## Conclusion
 
-Vous l'avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c'est un grand pas en avant sur la mise en place d'un mécanisme solide pour gérer l'authentification utilisateur et nous grattons même la surface pour de simples règles d'autorisation.
+Yei! you made it! you are half way done! keep up the good work, this chapter was a long and hard one but it is a great step forward on setting a solid mechanism for handling user authentication and we even scratch the surface for simple authorization rules.
 
-Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l'utilisateur avec `active_model_serializers` et l'ajout d'un modèle de produit en donnant à l'utilisateur la possibilité de créer un produit et le publier pour la vente.
+In the next chapter we will be focusing on customizing the `json` output for the user with `active_model_serializers` gem and adding a `product` model to the equation by giving the user the ability to create a product and publish it for sale.
 
 
 [ruby_securerandom]: https://ruby-doc.org/stdlib-2.5.3/libdoc/securerandom/rdoc/SecureRandom.html
