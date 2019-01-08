@@ -315,8 +315,7 @@ class Placement < ApplicationRecord
 end
 ~~~
 
-Validation du stock des produits
---------------------------------
+## Validation du stock des produits
 
 Depuis le début du chapitre, nous avons ajouté l'attribut `quantity` au modèle de produit. il est maintenant temps de valider que la quantité de produit est suffisante pour que la commande soit passée. Afin de rendre les choses plus intéressantes, nous allons le faire à l'aide d'un validateur personnalisé[^19]. Pour les validateurs personnalisés, vous pouvez consulter la
 [documentation](https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations).

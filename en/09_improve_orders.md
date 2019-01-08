@@ -299,7 +299,7 @@ RSpec.describe Placement, type: :model do
 end
 ~~~
 
-La mise en œuvre est assez simple comme le montre le code suivant.
+The implementation is fairly easy as shown bellow:
 
 ~~~ruby
 # app/models/placement.rb
@@ -313,20 +313,22 @@ class Placement < ApplicationRecord
 end
 ~~~
 
-Validation du stock des produits
---------------------------------
+## Validation du stock des produits
 
-Depuis le début du chapitre, nous avons ajouté l'attribut `quantity` au modèle de produit. il est maintenant temps de valider que la quantité de produit est suffisante pour que la commande soit passée. Afin de rendre les choses plus intéressantes, nous allons le faire à l'aide d'un validateur personnalisé[^19]. Pour les validateurs personnalisés, vous pouvez consulter la
-[documentation](https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations).
+As you remember from the beginning of the chapter we added the `quantity` attribute to the `Product` model, now it is time to validate that there are enough products for the order to be placed.
 
-Tout d'abord, nous devons créer un répertoire de `validators` dans le répertoire `app` (Rails le charge par défaut) et ensuite créons un fichier dedans:
+In order to make things more interesting and spice things up we will do it thorugh a custom validator, just to keep things cleaner and show you another cool technique to achieve custom validations.
+
+For **custom validators** you can head to the [documentation](http://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations). Let’s get our hands dirty.
+
+First we need to add a `validators` directory under the `app` directory (Rails will pick it up for so we do not need to load it).
 
 ~~~bash
 $ mkdir app/validators
 $ touch app/validators/enough_products_validator.rb
 ~~~
 
-Avant de commencer à implémenter la classe, nous devons nous assurer d'ajouter un test au modèle de commande pour vérifier si la commande peut être passée.
+Before we drop any line of code, we need to make sure to add a spec to the `Order` model to check if the order can be placed.
 
 ~~~ruby
 # spec/models/order_spec.rb
@@ -357,9 +359,9 @@ RSpec.describe Order, type: :model do
 end
 ~~~
 
-Comme vous pouvez le voir sur les tests suivants, nous nous assurons d'abord que `placement_2` essaie de demander plus de produits que ce qui est disponible. Donc dans ce cas la commande n'est pas supposée être valide.
+As you can see on the spec, we first make sure that `placement_2` is trying to request more products than are available, so in this case the `order` is not supposed to be valid.
 
-Le test est en train d'échouer. Faisons le passer en implémentant le code pour le validateur:
+The test by now should be failing, let’s turn it into green by adding the code for the validator:
 
 ~~~ruby
 # app/validators/enough_products_validator.rb
@@ -375,7 +377,7 @@ class EnoughProductsValidator < ActiveModel::Validator
 end
 ~~~
 
-J'ajoute simplement un message pour chacun des produits en rupture de stock, mais vous pouvez le gérer différemment si vous le souhaitez. Il ne nous reste plus qu'à ajouter ce validateur au modèle `Order` comme cela:
+I manage to add a message for each of the products that are out of stock, but you can handle it differently if you want. Now we just need to add the validator to the `Order` model like so:
 
 ~~~ruby
 # app/models/order.rb
@@ -386,7 +388,7 @@ class Order < ApplicationRecord
 end
 ~~~
 
-Et maintenant, si vous lancer vos tests, tout devrait être beau et vert:
+And now if you run your tests, everything should be nice and green:
 
 ~~~bash
 $ rspec spec/models/order_spec.rb
@@ -396,34 +398,31 @@ Finished in 0.19136 seconds (files took 0.74912 seconds to load)
 9 examples, 0 failures
 ~~~
 
-*Commitons* nos changements:
+Let’s commit the changes:
 
 ~~~bash
 $ git add .
 $ git commit -m "Adds validator for order with not enough products on stock"
 ~~~
 
-## Mettre à jour le prix total
+## Updating the total
 
-Réalisez vous que le prix total est mal calculé? Actuellement, nous ajoutons le prix des produits sur la commande, quelle que soit la quantité demandée. Permettez-moi d'ajouter le code pour clarifier le problème:
+Did you realize that the `total` is being calculated incorrectly, because currently it is just adding the price for the products on the order regardless of the quantity requested. Let me add the code to clarify the problem:
 
-Actuellement, dans le modèle de commande, nous avons cette méthode pour calculer le montant à payer:
+Currently in the `order` model we have this method to calculate the amount to pay:
 
 ~~~ruby
 # app/models/order.rb
 class Order < ApplicationRecord
   # ...
-
   def set_total!
     self.total = products.map(&:price).sum
   end
-
   # ...
 end
-
 ~~~
 
-Maintenant, au lieu de calculer le total en additionnant simplement les prix des produits, nous devons le multiplier par la quantité. Alors mettons d'abord à jour les tests:
+Now instead of calculating the `total` by just adding the product prices, we need to multiply it by the quantity, so let’s update the spec first:
 
 ~~~ruby
 # spec/models/order_spec.rb
@@ -455,7 +454,7 @@ RSpec.describe Order, type: :model do
 end
 ~~~
 
-L'implémentation est assez simple:
+And the implementation is fairly easy:
 
 ~~~ruby
 # app/models/order.rb
@@ -473,7 +472,7 @@ class Order < ApplicationRecord
 end
 ~~~
 
-Et maintenant, les tests devraient passer:
+And the specs should be green:
 
 ~~~bash
 $ rspec spec/models/order_spec.rb
@@ -483,8 +482,7 @@ Finished in 0.20537 seconds (files took 0.74555 seconds to load)
 9 examples, 0 failures
 ~~~
 
-*Commitons* nos changements et récapitulons tout ce que nous venons de
-faire:
+Let’s commit the changes and wrap up.
 
 ~~~bash
 $ git commit -am "Updates the total calculation for order"
@@ -492,6 +490,6 @@ $ git commit -am "Updates the total calculation for order"
 
 ## Conclusion
 
-Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le premier chapitre. Mais vous êtes à un pas de plus. En fait, le chapitre suivant serait le dernier. Alors essayez d'en tirer le meilleur.
+Oh you are here!, let me congratulate you, it’s been a long way since chapter 1, but you are 1 step closer. Actually the next chapter would be the last one, so try to take the most out of it.
 
-Le dernier chapitre portera sur la façon d'optimiser l'API en utilisant la pagination, la mise en cache et les tâches d'arrière-plan. Donc bouclez vos ceintures, ça va être un parcours mouvementé.
+The last chapter would be on how to optimize the API by using `pagination`, `caching` and `background jobs`, so buckle up, it is going to be a bumpy ride.

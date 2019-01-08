@@ -4,7 +4,6 @@ Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'
 
 - La mise en place de la spécification [JSON:API](https://jsonapi.org/)
 - la pagination
-- les tâches en arrière plan
 - la mise en cache
 
 J'essaierai d'aller aussi loin que possible en essayant de couvrir certains scénarios courants. J'espère que ces scénario vous serons utiles pour certains de vos projets.
@@ -900,15 +899,15 @@ Total: 0,021979
 
 Nous sommes donc passé de 174 ms à 21 ms. L'amélioration est donc énorme! *Comittons* une dernière fois nos changements.
 
+~~~ruby
+$ git commit -am "Adds caching for the serializers"
+~~~
+
 ## Conclusion
 
 Si vous arrivez à ce point, cela signifie que vous en avez fini avec le livre. Bon travail! Vous venez de devenir un grand développeur API Rails, c'est sûr.
 
 Merci d'avoir emmené cette grande aventure avec moi, j'espère que vous avez apprécié le voyage autant que moi. On devrait prendre une bière un de ces jours.
-
-~~~ruby
-$ git commit -am "Adds caching for the serializers"
-~~~
 
 
 
