@@ -6,15 +6,28 @@ Update & translations of the fantastic [API on Rails (EN)](http://apionrails.ica
 
 <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
-## Export as PDF, epub, HTML, etc..
+Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com/book) book. This book is written using [Asciidoctor](https://asciidoctor.org).
 
-You should install and use [pandoc](http://pandoc.org/). Clone the project & this is simply as this:
+## Build book
 
 ~~~bash
-$ cd fr
-$ pandoc *.md -o api-on-rail-fr.pdf
+$ git clone https://github.com/madeindjs/api_on_rails/
+$ cd api_on_rails
+$ bundle install
+$ rake build:pdf:fr
 ~~~
 
+You can see all build available with `rake -T`
+
+~~~bash
+$ rake -T
+rake build:epub3:en  # Build an english EPUB version
+rake build:epub3:fr  # Build a french EPUB version
+rake build:mobi:en   # Build an english EPUB version
+rake build:mobi:fr   # Build a french EPUB version
+rake build:pdf:en    # Build an english PDF version / Build an english HTML version
+rake build:pdf:fr    # Build a french PDF version / Build a french HTML version
+~~~
 
 ## License
 

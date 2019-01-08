@@ -1,21 +1,22 @@
-# Refactoring tests
+== Refactoring tests
 
 In previous chapter we manage to put together some `user` resources endpoints, if you skip it, or simple missed it I highly recommend you take a look at it, it covers the first test specs and an introduction to `json` responses.
 
 You can clone the project until this point with:
 
-~~~bash
+[source,bash]
+----
 $ git clone --branch chapitre_3 https://github.com/madeindjs/market_place_api
-~~~
+----
 
 In this chapter we’ll refactor our test specs by adding some helper methods, remove the `format` param sent on every request and do it through headers, and hopefully build more consistent and scalable test suite.
 
 So let’ take a look to the `users_controller_spec.rb` file:
 
-~~~ruby
-# spec/controllers/api/v1/users_controller_spec.rb
+[source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
+----
 # ...
-
 RSpec.describe Api::V1::UsersController, type: :controller do
   before(:each) { request.headers['Accept'] = 'application/vnd.marketplace.v1' }
 
@@ -70,7 +71,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
     end
   end
 
-
   describe "PUT/PATCH #update" do
 
    context "when is successfully updated" do
@@ -122,37 +122,41 @@ RSpec.describe Api::V1::UsersController, type: :controller do
     it { expect(response.response_code).to eq(204) }
   end
 end
-~~~
+----
 
 As you can see there is a lot of duplicated code, two big refactors here are:
 
--   The `JSON.parse` method can be encapsulated on a method.
--   The `format` param is sent on every request. Although is not a bad practice perse, it is better if you handle the response type through headers.
+* The `JSON.parse` method can be encapsulated on a method.
+* The `format` param is sent on every request. Although is not a bad practice perse, it is better if you handle the response type through headers.
 
 So let’s add a method for handling the `json` response, but before we continue, and if you have been following the tutorial you may know that we are creating a branch for each chapter, so let’s do that:
 
-~~~bash
+[source,bash]
+----
 $ git checkout -b chapter4
-~~~
+----
 
-## Refactoring the json response
+=== Refactoring the json response
 
 Back to the `refactor`, we will add file under the `spec/support` directory. Currently we don’t have this directory, so let’s add it:
 
-~~~bash
+[source,bash]
+----
 $ mkdir spec/support
-~~~
+----
 
 Then we create a `request_helpers.rb` file under the just created `support` directory:
 
-~~~bash
+[source,bash]
+----
 $ touch spec/support/request_helpers.rb
-~~~
+----
 
 It is time to extract the `JSON.parse` method into our own support method:
 
-~~~ruby
-# spec/support/request_helpers.rb
+[source,ruby]
+.spec/support/request_helpers.rb
+----
 module Request
   module JsonHelpers
     def json_response
@@ -160,27 +164,28 @@ module Request
     end
   end
 end
-~~~
+----
 
 We scope the method into some `modules` just to keep our code nice and organised. The next step here is to update the `users_controller_spec.rb` file to use the method. A quick example is presented below:
 
-~~~ruby
-# spec/controllers/api/v1/users_controller_spec.rb
+[source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
+----
 # ...
 it 'returns the information about a reporter on a hash' do
   user_response = json_response # c'est cette ligne qui est maj
   expect(user_response[:email]).to eql @user.email
 end
 # ...
-~~~
+----
 
 Now it is your turn to update the whole file.
 
 After you are done updating the file, if you tried to run your tests, you probably encounter a problem, for some reason it is not finding the `json_response` method which is weird because if we take a look at the `spec_helper.rb` file we can see that is actually loading all files from the `support` directory:
 
-~~~ruby
-# spec/rails_helper.rb
-
+[source,ruby]
+.spec/rails_helper.rb
+----
 # chargement de tous les fichiers Ruby dans le dossier spec/support
 Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each do |f|
   require f
@@ -193,73 +198,78 @@ RSpec.configure do |config|
   config.include Request::JsonHelpers, :type => :controller
   #  ...
 end
-~~~
+----
 
 After that if we run our tests again, everything should be green again. So let’s commit this before adding more code:
 
-~~~bash
+[source,bash]
+----
 $ git add .
 $ git commit -m "Refactors the json parse method"
-~~~
+----
 
-## Refactoring the format param
+=== Refactoring the format param
 
 We want to remove the `format` param sent on every request and instead of that let’s handle the response we are expecting through headers. This is extremely easy, just by adding one line to our `users_controller_spec.rb` file:
 
-~~~ruby
-# spec/controllers/api/v1/users_controller_spec.rb
+[source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
+----
 RSpec.describe Api::V1::UsersController, type: :controller do
   before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1, application/json" }
-~~~
+----
 
 By adding this line, you can now remove all the `format` param we were sending on each request and forget about it for the whole application, as long as you include the `Accept` header with the `json` mime type.
 
 Wait we are not over yet! We can add another header to our request that will help us describe the data contained we are expecting from the server to deliver. We can achieve this fairly easy by adding one more line specifying the `Content-Type` header:
 
-~~~ruby
-# spec/controllers/api/v1/users_controller_spec.rb
+[source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
+----
 RSpec.describe Api::V1::UsersController, type: :controller do
   before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1, application/json" }
   before(:each) { request.headers['Content-Type'] = 'application/json' }
-~~~
+----
 
 And again if we run our tests, we can see they are all nice and green:
 
-~~~bash
+[source,bash]
+----
 $ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
 .............
 
 Finished in 1.44 seconds (files took 0.4734 seconds to load)
 13 examples, 0 failures
-~~~
+----
 
 As always, this is a good time to commit:
 
-~~~bash
+[source,bash]
+----
 $ git commit -am "Factorize format for unit tests"
-~~~
+----
 
-## Refactor before actions
+=== Refactor before actions
 
 I’m very happy with the code we got so far, but we can still improve it a little bit, the first thing that comes to my mind is to group the 3 custom headers being added before each request:
 
-~~~ruby
-# spec/controllers/api/v1/users_controller_spec.rb
+[source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
+----
 #...
-
 before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1, application/json" }
 before(:each) { request.headers['Content-Type'] = 'application/json' }
-~~~
+----
 
 This is good, but not good enough, because we will have to add this 5 lines of code for each file, and if for some reason we are changing let’s say the response type to `xml`, well you do the math. But don’t worry I provide a solution which will solve all these problems.
 
 First of all we have to extend our `request_helpers.rb` file to include another module, which I named `HeadersHelpers` and which will have the necessary methods to handle these custom headers
 
-~~~ruby
-# spec/support/request_helpers.rb
+[source,ruby]
+.spec/support/request_helpers.rb
+----
 module Request
   # ...
-
   module HeadersHelpers
     def api_header(version = 1)
       request.headers['Accept'] = "application/vnd.marketplace.v#{version}"
@@ -276,14 +286,15 @@ module Request
     end
   end
 end
-~~~
+----
 
 As you can see I broke the calls into 2 methods, one for setting the api header and the other one for setting the response format. Also and for convenience I wrote a method (`include_default_accept_headers`) for calling those two.
 
 And now to call this method before each of our test cases we can add the `before` hook on the _Rspec.configure_ block at `spec_helper.rb` file, and make sure we specify the type to `:controller`, as we don’t to run this on unit tests.
 
-~~~ruby
-# spec/rails_helper.rb
+[source,ruby]
+.spec/rails_helper.rb
+----
 # ...
 RSpec.configure do |config|
   # ...
@@ -293,14 +304,15 @@ RSpec.configure do |config|
   end
   # ...
 end
-~~~
+----
 
 After adding this lines, we can remove the before hooks on the `users_controller_spec.rb` file and check that our tests are still passing.
 
 You can review a full version of the `spec_helper.rb` file below:
 
-~~~ruby
-# spec/rails_helper.rb
+[source,ruby]
+.spec/rails_helper.rb
+----
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
@@ -332,16 +344,17 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
 end
-~~~
+----
 
 Well now I do feel satisfied with the code, let’s commit the changes:
 
-~~~bash
+[source,bash]
+----
 $ git commit -am "Refactors test headers for each request"
-~~~
+----
 
 Remember you can review the code up to this point at the [Github repository][api_on_rails_git].
 
-## Conclusion
+=== Conclusion
 
 Nice job on finishing this chapter, although it was a short one it was a crucial step as this will help us write better and faster tests. On next chapter we will add the authentication mechanism we’ll be using across the application as well as limiting the access for certain actions
