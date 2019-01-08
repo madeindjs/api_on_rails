@@ -13,3 +13,5 @@ gem "asciidoctor-pdf", "~> 1.5.alpha.16"
 gem "concurrent-ruby", "~> 1.1"
 
 gem "rouge", "~> 3.3"
+
+gem "asciidoctor-epub3", "~> 1.5.alpha.8"
