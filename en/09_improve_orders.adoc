@@ -36,8 +36,8 @@ Wait, don’t run the migrations just yet, we are making a small modification to
 Your migration file should look like this:
 
 [source,ruby]
+.db/migrate/20181227092237_add_quantity_to_products.rb
 ----
-# db/migrate/20181227092237_add_quantity_to_products.rb
 class AddQuantityToProducts < ActiveRecord::Migration[5.2]
   def change
     add_column :products, :quantity, :integer, default: 0
@@ -71,8 +71,8 @@ product_ids_and_quantities = [
 This is going to be tricky so stay with me, let’s first build some unit tests:
 
 [source,ruby]
+.spec/models/order_spec.rb
 ----
-# spec/models/order_spec.rb
 require 'rails_helper'
 
 RSpec.describe Order, type: :model do
@@ -96,8 +96,8 @@ end
 Then into the implementation:
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   # ...
 
@@ -131,13 +131,12 @@ The `build_placements_with_product_ids_and_quantities` will build the placement 
 First we update the `orders_controller_spec` file:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 require 'rails_helper'
 
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
-
   describe 'POST #create' do
     before(:each) do
       current_user = FactoryBot.create :user
@@ -154,7 +153,6 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
     it 'embeds the two product objects related to the order' do
       expect(json_response[:products].size).to eql 2
     end
-
     # ...
   end
 end
@@ -163,11 +161,10 @@ end
 Then we need to update the `orders_controller`:
 
 [source,ruby]
+.app/controllers/api/v1/orders_controller.rb
 ----
-# app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   # ...
-
   def create
     order = Order.create! user: current_user
     order.build_placements_with_product_ids_and_quantities(params[:order][:product_ids_and_quantities])
@@ -183,13 +180,13 @@ class Api::V1::OrdersController < ApplicationController
 end
 ----
 
-_*Notice we removed the `order_params` method as we are handling the creation for the placements.*_
+NOTE: we removed the `order_params` method as we are handling the creation for the placements.*_
 
 And last but not least, we need to update the `products` factory file, to assign a high `quantity` value, to at least have some products to play around in stock.
 
 [source,ruby]
+.spec/factories/products.rb
 ----
-# spec/factories/products.rb
 FactoryBot.define do
   factory :product do
     title { FFaker::Product.product_name }
@@ -219,8 +216,8 @@ $ rails generate migration add_quantity_to_placements quantity:integer
 As with the product quantity attribute migration we should add a default value equal to 0, remember this is optional but I do like this approach. The migration file should look like:
 
 [source,ruby]
+.db/migrate/20181227104830_add_quantity_to_placements.rb
 ----
-# db/migrate/20181227104830_add_quantity_to_placements.rb
 class AddQuantityToPlacements < ActiveRecord::Migration[5.2]
   def change
     add_column :placements, :quantity, :integer, default: 0
@@ -238,8 +235,8 @@ $ rake db:migrate
 Let’s document the `quantity` attribute through a unit test like so:
 
 [source,ruby]
+.spec/models/placement_spec.rb
 ----
-# spec/models/placement_spec.rb
 # ...
 RSpec.describe Placement, type: :model do
   # ...
@@ -251,11 +248,10 @@ end
 Now we just need to update the `build_placements_with_product_ids_and_quantities` to add the `quantity` for the placements:
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   # ...
-
   def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
     product_ids_and_quantities.each do |product_id_and_quantity|
       product_id, quantity = product_id_and_quantity # [1,5]
@@ -291,8 +287,8 @@ It is time to update the product quantity once the order is saved, or more accur
 Let’s first update our `placement` factory to make more sense:
 
 [source,ruby]
+.spec/factories/placements.rb
 ----
-# spec/factories/placements.rb
 FactoryBot.define do
   factory :placement do
     order
@@ -305,10 +301,9 @@ end
 And then we can simply add some specs:
 
 [source,ruby]
+.spec/models/placement_spec.rb
 ----
-# spec/models/placement_spec.rb
 # ...
-
 RSpec.describe Placement, type: :model do
   # ...
   it { should respond_to :quantity }
@@ -325,8 +320,8 @@ end
 The implementation is fairly easy as shown bellow:
 
 [source,ruby]
+.app/models/placement.rb
 ----
-# app/models/placement.rb
 class Placement < ApplicationRecord
   # ...
   after_create :decrement_product_quantity!
@@ -356,24 +351,20 @@ $ touch app/validators/enough_products_validator.rb
 Before we drop any line of code, we need to make sure to add a spec to the `Order` model to check if the order can be placed.
 
 [source,ruby]
+.spec/models/order_spec.rb
 ----
-# spec/models/order_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Order, type: :model do
   # ...
-
   describe "#valid?" do
     before do
       product_1 = FactoryBot.create :product, price: 100, quantity: 5
       product_2 = FactoryBot.create :product, price: 85, quantity: 10
 
-
       placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
       placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
 
       @order = FactoryBot.build :order
-
       @order.placements << placement_1
       @order.placements << placement_2
     end
@@ -390,8 +381,8 @@ As you can see on the spec, we first make sure that `placement_2` is trying to r
 The test by now should be failing, let’s turn it into green by adding the code for the validator:
 
 [source,ruby]
+.app/validators/enough_products_validator.rb
 ----
-# app/validators/enough_products_validator.rb
 class EnoughProductsValidator < ActiveModel::Validator
   def validate(record)
     record.placements.each do |placement|
@@ -407,8 +398,8 @@ end
 I manage to add a message for each of the products that are out of stock, but you can handle it differently if you want. Now we just need to add the validator to the `Order` model like so:
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   # ...
   validates_with EnoughProductsValidator
@@ -442,8 +433,8 @@ Did you realize that the `total` is being calculated incorrectly, because curren
 Currently in the `order` model we have this method to calculate the amount to pay:
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   # ...
   def set_total!
@@ -456,13 +447,11 @@ end
 Now instead of calculating the `total` by just adding the product prices, we need to multiply it by the quantity, so let’s update the spec first:
 
 [source,ruby]
+.spec/models/order_spec.rb
 ----
-# spec/models/order_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Order, type: :model do
   # ...
-
   describe '#set_total!' do
     before(:each) do
       product_1 = FactoryBot.create :product, price: 100
@@ -472,7 +461,6 @@ RSpec.describe Order, type: :model do
       placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
 
       @order = FactoryBot.build :order
-
       @order.placements << placement_1
       @order.placements << placement_2
     end
@@ -489,18 +477,16 @@ end
 And the implementation is fairly easy:
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   # ...
-
   def set_total!
     self.total = 0.0
     placements.each do |placement|
       self.total += placement.product.price.to_f * placement.quantity
     end
   end
-
   # ...
 end
 ----

@@ -47,8 +47,8 @@ $ rails generate migration add_authentification_token_to_users auth_token:string
 As a good practice I like to setup `string` values to an empty string and in this case let’s add an index with a unique condition to true. This way we warranty there are no users with the same token, at a database level, so let’s do that:
 
 [source,ruby]
+.db/migrate/20181114134521_add_authentification_token_to_users.rb
 ----
-# db/migrate/20181114134521_add_authentification_token_to_users.rb
 class AddauthentificationTokenToUsers < ActiveRecord::Migration[5.2]
   def change
     add_column :users, :auth_token, :string, default: ''
@@ -73,10 +73,10 @@ $ rake db:migrate
 Now it would be a good time to add some response and uniqueness tests to our `user` model spec:
 
 [source,ruby]
+.spec/models/user_spec.rb
 ----
 RSpec.describe User, type: :model do
   # ...
-
   it { should respond_to(:auth_token) }
   it { should validate_uniqueness_of(:auth_token)}
 end
@@ -85,9 +85,8 @@ end
 We then move to the `user.rb` file and add the necessary code to make our tests pass:
 
 [source,ruby]
+/app/models/user.rb
 ----
-# app/models/user.rb
-
 class User < ApplicationRecord
   validates :auth_token, uniqueness: true
   # ...
@@ -97,8 +96,8 @@ end
 Next we will work on a method that will generate a unique authentication token for each user in order to authenticate them later through the API. So let’s build the tests first.
 
 [source,ruby]
+.spec/models/user_spec.rb
 ----
-# spec/models/user_spec.rb
 RSpec.describe User, type: :model do
   # ...
   describe "#generate_authentification_token!" do
@@ -119,8 +118,8 @@ end
 Before use `validate_uniqueness_of` method we have to install `shoulda-matchers` gem. To do so, add this gem in `Gemfile`:
 
 [source,ruby]
+.Gemfile
 ----
-# Gemfile
 # ...
 group :test do
   # ...
@@ -131,8 +130,8 @@ end
 And load it in `rails_helper.rb`:
 
 [source,ruby]
+.spec/rails_helper.rb
 ----
-# spec/rails_helper.rb
 # ...
 RSpec.configure do |config|
   # ...
@@ -171,8 +170,8 @@ We are going to hook this `generate_authentication_token!` to a `before_create` 
 The code to generate the token is fairly simple:
 
 [source,ruby]
+.app/models/user.rb
 ----
-# app/models/user.rb
 class User < ApplicationRecord
   before_create :generate_authentification_token!
   # ...
@@ -225,15 +224,15 @@ $ mv spec/controllers/sessions_controller_spec.rb spec/controllers/api/v1
 After moving the files we have to update them to meet the directory structure we currently have as shown on followed snippets:
 
 [source,ruby]
+.app/controllers/api/v1/sessions_controller.rb
 ----
-# app/controllers/api/v1/sessions_controller.rb
 class Api::V1::SessionsController < ApplicationController
 end
 ----
 
 [source,ruby]
+.spec/controllers/api/v1/sessions_controller_spec.rb
 ----
-# spec/controllers/api/v1/sessions_controller_spec.rb
 # ...
 RSpec.describe Api::V1::SessionsController, type: :controller do
 end
@@ -244,8 +243,8 @@ end
 Our first stop will be the `create` action, but first and as usual let’s generate our tests:
 
 [source,ruby]
+.spec/controllers/api/v1/sessions_controller_spec.rb
 ----
-# spec/controllers/api/v1/sessions_controller_spec.rb
 # ...
 RSpec.describe Api::V1::SessionsController, type: :controller do
   describe 'POST #create' do
@@ -288,8 +287,8 @@ end
 The tests are pretty straightforward we simply return the `user` in json format if the credentials are correct, but if not we just send a json with an error message. Next we need to implement the code to make our tests be green. But before that we will add the end points to our `route.rb` file (both the `create` and `destroy` end point).
 
 [source,ruby]
+.config/routes.rb
 ----
-# config/routes.rb
 # ...
 Rails.application.routes.draw do
   # ...
@@ -298,8 +297,8 @@ end
 ----
 
 [source,ruby]
+.app/controllers/api/v1/sessions_controller.rb
 ----
-# app/controllers/api/v1/sessions_controller.rb
 class Api::V1::SessionsController < ApplicationController
   def create
     user_password = params[:session][:password]
@@ -321,8 +320,8 @@ end
 Before we run our tests, it is necessary to add the `devise` test helpers in the `spec_helper.rb` file:
 
 [source,ruby]
+.spec/rails_helper.rb
 ----
-# spec/rails_helper.rb
 # ...
 RSpec.configure do |config|
   # ...
@@ -353,15 +352,13 @@ $ git commit -m "Adds sessions controller create action"
 
 We currently have the `sign in` end point for the api, now it is time to build a `sign out` url, and you might wonder why, since we are not handling `sessions` and there is nothing to destroy. In this case we are going to update the authentication token so the last one becomes useless and cannot be used again.
 
-________________________________________________________________________________________________________________________
-It is actually not necessary to include this end point, but I do like to include it to expire the authentication tokens.
-________________________________________________________________________________________________________________________
+NOTE: It is actually not necessary to include this end point, but I do like to include it to expire the authentication tokens.
 
 As usual we start with the tests:
 
 [source,ruby]
+.spec/controllers/api/v1/sessions_controller_spec.rb
 ----
-# spec/controllers/api/v1/sessions_controller_spec.rb
 # ...
 RSpec.describe Api::V1::SessionsController, type: :controller do
   # ...
@@ -381,8 +378,8 @@ end
 As you can see the `test` is super simple, now we just need to implement the necessary code to make our tests pass:
 
 [source,ruby]
+.app/controllers/api/v1/sessions_controller.rb
 ----
-# app/controllers/api/v1/sessions_controller.rb
 class Api::V1::SessionsController < ApplicationController
   # ...
   def destroy
@@ -432,8 +429,8 @@ $ touch spec/controllers/concerns/authenticable_spec.rb
 As usual we start by writing our tests, in this case for our `current_user` method, which will fetch a user by the authentication token ok the `Authorization` header.
 
 [source,ruby]
+.spec/controllers/concerns/authenticable_spec.rb
 ----
-# spec/controllers/concerns/authenticable_spec.rb
 # ...
 class Authentication < ActionController::API
   include Authenticable
@@ -457,15 +454,13 @@ RSpec.describe Authenticable do
 end
 ----
 
-_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
-If you are wondering, why in the hell we created a Authentication class inside the spec file. The answer is simple, when it comes to test modules I find it easy to include them into a temporary class and stub any other methods I may require later, like the request shown above.
-_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+NOTE: If you are wondering, why in the hell we created a Authentication class inside the spec file. The answer is simple, when it comes to test modules I find it easy to include them into a temporary class and stub any other methods I may require later, like the request shown above.
 
 Our tests should fail. Let’s implement the necessary code:
 
 [source,ruby]
+.app/controllers/concerns/authenticable.rb
 ----
-# app/controllers/concerns/authenticable.rb
 module Authenticable
   # Devise methods overwrites
   def current_user
@@ -488,8 +483,8 @@ Finished in 0.0149 seconds (files took 0.49496 seconds to load)
 Now we just need to include the `Authenticable` module into the `ApplicationController`:
 
 [source,ruby]
+.app/controllers/application_controller.rb
 ----
-# app/controllers/application_controller.rb
 class ApplicationController < ActionController::API
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -517,7 +512,7 @@ First we have to add some tests on the `authenticable_spec.rb` for the `authenti
 
 [source,ruby]
 ----
-# spec/controllers/concerns/authenticable_spec.rb
+.spec/controllers/concerns/authenticable_spec.rb
 # ...
 class Authentication < ActionController::API
   include Authenticable
@@ -547,8 +542,8 @@ end
 As you can see we are using the `Authentication` class again and stubbing the `request` and `response` for handling the expected answer from the server. Now it is time to implement the code to make our tests pass.
 
 [source,ruby]
+.app/controllers/concerns/authenticable.rb
 ----
-# app/controllers/concerns/authenticable.rb
 module Authenticable
   # ...
   def authenticate_with_token!
@@ -576,8 +571,8 @@ It is now time to update our `users_controller.rb` file to deny the access to so
 We will start with the `update` action. We will no longer fetch the user by id, instead of that by the `auth_token` on the `Authorization` header provided by the current_user method.
 
 [source,ruby]
+.app/controllers/api/v1/users_controller.rb
 ----
-# app/controllers/api/v1/users_controller.rb
 class Api::V1::UsersController < ApplicationController
   # ...
   def update
@@ -614,8 +609,8 @@ Failures:
 The solution is fairly simple, we just need to add the `Authorization` header to the request:
 
 [source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
 ----
-# spec/controllers/api/v1/users_controller_spec.rb
 # ...
 RSpec.describe Api::V1::UsersController, type: :controller do
   # ...
@@ -638,7 +633,6 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       # ...
     end
   end
-
   # ...
 end
 ----
@@ -646,8 +640,8 @@ end
 Now the tests should be all green. But wait something does not feel quite right isn’t it?, we can refactor the line we just added and put it on the `HeadersHelpers` module we build:
 
 [source,ruby]
+.spec/support/request_helpers.rb
 ----
-# spec/support/request_helpers.rb
 module Request
   # ...
   module HeadersHelpers
@@ -662,8 +656,8 @@ end
 Now each time we need to have the `current_user` on our specs we simply call the `api_authorization_header` method. I’ll let you do that with the `users_controller_spec.rb` for the update spec. For the destroy action we will do the same, because we just have to make sure a user is capable to self destroy
 
 [source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
 ----
-# spec/controllers/api/v1/users_controller_spec.rb
 # ...
 RSpec.describe Api::V1::UsersController, type: :controller do
   # ...
@@ -695,8 +689,8 @@ end
 Now for the spec file and as mentioned before, we just need to add the `api_authorization_header`:
 
 [source,ruby]
+.app/controllers/api/v1/users_controller.rb
 ----
-# app/controllers/api/v1/users_controller.rb
 class Api::V1::UsersController < ApplicationController
   # ...
   def destroy
@@ -710,8 +704,8 @@ end
 Now for the spec file and as mentioned before, we just need to add the `api_authorization_header`:
 
 [source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
 ----
-# spec/controllers/api/v1/users_controller_spec.rb
 # ...
 RSpec.describe Api::V1::UsersController, type: :controller do
   # ...
@@ -729,13 +723,13 @@ end
 
 We should have all of our tests passing. The last step for this section consist on adding the corresponding authorization access for these last 2 actions.
 
-*It is common to just prevent the actions on which the user is performing actions on the record itself, in this case the `destroy` and `update` action*
+NOTE: It is common to just prevent the actions on which the user is performing actions on the record itself, in this case the `destroy` and `update` action
 
 On the `users_controller.rb` we have to filter some these actions to prevent the access
 
 [source,ruby]
+.app/controllers/api/v1/users_controller.rb
 ----
-# app/controllers/api/v1/users_controller.rb
 class Api::V1::UsersController < ApplicationController
   before_action :authenticate_with_token!, only: %i[update destroy]
   respond_to :json
@@ -756,8 +750,8 @@ $ git commit -m "Adds authorization for the users controller"
 Lastly but not least we will finish the chapter by refactoring the `authenticate_with_token!` method, it is really a small enhancement, but it will make the method more descriptive. You’ll see what I mean in a minute, but first things first, let’s add some specs.
 
 [source,ruby]
+.spec/controllers/concerns/authenticable_spec.rb
 ----
-# spec/controllers/concerns/authenticable_spec.rb
 # ...
 RSpec.describe Authenticable do
   # ...
@@ -786,8 +780,8 @@ end
 As you can see we added two simple specs to know whether the user is signed in or not, and as I mentioned early it is just for visual clarity. But let’s keep going and add the implementation.
 
 [source,ruby]
+.app/controllers/concerns/authenticable.rb
 ----
-# app/controllers/concerns/authenticable.rb
 module Authenticable
   # ...
   def authenticate_with_token!

@@ -35,9 +35,7 @@ It doesn’t look nice, as the JSON output should render just an array of produc
 
 This is further explained in the http://jsonapi.org/format/#document-structure-resource-collection-representations[JSON API] website.
 
-__________________________________________________________________________________________________________________________________________
-A collection of any number of resources SHOULD be represented as an array of resource objects or IDs, or as a single ``collection object''
-__________________________________________________________________________________________________________________________________________
+> A collection of any number of resources SHOULD be represented as an array of resource objects or IDs, or as a single "collection object"
 
 I highly recommend you go and bookmark this reference. It is amazing and will cover some points I might not.
 
@@ -64,8 +62,8 @@ If you have been following the tutorial all along, you should already have the g
 Add the following line to your `Gemfile`:
 
 [source,ruby]
+.Gemfile
 ----
-# Gemfile
 # ...
 gem 'active_model_serializers', '~> 0.10.8'
 ----
@@ -85,8 +83,8 @@ $ rails generate serializer user
 This created a file called `user_serializer` under the `app/serializers` directory, which should look like this:
 
 [source,ruby]
+.app/serializers/user_serializer.rb
 ----
-# app/serializers/user_serializer.rb
 class UserSerializer < ActiveModel::Serializer
   attributes :id
 end
@@ -100,17 +98,15 @@ $ rspec spec/controllers/api/v1/users_controller_spec.rb
 F.F....F.....
 ----
 
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
-In this case, Rails will look for a serializer named PostSerializer, and if it exists, use it to serialize the `Post`. This also works with `respond_with`, which uses `to_json` under the hood. Also note that any options passed to render `:json` will be passed to your serializer and available as `@options inside`. This means that no matter if we are using the `render json` method or `respond_with`, from now on Rails will look for the corresponding serializer first.
-____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+NOTE: In this case, Rails will look for a serializer named PostSerializer, and if it exists, use it to serialize the `Post`. This also works with `respond_with`, which uses `to_json` under the hood. Also note that any options passed to render `:json` will be passed to your serializer and available as `@options inside`. This means that no matter if we are using the `render json` method or `respond_with`, from now on Rails will look for the corresponding serializer first.
 
 Now back to the specs, you can see that for some reason the response it’s not quite what we are expecting, and that is because the gem encapsulates the model into a javascript object with the model name as the root, in this case `user`.
 
 So in order to make the tests pass we just need to add the attributes to serialise into the `user_serializer.rb` and update the `users_controller_spec.rb` file:
 
 [source,ruby]
+.app/serializers/user_serializer.rb
 ----
-# app/serializers/user_serializer.rb
 class UserSerializer < ActiveModel::Serializer
   attributes :id, :email, :created_at, :updated_at, :auth_token
 end
@@ -150,8 +146,8 @@ $ rails generate serializer product
 Now let’s add the attributes to serialize for the product, just as we did it with the user back in previous section:
 
 [source,ruby]
+.app/serializers/product_serializer.rb
 ----
-# app/serializers/product_serializer.rb
 class ProductSerializer < ActiveModel::Serializer
   attributes :id, :title, :price, :published
 end
@@ -174,8 +170,8 @@ When working with and API and associations between models, there are many approa
 Just to recap, we have a http://guides.rubyonrails.org/association_basics.html#the-has-many-association[has_many] type association between the user and product model, check theses code snippets.
 
 [source,ruby]
+.app/models/user.rb
 ----
-# app/models/user.rb
 class User < ApplicationRecord
   has_many :products, dependent: :destroy
   # ...
@@ -183,8 +179,8 @@ end
 ----
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   belongs_to :user
   # ...
@@ -208,7 +204,6 @@ When facing this problem I’ve come with two possible alternatives:
 {
   "meta": { "user_ids": [1,2,3] },
   "products": [
-    ...
   ]
 }
 ----
@@ -235,7 +230,6 @@ This might need some further configuration on the user’s endpoint, so the clie
             "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
           }
       }
-      ...
    ]
 }
 ----
@@ -243,8 +237,8 @@ This might need some further configuration on the user’s endpoint, so the clie
 So we’ll be embedding the user object into the product, let’s start by adding some tests. We will just modify the `show` and `index` endpoints spec.
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
@@ -269,8 +263,8 @@ end
 The implementation is really easy, we just need to add one line to the product serializer:
 
 [source,ruby]
+.app/serializers/product_serializer.rb
 ----
-# app/serializers/product_serializer.rb
 class ProductSerializer < ActiveModel::Serializer
   attributes :id, :title, :price, :published
   has_one :user
@@ -297,14 +291,12 @@ But don’t worry not all is lost, we can easily solve this problem, and this is
 First we make sure the `product_ids` it is part of the user serialized object:
 
 [source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
 ----
-# spec/controllers/api/v1/users_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::UsersController, type: :controller do
   describe 'GET #show' do
     # ...
-
     it 'has the product ids as an embeded object' do
       expect(json_response[:product_ids]).to eql []
     end
@@ -316,8 +308,8 @@ end
 The implementation is very simple, as described by the `active_model_serializers` gem https://github.com/rails-api/active_model_serializers#embedding-associations[documentation]:
 
 [source,ruby]
+.app/serializers/user_serializer.rb
 ----
-# app/serializers/user_serializer.rb
 class UserSerializer < ActiveModel::Serializer
   attribute :product_ids do
     object.products.map(&:id)
@@ -340,10 +332,9 @@ Finished in 0.16791 seconds (files took 0.65902 seconds to load)
 Now we need to extend the `index` action from the `products_controller` so it can handle the product_ids parameter and display the scoped records. Let’s start by adding some specs:
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
   describe 'GET #index' do
@@ -391,8 +382,8 @@ end
 As you can see from previous code we just wrapped the index action into two separate contexts, one which will receive the `product_ids`, and the old one we had which does not. Let’s add the necessary code to make the tests pass:
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: %i[create update destroy]
 
@@ -441,10 +432,9 @@ This may sound short and easy but believe me it will give you a headache if you 
 We will create a scope to find the records which match a particular pattern of characters, let’s called it `filter_by_title`, let’s add some specs first:
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
   describe '.filter_by_title' do
@@ -471,8 +461,8 @@ end
 The caveat in here is to make sure no matter the case of the title sent we have to sanitize it to any case in order to make the apropiate comparison, in this case we’ll use the lower case approach. Let’s implement the necessary code:
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   # ...
   scope :filter_by_title, lambda { |keyword|
@@ -499,13 +489,11 @@ In order to filter by price, things can get a little bit tricky, but actually it
 Let’s start by building the `above_or_equal_to_price` scope specs:
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
-
   describe '.above_or_equal_to_price' do
     before(:each) do
       @product1 = FactoryBot.create :product, price: 100
@@ -524,8 +512,8 @@ end
 The implementation is extremely simple:
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   # ...
   scope :above_or_equal_to_price, lambda { |price|
@@ -548,8 +536,8 @@ Finished in 0.1566 seconds (files took 0.64782 seconds to load)
 You can now imagine how the opposite method will behave, let’s add the specs:
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
 RSpec.describe Product, type: :model do
   # ...
@@ -571,8 +559,8 @@ end
 And now the implementation:
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   # ...
   scope :below_or_equal_to_price, lambda { |price|
@@ -599,10 +587,9 @@ As you can see we have not gotten in a lot of trouble, let’s just add another 
 This scope is super easy, let’s add some specs first:
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
-
 RSpec.describe Product, type: :model do
   # ...
   describe '.recent' do
@@ -627,11 +614,10 @@ end
 And now the code:
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   # ...
-
   scope :recent, lambda {
     order(:updated_at)
   }
@@ -663,8 +649,8 @@ Now that we have the ground base for the search engine we’ll be using in the a
 The method will consist on chaining all of the scopes we previously built and return the expected search. Let’s start by adding some tests:
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
 RSpec.describe Product, type: :model do
   # ...
@@ -709,11 +695,10 @@ end
 We added a bunch of code, but the implementation is very easy, you’ll see. You can go further and add some more specs, in my case I did not find it necessary.
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   # ...
-
   def self.search(params = {})
     products = params[:product_ids].present? ? Product.find(params[:product_ids]) : Product.all
 
@@ -730,9 +715,8 @@ end
 It is important to notice that we return the products as an `ActiveRelation` object, so we can further chain more methods in case we need so, or paginate them which we will see on the last chapters. We just need to update the products controller index action to fetch the products from the `search` method:
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/models/product.rb
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: %i[create update destroy]
 

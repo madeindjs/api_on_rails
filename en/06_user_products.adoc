@@ -43,8 +43,8 @@ As you may notice we also added an `index` option to the user_id attribute, this
 The migration file should look like this:
 
 [source,ruby]
+.db/migrate/20181218064350_create_products.rb
 ----
-# db/migrate/20181218064350_create_products.rb
 class CreateProducts < ActiveRecord::Migration[5.2]
   def change
     create_table :products do |t|
@@ -65,8 +65,8 @@ Take note that we set some default values for all of the attributes except the `
 Next we will add some basic tests to the Product model. We will just make sure the object responds to the fields we added, as shown next:
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
 RSpec.describe Product, type: :model do
   let(:product) { FactoryBot.build :product }
@@ -96,8 +96,8 @@ $ rspec spec/models/product_spec.rb
 Although our tests are passing, we need to do some ground work for the product factory, as for now is all hardcoded. As you recall we have been using `Faker` to fake the values for our tests models. Now it is time to do the same with the `product` model.
 
 [source,ruby]
+.spec/factories/products.rb
 ----
-# spec/factories/products.rb
 FactoryBot.define do
   factory :product do
     title { FFaker::Product.product_name }
@@ -117,8 +117,8 @@ As we saw with the user, validations are an important part when building any kin
 Also an important thing about validation when working with associations, is in this case to validate that every product has a user, so in this case we need to validate the presence of the `user_id`. You can see what I’m talking about in next code snippet.
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
 RSpec.describe Product, type: :model do
   # ...
@@ -132,8 +132,8 @@ end
 Now we need to add the implementation to make the tests pass:
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   validates :title, :user_id, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }, presence: true
@@ -164,8 +164,8 @@ $ git commit -m "Adds product model bare bones along with some validations"
 In this section we will be building the association between the product and the user model, we already have the necessary fields, so we just need to update a couple of files and we will be ready to go. First we need to modify the products factory to relate it to the user, so how do we do that?:
 
 [source,ruby]
+.spec/factories/products.rb
 ----
-# spec/factories/products.rb
 FactoryBot.define do
   factory :product do
     title { FFaker::Product.product_name }
@@ -179,8 +179,8 @@ end
 As you can see we just rename the `user_id` attribute to `user` and we did not specify a value, as FactoryGirl is smart enough to create a `user` object for every product and associate them automatically. Now we need to add some tests for the association.
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
 RSpec.describe Product, type: :model do
   # ...
@@ -191,8 +191,8 @@ end
 As you can see the test we added is very simple, thanks to the power of https://github.com/thoughtbot/shoulda-matchers[shoulda-matchers]. We continue with the implementation now:
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   belongs_to :user
   #...
@@ -215,8 +215,8 @@ Currently we only have one part of the association, but as you may be wondering 
 First we add the test on the `user_spec.rb` file:
 
 [source,ruby]
+.spec/models/user_spec.rb
 ----
-# spec/models/user_spec.rb
 # ...
 RSpec.describe User, type: :model do
   # ...
@@ -228,8 +228,8 @@ end
 The implementation on the `user` model is extremely easy:
 
 [source,ruby]
+.app/models/user.rb
 ----
-# app/models/user.rb
 class User < ApplicationRecord
   has_many :products
   # ...
@@ -265,8 +265,8 @@ end
 We first save the products into a variable for later access, then we destroy the user and loop through the products variable expecting each of the products to raise an exception. Putting everything together should look like the code bellow:
 
 [source,ruby]
+.spec/models/user_spec.rb
 ----
-# spec/models/user_spec.rb
 # ...
 RSpec.describe User, type: :model do
   # ...
@@ -290,8 +290,8 @@ end
 The necessary code to make tests pass is just an option on the `has_many` association method:
 
 [source,ruby]
+.app/models/user.rb
 ----
-# app/models/user.rb
 class User < ApplicationRecord
   has_many :products, dependent: :destroy
   # ...
@@ -331,15 +331,15 @@ $ rails generate controller api/v1/products
 The command above will generate a bunch of files ready to start working, what I mean by this is that it will generate the controller and specs files already scoped to the version 1 of the API.
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
 end
 ----
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
 end
@@ -352,8 +352,8 @@ As a warmup we will start nice and easy by building the `show` action for the pr
 As usual we begin by adding some product `show` controller specs. The strategy here is very simple, we just need to create a single product and make sure the response from server is what we expect.
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
@@ -375,8 +375,8 @@ end
 We then add the code to make the test pass:
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   def show
     render json: Product.find(params[:id])
@@ -387,10 +387,9 @@ end
 Wait!, don’t run the tests yet, remember we need to add the resource to the `routes.rb` file:
 
 [source,ruby]
+.config/routes.rb
 ----
-# config/routes.rb
-require 'api_constraints'
-
+# ...
 Rails.application.routes.draw do
   # ...
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
@@ -420,8 +419,8 @@ As you may notice already the specs and implementation are very simple, actually
 Now it is time to output a list of products, which could be displayed as the market place product catalog. This endpoint is also accessible without credentials, that means we don’t require the user to be logged-in to access the data. As usual we will start writing some specs.
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
@@ -444,8 +443,8 @@ end
 Warning, the `have` we use on previous test was no longer available since Rspec 3.0. We must install one more gem:
 
 [source,ruby]
+.Gemfile
 ----
-# Gemfile
 # ...
 group :test do
   # ...
@@ -456,8 +455,8 @@ end
 Let’s move into the implementation, which for now is going to be a sad `all` class method.
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   def index
     render json: Product.all
@@ -488,12 +487,11 @@ Creating products is a bit tricky because we’ll need some extra configuration 
 So our first stop will be the `products_controller_spec.rb` file.
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
-
   describe 'POST #create' do
     context 'when is successfully created' do
       before(:each) do
@@ -545,12 +543,11 @@ post :create, params: { user_id: user.id, product: @product_attributes }
 This way we can fetch the user and create the product for that specific user. But wait there is more, if we take this approach we will have to increment the scope of our authorization mechanism, because we have to fetch the user from the `user_id` param. Well in this case and if you remember we built the logic to get the user from the `authorization` header and assigned it a `current_user` method. This is rapidly fixable, by just adding the `authorization` header into the request, and fetch that user from it, so let’s do that.
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: [:create]
   # ...
-
   def create
     product = current_user.products.build(product_params)
     if product.save
@@ -577,9 +574,9 @@ So it is really up to you how you want to organize your resources and expose the
 One last thing before you run your tests, just the necessary route:
 
 [source,ruby]
+.config/routes.rb
 ----
-# config/routes.rb
-require 'api_constraints'
+# ...
 
 Rails.application.routes.draw do
   devise_for :users
@@ -613,8 +610,8 @@ Hopefully by now you understand the logic to build the upcoming actions, in this
 We are first add the action to the routes, so we don’t forget later:
 
 [source,ruby]
+.config/routes.rb
 ----
-# config/routes.rb
 require 'api_constraints'
 
 Rails.application.routes.draw do
@@ -637,13 +634,11 @@ Before we start dropping some tests, I just want to clarify that similarly to th
 First we add some specs:
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
-
   describe 'PUT/PATCH #update' do
     before(:each) do
       @user = FactoryBot.create :user
@@ -690,12 +685,11 @@ The tests may look complex, but take a second peek, they are almost the same we 
 Now let’s implement the code to make our tests pass:
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: %i[create update]
   # ...
-
   def update
     product = current_user.products.find(params[:id])
     if product.update(product_params)
@@ -728,8 +722,8 @@ Our last stop for the products endpoints, will be the `destroy` action and you m
 Let’s start again by adding the route name to the routes file:
 
 [source,ruby]
+.config/routes.rb
 ----
-# config/routes.rb
 # ...
 Rails.application.routes.draw do
   # ...
@@ -747,8 +741,8 @@ end
 After this, we have to add some tests as shown on this code snippet:
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
@@ -768,8 +762,8 @@ end
 Now we simply add the necessary code to make the tests pass:
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: %i[create update destroy]
   # ...
@@ -812,7 +806,7 @@ First we run the rails console command from the Terminal:
 $ rails console
 ----
 
-We then create a bunch of product objects with the `FactoryBot` gem::
+We then create a bunch of product objects with the `FactoryBot` gem:
 
 [source,ruby]
 ----
@@ -833,8 +827,8 @@ NameError (uninitialized constant FactoryBot)
 This is because we are running the console on `development` environment but that does not make sense with our `Gemfile`, which currently looks like this:
 
 [source,ruby]
+.Gemfile
 ----
-# Gemfile
 # ...
 group :test do
   gem 'factory_bot_rails'
@@ -848,8 +842,8 @@ end
 You see where the problem is?. If you pay attention you will notice that the `factory_bot_rails` gem is only available for the test environment, but no for the development one, which is what we need. This can be fix really fast:
 
 [source,ruby]
+.Gemfile
 ----
-# Gemfile
 # ...
 group :development, :test do
   gem 'factory_bot_rails'

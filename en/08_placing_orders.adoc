@@ -44,8 +44,8 @@ $ rake db:migrate
 Now it is time to drop some tests into the `order_spec.rb` file:
 
 [source,ruby]
+.spec/models/order_spec.rb
 ----
-# spec/models/order_spec.rb
 # ...
 RSpec.describe Order, type: :model do
   let(:order) { FactoryBot.build :order }
@@ -65,8 +65,8 @@ end
 The implementation is fairly simple:
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   belongs_to :user
   validates :total, numericality: { greater_than_or_equal_to: 0 }
@@ -107,8 +107,8 @@ $ rake db:migrate
 Let’s add the order association specs first:
 
 [source,ruby]
+.spec/models/order_spec.rb
 ----
-# spec/models/order_spec.rb
 # ...
 RSpec.describe Order, type: :model do
   # ...
@@ -120,8 +120,8 @@ end
 The implementation is like so:
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   has_many :placements
   has_many :products, through: :placements
@@ -132,8 +132,8 @@ end
 Now it is time to jump into the `product-placement` association:
 
 [source,ruby]
+.spec/models/product_spec.rb
 ----
-# spec/models/product_spec.rb
 # ...
 RSpec.describe Product, type: :model do
   # ...
@@ -146,8 +146,8 @@ end
 Let’s add the code to make it pass:
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   belongs_to :user
   has_many :placements
@@ -159,8 +159,8 @@ end
 And lastly but not least, the `placement` specs:
 
 [source,ruby]
+.spec/models/placement_spec.rb
 ----
-# spec/models/placement_spec.rb
 # ...
 RSpec.describe Placement, type: :model do
   let(:placement) { FactoryBot.build :placement }
@@ -177,8 +177,8 @@ end
 If you have been following the tutorial so far, the implementation is already there, because of the `references` type we pass on the model command generator. We should add the inverse option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
 
 [source,ruby]
+.app/models/placement.rb
 ----
-# app/models/placement.rb
 class Placement < ApplicationRecord
   belongs_to :order, inverse_of: :placements
   belongs_to :product, inverse_of: :placements
@@ -209,8 +209,8 @@ $ git commit -m "Associates products and orders with a placements model"
 We are just missing one little but very important part, which is to relate the user to the orders. But we did no complete the implementation. So let’s do that. First open the `user_model_spec.rb` file to add the corresponding tests:
 
 [source,ruby]
+.spec/models/user_spec.rb
 ----
-# spec/models/user_spec.rb
 # ...
 RSpec.describe User, type: :model do
   # ...
@@ -222,8 +222,8 @@ end
 And then just add the implementation, which is super simple:
 
 [source,ruby]
+.app/models/user.rb
 ----
-# app/models/user.rb
 class User < ApplicationRecord
   # ...
   has_many :orders, dependent: :destroy
@@ -233,7 +233,7 @@ end
 
 You can run the tests for both files, and they should be all nice and green:
 
-[source,ruby]
+[source,bash]
 ----
 $ rspec spec/models/{order,user}_spec.rb
 ....................
@@ -254,9 +254,7 @@ $ git commit -m 'Adds user order has many relation'
 
 It is now time to prepare the orders controller to expose the correct order object, and if you recall past chapters, with https://github.com/rails-api/active_model_serializers[ActiveModelSerializers] this is really easy.
 
-________________________________________
-But wait, what are we suppose to expose?
-________________________________________
+> But wait, what are we suppose to expose?
 
 .. You may be wondering. And you are right. Let’s first define which actions are we going to build up:
 
@@ -277,8 +275,8 @@ Up to this point and before start typing some code, we have to ask ourselves, sh
 I’ll nest the routes, because I like to give this type of information to the developers, as I think it gives more context to the request itself. Let’s start by dropping some tests:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 # ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   describe 'GET #index' do
@@ -301,8 +299,8 @@ end
 If we run the test suite now, as you may expect, both tests will fail, because have not even set the correct routes, nor the action. So let’s start by adding the routes:
 
 [source,ruby]
+.config/routes.rb
 ----
-# config/routes.rb
 # ...
 Rails.application.routes.draw do
   # ...
@@ -321,8 +319,8 @@ end
 Now it is time for the orders controller implementation:
 
 [source,ruby]
+.app/controllers/api/v1/orders_controller.rb
 ----
-# app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   before_action :authenticate_with_token!
 
@@ -358,8 +356,8 @@ As you may imagine already, this endpoint is super easy, we just have to set up 
 Let’s start by adding some specs:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 # ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
@@ -383,8 +381,8 @@ end
 Let’s add the implementation to make our tests pass. On the `routes.rb` file add the show action to the orders resources:
 
 [source,ruby]
+.config/routes.rb
 ----
-# config/routes.rb
 # ...
 Rails.application.routes.draw do
   # ...
@@ -396,11 +394,10 @@ end
 And the the implementation should look like this:
 
 [source,ruby]
+.app/controllers/api/v1/orders_controller.rb
 ----
-# app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   # ...
-
   def show
     render json: current_user.orders.find(params[:id])
   end
@@ -437,8 +434,8 @@ For now let’s keep things simple an assume we always have enough products to p
 If you recall the `order` model on http://apionrails.icalialabs.com/book/chapter_eight#sec-modeling_order[Section 8.1] we need basically 3 things, a total for the order, the user who is placing the order and the products for the order. Given that information we can start adding some specs:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 # ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
@@ -467,8 +464,8 @@ As you can see we are creating a `order_params` variable with the order data, ca
 First we need to add the action to the resources on the routes file:
 
 [source,ruby]
+.config/routes.rb
 ----
-# config/routes.rb
 # ...
 Rails.application.routes.draw do
   # ...
@@ -480,11 +477,10 @@ end
 Then the implementation which is easy:
 
 [source,ruby]
+.app/controllers/api/v1/orders_controller.rb
 ----
-# app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   # ...
-
   def create
     order = current_user.orders.build(order_params)
 
@@ -523,8 +519,8 @@ We have to add some validations, or better said a callback to calculate the orde
 We first need to add some specs for the order model:
 
 [source,ruby]
+.spec/models/order_spec.rb
 ----
-# spec/models/order_spec.rb
 # ...
 RSpec.describe Order, type: :model do
   # ...
@@ -546,11 +542,10 @@ end
 We can now add the implementation:
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   # ...
-
   def set_total!
     self.total = products.map(&:price).sum
   end
@@ -560,8 +555,8 @@ end
 Just before you run your tests, we need to update the `order` factory, just to make it more useful:
 
 [source,ruby]
+.spec/factories/orders.rb
 ----
-# spec/factories/orders.rb
 FactoryBot.define do
   factory :order do
     user { nil }
@@ -573,8 +568,8 @@ end
 We can now hook the `set_total!` method to a `before_validation` callback to make sure it has the correct total before is validated.
 
 [source,ruby]
+.app/models/order.rb
 ----
-# app/models/order.rb
 class Order < ApplicationRecord
   before_validation :set_total!
   # ...
@@ -595,8 +590,8 @@ Finished in 0.06807 seconds (files took 0.66165 seconds to load)
 This is now the moment to visit the `orders_controller_spec.rb` file and refactor some code. Currently we have something like:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 # ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
@@ -623,8 +618,8 @@ end
 If you run the tests now, they will pass, but first, let’s remove the `total` and `user_id` from the permitted params and avoid the mass-assignment. The `order_params` method should look like this:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 # ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
@@ -653,11 +648,10 @@ end
 If you run the tests now, they will pass, but first, let’s remove the `total` and `user_id` from the permitted params and avoid the mass-assignment. The `order_params` method should look like this:
 
 [source,ruby]
+.app/controllers/api/v1/orders_controller.rb
 ----
-# app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   # ...
-
   private
 
   def order_params
@@ -694,8 +688,8 @@ $ rails generate serializer order
 Now let’s open `order_serializer.rb` who should looks like:
 
 [source,ruby]
+.app/serializers/order_serializer.rb
 ----
-# app/serializers/order_serializer.rb
 class OrderSerializer < ActiveModel::Serializer
   attributes :id
 end
@@ -704,12 +698,11 @@ end
 We will add the products association and the total attribute to the order output, and to make sure everything is running smooth, we will some specs. In order to avoid duplication on tests, I’ll just add one spec for the `show` and make sure the extra data is being rendered, this is because I’m using the same serializer everytime an order object is being parsed to json, so in this case I would say it is just fine:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 # ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
-
   describe 'GET #show' do
     before(:each) do
       current_user = FactoryBot.create :user
@@ -738,8 +731,8 @@ end
 By now we should have failing tests. But they are easy to fix on the order serializer
 
 [source,ruby]
+.app/serializers/order_serializer.rb
 ----
-# app/serializers/order_serializer.rb
 class OrderSerializer < ActiveModel::Serializer
   attributes :id, :total
   has_many :products
@@ -767,8 +760,8 @@ $ rails g serializer order_product
 We want to keep the products information consistent with the one we currently have, so we can just inherit behavior from it like so:
 
 [source,ruby]
+.app/serializers/order_product_serializer.rb
 ----
-# app/serializers/order_product_serializer.rb
 class OrderProductSerializer < OrderSerializer
 end
 ----
@@ -776,8 +769,8 @@ end
 This will keep rendered data on sync, and now to remove the embebed user we simply add the following method on the gem documentation. For more information visit https://github.com/rails-api/active_model_serializers/tree/0-8-stable#associations[ActiveModelSerializer]:
 
 [source,ruby]
+.app/serializers/order_product_serializer.rb
 ----
-# app/serializers/order_product_serializer.rb
 class OrderProductSerializer < ProductSerializer
   def include_user?
     false
@@ -788,8 +781,8 @@ end
 After making this change we need to tell the `order_serializer` to use the serializer we just created by just passing an option to the `has_many` association on the `order_serializer`:
 
 [source,ruby]
+.app/serializers/order_product_serializer.rb
 ----
-# app/serializers/order_product_serializer.rb
 class OrderProductSerializer < ProductSerializer
   def include_user?
     false
@@ -832,8 +825,8 @@ To make it easy to test the email, we will use a gem called https://github.com/b
 So first let’s add the gem to the `Gemfile`
 
 [source,ruby]
+.Gemfile
 ----
-# Gemfile
 # ...
 group :test do
   gem 'rspec-collection_matchers', '~> 1.1'
@@ -847,9 +840,8 @@ end
 Now run the `bundle install` command to install all the dependencies. I’ll follow the documentation steps to setup the gem, you can do so on https://github.com/bmabey/email-spec#rspec[documentation]. When you are done, your `spec_helper.rb` file should look like:
 
 [source,ruby]
+.spec/rails_helper.rb
 ----
-# spec/rails_helper.rb
-
 require File.expand_path('../config/environment', __dir__)
 ENV['RAILS_ENV'] ||= 'test'
 # Prevent database truncation if the environment is production
@@ -905,8 +897,8 @@ end
 I simply copied and pasted the one from the documentation and adapt it to our needs. We now have to make sure this tests pass. First we add the action on the order mailer:
 
 [source,ruby]
+.app/mailers/order_mailer.rb
 ----
-# app/mailers/order_mailer.rb
 class OrderMailer < ApplicationMailer
   default from: 'no-reply@marketplace.com'
   def send_confirmation(order)
@@ -955,8 +947,8 @@ Finished in 0.24919 seconds (files took 0.75369 seconds to load)
 We just need to call the `send_confirmation` method into the create action on the orders controller:
 
 [source,ruby]
+.app/controllers/api/v1/orders_controller.rb
 ----
-# app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   # ...
   def create

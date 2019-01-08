@@ -36,9 +36,7 @@ So our *document* must follow theses rules:
 * `errors` which must contains a table of errors that have occurred
 * `meta` which contains https://jsonapi.org/format/#document-meta[objet meta]
 
-___________________________________________________________________________________________________________________________________________________________
-The `data` and `errors` keys must not be present at the same time and this makes sense since if an error occurs we should not be able to make data correct.
-___________________________________________________________________________________________________________________________________________________________
+NOTE: The `data` and `errors` keys must not be present at the same time and this makes sense since if an error occurs we should not be able to make data correct.
 
 The content of the `data` key is also quite strict:
 
@@ -53,10 +51,9 @@ This may cause us a lot of change since we have not implemented any of its rules
 So let’s start with users controller. Take a look at `show` action:
 
 [source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
 ----
-# spec/controllers/api/v1/users_controller_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Api::V1::UsersController, type: :controller do
   describe 'GET #show' do
     # ...
@@ -75,10 +72,9 @@ end
 We just need to update emplacement of data. So the complete update file look like this:
 
 [source,ruby]
+.spec/controllers/api/v1/users_controller_spec.rb
 ----
-# spec/controllers/api/v1/users_controller_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Api::V1::UsersController, type: :controller do
   describe 'GET #show' do
     # ...
@@ -121,10 +117,9 @@ And that’s it. It display a lot of code but there are few changes.
 Only one test shoul be updated for user’s sessions: the one who get `auth_token`.
 
 [source,ruby]
+.spec/controllers/api/v1/sessions_controller_spec.rb
 ----
-# spec/controllers/api/v1/sessions_controller_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Api::V1::SessionsController, type: :controller do
   describe 'POST #create' do
     # ...
@@ -136,23 +131,21 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
       end
       # ...
     end
-    # ...
+  # ...
+  end
 end
 ----
 
-__________________________________________________________________________________
-Remember that JSON:API specifications use dashes (`-`) instead of underscore (`_`)
-__________________________________________________________________________________
+NOTE: Remember that JSON:API specifications use dashes (`-`) instead of underscore (`_`)
 
 ==== Orders
 
 There are one specificity for orders controller: we also get linked user. So to do so we need to use the `:relationships`. Apart from that, the principle remains the same:
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
     # ...
@@ -223,8 +216,8 @@ end
 Again, that’s a lot of code, but in reality there’s very little change.
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
@@ -306,16 +299,16 @@ From the beginning, in order to serialize our models, we used _Active Model Seri
 Thehttps://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/general/adapters.md[documentation of _Active Model Serializer_] shows us a list of existing adapters. And, if you see where I’m going with this, there’s one ready for the JSON:API model! To set it up, simply activate the adapt it by creating the following file:
 
 [source,ruby]
+.config/initializers/activemodel_serializer.rb
 ----
-# config/initializers/activemodel_serializer.rb
 ActiveModelSerializers.config.adapter = :json_api
 ----
 
 Nous devons aussi indique le type de l’objet du serialiseur. _Active Model Serializer_ propose une méthode toute fate pour cela: `type`. L’implémentation est donc très facile:
 
 [source,ruby]
+.app/serializers/order_serializer.rb
 ----
-# app/serializers/order_serializer.rb
 class OrderSerializer < ActiveModel::Serializer
   type :order
   # ...
@@ -323,8 +316,8 @@ end
 ----
 
 [source,ruby]
+.app/serializers/product_serializer.rb
 ----
-# app/serializers/product_serializer.rb
 class ProductSerializer < ActiveModel::Serializer
   type :product
   # ...
@@ -332,8 +325,8 @@ end
 ----
 
 [source,ruby]
+.app/serializers/user_serializer.rb
 ----
-# app/serializers/user_serializer.rb
 class UserSerializer < ActiveModel::Serializer
   type :user
   # ...
@@ -370,10 +363,9 @@ Argh…. All our tests pass but we see that the user associated with the product
 So let’s update our test:
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
     # ...
@@ -406,8 +398,8 @@ end
 Here too, implementation is very easy. We just need to add the `ìinclude` otpion directly into the controller’s action.
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   #...
   def index
@@ -448,9 +440,7 @@ Then only tricky part in here is how are we suppose to handle the JSON output no
 
 If we read the format section we will reach a sub section called http://jsonapi.org/format/#document-structure-top-level[Top Level] and in very few words they mention something about pagination:
 
-________________________________________________________________
-``meta'': meta-information about a resource, such as pagination.
-________________________________________________________________
+> ``meta'': meta-information about a resource, such as pagination.
 
 It is not very descriptive but at least we have a hint on what to look next about the pagination implementation, but don’t worry that is exactly what we are going to do in here.
 
@@ -470,8 +460,8 @@ $ bundle add kaminari
 Now we can go to the `index` action on the `products_controller` and add the pagination methods as pointed on the documentation:
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   # ...
   def index
@@ -499,10 +489,9 @@ We need to provide the pagination information on the `meta` tag in the following
 Now that we have the final structure for the `meta` tag we just need to output it on the json response, let’s first add some specs:
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
   describe 'GET #index' do
@@ -552,8 +541,8 @@ Finished in 0.40801 seconds (files took 0.62979 seconds to load)
 The error is actually on the `Product.search` method. In fact, Kaminari is waiting for a registration relationship instead of a table. It’s very easy to repair:
 
 [source,ruby]
+.app/models/product.rb
 ----
-# app/models/product.rb
 class Product < ApplicationRecord
   # ...
   def self.search(params = {})
@@ -584,8 +573,8 @@ Finished in 0.41533 seconds (files took 0.5997 seconds to load)
 Now that we fixed that, let’s add the pagination information, we need to do it on the `products_controller.rb` file:
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   before_action :authenticate_with_token!, only: %i[create update destroy]
 
@@ -633,10 +622,9 @@ $ git commit -m "Adds pagination for the products index action to optimize respo
 Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first, let’s add some specs to the `orders_controller_spec.rb` file:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   describe 'GET #index' do
     before(:each) do
@@ -685,8 +673,8 @@ Finished in 0.66262 seconds (files took 2.74 seconds to load)
 Let’s turn the red into green:
 
 [source,ruby]
+.app/controllers/api/v1/orders_controller.rb
 ----
-# app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   before_action :authenticate_with_token!
 
@@ -752,8 +740,8 @@ $ mkdir spec/support/shared_examples
 And on the `pagination.rb` file you can just add the following lines:
 
 [source,ruby]
+.spec/support/shared_examples/pagination.rb
 ----
-# spec/support/shared_examples/pagination.rb
 shared_examples 'paginated list' do
   it 'Have a meta pagination tag' do
     expect(json_response).to have_key(:meta)
@@ -768,8 +756,8 @@ end
 This shared example can now be use as a substitude for the 5 tests on the `orders_controller_spec.rb` and `products_controller_spec.rb` files like so:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 # ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   describe 'GET #index' do
@@ -781,8 +769,8 @@ end
 ----
 
 [source,ruby]
+.spec/controllers/api/v1/products_controller_spec.rb
 ----
-# spec/controllers/api/v1/products_controller_spec.rb
 # ...
 RSpec.describe Api::V1::ProductsController, type: :controller do
   # ...
@@ -809,8 +797,8 @@ Finished in 0.96778 seconds (files took 1.59 seconds to load)
 Now that we made this simple refactor, we can jump into the pagination implementation for the controllers and clean things up. If you recall the index action for both the products and orders controller, they both have the same pagination format, so let’s move this logic into a method called `pagination` under the `application_controller.rb` file, this way we can access it on any controller which needs pagination in the future.
 
 [source,ruby]
+.app/controllers/application_controller.rb
 ----
-# app/controllers/application_controller.rb
 class ApplicationController < ActionController::API
   include Authenticable
 
@@ -830,8 +818,8 @@ end
 And now we can substitude the pagination hash on both controllers for the method, like so:
 
 [source,ruby]
+.app/controllers/api/v1/orders_controller.rb
 ----
-# app/controllers/api/v1/orders_controller.rb
 class Api::V1::OrdersController < ApplicationController
   # ...
   def index
@@ -846,8 +834,8 @@ end
 ----
 
 [source,ruby]
+.app/controllers/api/v1/products_controller.rb
 ----
-# app/controllers/api/v1/products_controller.rb
 class Api::V1::ProductsController < ApplicationController
   # ...
   def index
@@ -892,15 +880,13 @@ $ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/pr
 Total: 0,174111
 ----
 
-____________________________________________________________________________________________________________________________________
-The `-w` option allows us to retrieve the time of the request, `-o` redirects the response to a file and `-s` hides the cURL display
-____________________________________________________________________________________________________________________________________
+NOTE: The `-w` option allows us to retrieve the time of the request, `-o` redirects the response to a file and `-s` hides the cURL display
 
 By adding only one line to the `ProductSerializer` class, we will see a significant improvement in response time!
 
 [source,ruby]
+.app/serializers/product_serializer.rb
 ----
-# app/serializers/product_serializer.rb
 class ProductSerializer < ActiveModel::Serializer
   # ...
   cache key: 'product', expires_in: 3.hours
@@ -908,8 +894,8 @@ end
 ----
 
 [source,ruby]
+.app/serializers/order_serializer.rb
 ----
-# app/serializers/order_serializer.rb
 class OrderSerializer < ActiveModel::Serializer
   # ...
   cache key: 'order', expires_in: 3.hours
@@ -917,8 +903,8 @@ end
 ----
 
 [source,ruby]
+.app/serializers/user_serializer.rb
 ----
-# app/serializers/user_serializer.rb
 class UserSerializer < ActiveModel::Serializer
   # ...
   cache key: 'user', expires_in: 3.hours
