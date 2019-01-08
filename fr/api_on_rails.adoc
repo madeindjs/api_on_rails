@@ -1,0 +1,29 @@
+= API on Rails 5
+Alexandre Rousseau <contact@rousseau-alexandre.fr>
+v1.0, 2019-01-08
+:toc:
+:imagesdir: img
+:homepage: https://github.com/madeindjs/api_on_rails/
+:source-highlighter: rouge
+
+include::00_before.adoc[]
+
+<<<
+
+include::01_introduction.adoc[]
+
+<<<
+
+include::02_api.adoc[]
+
+<<<
+
+include::03_presenting_users.adoc[]
+
+<<<
+
+include::04_refactoring_tests.adoc[]
+
+<<<
+
+include::05_athentification.adoc[]
