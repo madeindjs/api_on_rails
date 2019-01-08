@@ -20,11 +20,17 @@ links-as-notes: true
 
 ## About the author
 
-"API on Rails 5" is an update of the superb book ["APIs on Rails: Building REST APIs with Rails"](http://apionrails.icalialabs.com/book/). This was initially published on 2014 by [Abraham Kuri](https://twitter.com/kurenn) on [MIT](http://opensource.org/licenses/MIT) et [Beerware](http://people.freebsd.org/~phk/) licenses.
+"API on Rails 5" is based on ["APIs on Rails: Building REST APIs with Rails"](http://apionrails.icalialabs.com/book/). It was initially published in 2014 by[Abraham Kuri](https://twitter.com/kurenn) under the licenses[MIT](http://opensource.org/licenses/MIT) and[Beerware](http://people.freebsd.org/~phk/).
+
+Since the original work was not maintained, I wanted to update this excellent work and contribute to the Francophone community by translating it myself. This update is also available in the Molière language.
 
 ## A propos de l’auteur original
 
-TODO
+[Abraham Kuri](https://twitter.com/kurenn) is a Rails developer with 5 years of experience (probably more now). His experience includes working as a freelancer in software product development and more recently in collaboration within the open source community. A graduate in computer science from ITESM, he founded two companies in Mexico ([Icalia Labs](http://icalialabs.com/) and [Codeando Mexico](http://codeandomexico.org/)).
+
+On my side, my name is [Alexandre Rousseau](http://rousseau-alexandre.fr) and I am a Rails developer with more than 4 years of experience (at the time of writing). I am currently a partner in a company ([iSignif](https://isignif.fr)) where I build and maintain a SAAS product using Rails. I also contribute to the Ruby community by producing and maintain some gems that you can consult on[my Rubygems.org profile](https://rubygems.org/profiles/madeindjs). Most of my projects are on Github so don't [hesitate to follow me](http://github.com/madeindjs/).
+
+All the source code of this book is available in[Markdown] format (https://fr.wikipedia.org/wiki/Markdown) on[Github][api_on_rails_git]. So don't hesitate to[forker] (https://github.com/madeindjs/api_on_rails/fork) the project if you want to improve it or fix a mistake that I didn't notice.
 
 ## Copyright and license
 
