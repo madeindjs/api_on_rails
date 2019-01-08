@@ -12,19 +12,17 @@ Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com
 $ git clone https://github.com/madeindjs/api_on_rails/
 $ cd api_on_rails
 $ bundle install
-$ rake build:pdf:fr
+$ rake build:pdf[fr]
 ~~~
 
 You can see all build available with `rake -T`
 
 ~~~bash
 $ rake -T
-rake build:epub3:en  # Build an english EPUB version
-rake build:epub3:fr  # Build a french EPUB version
-rake build:mobi:en   # Build an english EPUB version
-rake build:mobi:fr   # Build a french EPUB version
-rake build:pdf:en    # Build an english PDF version / Build an english HTML version
-rake build:pdf:fr    # Build a french PDF version / Build a french HTML version
+rake build:epub[lang]  # Build an EPUB version
+rake build:html[lang]  # Build an HTML version
+rake build:mobi[lang]  # Build a MOBI version
+rake build:pdf[lang]   # Build a PDF version
 ~~~
 
 ## License
