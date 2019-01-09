@@ -10,7 +10,7 @@ https://twitter.com/kurenn[Abraham Kuri] is a Rails developer with 5 years of ex
 
 On my side, my name is http://rousseau-alexandre.fr[Alexandre Rousseau] and I am a Rails developer with more than 4 years of experience (at the time of writing). I am currently a partner in a company (https://isignif.fr[iSignif]) where I build and maintain a SAAS product using Rails. I also contribute to the Ruby community by producing and maintain some gems that you can consult onhttps://rubygems.org/profiles/madeindjs[my Rubygems.org profile]. Most of my projects are on Github so don’t http://github.com/madeindjs/[hesitate to follow me].
 
-All the source code of this book is available in[Markdown] format (https://fr.wikipedia.org/wiki/Markdown) onhttps://github.com/madeindjs/api_on_rails[Github]. So don’t hesitate to[forker] (https://github.com/madeindjs/api_on_rails/fork) the project if you want to improve it or fix a mistake that I didn’t notice.
+All the source code of this book is available in https://asciidoctor.org/[Asciidoctor] format on https://github.com/madeindjs/api_on_rails[Github]. So don’t hesitate to https://github.com/madeindjs/api_on_rails/fork[forke] the project if you want to improve it or fix a mistake that I didn’t notice.
 
 == Copyright and license
 
