@@ -15,3 +15,5 @@ gem "concurrent-ruby", "~> 1.1"
 gem "rouge", "~> 3.3"
 
 gem "asciidoctor-epub3", "~> 1.5.alpha.8"
+
+gem "kindlegen", "~> 3.0"
