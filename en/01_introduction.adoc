@@ -2,7 +2,7 @@
 
 Welcome to https://github.com/madeindjs/api_on_rails[APIs on Rails] a tutorial on steroids on how to build your next API with Rails. The goal of this book is to provide an answer on how to develop a RESTful API following the best practices out there, along with my own experience. By the time you are done with _API’s on Rails_ you should be able to build your own `API` and integrate it with any clients such as a web browser or your next mobile app. The code generated is built on top of Rails 4 which is the current version, for more information about this check out http://rubyonrails.org/. The most up-to-date version of the _API’s on Rails_ can be found on https://github.com/madeindjs/api_on_rails[APIs on Rails]; don’t forget to update your offline version if that is the case.
 
-The intention with this book it’s not teach just how to build an API with Rails rather to teach you how to build scalable and maintainable API with Rails, which means taking your current Rails knowledge to the next level when on this approach. In this journey we are going to take, you will learn to:
+The intention with this book it’s not only to teach you how to build an API with Rails. The purpose is also to teach you how to build scalable and maintainable API with Rails which means improve your current Rails knowledge. In this journey we are going to take, you will learn to:
 
 * Build JSON responses
 * Use Git for version controlling

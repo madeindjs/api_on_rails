@@ -11,7 +11,7 @@ v1.0, 2019-01-08
 :keywords: Rails, API, Ruby, Software
 :lang: en
 :author: Alexandre Rousseau
-:description:
+:description: Learn best practice to build an API using Ruby on Rails 5
 :front-cover-image: image:cover.svg[]
 :revdate: 2019-01-09
 
