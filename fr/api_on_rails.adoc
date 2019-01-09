@@ -1,11 +1,19 @@
 = API on Rails 5
 Alexandre Rousseau <contact@rousseau-alexandre.fr>
-v1.0, 2019-01-08
+v1.0, 2019-01-09
 :toc:
-:imagesdir: img
+:imagesdir: ../img
 :title-logo-image: image:logo.svg[]
 :homepage: https://github.com/madeindjs/api_on_rails/
 :source-highlighter: rouge
+// epub tags
+:copyright: CC-BY-SA 4.0, MIT
+:keywords: Rails, API, Ruby, Software
+:lang: fr
+:author: Alexandre Rousseau
+:description:
+:front-cover-image: image:cover.svg[]
+:revdate: 2019-01-09
 
 include::./00_before.adoc[]
 

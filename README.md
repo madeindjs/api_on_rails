@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="logo.svg" alt="Api on Rails 5" />
+  <img src="img/logo.svg" alt="Api on Rails 5" />
 </h1>
 
 <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
