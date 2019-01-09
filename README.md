@@ -18,7 +18,7 @@ Update & translation of the [API on Rails (EN)](http://apionrails.icalialabs.com
 As you may know this project take me some times. So if you want to support me you can buy a version on Leanpub:
 
 - [English version](https://leanpub.com/apionrails5/)
-- [French version](https://leanpub.com/apionrails5/)
+- [French version](https://leanpub.com/apionrails5-fr)
 
 Or you can support me with Liberapay: <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
