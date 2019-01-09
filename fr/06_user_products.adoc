@@ -1,6 +1,6 @@
 == Produits des utilisateurs
 
-Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application. Pour l’instant, nous avons une implémentation très simple du modèle `User`, mais le moment de vérité est venu où nous allons personnaliser la sortie JSON et ajouter une deuxième ressource : les produits utilisateurs. Ce sont les éléments que l’utilisateur vendra dans l’application, et par conséquent sera directement associé. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de _Active Record_.
+Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application. Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu où nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits utilisateurs. Ce sont les éléments que l’utilisateur vendra dans l’application, et par conséquent sera directement associé. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de _Active Record_.
 
 Dans ce chapitre, nous allons construire le modèle de `Product` à partir de zéro, l’associer à l’utilisateur et créer les entrées nécessaires pour que tout client puisse accéder aux informations.
 
@@ -557,7 +557,7 @@ Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez, les tests sont 
 post :create, params: { user_id: user.id, product: @product_attributes }
 ----
 
-De cette façon, nous pouvons voir l’utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux, si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d’autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l’utilisateur à partir de l’en-tête `Authorization` et lui avons assigné une méthode `current_user`. C’est donc assez facile à mettre en place en ajoutant simplement l’en-tête d’autorisation dans la requête et en récupérant l’utilisateur à partir de celui-ci. Alors faisons-le:
+De cette façon, nous pouvons voir l’utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux. Si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d’autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l’utilisateur à partir de l’en-tête `Authorization` et lui avons assigné une méthode `current_user`. C’est donc assez facile à mettre en place en ajoutant simplement l’en-tête d’autorisation dans la requête et en récupérant l’utilisateur à partir de celui-ci. Alors faisons-le:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -586,25 +586,22 @@ Comme vous pouvez le voir, nous protégeons l’action de création avec la mét
 
 A ce stade, vous vous demandez peut-être s’il est vraiment nécessaire d’imbriquer l’action? Parce qu’en fait, nous n’utilisons pas vraiment le paramètre `user_id` fournis de l’URL. Vous avez tout à fait raison, mon seul argument ici est qu’avec cette approche, la route est beaucoup plus descriptive de l’extérieur, car nous disons aux développeurs que pour créer un produit, il nous faut un utilisateur.
 
-Alors c’est vraiment à vous de décider comment vous voulez organiser vos routes et les exposer au monde. Ma façon n’est pas la seule et cela ne signifie pas non plus que c’est la bonne. En fait, je vous encourage à jouer avec différentes approches et choisir celle que vous trouvez le mieux.
+Alors c’est vraiment à vous de décider comment vous voulez organiser vos routes et les exposer au monde. Ma façon n’est pas la seule et cela ne signifie pas non plus que c’est la meilleure. En fait, je vous encourage à jouer avec différentes approches et choisir celle que vous trouvez le mieux.
 
 Une dernière chose avant de faire vos tests: la route nécessaire:
 
 [source,ruby]
 .config/routes.rb
 ----
-require 'api_constraints'
-
+# ...
 Rails.application.routes.draw do
-  devise_for :users
-  # Api definition
+  # ...
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: %i[show create update destroy] do
         resources :products, only: [:create]
       end
-      resources :sessions, only: %i[create destroy]
-      resources :products, only: %i[show index]
+      # ...
     end
   end
 end
@@ -631,15 +628,13 @@ Nous ajoutons d’abord l’action aux routes pour ne pas oublier plus tard:
 ----
 # ...
 Rails.application.routes.draw do
-  devise_for :users
-  # Api definition
+  # ...
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: %i[show create update destroy] do
         resources :products, only: %i[create update]
       end
-      resources :sessions, only: %i[create destroy]
-      resources :products, only: %i[show index]
+      # ...
     end
   end
 end

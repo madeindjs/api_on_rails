@@ -181,7 +181,7 @@ end
 
 C’est maintenant à votre tour de mettre à jour l’ensemble du fichier!
 
-Si vous essayez maintenant d’exécuter vos tests avec `bundle exec rspec spec/controllers` vous allez avoir une erreur. C’est normal. La méthode `json_response` n’est pas chargée dans le fichier `rails_helper.rb`. Il faut donc modifier un peu notre `rails_helper` qui s’occupe de configurer nos tests:
+Si vous essayez maintenant d’exécuter vos tests avec `rspec spec/controllers` vous allez avoir une erreur. C’est normal. La méthode `json_response` n’est pas chargée dans le fichier `rails_helper.rb`. Il faut donc modifier un peu notre `rails_helper` qui s’occupe de configurer nos tests:
 
 [source,ruby]
 .spec/rails_helper.rb
@@ -235,7 +235,7 @@ Et encore une fois,nous lançons nos tests pour voir si tout est bon:
 
 [source,bash]
 ----
-$ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
+$ rspec spec/controllers/api/v1/users_controller_spec.rb
 .............
 
 Finished in 1.44 seconds (files took 0.4734 seconds to load)

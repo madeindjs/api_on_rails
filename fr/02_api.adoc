@@ -27,13 +27,13 @@ Nous n’allons pas construire d’interface pour l’interaction avec l’API a
 
 > D’accord, mais j’ai besoin d’explorer et de visualiser l’API que je vais construire, non?
 
-C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable.
+C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outils en ligne de commande disponnible presque partout.
 
 === Mettre en place l’API
 
-Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme une interface de programmation d’application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d’autres logiciels. En d’autres termes, il s’agit d’une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)footnote:[Il existe d’autres types de protocoles de communication comme SOAP, mais nous n’en parlons pas ici.].
+Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme _une interface de programmation d’application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d’autres logiciels_. En d’autres termes, il s’agit d’une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)footnote:[Il existe d’autres types de protocoles de communication comme SOAP, mais nous n’en parlons pas ici.].
 
-JSON est devenu incontournable en tant que média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l’utilisent comme protocole par défaut comme https://angularjs.org/[Angular] ou http://emberjs.com/[EmberJS]. D’autres grandes bibliothèques en Objective-C l’utilisent comme https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Il existe probablement de bonnes solutions pour Android, mais en raison de mon manque d’expérience sur cette plate-forme de développement je ne suis peut-être pas la bonne personne pour vous recommander quelque chose.
+JSON est devenu incontournable en tant que média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l’utilisent comme protocole par défaut comme https://angularjs.org/[Angular] ou http://emberjs.com/[EmberJS]. D’autres grandes bibliothèques en Objective-C l’utilisent comme https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Il existe probablement de bonnes solutions pour Android mais en raison de mon manque d’expérience sur cette plate-forme de développement je ne peux pas vous recommander quelque chose.
 
 Nous allons donc l’utiliser pour construire notre API. La première chose qui pourrait vous venir à l’esprit serait de commencer à créer des routes en vrac. Le problème est qu’elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner quelle ressource est renvoyée par une route.
 
@@ -119,6 +119,8 @@ end
 
 En définissant un _Namespace_ dans le fichier `routes.rb`, Rails mappera automatiquement ce _Namespace_ à un répertoire correspondant au nom sous le dossier contrôleur (dans notre cas le répertoire `api/`).
 
+.Les types de media supportés par Rails
+****
 Rails supporte jusqu’à 35 types de médias différents! Vous pouvez les lister en accédant à la classe `SET` sous le module de `Mime`:
 
 [source,bash]
@@ -128,6 +130,7 @@ Loading development environment (Rails 5.2.1)
 irb(main):001:0> Mime::SET.collect(&:to_s)
 => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip", "application/vnd.web-console.v2"]
 ----
+****
 
 C’est important parce que nous allons travailler avec JSON, l’un des types MIME intégrés par Rails. Ainsi nous avons juste besoin de spécifier ce format comme format par défaut:
 
@@ -155,7 +158,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Vous voyez la différence? Nous n’avons pas seulement ajouté un [`Hash`][ruby_hash] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l’option chemin d’accès et lui avons donné un _backslash_. Cela indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
+Vous voyez la différence? Nous n’avons pas seulement ajouté un https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l’option chemin d’accès et lui avons donné un _backslash_. Cela indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
 
 ==== Les conventions des API
 
@@ -203,7 +206,6 @@ De cette façon, nous pouvons très facilement définir la portée de notre API 
 .config/routes.rb
 ----
 Rails.application.routes.draw do
-  # Api definition
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
     scope module: :v1 do
       # We are going to list our resources here
@@ -279,9 +281,7 @@ module MarketPlaceApi
       g.javascripts = false
       g.helper = false
     end
-
     config.autoload_paths += %W(\#{config.root}/lib)
-
     # Don't generate system test files.
     config.generators.system_tests = nil
   end

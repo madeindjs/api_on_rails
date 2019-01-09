@@ -1,6 +1,6 @@
 == Création des commandes
 
-Dans les chapitres précédents nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir __scaler__footnote:[_Scaler_ signifie mettre son application à l’échelle afin de pouvoir répondre à une forte demande.] rapidement et facilement. Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre les trois modèles. Nous devons être assez malin pour gérer la sortie JSON que nous fournissons.
+Dans les chapitres précédents nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir _scaler_ footnote:[_Scale_ signifie mettre son application à l’échelle afin de pouvoir répondre à une forte demande.] rapidement et facilement. Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre les trois modèles. Nous devons être assez malin pour gérer la sortie JSON que nous fournissons.
 
 Dans ce chapitre, nous allons faire plusieurs choses:
 
@@ -52,11 +52,9 @@ RSpec.describe Order, type: :model do
 
   it { should respond_to(:total) }
   it { should respond_to(:user_id) }
-
   it { should validate_presence_of :user_id }
   it { should validate_presence_of :total }
   it { should validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
-
   it { should belong_to :user }
 end
 ----
@@ -162,10 +160,8 @@ Enfin, et ce n’est pas le moins important, les tests de placement:
 RSpec.describe Placement, type: :model do
   let(:placement) { FactoryBot.build :placement }
   subject { placement }
-
   it { should respond_to :order_id }
   it { should respond_to :product_id }
-
   it { should belong_to :order }
   it { should belong_to :product }
 end
@@ -269,9 +265,11 @@ Commençons par l’action `index`. Nous devons d’abord créer le contrôleur 
 $ rails g controller api/v1/orders
 ----
 
-Jusqu’ici, et avant de commencer à taper du code, nous devons nous demander, ``Est-ce que je dois laisser les routes de ma commande imbriqués dans le `UsersController` ou bien je dois les isoler?''. La réponse est vraiment simple. Je dirais que cela dépend de la quantité d’informations dans ce cas en particulier que vous voulez exposer au développeur Pas du point de vue de la sortie JSON mais au niveau de l’URI.
+Jusqu’ici, et avant de commencer à taper du code, nous devons nous demander:
 
-Dans notre cas, je vais emboîter les routes, parce que j’aime donner ce type d’information aux développeurs. Je pense que cela donne plus de contexte à la requête elle-même. Commençons par quelques tests:
+> Est-ce que je dois laisser les routes de ma commande imbriqués dans le `UsersController` ou bien je dois les isoler?
+
+La réponse est vraiment simple: cela dépend de la quantité d’informations que vous voulez exposer au développeur . Dans notre cas, je vais emboîter les routes, parce que j’aime donner ce type d’information aux développeurs. Je pense que cela donne plus de contexte à la requête elle-même. Commençons par quelques tests:
 
 [source,ruby]
 .spec/controllers/api/v1/orders_controller_spec.rb
@@ -593,10 +591,9 @@ Finished in 0.06807 seconds (files took 0.66165 seconds to load)
 C’est maintenant le moment de voir le fichier `orders_controller_spec.rb` et de factoriser du code. Actuellement, nous avons quelque chose comme:
 
 [source,ruby]
+.spec/controllers/api/v1/orders_controller_spec.rb
 ----
-# spec/controllers/api/v1/orders_controller_spec.rb
 # ...
-
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
   describe 'POST #create' do
@@ -849,7 +846,6 @@ require 'spec_helper'
 require 'email_spec'
 require 'email_spec/rspec'
 require 'rspec/rails'
-
 # ...
 ----
 
@@ -858,8 +854,7 @@ Maintenant, nous pouvons ajouter quelques tests pour les mails de commandes que 
 [source,ruby]
 .spec/mailers/order_mailer_spec.rb
 ----
-require 'rails_helper'
-
+# ...
 RSpec.describe OrderMailer, type: :mailer do
   include Rails.application.routes.url_helpers
 

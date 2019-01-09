@@ -225,7 +225,6 @@ Cela peut nécessiter une configuration supplémentaire sur le terminal de l’u
             "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
           }
       }
-
    ]
 }
 ----
@@ -256,7 +255,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-L’implémentation est très simple, il suffit d’ajouter une ligne au sérialiseur du produit:
+L’implémentation est très simple: il suffit d’ajouter une ligne au sérialiseur du produit:
 
 [source,ruby]
 .app/serializers/product_serializer.rb
@@ -269,7 +268,7 @@ end
 
 Maintenant, tous les tests devraient passer:
 
-[source,ruby]
+[source,bash]
 ----
 $ rspec spec
 ............................................................
@@ -293,7 +292,6 @@ Tout d’abord, nous nous assurons que le `product_ids` qu’il fait partie de l
 RSpec.describe Api::V1::UsersController, type: :controller do
   describe 'GET #show' do
     # ...
-
     it 'has the product ids as an embeded object' do
       expect(json_response[:product_ids]).to eql []
     end
@@ -412,7 +410,7 @@ $ git commit -am "Embeds the products_ids into the user serialiser and fetches t
 
 === Rechercher les produits
 
-Dans cette dernière section, nous continuerons à renforcer l’action d’`Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n’importe quel client de filtrer les résultats. Cette section est facultative car elle n’aura aucun impact sur les modules de l’application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
+Dans cette dernière section, nous continuerons à renforcer l’action `Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n’importe quel client de filtrer les résultats. Cette section est facultative car elle n’aura aucun impact sur les modules de l’application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
 
 J’utilise https://github.com/activerecord-hackery/ransack[Ransack] pour construire des formulaires de recherche avancée extrêmement rapidement. Mais ici, comme le but est dapprendre et que la recherche que nous allons effectuer est très simple, je pense que nous pouvons construire un moteur de recherche à partir de zéro. Nous devons simplement considérer les critères par lesquels nous allons filtrer les attributs. Accrochez-vous bien à vos sièges, ça va être un voyage difficile.
 

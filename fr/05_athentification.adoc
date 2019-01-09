@@ -162,7 +162,7 @@ Failures:
      # ./spec/models/user_spec.rb:29:in `block (3 levels) in <top (required)>'
 ....
 
-C’est normal, la méthode `generate_authentification_token` n’existe pas encore. Nous allons l’implémenter et l’accrocher à l’appel `before_create` pour garantir que chaque utilisateur a un jeton d’authentification. Il y a beaucoup de solutions pour créer le jeton. Je vais utiliser la méthode `friendly_token` qui conçoit déjà des jetons mais je pourrais aussi le faire avec la méthode `hex` de la classe https://ruby-doc.org/stdlib-2.5.3/libdoc/securerandom/rdoc/SecureRandom.html[`SecureRandom`].
+C’est normal: la méthode `generate_authentification_token` n’existe pas encore. Nous allons l’implémenter et l’accrocher à l’appel `before_create` pour garantir que chaque utilisateur a un jeton d’authentification. Il y a beaucoup de solutions pour créer le jeton. Je vais utiliser la méthode `friendly_token` qui conçoit déjà des jetons mais je pourrais aussi le faire avec la méthode `hex` de la classe https://ruby-doc.org/stdlib-2.5.3/libdoc/securerandom/rdoc/SecureRandom.html[`SecureRandom`].
 
 Le code pour générer le jeton est assez simple:
 
@@ -468,7 +468,7 @@ Maintenant notre test devrait passer:
 
 [source,bash]
 ----
-$ bundle exec rspec spec/controllers/concerns/authenticable_spec.rb
+$ rspec spec/controllers/concerns/authenticable_spec.rb
 .
 
 Finished in 0.0149 seconds (files took 0.49496 seconds to load)
@@ -481,10 +481,7 @@ Nous n’avons plus qu’à inclure le module `Authenticable` dans la classe `Ap
 .app/controllers/application_controller.rb
 ----
 class ApplicationController < ActionController::API
-  # Prevent CSRF attacks by raising an exception.
-  # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :null_session
-
+  # ...
   include Authenticable
 end
 ----
@@ -596,7 +593,6 @@ Failures:
 
      NoMethodError:
        undefined method 'update' for nil:NilClass
-
    ...
 ....
 

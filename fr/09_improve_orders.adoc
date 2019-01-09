@@ -23,7 +23,7 @@ $ git checkout -b chapter9
 
 === Diminution de la quantité de produit
 
-Dans cette partie nous travaillerons sur la mise à jour de la quantité du produit pour nous assurer que chaque commande livrera le produit réel. Actuellement, le modèle de produit n’a pas d’attribut de quantité, alors faisons-le:
+Dans cette partie nous travaillerons sur la mise à jour de la quantité du produit pour nous assurer que chaque commande livrera le produit réel. Actuellement, le modèle de produit n’a pas d’attribut de quantité. Alors faisons-le:
 
 [source,bash]
 ----
@@ -112,7 +112,7 @@ end
 
 Et maintenant, si nous lançons les tests, ils devraient passer:
 
-[source,ruby]
+[source,bash]
 ----
 $ rspec spec/models/order_spec.rb
 ........
@@ -248,7 +248,7 @@ class Order < ApplicationRecord
   # ...
   def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
     product_ids_and_quantities.each do |product_id_and_quantity|
-      product_id, quantity = product_id_and_quantity # [1,5]
+      product_id, quantity = product_id_and_quantity
       placements.build(product_id: product_id, quantity: quantity)
     end
   end
@@ -328,7 +328,7 @@ end
 
 === Validation du stock des produits
 
-Depuis le début du chapitre, nous avons ajouté l’attribut `quantity` au modèle de produit. il est maintenant temps de valider que la quantité de produit est suffisante pour que la commande soit passée. Afin de rendre les choses plus intéressantes, nous allons le faire à l’aide d’un validateur personnalisé[^19]. Pour les validateurs personnalisés, vous pouvez consulter la https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation].
+Depuis le début du chapitre, nous avons ajouté l’attribut `quantity` au modèle de produit. il est maintenant temps de valider que la quantité de produit est suffisante pour que la commande soit passée. Afin de rendre les choses plus intéressantes, nous allons le faire à l’aide d’un validateur personnalisé footnote:[Pour les validateurs personnalisés, vous pouvez consulter la https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation]].
 
 Tout d’abord, nous devons créer un répertoire de `validators` dans le répertoire `app` (Rails le charge par défaut) et ensuite créons un fichier dedans:
 
@@ -439,8 +439,7 @@ Maintenant, au lieu de calculer le total en additionnant simplement les prix des
 [source,ruby]
 .spec/models/order_spec.rb
 ----
-require 'rails_helper'
-
+# ...
 RSpec.describe Order, type: :model do
   # ...
   describe '#set_total!' do

@@ -16,17 +16,13 @@ Dans ce premier chapitre, je vous expliquerai comment configurer votre environne
 
 Dans les prochains chapitres, nous allons construire l’application en suivant une méthode de travail simple que j’utilise quotidiennement. Nous développerons toute l’application en utilisant le *développement piloté par les tests* (TDD). Je vous expliquerai aussi l’intérêt d’utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l’application en construisant toutes les routes nécessaires. Nous sécuriserons aussi l’accès à l’API en construisant une authentification par échange d’en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d’optimisation pour améliorer la structure et les temps de réponse du serveur.
 
-L’application finale sera une fonction pour une application de place de marché où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme http://shopify.com/[Shopify], http://spreecommerce.com/[Spree] ou http://magento.com/[Magento].
+L’application finale sera une application de place de marché footnote:[Une application de type de marché permet à des vendeurs de mettre en place leur propore boutique en ligne.] où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme http://shopify.com/[Shopify], http://spreecommerce.com/[Spree] ou http://magento.com/[Magento].
 
-Tout au long de ce voyage (cela dépend vraiment de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J’ai aussi pris certaines des pratiques que j’ai trouvées sur ces sites:
-
-* http://railscasts.com/[Railscasts]
-* http://codeschool.com/[CodeSchool]
-* http://jsonapi.org/format/[JSON API]
+Tout au long de ce voyage (cela dépend de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J’ai aussi pris certaines des pratiques que j’ai trouvées sur http://railscasts.com/[Railscasts], http://codeschool.com/[CodeSchool] et http://jsonapi.org/format/[JSON API].
 
 === Conventions sur ce livre
 
-Les conventions de ce livre sont basées sur celles du Tutoriel Ruby on Rails. Dans cette section, je vais en mentionner quelques-unes que vous ne connaissez peut-être pas.
+Les conventions de ce livre sont basées sur celles du https://www.railstutorial.org/book[Tutoriel Ruby on Rails]. Dans cette section, je vais en mentionner quelques-unes que vous ne connaissez peut-être pas.
 
 Je vais utiliser de nombreux exemples en utilisant des ligne de commande. Je ne vais pas traiter avec Windows `cmd` (désolé les gars). Je vais baser tous les exemples en utilisant l’invite de ligne de commande de style Unix. Voici un exemple:
 
@@ -46,11 +42,11 @@ Si vous rencontrez une erreur quelconque lors de l’exécution d’une commande
 
 === Environnements de développement
 
-Pour presque tous les développeurs, l’une des parties les plus douloureuses est de mettre en place un environnement de développement confortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d’enfant. Afin de vous faciliter la tâche et de vous motiver, je vais vous guider dans cette étape.
+Pour presque tous les développeurs, l’une des parties les plus douloureuses est de mettre en place un environnement de développement confortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d’enfant. Je vais vous guider dans cette étape afin de vous faciliter la tâche et de vous motiver.
 
 ==== Éditeurs de texte et Terminal
 
-Les environnements de développement diffèrent d’un ordinateur à l’autre. Ce n’est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant, certains pensent que c’est la meilleure façon de travailler. Si c’est votre cas, je vous recommande d’essayer http://www.aptana.com/products/radrails[RadRails] ou http://www.jetbrains.com/ruby/index.html[RubyMine]. Tous deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux qui comme moi préfèrent des outils simples, je peux vous dire qu’il y a beaucoup d’outils disponibles que vous pourrez personnaliser via des plugins et plus.
+Les environnements de développement diffèrent d’un ordinateur à l’autre. Ce n’est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant certains pensent que c’est la meilleure façon de travailler. Si c’est votre cas, je vous recommande d’essayer http://www.aptana.com/products/radrails[RadRails] ou http://www.jetbrains.com/ruby/index.html[RubyMine]. Tous deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux qui, comme moi, préfèrent des outils simples, je peux vous dire qu’il existe beaucoup d’outils disponibles que vous pourrez personnaliser via des plugins et plus.
 
 * *Éditeur de texte*: J’utilise personnellement http://www.vim.org/[Vim] comme éditeur. Au cas où vous n’êtes pas un fan de Vim, il y a beaucoup d’autres solutions comme http://www.sublimetext.com/[Sublime Text] qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par http://macromates.com/[TextMate]. Une troisième option est d’utiliser un éditeur de texte plus récent comme https://atom.io/[Atom] de http://gitub.com/[Github]. C’est un éditeur de texte prometteur fait en JavaScript. Il est facile à personnaliser pour répondre à vos besoins. N’importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui où vous êtes le plus à l’aise.
 * *Terminal*: Je ne suis pas un fan de l’application Terminal par défaut sous Mac OS. Je recommande http://www.iterm2.com/#/section/home[iTerm2], qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
@@ -86,7 +82,7 @@ Il existe de nombreuses façons d’installer et de gérer Ruby. Vous devriez pr
 $ ruby -v
 ----
 
-Rails 5 nécessite l’installation de la version 2.2.2 ou supérieure. Pour l’installer, je vous recommande d’utiliser http://rvm.io/[Ruby Version Manager (RVM)] ou http://rbenv.org/[rbenv]. Ces outils vous permettront d’installer plusieurs versions de `ruby`. Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
+Rails 5.2 nécessite l’installation de la version 2.2.2 ou supérieure. Pour l’installer, je vous recommande d’utiliser http://rvm.io/[Ruby Version Manager (RVM)] ou http://rbenv.org/[rbenv]. Ces outils vous permettront d’installer plusieurs versions de `ruby`. Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
 
 Pour installer RVM, rendez vous sur https://rvm.io/ et installez la clé GPG footnote:[La clé GPG vous permet de vérifier l’identité de l’auteur des sources que vous téléchargez.]. Une fois cela fait:
 
@@ -163,7 +159,7 @@ Sachez que nous utiliserons http://rspec.info/[Rspec] comme suite de test. Assur
 
 NOTE: L’option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et _Middleware_ inclus dans l’application. Cela permet aussi d’éviter de générer les vues HTML lors de l’utilisation des générateurs de Rails.
 
-La commande est donc la suivante
+La commande est donc la suivante:
 
 [source,bash]
 ----
@@ -176,15 +172,15 @@ Comme vous pouvez le deviner, les commandes ci-dessus généreront les élément
 
 ==== Installer Pow ou Prax
 
-Vous pouvez vous demander.
+Vous pouvez vous demander:
 
 > Pourquoi diable voudrais-je installer ce type de paquet?
 
-La réponse est simple. Nous allons travailler avec des http://en.wikipedia.org/wiki/Subdomain[sous-domaines]. http://pow.cx/[Pow] et https://github.com/ysbaddaden/prax.cr[Prax] vont nous aider a les créer très facilement.
+La réponse est simple: parce que nous allons travailler avec des http://en.wikipedia.org/wiki/Subdomain[sous-domaines]. http://pow.cx/[Pow] et https://github.com/ysbaddaden/prax.cr[Prax] vont nous aider a les créer très facilement.
 
 ===== Installer Pow
 
-Pow ne fonctionne que sous Mac OS. Ne vous inquiétez pas, il existe une alternative qui imite les fonctionnalités sous Linux. Pour l’installer, tapez simplement:
+Pow ne fonctionne que sous Mac OS. Mais ne vous inquiétez pas: il existe une alternative qui imite les fonctionnalités sous Linux. Pour l’installer, tapez simplement:
 
 [source,bash]
 ----
@@ -232,7 +228,7 @@ Si vous voulez démarrer le Prax automatiquement, ajoutez cette ligne au fichier
 prax start
 ....
 
-Lors de l’utilisation de https://github.com/ysbaddaden/prax.cr[Prax], vous devez spécifier le port de l’URL, dans ce cas-ci: http://market_place_api.dev:3000: Vous devriez voir l’application en marche comme le montre l’image suivante.
+Lors de l’utilisation de https://github.com/ysbaddaden/prax.cr[Prax] vous devez spécifier le port de l’URL, dans ce cas-ci: http://market_place_api.dev:3000. Vous devriez ainsi voir l’application en marche comme le montre l’image suivante.
 
 image:pow_running.png[L’application tourne sur l’URL market_place_api.dev/]
 
