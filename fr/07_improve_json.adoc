@@ -2,7 +2,7 @@
 
 Dans le chapitre précédent, nous avons ajouté les produits à l’application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
 
-Maintenant, vous devriez être satisfait de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n’est pas parfaite. La sortie JSON ressemble à celle-ci:
+Maintenant, vous devriez être satisfaits de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n’est pas parfaite. La sortie JSON ressemble à celle-ci:
 
 [source,json]
 ----
@@ -64,7 +64,7 @@ Ajoutez la ligne suivante à votre `Gemfile`:
 gem 'active_model_serializers', '~> 0.10.8'
 ----
 
-Exécutez la commande d’installation du paquet pour installer la gemme… et c’est tout! Vous devriez être prêt à continuer avec ce tutoriel.
+Exécutez la commande d’installation du paquet pour installer la gemme… et c’est tout! Vous devriez être prêts à continuer avec ce tutoriel.
 
 === Sérialiser l’utilisateur
 
@@ -129,7 +129,7 @@ Nous pouvons également tester les objets du sérialiseur, comme indiqué dans l
 
 === Sérialiser les produits
 
-Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape et comme pour l’utilisateur, nous avons besoin d’un sérialiseur de produit, alors faisons-le:
+Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape est identique à celle pour l’utilisateur, nous avons besoin d’un sérialiseur de produit, alors faisons-le:
 
 [source,bash]
 ----
@@ -161,7 +161,7 @@ $ git commit -a "Adds product serializer for custom json output"
 
 Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c’est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne.
 
-Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre. Ici, je vais expliquer ce que j’ai trouvé et ce fonctionne pour moi. Ce n’est pas la seule manière de faire, je vous laisse juger si elle vous convient. Dans cette section, nous allons étendre notre API pour gérer l’association produit/utilisateur. Je vais aussi vous expliquer certaines des erreurs courantes dans lesquels vous pouvez tomber.
+Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre. Ici, je vais expliquer ce que j’ai trouvé et ce qui fonctionne pour moi. Ce n’est pas la seule manière de faire, je vous laisse juger si elle vous convient. Dans cette section, nous allons étendre notre API pour gérer l’association produit/utilisateur. Je vais aussi vous expliquer certaines des erreurs courantes dans lesquels vous pouvez tomber.
 
 Pour résumer, nous avons une association de type `has_many` entre l’utilisateur et le modèle de produit.
 
@@ -183,7 +183,7 @@ class Product < ApplicationRecord
 end
 ----
 
-C’est une bonne idée d’intégrer des modèles dans d’autres modèles dans d’autres modèle car cela évite au client de l’API d’exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d’étranglement.
+C’est une bonne idée d’intégrer des modèles dans d’autres modèles dans d’autres modèles car cela évite au client de l’API d’exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d’étranglement.
 
 === Cas d’utilisation d’un objet incorporé dans une association
 
@@ -283,7 +283,7 @@ Maintenant, vous vous demandez peut-être si vous devriez intégrer les produits
 
 Mais ne vous inquiétez pas, tout n’est pas perdu, nous pouvons facilement résoudre ce problème en intégrant seulement les identifiants des produits dans l’utilisateur. Cela donnera à votre API une meilleure performance et cela évitera de charger des données supplémentaires. Dans cette section, nous allons donc étendre notre route de l’index des produits pour traiter un paramètre `product_ids` et formater la sortie JSON en conséquence.
 
-Tout d’abord, nous nous assurons que le `product_ids` qu’il fait partie de l’objet sérialisé de l’utilisateur:
+Tout d’abord, nous nous assurons que le `product_ids` fait partie de l’objet sérialisé de l’utilisateur:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -374,7 +374,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-Comme vous pouvez le voir, nous venons d’envelopper l’action index dans deux contextes séparés: l’un qui recevra les `product_ids` et l’autre l’ancien que nous avions écris. Ajoutons le code nécessaire pour faire passer les tests:
+Comme vous pouvez le voir, nous venons d’envelopper l’action index dans deux contextes séparés: l’un qui recevra les `product_ids` et l’autre l’ancien que nous avions écrit. Ajoutons le code nécessaire pour faire passer les tests:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -412,7 +412,7 @@ $ git commit -am "Embeds the products_ids into the user serialiser and fetches t
 
 Dans cette dernière section, nous continuerons à renforcer l’action `Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n’importe quel client de filtrer les résultats. Cette section est facultative car elle n’aura aucun impact sur les modules de l’application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
 
-J’utilise https://github.com/activerecord-hackery/ransack[Ransack] pour construire des formulaires de recherche avancée extrêmement rapidement. Mais ici, comme le but est dapprendre et que la recherche que nous allons effectuer est très simple, je pense que nous pouvons construire un moteur de recherche à partir de zéro. Nous devons simplement considérer les critères par lesquels nous allons filtrer les attributs. Accrochez-vous bien à vos sièges, ça va être un voyage difficile.
+J’utilise https://github.com/activerecord-hackery/ransack[Ransack] pour construire des formulaires de recherche avancée extrêmement rapidement. Mais ici, comme le but est d'apprendre et que la recherche que nous allons effectuer est très simple, je pense que nous pouvons construire un moteur de recherche à partir de zéro. Nous devons simplement considérer les critères par lesquels nous allons filtrer les attributs. Accrochez-vous bien à vos sièges, ça va être un voyage difficile.
 
 Nous filtrerons donc les produits selon les critères suivants:
 
@@ -424,7 +424,7 @@ Cela peut sembler court et facile, mais croyez-moi, cela vous donnera mal à la 
 
 ==== Le mot-clé by
 
-Nous allons créer un _scope_ pour trouver les enregistrements qui correspondent à un motif particulier de caractères. Appelons-le `filter_by_title`. Ajoutons d’abord quelques tests:
+Nous allons créer un _scope_ pour trouver les enregistrements qui correspondent à un motif particulier de caractère. Appelons-le `filter_by_title`. Ajoutons d’abord quelques tests:
 
 [source,ruby]
 .spec/models/product_spec.rb
@@ -575,7 +575,7 @@ Finished in 0.18008 seconds (files took 0.6544 seconds to load)
 13 examples, 0 failures
 ----
 
-Comme vous pouvez le voir, nous n’avons pas eu beaucoup de problèmes. Ajoutons simplement une autre _scope_ pour trier les enregistrements par date de dernière mise à jour. Dans le cas où le propriétaire des produits décide de mettre à jour certaines données, il veut toujours les trier par enregistrements les plus récents.
+Comme vous pouvez le voir, nous n’avons pas eu beaucoup de problèmes. Ajoutons simplement une autre _scope_ pour trier les enregistrements par date de dernière mise à jour. Dans le cas où le propriétaire des produits décide de mettre à jour certaines données il voudra sûrement trier ses produits par date de création.
 
 ==== Tri par date de création
 
