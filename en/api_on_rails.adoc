@@ -2,7 +2,7 @@
 Alexandre Rousseau <contact@rousseau-alexandre.fr>
 v1.0, 2019-01-08
 :toc:
-:imagesdir: ../img
+:imagesdir: img
 :title-logo-image: image:logo.svg[]
 :homepage: https://github.com/madeindjs/api_on_rails/
 :source-highlighter: rouge
