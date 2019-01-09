@@ -1,6 +1,6 @@
 == Placing Orders
 
-Back in previous chapter we handle associations between the product and user models, and how to serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation, because we will handle associations between 3 models and we have to be smart enough to handle the JSON output we are delivering.
+Back in previous chapter we handle associations between the product and user models, and how to serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between three models and we have to be smart enough to handle the JSON output we are delivering.
 
 In this chapter we will make several things which I list below:
 
@@ -23,9 +23,9 @@ Let’s create a branch to start working:
 $ git checkout -b chapter8
 ----
 
-=== Modeling the order
+=== Modeling order
 
-If you remember associations model, the `Order` model is associated with users and products at the same time, it is actually really simply to achieve this in Rails. The tricky part is whens comes to serializing this objects. I talk about more about this in a next section.
+If you remember associations model, the `Order` model is associated with users and products at the same time. It is actually really simply to achieve this in Rails. The tricky part is whens comes to serializing this objects. I talk about more about this in a next section.
 
 Let’s start by creating the order model, with a special form:
 
@@ -53,11 +53,9 @@ RSpec.describe Order, type: :model do
 
   it { should respond_to(:total) }
   it { should respond_to(:user_id) }
-
   it { should validate_presence_of :user_id }
   it { should validate_presence_of :total }
   it { should validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
-
   it { should belong_to :user }
 end
 ----
@@ -75,7 +73,7 @@ class Order < ApplicationRecord
 end
 ----
 
-If we run the tests now, they should be all green:
+If we run the tests now they should be all green:
 
 [source,bash]
 ----
@@ -88,7 +86,7 @@ Finished in 0.16229 seconds (files took 4.08 seconds to load)
 
 ==== Orders and Products
 
-We need to setup the association between the `order` and the `product`, and this is build with a `has-many-to-many` association, as many products will be placed on many orders and the orders will have multiple products. So in this case we need a model in the middle which will join these two other objects and map the appropiate association.
+We need to setup the association between the `order` and the `product` and this is build with a `has-many-to-many` association. As many products will be placed on many orders and the orders will have multiple products. So in this case we need a model in the middle which will join these two other objects and map the appropriate association.
 
 Let’s generate this model:
 
@@ -165,16 +163,14 @@ And lastly but not least, the `placement` specs:
 RSpec.describe Placement, type: :model do
   let(:placement) { FactoryBot.build :placement }
   subject { placement }
-
   it { should respond_to :order_id }
   it { should respond_to :product_id }
-
   it { should belong_to :order }
   it { should belong_to :product }
 end
 ----
 
-If you have been following the tutorial so far, the implementation is already there, because of the `references` type we pass on the model command generator. We should add the inverse option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
+If you have been following the tutorial so far the implementation is already there because of the `references` type we pass on the model command generator. We should add the inverse option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
 
 [source,ruby]
 .app/models/placement.rb
@@ -196,7 +192,7 @@ Finished in 0.53127 seconds (files took 0.73125 seconds to load)
 43 examples, 0 failures
 ----
 
-Now that everything is nice and green, let’s commit the changes and continue.
+Now that everything is nice and green let’s commit the changes and continue.
 
 [source,bash]
 ----
@@ -256,7 +252,7 @@ It is now time to prepare the orders controller to expose the correct order obje
 
 > But wait, what are we suppose to expose?
 
-.. You may be wondering. And you are right. Let’s first define which actions are we going to build up:
+You may be wondering. And you are right. Let’s first define which actions are we going to build up:
 
 [arabic]
 . An index action to retrieve the current user orders
@@ -270,7 +266,11 @@ Let’s start with the `index` action, so first we have to create the orders con
 $ rails g controller api/v1/orders
 ----
 
-Up to this point and before start typing some code, we have to ask ourselves, should I leave my order endpoints nested into the `UsersController`, or should I isolate them, and the answer is really simple. I would say it depends on how much information in this case in particular you want to expose to the developer, not from a json output point of view, but from the URI format.
+Up to this point and before start typing some code we have to ask ourselves:
+
+> Should I leave my order endpoints nested into the `UsersController`, or should I isolate them?
+
+The answer is really simple. I would say it depends on how much information in this case in particular you want to expose to the developer, not from a JSON output point of view, but from the URI format.
 
 I’ll nest the routes, because I like to give this type of information to the developers, as I think it gives more context to the request itself. Let’s start by dropping some tests:
 
@@ -425,7 +425,7 @@ $ git commit -m "Adds the show action for order"
 
 ==== Placing and order
 
-It is now time to let the user place some orders, this will add some complexity to the whole application, but don’t worry we will go one step at a time to keep things simple.
+It is now time to let the user place some orders, this will add some complexity to the whole application. But don’t worry we will go one step at a time to keep things simple.
 
 Before start this feature, let’s sit back and think about the implications of creating an order in the app. I’m not talking about implementing a transactions service like https://stripe.com/[Stripe] or https://www.braintreepayments.com/[Braintree], but things like handling out of stock products, decrementing the product inventory, add some validation for the order placement to make sure there is enough products by the time the order is place. Did you already detected that?, it may look like we are way down on the hill, but believe, you are closer than you think, and is not as hard as it sounds.
 
@@ -459,7 +459,7 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
 end
 ----
 
-As you can see we are creating a `order_params` variable with the order data, can you see the problem here?, if not, I’ll explain it later, let’s just add the necessary code to make this test pass.
+As you can see we are creating a `order_params` variable with the order data. Can you see the problem here? If not, I’ll explain it later. Let’s just add the necessary code to make this test pass.
 
 First we need to add the action to the resources on the routes file:
 
@@ -510,11 +510,11 @@ Finished in 0.16817 seconds (files took 0.64624 seconds to load)
 6 examples, 0 failures
 ----
 
-Ok, so we have everything nice and green. We now should move on to the next chapter right?, well let me stop you right there, we have some serious errors on the app, and they are not related to the code itself but on the business part.
+Ok, so we have everything nice and green. We now should move on to the next chapter right? Let me stop you right there. We have some serious errors on the app, and they are not related to the code itself but on the business part.
 
-Not because the tests are green, it means the app is filling the business part of the app, and I wanted to bring this up, because in many cases is super easy to just receive params, and build objects from those params, thinking that we are always receiving the correct data. In this particular case we cannot rely on that, and the simpliest way to see this, is that we are letting the client to set the order total, yeah crazy!
+Not because the tests are green, it means the app is filling the business part of the app. I wanted to bring this up because in many cases is super easy to just receive params and build objects from those params thinking that we are always receiving the correct data. In this particular case we cannot rely on that, and the easiest way to see this, is that we are letting the client to set the order total, yeah crazy!
 
-We have to add some validations, or better said a callback to calculate the order total an set it through the model. This way we don’t longer receive that total attribute and have complete control on this attribute. So let’s do that.
+We have to add some validations or a callback to calculate the order total an set it through the model. This way we don’t longer receive that total attribute and have complete control on this attribute. So let’s do that.
 
 We first need to add some specs for the order model:
 
@@ -674,7 +674,7 @@ Let’s commit the changes:
 $ git commit -am "Adds the create method for the orders controller"
 ----
 
-=== Customizing the Order json output
+=== Customizing the Order JSON output
 
 Now that we built the necessary endpoints for the orders, we can customize the information we want to render on the JSON output for each order.
 
@@ -695,7 +695,7 @@ class OrderSerializer < ActiveModel::Serializer
 end
 ----
 
-We will add the products association and the total attribute to the order output, and to make sure everything is running smooth, we will some specs. In order to avoid duplication on tests, I’ll just add one spec for the `show` and make sure the extra data is being rendered, this is because I’m using the same serializer everytime an order object is being parsed to json, so in this case I would say it is just fine:
+We will add the products association and the total attribute to the order output, and to make sure everything is running smooth, we will some specs. In order to avoid duplication on tests, I’ll just add one spec for the `show` and make sure the extra data is being rendered, this is because I’m using the same serializer every time an order object is being parsed to JSON, so in this case I would say it is just fine:
 
 [source,ruby]
 .spec/controllers/api/v1/orders_controller_spec.rb
@@ -750,14 +750,14 @@ Finished in 0.22865 seconds (files took 0.70506 seconds to load)
 8 examples, 0 failures
 ----
 
-If you recall previous chapter, we embeded the user into the product, in order to retrieve some information, but in this we always know the user, because is actually the `current_user` so there is no point on adding it, it is not efficient, so let’s fix that by adding a new serializer:
+If you recall previous chapter we embedded the user into the product to retrieve some information. But in this case we always know the user because is actually the `current_user` so there is no point on adding it. It is not efficient. So let’s fix that by adding a new serializer:
 
 [source,bash]
 ----
 $ rails g serializer order_product
 ----
 
-We want to keep the products information consistent with the one we currently have, so we can just inherit behavior from it like so:
+We want to keep the products information consistent with the one we currently have. So we can just inherit behavior from it like so:
 
 [source,ruby]
 .app/serializers/order_product_serializer.rb
@@ -766,7 +766,7 @@ class OrderProductSerializer < OrderSerializer
 end
 ----
 
-This will keep rendered data on sync, and now to remove the embebed user we simply add the following method on the gem documentation. For more information visit https://github.com/rails-api/active_model_serializers/tree/0-8-stable#associations[ActiveModelSerializer]:
+This will keep rendered data on sync, and now to remove the embedded user we simply add the following method on the gem documentation. For more information visit https://github.com/rails-api/active_model_serializers/tree/0-8-stable#associations[ActiveModelSerializer]:
 
 [source,ruby]
 .app/serializers/order_product_serializer.rb
@@ -858,9 +858,7 @@ Now we can add some tests for the order mailer we created earlier:
 
 [source,ruby]
 ----
-# spec/mailers/order_mailer_spec.rb
-require 'rails_helper'
-
+# ...
 RSpec.describe OrderMailer, type: :mailer do
   include Rails.application.routes.url_helpers
 
@@ -965,7 +963,7 @@ class Api::V1::OrdersController < ApplicationController
 end
 ----
 
-To make sure we did not break anything on the orders, we can just run the specs from the orders controller:
+To make sure we did not break anything on the orders we can just run the specs from the orders controller:
 
 [source,bash]
 ----
@@ -986,7 +984,7 @@ $ git commit -m "Adds order confirmation mailer"
 
 === Conclusion
 
-Hey you made it!, give yourself an applause, I know it’s been a long way now, but you are almost done, believe me!.
+Hey you made it! Give yourself an applause. I know it’s been a long way now, but you are almost done, believe me!.
 
 On chapters to come we will keep working on the `Order` model to add some validations when placing an order, some scenarios are:
 

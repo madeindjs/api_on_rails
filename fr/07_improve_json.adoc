@@ -709,7 +709,7 @@ class Product < ApplicationRecord
 end
 ----
 
-Il est important de noter que nous retournons les produits en tant qu’objet `ActiveRelation` afin de pouvoir enchaîner d’autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l’action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
+Il est important de noter que nous retournons les produits en tant qu’objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html:[`ActiveRelation`] afin de pouvoir enchaîner d’autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l’action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb

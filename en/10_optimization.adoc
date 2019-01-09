@@ -1,6 +1,6 @@
-== Optimisations
+== Optimizations
 
-Welcome to the last chapter of the book, it’s been a long way and you are only one step away from the end. Back in previous chapter we finish modeling the `Order` model and we could say that the project is done by now, but I want to cover some important details about optimization. The topics I’m going to cover in here will be:
+Welcome to the last chapter of the book. It’s been a long way and you are only one step away from the end. Back in previous chapter we finish modeling the `Order` model and we could say that the project is done by now, but I want to cover some important details about optimization. The topics I’m going to cover in here will be:
 
 * Setup more https://jsonapi.org/[JSON:API] specifications
 * Pagination
@@ -114,7 +114,7 @@ And that’s it. It display a lot of code but there are few changes.
 
 ==== User’s sessions
 
-Only one test shoul be updated for user’s sessions: the one who get `auth_token`.
+Only one test should be updated for user’s sessions: the one who get `auth_token`.
 
 [source,ruby]
 .spec/controllers/api/v1/sessions_controller_spec.rb
@@ -294,9 +294,9 @@ end
 
 ==== Implementation
 
-From the beginning, in order to serialize our models, we used _Active Model Serializer_. Fortunately for us, this library offers several *adapters*. The adapters are in a way JSON models to be applied to all our serializers. It’s perfect. It’s perfect.
+From the beginning, in order to serialize our models, we used _Active Model Serializer_. Fortunately for us this library offers several *adapters*. The adapters are in a way JSON models to be applied to all our serializers. It’s perfect.
 
-Thehttps://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/general/adapters.md[documentation of _Active Model Serializer_] shows us a list of existing adapters. And, if you see where I’m going with this, there’s one ready for the JSON:API model! To set it up, simply activate the adapt it by creating the following file:
+The https://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/general/adapters.md[documentation of _Active Model Serializer_] shows us a list of existing adapters. And if you see where I’m going with this there’s one ready for the JSON:API model! To set it up, simply activate the adapt it by creating the following file:
 
 [source,ruby]
 .config/initializers/activemodel_serializer.rb
@@ -304,7 +304,8 @@ Thehttps://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/gener
 ActiveModelSerializers.config.adapter = :json_api
 ----
 
-Nous devons aussi indique le type de l’objet du serialiseur. _Active Model Serializer_ propose une méthode toute fate pour cela: `type`. L’implémentation est donc très facile:
+We must also indicate the type of the serializer object. _Active Model Serializer_ offers an all fate method for this: `type`. Implementation is therefore very easy:
+
 
 [source,ruby]
 .app/serializers/order_serializer.rb
@@ -395,7 +396,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-Here too, implementation is very easy. We just need to add the `ìinclude` otpion directly into the controller’s action.
+Here too implementation is very easy. We just need to add the `include` option directly into the controller’s action.
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -436,11 +437,11 @@ $ git commit -m "Respect JSON:API response format"
 
 A very common strategy to optimize an array of records from the database, is to load just a few by paginating them and if you are familiar with this technique you know that in Rails is really easy to achieve it whether if you are using https://github.com/mislav/will_paginate[will_paginate] or https://github.com/amatsuda/kaminari[kaminari].
 
-Then only tricky part in here is how are we suppose to handle the JSON output now, to give enough information to the client on how the array is paginated. If you recall http://apionrails.icalialabs.com/book/chapter_one#cha-chapter_one[Chapter 1] I shared some resources on the practices I was going to be following in here, one of them was http://jsonapi.org/ which is a must-bookmark page.
+Then only tricky part in here is how are we suppose to handle the JSON output now, to give enough information to the client on how the array is paginated. If you recall first chapter I shared some resources on the practices I was going to be following in here. One of them was http://jsonapi.org/ which is a must-bookmark page.
 
 If we read the format section we will reach a sub section called http://jsonapi.org/format/#document-structure-top-level[Top Level] and in very few words they mention something about pagination:
 
-> ``meta'': meta-information about a resource, such as pagination.
+> "meta": meta-information about a resource, such as pagination.
 
 It is not very descriptive but at least we have a hint on what to look next about the pagination implementation, but don’t worry that is exactly what we are going to do in here.
 
@@ -471,7 +472,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-So far the only thing that changed is the query on the database to just limit the result by 25 per page which is the default, but we have not added any extra information to the json output.
+So far the only thing that changed is the query on the database to just limit the result by 25 per page which is the default. But we have not added any extra information to the JSON output.
 
 We need to provide the pagination information on the `meta` tag in the following form:
 
@@ -486,7 +487,7 @@ We need to provide the pagination information on the `meta` tag in the following
 }
 ----
 
-Now that we have the final structure for the `meta` tag we just need to output it on the json response, let’s first add some specs:
+Now that we have the final structure for the `meta` tag we just need to output it on the JSON response. Let’s first add some specs:
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -538,7 +539,7 @@ Finished in 0.40801 seconds (files took 0.62979 seconds to load)
 20 examples, 2 failures
 ----
 
-The error is actually on the `Product.search` method. In fact, Kaminari is waiting for a registration relationship instead of a table. It’s very easy to repair:
+The error is actually on the `Product.search` method. In fact Kaminari is waiting for a registration relationship instead of a table. It’s very easy to repair:
 
 [source,ruby]
 .app/models/product.rb
@@ -607,7 +608,7 @@ Finished in 0.66813 seconds (files took 2.72 seconds to load)
 20 examples, 0 failures
 ----
 
-Now we have make a really amazing optimization for the products list endpoint, now it is the client job to fetch the correct `page` with the correct `per_page` param for the records.
+Now we have make a really amazing optimization for the products list endpoint. Now it is the client job to fetch the correct `page` with the correct `per_page` param for the records.
 
 Let’s commit this changes and proceed with the orders list.
 
@@ -617,7 +618,7 @@ $ git add .
 $ git commit -m "Adds pagination for the products index action to optimize response"
 ----
 
-==== Liste des commandes
+==== Orders list
 
 Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first, let’s add some specs to the `orders_controller_spec.rb` file:
 
@@ -753,7 +754,7 @@ shared_examples 'paginated list' do
 end
 ----
 
-This shared example can now be use as a substitude for the 5 tests on the `orders_controller_spec.rb` and `products_controller_spec.rb` files like so:
+This shared example can now be use as a substitute for the five tests on the `orders_controller_spec.rb` and `products_controller_spec.rb` files like so:
 
 [source,ruby]
 .spec/controllers/api/v1/orders_controller_spec.rb
@@ -794,7 +795,7 @@ Finished in 0.96778 seconds (files took 1.59 seconds to load)
 49 examples, 0 failures
 ----
 
-Now that we made this simple refactor, we can jump into the pagination implementation for the controllers and clean things up. If you recall the index action for both the products and orders controller, they both have the same pagination format, so let’s move this logic into a method called `pagination` under the `application_controller.rb` file, this way we can access it on any controller which needs pagination in the future.
+Now that we made this simple refactor we can jump into the pagination implementation for the controllers and clean things up. If you recall the index action for both the products and orders controller they both have the same pagination format. So let’s move this logic into a method called `pagination` under the `application_controller.rb` file. This way we can access it on any controller which needs pagination in the future.
 
 [source,ruby]
 .app/controllers/application_controller.rb
@@ -815,7 +816,7 @@ class ApplicationController < ActionController::API
 end
 ----
 
-And now we can substitude the pagination hash on both controllers for the method, like so:
+And now we can substitute the pagination hash on both controllers for the method, like so:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb

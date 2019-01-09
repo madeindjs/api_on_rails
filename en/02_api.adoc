@@ -15,7 +15,7 @@ And as a quick recap, we really just update the `Gemfile` to add the `active_mod
 
 === Planning the application
 
-As we want to go simple with the application, it consists on 5 models. Don’t worry if you don’t fully understand what is going on, we will review and build each of these resources as we move on with the tutorial.
+As we want to go simple with the application, it consists on five models. Don’t worry if you don’t fully understand what is going on, we will review and build each of these resources as we move on with the tutorial.
 
 image:data_model.png[Schema of links betweens models]
 
@@ -23,15 +23,17 @@ In short terms we have the `user` who will be able to place many `orders`, uploa
 
 We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there, from javascript frameworks(https://angularjs.org/[Angular], http://emberjs.com/[EmberJS], http://backbonejs.org/[Backbone]) to mobile consumption(https://github.com/AFNetworking/AFNetworking[AFNetworking]).
 
-By this point you must be asking yourself, all right but I need to explore or visualize the api we are going to be building, and that’s fair. Probably if you google something related to api exploring, an application called https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en[Postman] will pop, it is a great add on if you are using chrome, but we won’t be using that anyway, as probably not every developer uses the Google browser.
+By this point you must be asking yourself, all right but I need to explore or visualize the api we are going to be building, and that’s fair. Probably if you google something related to api exploring, an application called https://www.getpostman.com/[Postman] will pop. It is a great software but we won’t be using that anyway because we'll use cURL who allow anybody to reproduce request on any computer.
 
 === Setting the API
 
-An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with `json`. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
+An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 
 JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement in fact many of the current frameworks consume JSON api’s by default, in Javascript there is https://angularjs.org/[Angular] or http://emberjs.com/[EmberJS], but there are great libraries for objective-c too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android, but because of my lack of experience on that development platform I might not be the right person to recommend you something.
 
-All right, so we are building our api with `json`, but there are many ways to achieve this, the first thing that could come to your mind would be just to start dropping some routes defining the http://en.wikipedia.org/wiki/Web_Services_Description_Language#Objects_in_WSDL_1.1_.2F_WSDL_2.0[end points] but they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition _is a way to create, read, update or delete information on a server using simple HTTP calls. It is an alternative to more complex mechanisms like SOAP, CORBA and RPC. A REST call is simply a GET HTTP request to the server._
+All right, so we are building our API with JSON, but there are many ways to achieve this, the first thing that could come to your mind would be just to start dropping some routes defining the http://en.wikipedia.org/wiki/Web_Services_Description_Language#Objects_in_WSDL_1.1_.2F_WSDL_2.0[end points] but they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
+
+> is a way to create, read, update or delete information on a server using simple HTTP calls. It is an alternative to more complex mechanisms like SOAP, CORBA and RPC. A REST call is simply a GET HTTP request to the server.
 
 [source,soap]
 ----
@@ -40,10 +42,10 @@ aService.getUser("1")
 
 And in REST you may call a URL with an e specific HTTP request, in this case with a GET request: ~~~ http://domain.com/resources_name/uri_pattern ~~~
 
-RESTful APIs must follow at least 3 simple guidelines:
+RESTful APIs must follow at least three simple guidelines:
 
 * A base http://en.wikipedia.org/wiki/Uniform_resource_identifier[URI], such as `http://example.com/resources/`.
-* An Internet media type to represent the data, it is commonly `JSON` and is commonly set through headers exchange.
+* An Internet media type to represent the data, it is commonly JSON and is commonly set through headers exchange.
 * Follow the standard http://en.wikipedia.org/wiki/HTTP_method#Request_methods[HTTP Methods] such as GET, POST, PUT, DELETE.
 ** *GET*: Reads the resource or resources defined by the URI pattern
 ** *POST*: Creates a new entry into the resources collection
@@ -102,6 +104,8 @@ end
 
 By defining a namespace under the `routes.rb` file. Rails will automatically map that namespace to a directory matching the name under the `controllers` folder, in our case the `api/` directory.
 
+.Rails media types supported
+****
 Rails can handle up to 35 different media types, you can list them by accessing the SET class under de Mime module:
 
 [source,bash]
@@ -111,6 +115,7 @@ Loading development environment (Rails 5.2.1)
 irb(main):001:0> Mime::SET.collect(&:to_s)
 => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip", "application/vnd.web-console.v2"]
 ----
+****
 
 This is important because we are going to be working with JSON, one of the built-in http://en.wikipedia.org/wiki/Internet_media_type[MIME types] accepted by Rails, so we just need to specify this format as the default one:
 
@@ -125,7 +130,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Up to this point we have not made anything crazy, what we want to achieve next is how to generate a _base_uri_ under a subdomain, in our case something like `api.market_place_api.dev`. Setting the api under a subdomain is a good practice because it allows to scale the application to a DNS level. So how do we achieve that?
+Up to this point we have not made anything crazy. What we want to to generate a _base_uri_ under a subdomain. In our case something like `api.market_place_api.dev`. Setting the api under a subdomain is a good practice because it allows to scale the application to a DNS level. So how do we achieve that?
 
 [source,ruby]
 .config/routes.rb
@@ -138,17 +143,20 @@ Rails.application.routes.draw do
 end
 ----
 
-Notice the changes?, we didn’t just add a `constraints` hash to specify the subdomain, but we also add the `path` option, and set it a _backslash_. This is telling Rails to set the starting path for each request to be root in relation to the subdomain, achieving what we are looking for.
+Notice the changes? We didn’t just add an https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] constraints to specify the subdomain. We also add the `path` option, and set it on root path (`/`). This is telling Rails to set the starting path for each request to be root in relation to the subdomain, achieving what we are looking for.
 
-==== Common api patterns
-
+.Common API patterns
+****
 You can find many approaches to set up the _base_uri_ when building an api following different patterns, assuming we are versioning our api:
 
 * `api.example.com/`: I my opinion this is the way to go, gives you a better interface and isolation, and in the long term can help you to http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[quickly scalate]
 * `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don’t want to namespace your api under a subdomain
 * `example.com/api/v1`: his seems like a good idea, by setting the version of the api through the URL seems like a more descriptive pattern, but this way you enforce the version to be included on URL on each request, so if you ever decide to change this pattern, this becomes a problem of maintenance in the long-term
 
-Don’t worry about versioning right now, I’ll walk through it later. Time to commit:
+Don’t worry about versioning right now, I’ll walk through it later.
+****
+
+Time to commit:
 
 [source,bash]
 ----
@@ -210,7 +218,7 @@ Well first of all, we need to improve the API version access through http://en.w
 
 .Most commons HTTP headers fields
 ****
-HTTP header fields are components of the message header of requests and responses in the Hypertext Transfer Protocol (HTTP). They define operating parameters of an HTTP transaction. A common list of used headers is presented below:
+HTTP header fields are components of the message header of requests and responses in the Hypertext Transfer Protocol (HTTP). They define an operating parameters of an HTTP transaction. A common list of used headers is presented below:
 
 * *Accept*: Content-Types that are acceptable for the response. Example: `Accept: text/plain`
 * *Authorization*: Authentication credentials for HTTP authentication. Example: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
@@ -312,7 +320,7 @@ describe ApiConstraints do
 end
 ----
 
-Let me walk you through the code. We are initializing the class with an options hash, which will contain the version of the api, and a default value for handling the default version. We provide a `matches?` method which the router will trigger for the constraint to see if the default version is required or the `Accept` header matches the given string.
+Let me walk you through the code. We are initializing the class with an https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] option. https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] option will contain the version of the API and a default value for handling the default version. We provide a `matches?` method which the router will trigger for the constraint to see if the default version is required or the `Accept` header matches the given string.
 
 The implementation looks likes this
 
@@ -336,8 +344,7 @@ As you imagine we need to add the class to our `routes.rb` file and set it as a 
 [source,ruby]
 .config/routes.rb
 ----
-require 'api_constraints'
-
+# ...
 Rails.application.routes.draw do
   # Api definition
   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do

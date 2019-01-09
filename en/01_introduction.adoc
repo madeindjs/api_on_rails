@@ -138,7 +138,7 @@ $ rails -v 5.2
 5.2.0
 ----
 
-===== Bases de données
+===== Database
 
 I highly recommend you install http://www.postgresql.org/[Postgresql] to manage your databases, but for simplicity we’ll be using http://www.sqlite.org/[SQlite]. If you are using Mac OS you should be ready to go, in case you are on Linux, don’t worry we have you covered:
 
@@ -158,7 +158,7 @@ $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 
 Initializing a Rails application must be pretty straightforward for you, if that is not the case, here is a super quick tutorial.
 
-Be aware that we’ll be using http://rspec.info/[Rspec] as the testing suite. So we will use the donc `--skip-test` option. Also we will use `--api` option.
+Be aware that we’ll be using http://rspec.info/[Rspec] as the testing suite. So we will use the `--skip-test` option. Also we will use `--api` option.
 
 NOTE: This option came with Rails 5 and it allow to limit gems and Middleware. It will also avoid to generate HTML views when using Rails generators.
 
@@ -183,7 +183,9 @@ and the answer is simple, we will be working with http://en.wikipedia.org/wiki/S
 
 ===== Installing Pow
 
-Pow only works on Mac OS, but don’t worry there is an alternative which mimics the functionality on Linux. To install it just type in:
+NOTE: Pow only works on Mac OS, but don’t worry there is an alternative which mimics the functionality on Linux.
+
+To install it just type in:
 
 [source,bash]
 ----
@@ -208,7 +210,7 @@ Remember to change the user directory to the one matches yours. You can now acce
 
 ===== Installing Prax
 
-For linux users only, https://github.com/ysbaddaden/prax.cr[Prax] distribute some Debian/Ubuntu precompiled packages. You only have to download `.deb` eand instal with `dpkg`.
+For linux users only, https://github.com/ysbaddaden/prax.cr[Prax] distribute some Debian/Ubuntu precompiled packages. You only have to download `.deb` and instal with `dpkg`.
 
 [source,bash]
 ----
@@ -225,7 +227,7 @@ $ cd ~/workspace/market_place_api
 $ prax link
 ----
 
-If you want to start the prax server automatically, add this line to the `.profile` file:
+If you want to start the Prax server automatically, add this line to the `.profile` file:
 
 ....
 prax start
@@ -237,7 +239,7 @@ You should see the application up and running, see image bellow:
 
 === Gemfile and Bundler
 
-Once the Rails application is created, the next step is adding a simple but very powerful gem to serialize the resources we are going to expose on the api. The gem is called `active_model_serializers` which is an excellent choice to go when building this type of application, is well maintained and the https://github.com/rails-api/active_model_serializers[documentation] is amazing.
+Once the Rails application is created, the next step is adding a simple but very powerful gem to serialize the resources we are going to expose on the api. The gem is called `active_model_serializers` which is an excellent choice to go when building this type of application. It is well maintained and the https://github.com/rails-api/active_model_serializers[documentation] is amazing.
 
 So your `Gemfile` should look like this after adding the `active _model_serializers` gem:
 
@@ -265,7 +267,7 @@ gem 'active_model_serializers'
 # ...
 ----
 
-Notice that I remove the `jbuilder` and `turbolinks` gems, as we are not really going to use them anyway.
+NOTE: I remove the `jbuilder` and `turbolinks` gems because we are not really going to use them anyway.
 
 It is a good practice also to include the ruby version used on the whole project, this prevents dependencies to break if the code is shared among different developers, whether if is a private or public project.
 
@@ -296,11 +298,9 @@ $ bundle install
 
 After the command finish its execution, it is time to start tracking the project with Git.
 
-=== Versionning
+=== Versioning
 
-Remember that Git helps you track and maintain history of your code. Keep in mind source code of the application is published on Github. You can follow the repository at [Github][api_on_rails_git]
-
-I’ll assume you have git already configured and ready to use to start tracking the project. If that is not your case, follow these first-time setup steps:
+Remember that Git helps you track and maintain history of your code. Keep in mind source code of the application is published on Github. You can follow the repository at https://github.com/madeindjs/api_on_rails[Github]. I’ll assume you have Git already configured and ready to use to start tracking the project. If that is not your case, follow these first-time setup steps:
 
 [source,bash]
 ----
@@ -310,8 +310,6 @@ $ git config --global core.editor "vim"
 ----
 
 NOTE: Replace the last command editor(`"mvim -f"`) with the one you installed `"subl -w"` for SublimeText ,`"mate -w"` for TextMate, or `"gvim -f"` for gVim.
-
-So it is now time to *init* the project with git. Remember to navigate to the root directory of the `market_place_api` application:
 
 So it is now time to *init* the project with git. Remember to navigate to the root directory of the `market_place_api` application:
 

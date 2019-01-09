@@ -6,7 +6,7 @@ Back in previous chapter we extended our API to place orders and send a confirma
 . Decrement the current product quantity when an order is placed
 . What happens when the products are not available?
 
-We’ll probably need to update a little bit the `json output` for the orders, but let’s not spoil things up.
+We’ll probably need to update a little bit the JSON output for the orders but let’s not spoil things up.
 
 So now that we have everything clear, we can get our hands dirty. You can clone the project up to this point with:
 
@@ -68,16 +68,14 @@ product_ids_and_quantities = [
 ]
 ----
 
-This is going to be tricky so stay with me, let’s first build some unit tests:
+This is going to be tricky so stay with me. Let’s first build some unit tests:
 
 [source,ruby]
 .spec/models/order_spec.rb
 ----
-require 'rails_helper'
-
+# ...
 RSpec.describe Order, type: :model do
   # ...
-
   describe '#build_placements_with_product_ids_and_quantities' do
     before(:each) do
       product_1 = FactoryBot.create :product, price: 100, quantity: 5
@@ -133,8 +131,7 @@ First we update the `orders_controller_spec` file:
 [source,ruby]
 .spec/controllers/api/v1/orders_controller_spec.rb
 ----
-require 'rails_helper'
-
+# ...
 RSpec.describe Api::V1::OrdersController, type: :controller do
   # ...
   describe 'POST #create' do
@@ -206,7 +203,7 @@ $ git add .
 $ git commit -m "Allows the order to be placed along with product quantity"
 ----
 
-Did you notice we are not saving the quantity for each product anywhere?, there is no way to keep track of that. This can be fix really easy, by just adding a quantity attribute to the `Placement` model, so this way for each product we save its corresponding quantity. Let’s start by creating the migration:
+Did you notice we are not saving the quantity for each product anywhere? There is no way to keep track of that. This can be fix really easy, by just adding a quantity attribute to the `Placement` model, so this way for each product we save its corresponding quantity. Let’s start by creating the migration:
 
 [source,bash]
 ----
@@ -332,11 +329,11 @@ class Placement < ApplicationRecord
 end
 ----
 
-=== Validation du stock des produits
+=== Validate quantity of products
 
-As you remember from the beginning of the chapter we added the `quantity` attribute to the `Product` model, now it is time to validate that there are enough products for the order to be placed.
+As you remember from the beginning of the chapter we added the `quantity` attribute to the `Product` model. Now it is time to validate that there are enough products for the order to be placed.
 
-In order to make things more interesting and spice things up we will do it thorugh a custom validator, just to keep things cleaner and show you another cool technique to achieve custom validations.
+In order to make things more interesting and spice things up we will do it through a custom validator, just to keep things cleaner and show you another cool technique to achieve custom validations.
 
 For *custom validators* you can head to the http://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation]. Let’s get our hands dirty.
 
@@ -469,7 +466,6 @@ RSpec.describe Order, type: :model do
       expect { @order.set_total! }.to change { @order.total.to_f }.from(0).to(1575)
     end
   end
-
   # ...
 end
 ----
@@ -511,6 +507,6 @@ $ git commit -am "Updates the total calculation for order"
 
 === Conclusion
 
-Oh you are here!, let me congratulate you, it’s been a long way since chapter 1, but you are 1 step closer. Actually the next chapter would be the last one, so try to take the most out of it.
+Oh you are here! Let me congratulate you. It’s been a long way since first chapter but you are one step closer. Actually the next chapter would be the last one, so try to take the most out of it.
 
-The last chapter would be on how to optimize the API by using `pagination`, `caching` and `background jobs`, so buckle up, it is going to be a bumpy ride.
+The last chapter would be on how to optimize the API by using `pagination` and `caching`. So buckle up, it is going to be a bumpy ride.

@@ -293,7 +293,7 @@ Une fois que la commande a terminé son exécution, il est temps de commencer à
 
 === Contrôle de version
 
-Rappelez-vous que Git vous aide à suivre et à maintenir l’historique de votre code. Gardez à l’esprit que le code source de l’application est publié sur Github. Vous pouvez suivre le projet sur [Github][api_on_rails_git]
+Rappelez-vous que Git vous aide à suivre et à maintenir l’historique de votre code. Gardez à l’esprit que le code source de l’application est publié sur Github. Vous pouvez suivre le projet sur https://github.com/madeindjs/api_on_rails[Github]
 
 À ce stade, je suppose que vous avez déjà configuré Git et que vous êtes prêt à l’utiliser pour suivre le projet. Si ce n’est pas votre cas, initialisez simplement les paramètres basiques suivants:
 
