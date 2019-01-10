@@ -218,7 +218,7 @@ $ mv app/controllers/sessions_controller.rb app/controllers/api/v1
 $ mv spec/controllers/sessions_controller_spec.rb spec/controllers/api/v1
 ----
 
-Après avoir déplacé les fichiers, nous devons les mettre à jour pour qu’ils correspondent à la structure des répertoires que nous avons actuellement. Comme le montrent les listing suivants.
+Après avoir déplacé les fichiers, nous devons les mettre à jour pour qu’ils correspondent à la structure des répertoires que nous avons actuellement, comme le montrent les listing suivants.
 
 [source,ruby]
 .app/controllers/api/v1/sessions_controller.rb
@@ -403,11 +403,11 @@ $ git commit -m "Adds destroy session action added"
 
 Si vous avez déjà travaillé avec https://github.com/plataformatec/devise[devise], vous connaissez sûrement déjà les méthodes générées pour gérer l’authentification ou bien pour obtenir l’utilisateur connecté (voir la https://github.com/plataformatec/devise#getting-started[documentation]).
 
-Dans notre cas, nous allons remplacer la méthode `current_user` pour répondre à nos besoins. C’est-à-dire retrouver l’utilisateur grâce à son jeton d’authentification qui envoyé sur chaque requête. Laissez moi clarifier ce point.
+Dans notre cas, nous allons remplacer la méthode `current_user` pour répondre à nos besoins. C’est-à-dire retrouver l’utilisateur grâce à son jeton d’authentification qui est envoyé sur chaque requête. Laissez moi clarifier ce point.
 
 Une fois que le client se connecte, l’API lui retourne son jeton d’authentification. A chaque fois que ce client demande une page protégée, nous devrons retrouver l’utilisateur à partir de ce jeton d’authentification que l’utilisateur aura passé en paramètre ou dans l’en-tête HTTP.
 
-Dans notre cas, nous utiliserons l’en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je le trouve que c’est la meilleur manière parce que cela donne un contexte à la requête sans polluer l’URL avec des paramètres supplémentaires.
+Dans notre cas, nous utiliserons l’en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je le trouve que c’est la meilleure manière parce que cela donne un contexte à la requête sans polluer l’URL avec des paramètres supplémentaires.
 
 Quand il s’agit de l’authentification, j’aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d’inclure le fichier dans le `ApplicationController`. De cette façon, il est très facile à tester de manière isolée. Créons-donc le fichier dans le répertoire `controllers/concerns`:
 
@@ -424,7 +424,7 @@ $ mkdir spec/controllers/concerns
 $ touch spec/controllers/concerns/authenticable_spec.rb
 ----
 
-Comme d’habitude, nous commençons par écrire nos tests. Dans ce cas, notre méthode `current_user`, va chercher un utilisateur par le jeton d’authentification dans l’en-tête HTTP `Authorization`.
+Comme d’habitude, nous commençons par écrire nos tests. Dans ce cas, notre méthode `current_user` va chercher un utilisateur par le jeton d’authentification dans l’en-tête HTTP `Authorization`.
 
 [source,ruby]
 .spec/controllers/concerns/authenticable_spec.rb
@@ -557,7 +557,7 @@ $ git commit -m "Adds the authenticate with token method to handle access to act
 
 === Autoriser les actions
 
-Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l’accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l’action `update` et `destroy` afin de s’assurer que l’utilisateur qui est connecté ne sera capable que de mettre à jour que ses données et qu’il ne pourra supprimer que (et uniquement) son compte.
+Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l’accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l’action `update` et `destroy` afin de s’assurer que l’utilisateur qui est connecté ne sera capable de mettre à jour que ses données et qu’il ne pourra supprimer que (et uniquement) son compte.
 
 Nous allons commencer par l’action `update`. Nous n’irons plus chercher l’utilisateur par son identifiant mais par l’ `auth_token` sur l’en-tête `Authorization` fourni par la méthode `current_user`.
 
@@ -643,7 +643,7 @@ module Request
 end
 ----
 
-Maintenant, chaque fois que nous avons besoin d’avoir l’utilisateur courant sur nos tests, nous appelons simplement la méthode `api_authorization_header`. Je vous laisse le faire avec `users_controller_spec.rb` pour la spécification de mise à jour:
+Maintenant, chaque fois que nous avons besoin d’avoir l’utilisateur courant sur nos tests, nous appelons simplement la méthode `api_authorization_header`. Je vous laisse le faire avec `users_controller_spec.rb` pour le test de mise à jour ?:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -689,7 +689,7 @@ class Api::V1::UsersController < ApplicationController
 end
 ----
 
-Maintenant, pour le fichier de spécification et comme mentionné précédemment, nous avons juste besoin d’ajouter l’en-tête `api_authorization_header`:
+Maintenant, pour le fichier de spécification, et comme mentionné précédemment, nous avons juste besoin d’ajouter l’en-tête `api_authorization_header`:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -709,7 +709,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ----
 
-Tout nos tests devraient passer. La dernière étape de cette section consiste à ajouter les droits d’accès correspondants pour ces deux dernières actions.
+Tous nos tests devraient passer. La dernière étape de cette section consiste à ajouter les droits d’accès correspondants pour ces deux dernières actions.
 
 Il est courant de simplement empêcher les actions sur lesquelles l’utilisateur effectue des actions sur le modèle lui-même. Dans ce cas l’action `update` et `destroy`.
 
@@ -765,7 +765,7 @@ RSpec.describe Authenticable do
 end
 ----
 
-Comme vous pouvez le voir, nous avons ajouté deux simples tests pour savoir si l’utilisateur est connecté ou non. Et comme je l’ai déjà dis, c’est juste pour la clarté visuelle. Mais continuons et ajoutons l’implémentation:
+Comme vous pouvez le voir, nous avons ajouté deux simples tests pour savoir si l’utilisateur est connecté ou non. Et comme je l’ai déjà dit, c’est juste pour la clarté visuelle. Mais continuons et ajoutons l’implémentation:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -784,7 +784,7 @@ module Authenticable
 end
 ----
 
-Comme vous pouvez le voir, maintenant `authenticate_with_token!` est plus facile à lire non seulement pour vous mais pour aussi pour les autres développeurs qui rejoignerons le projet. Cette approche a également un avantage secondaire: si vous voulez modifier ou améliorer la façon de valider, vous pouvez simplement le faire sur la méthode `user_signed_in?`.
+Comme vous pouvez le voir, maintenant `authenticate_with_token!` est plus facile à lire non seulement pour vous mais aussi pour les autres développeurs qui rejoigneront le projet. Cette approche a également un avantage secondaire: si vous voulez modifier ou améliorer la façon de valider, vous pouvez simplement le faire sur la méthode `user_signed_in?`.
 
 Maintenant, nos tests devraient être tous verts:
 

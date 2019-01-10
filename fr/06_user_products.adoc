@@ -1,6 +1,6 @@
 == Produits des utilisateurs
 
-Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application. Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu où nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits utilisateurs. Ce sont les éléments que l’utilisateur vendra dans l’application, et par conséquent sera directement associé. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de _Active Record_.
+Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application. Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu. Nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits de l'utilisateurs. Ce sont les éléments que l’utilisateur vendra dans l’application et par conséquent sera directement lié. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de _Active Record_.
 
 Dans ce chapitre, nous allons construire le modèle de `Product` à partir de zéro, l’associer à l’utilisateur et créer les entrées nécessaires pour que tout client puisse accéder aux informations.
 
@@ -262,7 +262,7 @@ products.each do |product|
 end
 ----
 
-Nous sauvegardons d’abord les produits dans une variable pour un accès ultérieur, puis nous détruisons l’utilisateur et bouclons la variable des produits en nous attendant à ce que chacun des produits lance une exception. Tout mettre ensemble devrait ressembler au code suivants:
+Nous sauvegardons d’abord les produits dans une variable pour un accès ultérieur, puis nous détruisons l’utilisateur et bouclons la variable des produits en nous attendant à ce que chacun des produits lance une exception. Tout mettre ensemble devrait ressembler au code suivant:
 
 [source,ruby]
 .spec/models/user_spec.rb
@@ -328,7 +328,7 @@ Nous devons d’abord créer le `products_controller`, et nous pouvons facilemen
 $ rails generate controller api/v1/products
 ----
 
-La commande ci-dessus va générer pas mal de fichiers qui nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c’est qu’il va générer le contrôleur et les fichiers de test déjà _scopés_ à la version 1 de l’API.
+La commande ci-dessus va générer pas mal de fichiers qui vont nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c’est qu’il va générer le contrôleur et les fichiers de test déjà _scopés_ à la version 1 de l’API.
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -417,7 +417,7 @@ Comme vous pouvez déjà le constater, les tests et l’implémentation sont tr�
 
 ==== Liste des produits
 
-Il est maintenant temps de créer une entrée pour liste de produits, qui pourrait permettre d’afficher le catalogue de produits d’un marché par exemple. Pour ce point d’accès, nous n’exigeons pas que l’utilisateur soit connecté. Comme d’habitude, nous allons commencer à écrire quelques tests:
+Il est maintenant temps de créer une entrée pour une liste de produits, qui pourrait permettre d’afficher le catalogue de produits d’un marché par exemple. Pour ce point d’accès, nous n’exigeons pas que l’utilisateur soit connecté. Comme d’habitude, nous allons commencer à écrire quelques tests:
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -499,7 +499,7 @@ $ git commit -m "Finishes modeling the product model along with user association
 
 ==== Création des produits
 
-Créer des produits est un peu plus délicat parce que nous aurons besoin d’une configuration supplémentaire pour donner une meilleure structure à ce point d’entré. La stratégie que nous suivrons est d’imbriquer les produits, dans les actions des utilisateurs. Ceci nous permettra d’avoir un point d’entrée plus descriptif comme `/users/:user_id/products`.
+Créer des produits est un peu plus délicat parce que nous aurons besoin d’une configuration supplémentaire pour donner une meilleure structure à ce point d’entrée. La stratégie que nous suivrons est d’imbriquer les produits, dans les actions des utilisateurs. Ceci nous permettra d’avoir un point d’entrée plus descriptif comme `/users/:user_id/products`.
 
 Notre premier arrêt sera donc le fichier `products_controller_spec.rb`.
 
@@ -550,7 +550,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez, les tests sont en fait les mêmes que ceux de la création de l’utilisateur exépté quelques changements mineurs. Rappelez-vous que nous avons cette route imbriquée, nous devons donc nous assurer d’envoyer le paramètre `user_id` à chaque requête, comme vous pouvez le voir sur:
+Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez, les tests sont en fait les mêmes que ceux de la création de l’utilisateur excepté quelques changements mineurs. Rappelez-vous que nous avons cette route imbriquée, nous devons donc nous assurer d’envoyer le paramètre `user_id` à chaque requête, comme vous pouvez le voir sur:
 
 [source,ruby]
 ----
@@ -713,7 +713,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Comme vous pouvez le constater, l’implémentation est assez simple. Nous allons simplement récupéré le produit auprès de l’utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au `before_action`, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
+Comme vous pouvez le constater, l’implémentation est assez simple. Nous allons simplement récupérer le produit auprès de l’utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au `before_action`, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
 
 Si on lance les tests, ils devraient passer:
 
@@ -886,4 +886,4 @@ $ git commit -m "Updates test environment factory gems to work on development"
 
 === Conclusion
 
-Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produit à l’aide de la gemme _active model serializers_. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
+Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produits à l’aide de la gemme _active model serializers_. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.

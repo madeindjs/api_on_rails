@@ -30,7 +30,7 @@ Dans cette partie nous travaillerons sur la mise à jour de la quantité du prod
 $ rails generate migration add_quantity_to_products quantity:integer
 ----
 
-Attendez! N’exécutez pas encore cette migrations! Nous allons y apporter une petite modification. Comme bonne pratique, j’aime ajouter des valeurs par défaut pour la base de données juste pour être sûr de ne pas tout gâcher avec des valeurs nulles. C’est un cas parfait!
+Attendez! N’exécutez pas encore cette migration! Nous allons y apporter une petite modification. Comme bonne pratique, j’aime ajouter des valeurs par défaut pour la base de données juste pour être sûr de ne pas tout gâcher avec des valeurs nulles. C’est un cas parfait!
 
 Votre fichier de migration devrait ressembler à ceci:
 
@@ -276,7 +276,7 @@ $ git commit -m "Adds quantity to placements"
 
 ==== Étendre le modèle de placement
 
-Il est temps de mettre à jour la quantité du produit une fois la commande enregistrée ou plus précisément: une fois le placement créé. Pour ce faire, nous allons ajouter une méthode et la connecter au _callback_ `after_create`.
+Il est temps de mettre à jour la quantité du produit une fois la commande enregistrée ou plus précisément: une fois le placement créé. Pour se faire, nous allons ajouter une méthode et la connecter au _callback_ `after_create`.
 
 Commençons par mettre à jour notre usine de placement pour qu’elle soit plus logique:
 
@@ -501,6 +501,6 @@ $ git commit -am "Updates the total calculation for order"
 
 === Conclusion
 
-Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le premier chapitre. Mais vous êtes à un pas de plus. En fait, le chapitre suivant serait le dernier. Alors essayez d’en tirer le meilleur.
+Oh vous êtes ici! Permettez-moi de vous féliciter! Cela fait un long chemin depuis le premier chapitre. Mais vous êtes à un pas de plus. En fait, le chapitre suivant sera le dernier. Alors essayez d’en tirer le meilleur.
 
 Le dernier chapitre portera sur la façon d’optimiser l’API en utilisant la pagination, la mise en cache et les tâches d’arrière-plan. Donc bouclez vos ceintures, ça va être un parcours mouvementé.

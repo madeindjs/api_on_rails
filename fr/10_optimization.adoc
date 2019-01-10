@@ -6,7 +6,7 @@ Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n�
 * la pagination
 * la mise en cache
 
-J’essaierai d’aller aussi loin que possible en essayant de couvrir certains scénarios courants. J’espère que ces scénario vous serons utiles pour certains de vos projets.
+J’essaierai d’aller aussi loin que possible en essayant de couvrir certains scénarios courants. J’espère que ces scénari vous serons utiles pour certains de vos projets.
 
 Si vous commencez à lire à ce stade, vous voudrez probablement que le code fonctionne, vous pouvez le cloner comme ça:
 
@@ -24,7 +24,7 @@ $ git checkout -b chapter10
 
 === Mettre en conformité notre structure JSON avec celle de https://jsonapi.org/[JSON:API]
 
-Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établies certaines conventions.
+Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions.
 
 Une des convention les plus appliquée est très certainement https://jsonapi.org/[JSON:API]. Cette convention nous permettra d’aborder la pagination plus sereinement dans la prochaine section.
 
@@ -36,15 +36,15 @@ Ainsi, notre document *doit* contenir ces clefs:
 * `errors` qui doit contenir un tableau des erreurs qui sont survenues.
 * `meta` qui contient un https://jsonapi.org/format/#document-meta[objet meta]
 
-NOTE: Les clés `data` et `errors` ne doivent pas être présente en même temps et c’est logique puisque si une erreur survient nous ne devrions pas être en mesure de rendre des données correctes.
+NOTE: Les clés `data` et `errors` ne doivent pas être présentes en même temps et c’est logique puisque si une erreur survient nous ne devrions pas être en mesure de rendre des données correctes.
 
 Le contenu de la clé `data`est lui aussi assez stricte:
 
 * il doit posséder une clé `type`qui décrit le type du modèle JSON (si c’est un article, un utilisateur, etc..)
-* les proprités de l’objets doivent être placées dans une clé `attributes` et les undescore (`_`) sont remplacés par des tirets (`-`)
+* les propriétés de l’objets doivent être placées dans une clé `attributes` et les undescore (`_`) sont remplacés par des tirets (`-`)
 * les liaisons de l’objets doivent être placées dans une clé `relationships`
 
-Cela risque de nous faire pas mal de changement puisque nous n’avons implémenté aucune de ses règles. Ne vous inquiétéz pas, nous avons mis en place des tests unitaires afin de nous assurer qu’il n’y aura pas de régression. Commençons doc par les mettre à jour
+Cela risque de nous faire pas mal de changements puisque nous n’avons implémenté aucune de ces règles. Ne vous inquiétez pas, nous avons mis en place des tests unitaires afin de nous assurer qu’il n’y aura pas de régression. Commençons donc par les mettre à jour
 
 ==== Les utilisateurs
 
@@ -69,7 +69,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ----
 
-Nous devons mettre à jour les emplacement. Voici le fichier complet
+Nous devons mettre à jour les emplacements. Voici le fichier complet
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -139,7 +139,7 @@ NOTE: Rappelez vos bien que dans les spécification JSON:API, les undescore (`_`
 
 ==== Les commandes
 
-Pour les commandes, il y a une petite spécifité car pour récupérer l’utilisateur associé, nous devons passer par la clé `:relationships`. En dehors de ça, le principe reste iddentique:
+Pour les commandes, il y a une petite spécifité car pour récupérer l’utilisateur associé, nous devons passer par la clé `:relationships`. En dehors de ça, le principe reste identique:
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -292,9 +292,9 @@ end
 
 ==== L’implémentation
 
-Depuis le début, afin de sérialiser nos modèles, nous vons utilisé _Active Model Serializer_. Heureusement pour nous, cette librairie propose plusieurs *adaptateurs*. Les adapateurs sont en quelques sorte des modèles de JSON à appliquer à tous nos sérialiseur. C’est parfait.
+Depuis le début, afin de sérialiser nos modèles, nous avons utilisé _Active Model Serializer_. Heureusement pour nous, cette librairie propose plusieurs *adaptateurs*. Les adapateurs sont en quelques sorte des modèles de JSON à appliquer à tous nos sérialiseur. C’est parfait.
 
-La https://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/general/adapters.md[documentation de _Active Model Serializer_] nous montre propose une liste des adaptateurs existants. Et, si vous voyez ou je veux en venir, il en existe une toute prête pour le modèle JSON:API! Pour le mettre en place, il suffit simplement d’activer l’adapter en créant le fichier suivant:
+La https://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/general/adapters.md[documentation de _Active Model Serializer_] nous  propose une liste des adaptateurs existants. Et, si vous voyez ou je veux en venir, il en existe une toute prête pour le modèle JSON:API! Pour le mettre en place, il suffit simplement d’activer l’adaptateur en créant le fichier suivant:
 
 [source,ruby]
 .config/initializers/activemodel_serializer.rb
@@ -302,7 +302,7 @@ La https://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/gener
 ActiveModelSerializers.config.adapter = :json_api
 ----
 
-Nous devons aussi indique le type de l’objet du serialiseur. _Active Model Serializer_ propose une méthode toute fate pour cela: `type`. L’implémentation est donc très facile:
+Nous devons aussi indiquer le type de l’objet du serialiseur. _Active Model Serializer_ propose une méthode toute faite pour cela: `type`. L’implémentation est donc très facile:
 
 [source,ruby]
 .app/serializers/order_serializer.rb
@@ -331,7 +331,7 @@ class UserSerializer < ActiveModel::Serializer
 end
 ----
 
-Et c’est tout! Lançon maintenant *tous* nos tests pour voir s’ils passent:
+Et c’est tout! Lançons maintenant *tous* nos tests pour voir s’ils passent:
 
 [source,bash]
 ----
@@ -423,7 +423,7 @@ Finished in 2.12 seconds (files took 1.4 seconds to load)
 103 examples, 0 failures
 ----
 
-Et voilà le travail. Vu que nous sommes content de notre travail, faisons un _commit_:
+Et voilà le travail. Vu que nous sommes contents de notre travail, faisons un _commit_:
 
 [source,bash]
 ----
@@ -433,7 +433,7 @@ $ git commit -m "Respect JSON:API response format"
 
 === Pagination
 
-Une stratégie très commune pour optimiser la récupération d’enregistrements dans une base de données est de charger seulement une quantité limité en les paginant. Si vous êtes familier avec cette technique, vous savez qu’avec Rails c’est vraiment très facile à mettre en place avec des gemmes telles que https://github.com/mislav/will_paginate[will_paginate] ou https://github.com/kaminari/kaminari[kaminari].
+Une stratégie très commune pour optimiser la récupération d’enregistrements dans une base de données est de charger seulement une quantité limitée en les paginant. Si vous êtes familiers avec cette technique, vous savez qu’avec Rails c’est vraiment très facile à mettre en place avec des gemmes telles que https://github.com/mislav/will_paginate[will_paginate] ou https://github.com/kaminari/kaminari[kaminari].
 
 La seule partie délicate ici est de savoir comment gérer la sortie JSON pour donner assez d’informations au client sur la façon dont le tableau est paginé. Dans la section précédente, j’ai partagé quelques ressources sur les pratiques que j’allais suivre ici. L’une d’entre elles était http://jsonapi.org/ qui est une page incontournable des signets.
 
@@ -511,7 +511,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-Le test que nous venons d’ajouter devrait échouer or, si nous exécutons les tests, deux tests échouent. Cela veux dire que nous avons cassé quelque chose d’autre:
+Le test que nous venons d’ajouter devrait échouer or, si nous exécutons les tests, deux tests échouent. Cela veut dire que nous avons cassé quelque chose d’autre:
 
 [source,bash]
 ----
@@ -616,7 +616,7 @@ $ git commit -m "Adds pagination for the products index action to optimize respo
 
 ==== Liste des commandes
 
-Maintenant, il est temps de faire exactement la même chose pour la route de la liste des commandes. Cela devrait être très facile à mettre en œuvre. Mais d’abord, ajoutons quelques test au fichier `orders_controller_spec.rb`:
+Maintenant, il est temps de faire exactement la même chose pour la route de la liste des commandes. Cela devrait être très facile à mettre en œuvre. Mais d’abord, ajoutons quelques tests au fichier `orders_controller_spec.rb`:
 
 [source,ruby]
 .spec/controllers/api/v1/orders_controller_spec.rb
@@ -918,7 +918,7 @@ $ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/pr
 Total: 0,021979
 ----
 
-Nous sommes donc passé de 174 ms à 21 ms. L’amélioration est donc énorme! _Comittons_ une dernière fois nos changements.
+Nous sommes donc passés de 174 ms à 21 ms. L’amélioration est donc énorme! _Comittons_ une dernière fois nos changements.
 
 [source,ruby]
 ----
@@ -929,4 +929,4 @@ $ git commit -am "Adds caching for the serializers"
 
 Si vous arrivez à ce point, cela signifie que vous en avez fini avec le livre. Bon travail! Vous venez de devenir un grand développeur API Rails, c’est sûr.
 
-Merci d’avoir emmené cette grande aventure avec moi, j’espère que vous avez apprécié le voyage autant que moi. On devrait prendre une bière un de ces jours.
+Merci d’avoir traversé cette grande aventure avec moi, j’espère que vous avez apprécié le voyage autant que moi. On devrait prendre une bière un de ces jours.

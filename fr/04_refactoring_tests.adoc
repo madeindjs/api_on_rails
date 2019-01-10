@@ -124,10 +124,10 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ----
 
-Comme vous pouvez le voir, il y a beaucoup de code dupliqué. Deux possibilité de factorisation sont:
+Comme vous pouvez le voir, il y a beaucoup de code dupliqué. Les deux possibilités de factorisations sont:
 
-* La méthode `JSON.parse` peut être encapsulée sur une méthode.
-* Le paramètre format est envoyé à chaque demande. Bien que ce ne soit pas une mauvaise pratique, il est préférable de gérer le type de réponse à l’aide des en-têtes.
+* La méthode `JSON.parse` qui peut être encapsulée sur une méthode.
+* Le paramètre format qui est envoyé à chaque demande. Bien que ce ne soit pas une mauvaise pratique, il est préférable de gérer le type de réponse à l’aide des en-têtes.
 
 Ajoutons donc une méthode pour gérer la réponse JSON. Mais avant de continuer, et si vous avez suivi le tutoriel, vous savez peut-être que nous créons une branche pour chaque chapitre. Alors faisons-le:
 
@@ -193,7 +193,7 @@ end
 
 RSpec.configure do |config|
   #  ...
-  # Nous devons aussi inclure ces methodes dans rspec en tant
+  # Nous devons aussi inclure ces méthodes dans rspec en tant
   # qu'aides de type controleur
   config.include Request::JsonHelpers, :type => :controller
   #  ...
@@ -210,7 +210,7 @@ $ git commit -m "Refactors the json parse method"
 
 === Factoriser le paramètre du format
 
-Nous voulons supprimer les paramètres `format: :json` envoyé sur chaque requête. Pour le faire c’est extrêmement facile. Il suffit simplement d’ajouter une ligne à notre fichier `users_controller_spec.rb`:
+Nous voulons supprimer les paramètres `format: :json` envoyés sur chaque requête. Pour le faire c’est extrêmement facile. Il suffit simplement d’ajouter une ligne à notre fichier `users_controller_spec.rb`:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -219,7 +219,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
   before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1, application/json" }
 ----
 
-En ajoutant cette ligne, vous pouvez maintenant supprimer tous les paramètres de `format` que nous envoyions sur chaque requête!
+En ajoutant cette ligne, vous pouvez maintenant supprimer tous les paramètres de `format` que nous envoyons sur chaque requête!
 
 Attendez, ce n’est pas encore fini! Nous pouvons ajouter un autre en-tête à notre demande qui nous aidera à décrire les données que nous attendons du serveur à livrer. Nous pouvons y parvenir assez facilement en ajoutant une ligne supplémentaire spécifiant l’en-tête `Content-Type`:
 

@@ -24,7 +24,7 @@ $ git checkout -b chapter8
 
 === Modélisation de l’ordre
 
-Si vous vous souvenez des associations entre les modèles, vous devez vous souvenir que le modèle `Order` est associé au modèle `User` et `Product`. C’est en fait très simple de gérer cela avec Rails. La partie délicate est quand vient la sérialisation de ces objets. J’en parlerai plus en détail plus tard.
+Si vous vous souvenez des associations entre les modèles, vous devez vous souvenir que le modèle `Order` est associé aux modèles `User` et `Product`. C’est en fait très simple de gérer cela avec Rails. La partie délicate est quand vient la sérialisation de ces objets. J’en parlerai plus en détail plus tard.
 
 Commençons par créer le modèle de la commande:
 
@@ -167,7 +167,7 @@ RSpec.describe Placement, type: :model do
 end
 ----
 
-Si vous avez suivi le tutoriel jusqu’à présent, l’implémentation est déjà là, à cause du type de références que nous passons au générateur de commandes du modèle. Nous devrions ajouter l’option inverse au modèle de placement pour chaque appel aux `belongs_to`. Cela donne un petit coup de pouce lors du référencement de l’objet parent.
+Si vous avez suivi le tutoriel jusqu’à présent, l’implémentation est déjà là, grâce au type de références que nous passons au générateur de commandes du modèle. Nous devrions ajouter l’option inverse au modèle de placement pour chaque appel aux `belongs_to`. Cela donne un petit coup de pouce lors du référencement de l’objet parent.
 
 [source,ruby]
 .app/models/placement.rb
@@ -743,7 +743,7 @@ Finished in 0.22865 seconds (files took 0.70506 seconds to load)
 8 examples, 0 failures
 ----
 
-Dans le chapitre précédent nous avons intégré l’utilisateur dans le produit. Mais ici, cela ne sert à rien sachant nous connaissons toujours l’utilisateur car il s’agit de l’utilisateur courant. Il n’y a pas lieu de l’ajouter car ce n’est pas efficace. Corrigeons cela en ajoutant un nouveau sérialiseur:
+Dans le chapitre précédent nous avons intégré l’utilisateur dans le produit. Mais ici, cela ne sert à rien sachant que nous connaissons toujours l’utilisateur car il s’agit de l’utilisateur courant. Il n’y a pas lieu de l’ajouter car ce n’est pas efficace. Corrigeons cela en ajoutant un nouveau sérialiseur:
 
 [source,bash]
 ----
@@ -759,7 +759,7 @@ class OrderProductSerializer < OrderSerializer
 end
 ----
 
-De cette façon, les deux sérialiseurs seront maintenant lié et il suffira d’ajouter un champ à `ProductSerializer` et il sera ajouté à `OrderProductSerializer`. Maintenant, nous voulons supprimer l’utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela[^18]:
+De cette façon, les deux sérialiseurs seront maintenant liés et il suffira d’ajouter un champ à `ProductSerializer` et il sera ajouté à `OrderProductSerializer`. Maintenant, nous voulons supprimer l’utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela[^18]:
 
 [source,ruby]
 .app/serializers/order_product_serializer.rb
@@ -888,7 +888,7 @@ RSpec.describe OrderMailer, type: :mailer do
 end
 ----
 
-J’ai simplement copié/collé les tests de la documentation et je l’ai adapté à nos besoins. Nous devons maintenant nous assurer que ces tests passent.
+J’ai simplement copié/collé les tests de la documentation et je les ai adaptés à nos besoins. Nous devons maintenant nous assurer que ces tests passent.
 
 Tout d’abord, nous ajoutons la méthode `OrderMailer#send_confirmation`:
 
@@ -982,7 +982,7 @@ $ git commit -m "Adds order confirmation mailer"
 
 === Conclusion
 
-Ça y est! Vous avez réussi! Vous pouvez vous applaudir. Je sais que ça a été long mais c’est presque finit, croyez moi.
+Ça y est! Vous avez réussi! Vous pouvez vous applaudir. Je sais que ça a été long mais c’est presque fini, croyez moi.
 
 Sur les chapitres à venir, nous continuerons à travailler sur le modèle de commande pour ajouter des validations lors de la passation d’une commande. Certains scénarios sont:
 
