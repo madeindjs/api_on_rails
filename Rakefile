@@ -15,6 +15,14 @@ def out_filename(lang, extension)
 end
 
 namespace :build do
+  desc 'Build all versions'
+  task :all, [:lang] do |_task, args|
+    lang = parse_lang(args)
+    Rake::Task['build:pdf'].invoke(lang)
+    Rake::Task['build:epub'].invoke(lang)
+    Rake::Task['build:mobi'].invoke(lang)
+  end
+
   desc 'Build a PDF version'
   task :pdf, [:lang] do |_task, args|
     lang = parse_lang(args)
@@ -44,6 +52,7 @@ namespace :build do
     lang = parse_lang(args)
     filename = out_filename lang, 'mobi'
     `asciidoctor-epub3 #{lang}/api_on_rails.adoc --destination-dir build -a ebook-format=kf8 --out-file #{filename}`
-    puts "Book compiled on build/api_on_rails-#{lang}-kf8.epub"
+    `rm build/api_on_rails-#{lang}-kf8.epub`
+    puts "Book compiled on build/api_on_rails-#{lang}.mobi"
   end
 end
