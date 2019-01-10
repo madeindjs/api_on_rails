@@ -1,4 +1,5 @@
-== Authentification des utilisateurs
+[#chapter05-athentification]
+= Authentification des utilisateurs
 
 Cela fait longtemps que vous avez commencé. J’espère que vous appréciez ce voyage autant que moi. Au chapitre 4, nous avons factorisé notre suite de tests et, comme nous n’avons pas ajouté beaucoup de code, cela n’a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
 
@@ -18,7 +19,7 @@ Commençons par le commencement. Comme d’habitude quand nous démarrons un nou
 $ git checkout -b chapter5
 ----
 
-=== Session sans état
+== Session sans état
 
 Avant d’aller plus loin, quelque chose doit être clair: *une API ne gère pas les sessions*. Si vous n’avez pas d’expérience dans la création de ce genre d’applications, cela peut paraître un peu fou. Une API doit être sans état. Ce qui signifie par définition qu’il s’agit d’une API qui fournit une réponse après votre demande et qui ne nécessite aucune autre attention. Cela à pour conséquence qu’aucun état antérieur ou futur n’est nécessaire pour que le système fonctionne.
 
@@ -30,7 +31,7 @@ Le processus d’authentification de l’utilisateur via une API est très simpl
 
 Dans cette section et la suivante, nous nous concentrerons sur la construction d’un contrôleur de sessions avec ses actions correspondantes. Nous compléterons ensuite le flux de demandes en ajoutant l’accès d’autorisation nécessaire.
 
-==== Le jeton d’authentification
+=== Le jeton d’authentification
 
 Avant de procéder à la logique sur le contrôleur de sessions, nous devons d’abord ajouter le champ du jeton d’authentification au modèle utilisateur. Ensuite, il faudra ajouter une méthode pour définir ce jeton.
 
@@ -199,7 +200,7 @@ $ git add .
 $ git commit -m "Adds user authentification token"
 ----
 
-==== Le contrôleur de session
+=== Le contrôleur de session
 
 De retour au contrôleur de sessions. Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create` et la déconnexion par une demande `DELETE` à l’action `destroy`.
 
@@ -235,7 +236,7 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
 end
 ----
 
-===== Connexion réussie
+==== Connexion réussie
 
 Notre premier arrêt sera l’action de création. Mais d’abord, et comme d’habitude, générons nos tests.
 
@@ -347,7 +348,7 @@ $ git add .
 $ git commit -m "Adds sessions controller create action"
 ----
 
-===== Déconnexion
+==== Déconnexion
 
 Nous avons maintenant l’entrée de l’API. Il est temps de construire un point de sortie. Vous vous demandez peut-être pourquoi, puisque nous ne gérons pas les sessions et qu’il n’y a rien à détruire. Et c’est bien vrai! Lors d’une destruction, nous devons mettre à jour le jeton d’authentification pour que ce dernier devienne inutile et ne puisse plus être utilisé.
 
@@ -399,7 +400,7 @@ $ git add .
 $ git commit -m "Adds destroy session action added"
 ----
 
-=== Utilisateur connecté
+== Utilisateur connecté
 
 Si vous avez déjà travaillé avec https://github.com/plataformatec/devise[devise], vous connaissez sûrement déjà les méthodes générées pour gérer l’authentification ou bien pour obtenir l’utilisateur connecté (voir la https://github.com/plataformatec/devise#getting-started[documentation]).
 
@@ -494,7 +495,7 @@ $ git add .
 $ git commit -m "Adds authenticable module for managing authentication methods"
 ----
 
-=== Authentification avec le jeton
+== Authentification avec le jeton
 
 L’autorisation joue un rôle important dans la construction des applications car, contrairement à l’authentification qui permet d’identifier l’utilisateur, l’autorisation nous aide à définir ce qu’il a le droit de faire.
 
@@ -555,7 +556,7 @@ _Commitons_ ces changements et continuons d’avancer:
 $ git commit -m "Adds the authenticate with token method to handle access to actions"
 ----
 
-=== Autoriser les actions
+== Autoriser les actions
 
 Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l’accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l’action `update` et `destroy` afin de s’assurer que l’utilisateur qui est connecté ne sera capable de mettre à jour que ses données et qu’il ne pourra supprimer que (et uniquement) son compte.
 
@@ -805,7 +806,7 @@ $ git add .
 $ git commit -m "Adds user_signed_in? method to know whether the user is logged in or not"
 ----
 
-=== Conclusion
+== Conclusion
 
 Vous l’avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c’est un grand pas en avant sur la mise en place d’un mécanisme solide pour gérer l’authentification utilisateur et nous grattons même la surface pour de simples règles d’autorisation.
 

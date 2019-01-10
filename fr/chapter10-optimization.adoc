@@ -1,4 +1,5 @@
-== Optimisations
+[#chapter10-optimization]
+= Optimisations
 
 Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n’êtes qu’à un pas de la fin. Dans le chapitre précédent, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l’optimisation. Les sujets que je vais aborder ici seront:
 
@@ -22,7 +23,7 @@ Créons une nouvelle branche pour ce chapitre:
 $ git checkout -b chapter10
 ----
 
-=== Mettre en conformité notre structure JSON avec celle de https://jsonapi.org/[JSON:API]
+== Mettre en conformité notre structure JSON avec celle de https://jsonapi.org/[JSON:API]
 
 Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions.
 
@@ -46,7 +47,7 @@ Le contenu de la clé `data`est lui aussi assez stricte:
 
 Cela risque de nous faire pas mal de changements puisque nous n’avons implémenté aucune de ces règles. Ne vous inquiétez pas, nous avons mis en place des tests unitaires afin de nous assurer qu’il n’y aura pas de régression. Commençons donc par les mettre à jour
 
-==== Les utilisateurs
+=== Les utilisateurs
 
 Commençons donc par le contrôlleur des commandes. Intéressons nous à l’action `show`:
 
@@ -112,7 +113,7 @@ end
 
 Et voilà, ça fait beaucoup de code mais les changements sont minimes
 
-==== Les Sesions
+=== Les Sesions
 
 Pour les sessions, un seul test doit être mis à jour: celui qui récupère le `auth_token`.
 
@@ -137,7 +138,7 @@ end
 
 NOTE: Rappelez vos bien que dans les spécification JSON:API, les undescore (`_`) sont remplacés par des tirets (`-`)
 
-==== Les commandes
+=== Les commandes
 
 Pour les commandes, il y a une petite spécifité car pour récupérer l’utilisateur associé, nous devons passer par la clé `:relationships`. En dehors de ça, le principe reste identique:
 
@@ -210,7 +211,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-===== Les produits
+==== Les produits
 
 Là encore, cela fait beaucoup de code mais en réalité il y a très peu de changement.
 
@@ -290,7 +291,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-==== L’implémentation
+=== L’implémentation
 
 Depuis le début, afin de sérialiser nos modèles, nous avons utilisé _Active Model Serializer_. Heureusement pour nous, cette librairie propose plusieurs *adaptateurs*. Les adapateurs sont en quelques sorte des modèles de JSON à appliquer à tous nos sérialiseur. C’est parfait.
 
@@ -431,7 +432,7 @@ $ git add .
 $ git commit -m "Respect JSON:API response format"
 ----
 
-=== Pagination
+== Pagination
 
 Une stratégie très commune pour optimiser la récupération d’enregistrements dans une base de données est de charger seulement une quantité limitée en les paginant. Si vous êtes familiers avec cette technique, vous savez qu’avec Rails c’est vraiment très facile à mettre en place avec des gemmes telles que https://github.com/mislav/will_paginate[will_paginate] ou https://github.com/kaminari/kaminari[kaminari].
 
@@ -445,7 +446,7 @@ Ce n’est pas très descriptif mais au moins nous avons un indice sur ce qu’i
 
 Commençons par la liste des produits.
 
-==== Les produits
+=== Les produits
 
 Nous allons commencer par paginer la liste des produits car nous n’avons aucune restriction d’accès. Cela nous facilitera les tests. Nous devons d’abord ajouter la gemme de kaminari à notre `Gemfile`:
 
@@ -614,7 +615,7 @@ $ git add .
 $ git commit -m "Adds pagination for the products index action to optimize response"
 ----
 
-==== Liste des commandes
+=== Liste des commandes
 
 Maintenant, il est temps de faire exactement la même chose pour la route de la liste des commandes. Cela devrait être très facile à mettre en œuvre. Mais d’abord, ajoutons quelques tests au fichier `orders_controller_spec.rb`:
 
@@ -710,7 +711,7 @@ Faisons un _commit_ avant d’avancer
 $ git commit -am "Adds pagination for orders index action"
 ----
 
-==== Factorisation de la pagination
+=== Factorisation de la pagination
 
 Si vous avez suivi ce tutoriel ou si vous êtes un développeur Rails expérimenté, vous aimez probablement garder les choses DRY. Vous avez sûrement remarqué que le code que nous venons d’écrire est dupliqué. Je pense que c’est une bonne habitde de nettoyer un peu le code une fois la fonctionnalité implémentée.
 
@@ -865,7 +866,7 @@ Ce serait un bon moment pour _commiter_ les changements et passer à la prochain
 $ git add .
 ----
 
-=== Mise en cache
+== Mise en cache
 
 Il y a actuellement une implémentation pour faire de la mise en cache avec la gemme `active_model_serializers` qui est vraiment facile à manipuler. Bien que dans les anciennes versions de la gemme, cette implémentation peut changer, elle fait le travail.
 
@@ -925,7 +926,7 @@ Nous sommes donc passés de 174 ms à 21 ms. L’amélioration est donc énorme!
 $ git commit -am "Adds caching for the serializers"
 ----
 
-=== Conclusion
+== Conclusion
 
 Si vous arrivez à ce point, cela signifie que vous en avez fini avec le livre. Bon travail! Vous venez de devenir un grand développeur API Rails, c’est sûr.
 

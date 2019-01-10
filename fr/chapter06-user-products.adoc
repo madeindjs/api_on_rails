@@ -1,4 +1,5 @@
-== Produits des utilisateurs
+[#chapter06-user-products]
+= Produits des utilisateurs
 
 Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application. Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu. Nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits de l'utilisateurs. Ce sont les éléments que l’utilisateur vendra dans l’application et par conséquent sera directement lié. Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de _Active Record_.
 
@@ -18,11 +19,11 @@ Avant de commencer,et comme d’habitude quand nous commençons de nouvelles fon
 $ git checkout -b chapter6
 ----
 
-=== Le modèle du produit
+== Le modèle du produit
 
 Nous commencerons d’abord par créer un modèle de `Product` puis nous y ajouterons quelques validations et enfin nous l’associons au modèle `User`. Comme le modèle `User`, le `Product` sera entièrement testé et sera automatiquement supprimé si l’utilisateur est supprimé.
 
-==== Les fondements du produit
+=== Les fondements du produit
 
 Le modèle `Product` aura besoin de plusieurs champs: un attribut `price` pour le prix du produit, un booléen `published` pour savoir si le produit est prêt à être vendu ou non, un `title` pour définir un titre de produit sexy, et enfin et surtout un `user_id` pour associer ce produit particulier à un utilisateur. Comme vous le savez peut-être déjà, nous le générons avec la commande `rails generate`:
 
@@ -110,7 +111,7 @@ end
 
 Maintenant, chaque produit que nous créons ressemblera un peu plus à un vrai produit. Nous devons encore travailler sur le `user_id` tel quel, mais nous y reviendrons plus tard.
 
-==== Validations des produits
+=== Validations des produits
 
 Comme nous l’avons vu avec l’utilisateur, les validations sont une partie importante lors de la construction de tout type d’application. Cela nous permet d’empêcher toute donnée indésirable d’être enregistrée dans la base de données. Pour le produit, nous devons nous assurer, par exemple, que le prix est un nombre et qu’il n’est pas négatif.
 
@@ -159,7 +160,7 @@ $ git add .
 $ git commit -m "Adds product model bare bones along with some validations"
 ----
 
-==== Liaison des produits et des utilisateurs
+=== Liaison des produits et des utilisateurs
 
 Dans cette section, nous allons construire l’association entre le produit et le modèle utilisateur. Nous avons déjà les champs nécessaires, nous avons donc juste besoin de mettre à jour quelques fichiers et nous serons prêts à commencer. Tout d’abord, nous devons modifier la _factory_ de `Product` pour la relier à l’utilisateur. Alors comment faire?
 
@@ -247,7 +248,7 @@ Finished in 0.08411 seconds (files took 0.74624 seconds to load)
 10 examples, 0 failures
 ----
 
-==== Suppression en cascade
+=== Suppression en cascade
 
 Ce que j’ai vu dans le code d’autres développeurs, lorsqu’ils travaillent avec des associations, c’est qu’ils oublient la destruction des dépendances entre les modèles. Ce que je veux dire par là, c’est que si un utilisateur est supprimé, les produits de l’utilisateur devraient l’être aussi.
 
@@ -317,7 +318,7 @@ $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
 ----
 
-=== Point d’entrée pour nos produits
+== Point d’entrée pour nos produits
 
 Il est maintenant temps de commencer à construire les points d’entrée des produits. Pour l’instant, nous allons juste construire cinq actions REST et certaines d’entre elles seront imbriquées dans la ressource utilisateur. Dans le prochain chapitre, nous allons personnaliser la sortie JSON en implémentant la gemme `active_model_serializers`.
 
@@ -347,7 +348,7 @@ end
 
 En guise d’échauffement, nous allons commencer par construire l’action du `show` pour le produit.
 
-==== Action d’affichage d’un produit
+=== Action d’affichage d’un produit
 
 Comme d’habitude, nous commençons par ajouter quelques test du contrôleur des produits. La stratégie ici est très simple, il suffit de créer un seul produit et de s’assurer que la réponse du serveur est celle que nous attendons.
 
@@ -415,7 +416,7 @@ Finished in 0.05474 seconds (files took 0.75052 seconds to load)
 
 Comme vous pouvez déjà le constater, les tests et l’implémentation sont très simples. En fait, cela ressemble beaucoup à ce que nous avons fait pour les utilisateurs.
 
-==== Liste des produits
+=== Liste des produits
 
 Il est maintenant temps de créer une entrée pour une liste de produits, qui pourrait permettre d’afficher le catalogue de produits d’un marché par exemple. Pour ce point d’accès, nous n’exigeons pas que l’utilisateur soit connecté. Comme d’habitude, nous allons commencer à écrire quelques tests:
 
@@ -497,7 +498,7 @@ $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
 ----
 
-==== Création des produits
+=== Création des produits
 
 Créer des produits est un peu plus délicat parce que nous aurons besoin d’une configuration supplémentaire pour donner une meilleure structure à ce point d’entrée. La stratégie que nous suivrons est d’imbriquer les produits, dans les actions des utilisateurs. Ceci nous permettra d’avoir un point d’entrée plus descriptif comme `/users/:user_id/products`.
 
@@ -617,7 +618,7 @@ Finished in 0.21831 seconds (files took 0.75823 seconds to load)
 9 examples, 0 failures
 ....
 
-==== Mise à jour des produits
+=== Mise à jour des produits
 
 J’espère que maintenant vous comprenez la logique pour construire les actions à venir. Dans cette section, nous nous concentrerons sur l’action de mise à jour qui fonctionnera de manière similaire à celle de création. Nous avons juste besoin d’aller chercher le produit dans la base de données et de le mettre à jour.
 
@@ -726,7 +727,7 @@ Finished in 0.24404 seconds (files took 0.75973 seconds to load)
 14 examples, 0 failures
 ----
 
-==== Suppression des produits
+=== Suppression des produits
 
 Notre dernier arrêt pour les route des produits, sera l’action `destroy`. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La stratégie ici sera assez similaire à l’action de `create` et `update`. Ce qui signifie que nous allons imbriquer la route dans les ressources des utilisateurs, puis récupérer le produit auprès de l’association `user.products` et enfin le supprimer en retournant un code 204.
 
@@ -806,7 +807,7 @@ $ git add .
 $ git commit -m "Adds the products create, update and destroy action nested on the user resources"
 ----
 
-=== Remplir la base de données
+== Remplir la base de données
 
 Avant de continuer avec plus de code, remplissons la base de données avec de fausses données. Nous avons des usines qui devraient faire le travail à notre place. Alors utilisons-les.
 
@@ -884,6 +885,6 @@ $ git add .
 $ git commit -m "Updates test environment factory gems to work on development"
 ----
 
-=== Conclusion
+== Conclusion
 
 Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produits à l’aide de la gemme _active model serializers_. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.

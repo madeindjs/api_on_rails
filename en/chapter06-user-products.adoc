@@ -1,4 +1,5 @@
-== User products
+[#chapter06-user-products]
+= User products
 
 On previous chapter we implemented the authentication mechanism who we’ll be using all along the app. Right now we have a very simple implementation of the `user` model but the moment of truth has come where. We will customize the JSON output but also add a second resource: _user products_. These are the items that the user will be selling in the app, and by consequence will be directly associated. If you are familiar with Rails you may already know what I’m talking about. For those who doesn’t known what I'm talking about we will associated the `User` to the `Product` model using the `has_many` and `belongs_to` active record methods.
 
@@ -18,11 +19,11 @@ Before we start and as usual when starting new features, we need to branch it ou
 $ git checkout -b chapter6
 ----
 
-=== Product model
+== Product model
 
 We first start by creating Product model then we add some validations to it and finally we will associate it with the `user` model. As the user model the product will be fully tested and will also have an _automatic destruction_ if the user in this case is destroyed.
 
-==== Product bare bones
+=== Product bare bones
 
 The product model will need several fields:
 
@@ -117,7 +118,7 @@ end
 
 Now each product we create will look a bit more like a real product. We still need to work on the `user_id` as is hardcoded but we will get to that later.
 
-==== Product validations
+=== Product validations
 
 As we saw with the user, validations are an important part when building any kind of application. This will prevent any junk data from being saved onto the database. In the product we have to make sure for example the price is a `number` and that is not negative.
 
@@ -166,7 +167,7 @@ $ git add .
 $ git commit -m "Adds product model bare bones along with some validations"
 ----
 
-==== Product/User association
+=== Product/User association
 
 In this section we will be building the association between the product and the user model, we already have the necessary fields, so we just need to update a couple of files and we will be ready to go. First we need to modify the products factory to relate it to the user. So how do we do that?:
 
@@ -254,7 +255,7 @@ Finished in 0.08411 seconds (files took 0.74624 seconds to load)
 10 examples, 0 failures
 ----
 
-==== Dependency destroy
+=== Dependency destroy
 
 Something I’ve seen in other developers code when working with associations, is that they forget about dependency destruction between models. What I mean by this is that if a user is destroyed, the user’s products in this case should be destroyed as well.
 
@@ -324,7 +325,7 @@ $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
 ----
 
-=== Products endpoints
+== Products endpoints
 
 It is now time to start building the products endpoints. For now we will just build 5 REST actions and some of them will be nested inside the `users` resource. In the next Chapter we will customize the JSON output by implementing the `active_model_serializers` gem.
 
@@ -354,7 +355,7 @@ end
 
 As a warmup we will start nice and easy by building the `show` action for the product.
 
-==== Show action for products
+=== Show action for products
 
 As usual we begin by adding some product `show` controller specs. The strategy here is very simple: we just need to create a single product and make sure the response from server is what we expect.
 
@@ -421,7 +422,7 @@ Finished in 0.05474 seconds (files took 0.75052 seconds to load)
 
 As you may notice already the specs and implementation are very simple. Actually they behave the same as the users.
 
-==== Products list
+=== Products list
 
 Now it is time to output a list of products, which could be displayed as the market place product catalog. This endpoint is also accessible without credentials, that means we don’t require the user to be logged-in to access the data. As usual we will start writing some specs.
 
@@ -487,7 +488,7 @@ $ git add .
 $ git commit -m "Finishes modeling the product model along with user associations"
 ----
 
-==== Creating products
+=== Creating products
 
 Creating products is a bit tricky because we’ll need some extra configuration to give a better structure to this endpoint. The strategy we will follow is to nest the products `create` action into the users which will deliver us a more descriptive endpoint, in this case `/users/:user_id/products`.
 
@@ -607,7 +608,7 @@ Finished in 0.21831 seconds (files took 0.75823 seconds to load)
 9 examples, 0 failures
 ....
 
-==== Updating products
+=== Updating products
 
 Hopefully by now you understand the logic to build the upcoming actions, in this section we will focus on the `update` action, which will work similarly to the `create` one, we just need to fetch the product from the database and the update it.
 
@@ -716,7 +717,7 @@ Finished in 0.24404 seconds (files took 0.75973 seconds to load)
 14 examples, 0 failures
 ----
 
-==== Destroying products
+=== Destroying products
 
 Our last stop for the products endpoints will be the `destroy` action. You might now imagine how this would look like. The strategy in here will be pretty similar to the create and update action (which means we are going to nest the route into the `users` resources) then fetch the product from the `user.products` association and finally destroy it, returning a `204` code.
 
@@ -796,7 +797,7 @@ $ git add .
 $ git commit -m "Adds the products create, update and destroy action nested on the user resources"
 ----
 
-=== Feed the database
+== Feed the database
 
 Before we continue with more code let’s populate the database with some fake data. Thankfully we have some factories that should do the work for us. So let’s do use them.
 
@@ -872,7 +873,7 @@ $ git add .
 $ git commit -m "Updates test environment factory gems to work on development"
 ----
 
-=== Conclusion
+== Conclusion
 
 On the next chapter we will focus on customizing the output from the `user` and `product` models using the active model serializers gem. It will help us to easily filter attributes to display (or handle associations as embebed objects for example).
 

@@ -1,6 +1,7 @@
 = API on Rails 5
 Alexandre Rousseau <contact@rousseau-alexandre.fr>
 v1.0, 2019-01-09
+:doctype: book
 :toc:
 :imagesdir: img
 :title-logo-image: image:logo.svg[]
@@ -13,46 +14,46 @@ v1.0, 2019-01-09
 :author: Alexandre Rousseau
 :description: Apprenez les meilleurs pratiques pour construire une API avec Ruby on Rails
 :front-cover-image: image:cover.svg[]
-:revdate: 2019-01-09
+:revdate: 2019-01-10
 
-include::./00_before.adoc[]
-
-<<<
-
-include::./01_introduction.adoc[]
+include::chapter00-before.adoc[]
 
 <<<
 
-include::./02_api.adoc[]
+include::chapter01-introduction.adoc[]
 
 <<<
 
-include::./03_presenting_users.adoc[]
+include::chapter02-api.adoc[]
 
 <<<
 
-include::./04_refactoring_tests.adoc[]
+include::chapter03-presenting-users.adoc[]
 
 <<<
 
-include::./05_athentification.adoc[]
+include::chapter04-refactoring-tests.adoc[]
 
 <<<
 
-include::./06_user_products.adoc[]
+include::chapter05-athentification.adoc[]
 
 <<<
 
-include::./07_improve_json.adoc[]
+include::chapter06-user-products.adoc[]
 
 <<<
 
-include::./08_placing_orders.adoc[]
+include::chapter07-improve-json.adoc[]
 
 <<<
 
-include::./09_improve_orders.adoc[]
+include::chapter08-placing-orders.adoc[]
 
 <<<
 
-include::./10_optimization.adoc[]
+include::chapter09-improve-orders.adoc[]
+
+<<<
+
+include::chapter10-optimization.adoc[]

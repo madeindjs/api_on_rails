@@ -1,4 +1,5 @@
-== The API
+[#chapter02-api]
+= The API
 
 In this section I’ll outline the application. By now you should have the bare bones of the application. If you did not read it I recommend you to do it.
 
@@ -13,7 +14,7 @@ $ git checkout -b chapter1 b98a9a7a328017640482af95beebc1d6e612e0ac
 
 And as a quick recap, we really just update the `Gemfile` to add the `active_model_serializers` gem.
 
-=== Planning the application
+== Planning the application
 
 As we want to go simple with the application, it consists on five models. Don’t worry if you don’t fully understand what is going on, we will review and build each of these resources as we move on with the tutorial.
 
@@ -25,7 +26,7 @@ We are not going to build views for displaying or interacting with the API, so n
 
 By this point you must be asking yourself, all right but I need to explore or visualize the api we are going to be building, and that’s fair. Probably if you google something related to api exploring, an application called https://www.getpostman.com/[Postman] will pop. It is a great software but we won’t be using that anyway because we'll use cURL who allow anybody to reproduce request on any computer.
 
-=== Setting the API
+== Setting the API
 
 An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 
@@ -54,7 +55,7 @@ RESTful APIs must follow at least three simple guidelines:
 
 This might not be clear enough or may look like a lot of information to digest but as we move on with the tutorial, hopefully it’ll get a lot easier to understand.
 
-==== Routes, Constraints and Namespaces
+=== Routes, Constraints and Namespaces
 
 Before start typing any code, we prepare the code with git, the workflow we’ll be using a branch per chapter, upload it to Github and then merge it with master, so let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
 
@@ -166,7 +167,7 @@ $ git commit -m "Set the routes contraints for the api"
 
 All right take a deep breath, drink some water, and let’s get going.
 
-=== Api versioning
+== Api versioning
 
 At this point we should have a nice routes mapping using a subdomain for name spacing the requests, your `routes.rb` file should look like this:
 
@@ -368,7 +369,7 @@ Finished in 0.00294 seconds (files took 0.06292 seconds to load)
 2 examples, 0 failures
 ----
 
-=== Conclusion
+== Conclusion
 
 It’s been a long way, I know, but you made it, don’t give up this is just our small scaffolding for something big, so keep it up. In the meantime and I you feel curious there are some gems that handle this kind of configuration:
 

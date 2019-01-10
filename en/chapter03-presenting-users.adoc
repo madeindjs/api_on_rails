@@ -1,4 +1,5 @@
-== Presenting the users
+[#chapter03-presenting-users]
+= Presenting the users
 
 In the last chapter we manage to set up the bare bones for our application endpoints configuration. We even added versioning through headers. In a next chapter we will handle users authentication through authentication tokens as well as setting permissions to limit access for let’s say signed in users. In coming chapters we will relate `products` to users and give them the ability to place orders.
 
@@ -40,7 +41,7 @@ $ git checkout -b chapter3
 
 Just make sure you are on the `master` branch before checking out.
 
-=== User model
+== User model
 
 We need to first add the `devise` gem into the `Gemfile`
 
@@ -161,7 +162,7 @@ $ git add .
 $ git commit -m "Adds devise user model"
 ----
 
-=== First user tests
+== First user tests
 
 We will add some specs to make sure the `user` model responds to the `email`, `password` and `password_confirmation` attributes provided by devise, let’s add them. Also for convenience we will modify the `users` factory file to add the corresponding attributes.
 
@@ -212,7 +213,7 @@ $ git add .
 $ git commit -am 'Adds user firsts specs'
 ----
 
-=== Improving validation tests
+== Improving validation tests
 
 It is showtime people, we are building our first endpoint. We are just going to start building the `show` action for the user which is going to expose a `user` record in plain old JSON. We first need to generate the `users_controller`, add the corresponding tests and then build the actual code.
 
@@ -373,7 +374,7 @@ $ git add .
 $ git commit -m "Adds show action the users controller"
 ----
 
-==== Testing endpoints with CURL
+=== Testing endpoints with CURL
 
 So we finally have an endpoint to test. There are plenty of options to start playing with. The first that come to my mind is using http://curl.haxx.se/[cURL] because is built-in on almost any Linux distribution and of course on your Mac OSX. So let’s try it out:
 
@@ -422,7 +423,7 @@ $ git add .
 $ git commit -m "Updates application controller to prevent CSRF exception from being raised"
 ----
 
-==== Creating users
+=== Creating users
 
 Now that we have a better understanding on how to build endpoints and how they work, it’s time to add more abilities to the API. One of the most important is letting the users actually create a profile on our application. As usual we will write tests before implementing our code extending our testing suite.
 
@@ -546,7 +547,7 @@ $ git add .
 $ git commit -m "Adds the user create endpoint"
 ----
 
-==== Update users
+=== Update users
 
 The pattern for *updating* users is very similar as *creating* new ones. If you are an experienced Rails developer you may already know the differences between these two actions:
 
@@ -657,7 +658,7 @@ $ git add .
 $ git commit -m "Adds update action the users controller"
 ----
 
-==== Destroying users
+=== Destroying users
 
 So far we have built a bunch of actions on the users controller along with their tests but we have not ended yet. We are just missing one more which is the destroy action. So let’s do that:
 
@@ -728,6 +729,6 @@ $ git add .
 $ git commit -m "Adds destroy action to the users controller"
 ----
 
-=== Conclusion
+== Conclusion
 
 Oh you are here!, great job! I know it probably was a long way, but don’t give up you are doing it great. Make sure you are understanding every piece of code, things will get better, in next chapter we will refactor our tests to clean our code a bit and make it easy to extend the test suite more. So stay with me guys!

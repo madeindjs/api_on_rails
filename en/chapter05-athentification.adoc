@@ -1,4 +1,5 @@
-== Authenticating users
+[#chapter05-athentification]
+= Authenticating users
 
 It’s been a long way since you started. I hope you are enjoying this trip as much as me. On previous chapter we refactor our test suite and since we did not add much code. If you skipped that chapter I recommend you read it. As we are going to be using some of the methods in the chapters to come.
 
@@ -18,7 +19,7 @@ First things first (and as usual when starting a new chapter) we will create a n
 $ git checkout -b chapter5
 ----
 
-=== Session sans état
+== Session sans état
 
 Before we go any further, something must be clear: *an API does not handle sessions*. If you don’t have experience building these kind of applications it might sound a little crazy but stay with me. An API should be stateless which means by definition _is one that provides a response after your request, and then requires no further attention._. Which means no previous or future state is required for the system to work.
 
@@ -33,7 +34,7 @@ Of course this is not the only 3-step to follow, and even on step 2 you might th
 
 In this section and the next we will be focusing on building a Sessions controller along with its corresponding actions. We’ll then complete the request flow by adding the necessary authorization access.
 
-==== Authentication token
+== Authentication token
 
 Before we proceed with the logic on the sessions controller, we have to first add the `authentication token` field to the `user` model and then add a method to actually set it.
 
@@ -202,7 +203,7 @@ $ git add .
 $ git commit -m "Adds user authentification token"
 ----
 
-==== Sessions controller
+== Sessions controller
 
 Back to the sessions controller the `actions` we’ll be implementing on it are going to be handled as RESTful services: the sign in will be handled by a _POST_ request to the `create` action and the sign out will be handled by a _DELETE_ request to the `destroy` action.
 
@@ -238,7 +239,7 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
 end
 ----
 
-===== Sign in success
+=== Sign in success
 
 Our first stop will be the `create` action. But first let’s generate our tests:
 
@@ -348,7 +349,7 @@ $ git add .
 $ git commit -m "Adds sessions controller create action"
 ----
 
-===== Sign out
+=== Sign out
 
 We currently have the `sign in` end point for the API. Now it is time to build a `sign out` url. You might wonder why since we are not handling `sessions` and there is nothing to destroy. In this case we are going to update the authentication token so the last one becomes useless and cannot be used again.
 
@@ -401,7 +402,7 @@ $ git add .
 $ git commit -m "Adds destroy session action added"
 ----
 
-=== Current User
+== Current User
 
 If you have worked with https://github.com/plataformatec/devise[devise] before you probably are familiar with the auto-generated methods for handling the authentication filters or getting the user that is currently on session. footnote:[See https://github.com/plataformatec/devise#getting-started[documentation] on this for more details).]
 
@@ -470,9 +471,9 @@ end
 
 Now our tests should be green:
 
-[source,bash]
+[source]
 ----
-$ bundle exec rspec spec/controllers/concerns/authenticable_spec.rb
+$ rspec spec/controllers/concerns/authenticable_spec.rb
 .
 
 Finished in 0.0149 seconds (files took 0.49496 seconds to load)
@@ -498,7 +499,7 @@ $ git add .
 $ git commit -m "Adds authenticable module for managing authentication methods"
 ----
 
-=== Authenticate with token
+== Authenticate with token
 
 Authorization is a big part when building applications because in contrary to authentication that allows us to identify the user in the system, authorization help us to define what they can do.
 
@@ -559,7 +560,7 @@ Let's commit these changes and keep moving forward:
 $ git commit -m "Adds the authenticate with token method to handle access to actions"
 ----
 
-=== Authorize actions
+== Authorize actions
 
 It is now time to update our `users_controller.rb` file to deny the access to some of the actions. Also we will implement the `current_user` method on the `update` and `destroy` actions to make sure that the user who is on *`session'* will be capable only to `update` its data or self `destroy`.
 
@@ -811,7 +812,7 @@ $ git add .
 $ git commit -m "Adds user_signed_in? method to know whether the user is logged in or not"
 ----
 
-=== Conclusion
+== Conclusion
 
 Yeah! you made it! you are half way done! Keep up the good work. This chapter was a long and hard one but it is a great step forward on setting a solid mechanism for handling user authentication. We even scratch the surface for simple authorization rules.
 

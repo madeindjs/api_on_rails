@@ -1,4 +1,5 @@
-== JSON with Active Model Serializers
+[#chapter07-improve-json]
+= JSON with Active Model Serializers
 
 In previous chapter we added a `products` resource to the application and built all the necessary endpoints up to this point. We also associated the product model with the user and protected some of the `products_controller` actions on the way. By now you should feel really happy with all the work but we still have to do some heavy lifting. Currently we have something which look like this:
 
@@ -55,7 +56,7 @@ Let’s branch out this chapter with:
 $ git checkout -b chapter7
 ----
 
-=== Setting up the gem
+== Setting up the gem
 
 If you have been following the tutorial all along. you should already have the gem installed. But in case you just landed here I’ll walk you through the setup.
 
@@ -70,7 +71,7 @@ gem 'active_model_serializers', '~> 0.10.8'
 
 Run the `bundle install` command to install the gem and that is it. You should be all set to continue with the tutorial.
 
-=== Serialise the user model
+== Serialise the user model
 
 First we need to add a `user_serializer` file. We can do it manually but the gem already provides a command line interface to do so:
 
@@ -133,7 +134,7 @@ $ git commit -am "Adds user serializer for customizing the json output"
 
 We can also test the serializer objects as shown on the https://github.com/rails-api/active_model_serializers#rspec[documentation] but I’ll let that to you to decide whether or not to test.
 
-=== Serialize the product model
+== Serialize the product model
 
 Now that we kind of understand how the serializers gem works it is time to customize the products output. The first step and as with the user we need a product serializer. So let’s do that:
 
@@ -161,7 +162,7 @@ $ git add .
 $ git commit -a "Adds product serializer for custom json output"
 ----
 
-=== Serializing associations
+== Serializing associations
 
 We have been working with serializers and you may notice that it is quite simple. In some cases the hard decision is how to name your endpoints, or how to structure the JSON output, so your solution is kept through time.
 
@@ -285,7 +286,7 @@ Finished in 0.57068 seconds (files took 0.67788 seconds to load)
 60 examples, 0 failures
 ----
 
-==== Embedding products on users
+=== Embedding products on users
 
 By now you may be asking yourself if you should embed the products into the user the same as the the section above. Although it may sound fair, this can take to severe optimization problems, as you could be loading huge amounts of information and it is really easy to fall into the http://en.wikipedia.org/wiki/Circular_reference[Circular Reference problem] footnote:[in short loops the program until it runs out of memory and throws you and error or never respond you at all].
 
@@ -416,7 +417,7 @@ Let’s commit the changes:
 $ git commit -am "Embeds the products_ids into the user serialiser and fetches the correct products from the index action endpoint"
 ----
 
-=== Searching products
+== Searching products
 
 In this last section we will keep up the heavy lifting on the `index` action for the products controller by implementing a super simple search mechanism to let any client filter the results. This section is optional as it’s not going to have impact on any of the modules in the app. If you want to practice more with TDD and keep the brain warm I recommend you complete this last step.
 
@@ -430,7 +431,7 @@ We will filter the products by the following criteria:
 
 This may sound short and easy but believe me it will give you a headache if you don’t plan it.
 
-==== By keyword
+=== By keyword
 
 We will create a scope to find the records which match a particular pattern of characters, let’s called it `filter_by_title`, let’s add some specs first:
 
@@ -485,7 +486,7 @@ Finished in 0.17178 seconds (files took 3.59 seconds to load)
 11 examples, 0 failures
 ----
 
-==== By price
+=== By price
 
 In order to filter by price things can get a little bit tricky but actually it is very easy. We will break the logic to filter by price into two different methods: one which will fetch the products greater than the price received and the other one to look for the ones under that price. By doing this we keep everything really flexible and we can easily test the scopes.
 
@@ -585,7 +586,7 @@ Finished in 0.18008 seconds (files took 0.6544 seconds to load)
 
 As you can see we have not gotten in a lot of trouble. Let’s just add another scope to sort the records by date of last update. This is because in case the proprietary of the product decides to update some of the data, the client always fetches the most updated records.
 
-==== Sort by creation
+=== Sort by creation
 
 This scope is super easy, let’s add some specs first:
 
@@ -645,7 +646,7 @@ Now it would be a good time to commit the changes as we are done adding scopes:
 $ git commit -am "Adds search scopes on the product model"
 ----
 
-==== Search engine
+=== Search engine
 
 Now that we have the ground base for the search engine we’ll be using in the app it is time to implement a simple but powerful search method, which will handle all the logic for fetching product records.
 
@@ -748,7 +749,7 @@ Let's commit theses changes:
 $ git commit -am "Adds search class method to filter products"
 ----
 
-=== Conclusion
+== Conclusion
 
 On chapters to come, we will start building the `Order` model, associate it with users and products, which so far and thanks to the https://github.com/rails-api/active_model_serializers[active_model_serializers] gem, it’s been easy.
 

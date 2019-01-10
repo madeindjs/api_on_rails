@@ -1,4 +1,5 @@
-== Refactoring tests
+[#chapter04-refactoring-tests]
+= Refactoring tests
 
 In previous chapter we manage to put together some `user` resources endpoints. If you skip it (or simple missed it) I highly recommend you take a look at it. It covers the first test specs and an introduction to JSON responses.
 
@@ -136,7 +137,7 @@ So let’s add a method for handling the JSON response. If you have been followi
 $ git checkout -b chapter4
 ----
 
-=== Refactoring the JSON response
+== Refactoring the JSON response
 
 Back to the `refactor`, we will add file under the `spec/support` directory. Currently we don’t have this directory. So let’s add it:
 
@@ -207,7 +208,7 @@ $ git add .
 $ git commit -m "Refactors the json parse method"
 ----
 
-=== Refactoring the format param
+== Refactoring the format param
 
 We want to remove the `format` param sent on every request and instead of that let’s handle the response we are expecting through headers. This is extremely easy just by adding one line to our `users_controller_spec.rb` file:
 
@@ -248,7 +249,7 @@ As always this is a good time to commit:
 $ git commit -am "Factorize format for unit tests"
 ----
 
-=== Refactor before actions
+== Refactor before actions
 
 I’m very happy with the code we got so far but we can still improve it a little bit. The first thing that comes to my mind is to group the three custom headers being added before each request:
 
@@ -351,6 +352,6 @@ $ git commit -am "Refactors test headers for each request"
 
 Remember you can review the code up to this point at the https://github.com/madeindjs/api_on_rails[Github repository].
 
-=== Conclusion
+== Conclusion
 
 Nice job on finishing this chapter. Although it was a short one it was a crucial step as this will help us write better and faster tests. On next chapter we will add the authentication mechanism so we’ll be using across the application as well as limiting the access for certain actions.

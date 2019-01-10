@@ -1,4 +1,5 @@
-== Factoriser les tests
+[#chapter04-refactoring-tests]
+= Factoriser les tests
 
 Dans le chapitre précédent nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n’avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c’est une introduction aux réponses JSON.
 
@@ -136,7 +137,7 @@ Ajoutons donc une méthode pour gérer la réponse JSON. Mais avant de continuer
 $ git checkout -b chapter4
 ----
 
-=== Factorisation de la réponse JSON
+== Factorisation de la réponse JSON
 
 De retour à notre factorisation, nous allons créer un fichier sous le répertoire `spec/support`. Actuellement, nous n’avons pas ce répertoire, alors créons-le:
 
@@ -208,7 +209,7 @@ $ git add .
 $ git commit -m "Refactors the json parse method"
 ----
 
-=== Factoriser le paramètre du format
+== Factoriser le paramètre du format
 
 Nous voulons supprimer les paramètres `format: :json` envoyés sur chaque requête. Pour le faire c’est extrêmement facile. Il suffit simplement d’ajouter une ligne à notre fichier `users_controller_spec.rb`:
 
@@ -249,7 +250,7 @@ Et comme à chaque fois, c’est le bon moment pour `commit`:
 $ git commit -am "Factorize format for unit tests"
 ----
 
-=== Factoriser le paramètre du format
+== Factoriser le paramètre du format
 
 Je suis vraiment satisfait du code que nous avons obtenu, mais nous pouvons faire encore mieux. La première chose qui me vient à l’esprit est de regrouper les 3 en-têtes personnalisés ajoutés avant chaque requête:
 
@@ -354,6 +355,6 @@ $ git commit -am "Refactors test headers for each request"
 
 Rappelez-vous que vous pouvez revoir le code jusqu’à ce point dans le https://github.com/madeindjs/api_on_rails/[dépôt Github].
 
-=== Conclusion
+== Conclusion
 
 Pour finir ce chapitre, bien qu’il ait été court, c’était une étape cruciale car cela nous aidera à écrire des tests plus rapides. Dans le prochain chapitre, nous ajouterons le mécanisme d’authentification que nous utiliserons à travers l’application ainsi que la restriction de l’accès à certaines actions.

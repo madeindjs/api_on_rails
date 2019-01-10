@@ -1,4 +1,5 @@
-== Optimizations
+[#chapter10-optimization]
+= Optimizations
 
 Welcome to the last chapter of the book. It’s been a long way and you are only one step away from the end. Back in previous chapter we finish modeling the `Order` model and we could say that the project is done by now, but I want to cover some important details about optimization. The topics I’m going to cover in here will be:
 
@@ -22,7 +23,7 @@ Let’s now create a branch to start working:
 $ git checkout -b chapter10
 ----
 
-=== Setup more https://jsonapi.org/[JSON:API] specifications
+== Setup more https://jsonapi.org/[JSON:API] specifications
 
 As I have been telling you since the beginning of this book, an important and difficult part of creating your API is deciding the output format. Fortunately, some organizations have already faced this type of problem and have established certain conventions.
 
@@ -46,7 +47,7 @@ The content of the `data` key is also quite strict:
 
 This may cause us a lot of change since we have not implemented any of its rules. Don’t worry, we have set up unit tests to ensure that there will be no regression. Let’s start with doc updating them
 
-==== Users
+=== Users
 
 So let’s start with users controller. Take a look at `show` action:
 
@@ -112,7 +113,7 @@ end
 
 And that’s it. It display a lot of code but there are few changes.
 
-==== User’s sessions
+=== User’s sessions
 
 Only one test should be updated for user’s sessions: the one who get `auth_token`.
 
@@ -138,7 +139,7 @@ end
 
 NOTE: Remember that JSON:API specifications use dashes (`-`) instead of underscore (`_`)
 
-==== Orders
+=== Orders
 
 There are one specificity for orders controller: we also get linked user. So to do so we need to use the `:relationships`. Apart from that, the principle remains the same:
 
@@ -211,7 +212,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-===== Product
+==== Product
 
 Again, that’s a lot of code, but in reality there’s very little change.
 
@@ -292,7 +293,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-==== Implementation
+=== Implementation
 
 From the beginning, in order to serialize our models, we used _Active Model Serializer_. Fortunately for us this library offers several *adapters*. The adapters are in a way JSON models to be applied to all our serializers. It’s perfect.
 
@@ -433,7 +434,7 @@ $ git add .
 $ git commit -m "Respect JSON:API response format"
 ----
 
-=== Pagination
+== Pagination
 
 A very common strategy to optimize an array of records from the database, is to load just a few by paginating them and if you are familiar with this technique you know that in Rails is really easy to achieve it whether if you are using https://github.com/mislav/will_paginate[will_paginate] or https://github.com/amatsuda/kaminari[kaminari].
 
@@ -447,7 +448,7 @@ It is not very descriptive but at least we have a hint on what to look next abou
 
 Let’s start with the `products` list.
 
-==== Products
+=== Products
 
 We are going to start nice and easy by paginating the products list as we don’t have any kind of access restriction which leads to easier testing.
 
@@ -618,7 +619,7 @@ $ git add .
 $ git commit -m "Adds pagination for the products index action to optimize response"
 ----
 
-==== Orders list
+=== Orders list
 
 Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first, let’s add some specs to the `orders_controller_spec.rb` file:
 
@@ -714,7 +715,7 @@ Let’s place and commit, because a refactor is coming:
 $ git commit -am "Adds pagination for orders index action"
 ----
 
-==== Refactoring pagination
+=== Refactoring pagination
 
 If you have followed this tutorial or if you are an experienced Rails developer, you probably like to keep things DRY. You may have noticed that the code we just wrote is duplicated. I think it’s a good habit to clean up the code a little once the functionality is implemented.
 
@@ -869,7 +870,7 @@ This would be a good time to _commit_ the changes and move on to the next sectio
 $ git add .
 ----
 
-=== API Caching
+== API Caching
 
 There is currently an implementation to do caching with the gem `active_model_serializers` which is really easy to handle. Although in older versions of the gem, this implementation can change, it does the job.
 
@@ -929,7 +930,7 @@ So we went from 174 ms to 21 ms. The improvement is therefore enormous! Let’s 
 $ git commit -am "Adds caching for the serializers"
 ----
 
-=== Conclusion
+== Conclusion
 
 If you get to that point, it means you’re done with the book. Good work! You have just become a great API Rails developer, that’s for sure.
 

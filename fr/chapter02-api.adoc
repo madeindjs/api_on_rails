@@ -1,4 +1,5 @@
-== L’API
+[#chapter02-api]
+= L’API
 
 Dans ce chapitre, je vais vous donner les grandes lignes de l’application. Vous devriez avoir lu le chapitre précédent. Si ce n’est pas le cas, je vous recommande de le faire.
 
@@ -13,7 +14,7 @@ $ git checkout -b chapter1 b98a9a7a328017640482af95beebc1d6e612e0ac
 
 Pour résumer, nous avons mis à jour le `Gemfile` pour ajouter la gemme `active_model_serializers`.
 
-=== Planification de l’application
+== Planification de l’application
 
 Notre application sera assez simple. Elle se composera de cinq modèles. Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
 
@@ -29,7 +30,7 @@ Nous n’allons pas construire d’interface pour l’interaction avec l’API a
 
 C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outils en ligne de commande disponnible presque partout.
 
-=== Mettre en place l’API
+== Mettre en place l’API
 
 Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme _une interface de programmation d’application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d’autres logiciels_. En d’autres termes, il s’agit d’une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)footnote:[Il existe d’autres types de protocoles de communication comme SOAP, mais nous n’en parlons pas ici.].
 
@@ -62,7 +63,7 @@ Les API _RESTful_ doivent suivre au minimum trois règles:
 
 Cela peut sembler compliqué mais au fur et à mesure que nous avancerons dans le tutoriel cela deviendra beaucoup plus facile à comprendre.
 
-==== Routes, contraintes et _Namespaces_
+=== Routes, contraintes et _Namespaces_
 
 Avant de commencer à taper du code, nous allons préparer le répertoire Git. Le _workflow_ que nous allons suivre est le suivant:
 
@@ -160,7 +161,7 @@ end
 
 Vous voyez la différence? Nous n’avons pas seulement ajouté un https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l’option chemin d’accès et lui avons donné un _backslash_. Cela indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
 
-==== Les conventions des API
+=== Les conventions des API
 
 Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d’une API. En supposant que nous versionnons notre api:
 
@@ -176,7 +177,7 @@ $ git add config/routes.rb
 $ git commit -m "Set the routes contraints for the api"
 ----
 
-=== Versionnement de l’API
+== Versionnement de l’API
 
 A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l’espacement des noms des requêtes. Votre fichier `routes.rb` devrait ressembler à ceci:
 
@@ -216,7 +217,7 @@ end
 
 L’API est désormais _scopée_ via l’URL. Par exemple, avec la configuration actuelle, la récupération d’un produit via l’API se ferait avec cette url: http://api.marketplace.dev/v1/products/1.
 
-=== Améliorer le versionnement
+== Améliorer le versionnement
 
 Jusqu’à présent, l’API est versionnée via l’URL. Mais quelque chose ne va pas. De mon point de vue, le développeur ne devrait pas être au courant de la version qu’il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir?
 
@@ -373,7 +374,7 @@ Finished in 0.00294 seconds (files took 0.06292 seconds to load)
 2 examples, 0 failures
 ----
 
-=== Conclusion
+== Conclusion
 
 Ça a été un long, je sais, mais vous avez réussi! N’abandonnez pas, c’est juste notre petite fondation pour quelque chose de grand, alors continuez comme ça. Sachez qu’il y a des gemmes qui gèrent ce genre de configuration pour nous:
 

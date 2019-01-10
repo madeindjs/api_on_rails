@@ -1,4 +1,5 @@
-== Présentation des utilisateurs
+[#chapter03-presenting-users]
+= Présentation des utilisateurs
 
 Dans le chapitre précédent, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le _versioning_ par le biais des *en-têtes HTTP*. Dans les prochains chapitres, nous traiterons l’authentification des utilisateurs à l’aide de jetons d’authentification ainsi que la définition de permissions pour limiter l’accès aux utilisateurs connectés. Nous relierons ensuite les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
 
@@ -40,7 +41,7 @@ $ git checkout -b chapter3
 
 Assurez-vous simplement d’être sur la branche `master` avant.
 
-=== Modèle d’utilisateur
+== Modèle d’utilisateur
 
 Nous devons d’abord ajouter la gemme Devise au `Gemfile`
 
@@ -116,7 +117,7 @@ $ git add .
 $ git commit -m "Adds devise user model"
 ----
 
-=== Notre premier test sur le modèle User
+== Notre premier test sur le modèle User
 
 Nous allons ajouter quelques spécifications pour nous assurer que le modèle utilisateur répond aux attributs `email`, `password` et `password_confirmation` fournis par Devise. Pour des raisons de commodité, nous allons modifier le fichier d’usine des utilisateurs pour ajouter les attributs correspondants.
 
@@ -168,7 +169,7 @@ $ git add .
 $ git commit -am 'Adds user firsts specs'
 ----
 
-=== Construire les utilisateurs
+== Construire les utilisateurs
 
 Il est temps de faire notre premier point d’entrée. Nous allons juste commencer à construire l’action `show` pour l’utilisateur qui va afficher un utilisateur en JSON. Nous devons d’abord générer le `users_controller`, ajouter les tests correspondants et ensuite construire le code réel. Tout d’abord, nous générons le contrôleur utilisateur:
 
@@ -328,7 +329,7 @@ $ git add .
 $ git commit -m "Adds show action the users controller"
 ----
 
-==== Tester notre ressource avec cURL
+=== Tester notre ressource avec cURL
 
 Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions pour la tester. La première qui me vient à l’esprit est l’utilisation de cURL qui est intégré dans presque toutes les distributions Linux. Alors, essayons:
 
@@ -377,7 +378,7 @@ $ git add .
 $ git commit -m "Updates application controller to prevent CSRF exception from being raised"
 ----
 
-==== Créer les utilisateurs
+=== Créer les utilisateurs
 
 Maintenant que nous avons une meilleure compréhension de la façon de construire des points d’entrée, il est temps d’étendre notre API. Une des fonctionnalités les plus importante est de laisser les utilisateurs créer un profil sur notre application. Comme d’habitude, nous allons écrire des tests avant d’implémenter notre code pour étendre notre suite de tests.
 
@@ -498,7 +499,7 @@ $ git add .
 $ git commit -m "Adds the user create endpoint"
 ----
 
-==== Mettre à jour les utilisateurs
+=== Mettre à jour les utilisateurs
 
 Le schéma de mise à jour des utilisateurs est très similaire à celui de la création. Si vous êtes un développeur de Rails expérimenté, vous connaissez peut-être déjà les différences entre ces deux actions:
 
@@ -607,7 +608,7 @@ $ git add .
 $ git commit -m "Adds update action the users controller"
 ----
 
-==== Supprimer l’utilisateur
+=== Supprimer l’utilisateur
 
 Jusqu’à présent, nous avons construit pas mal d’actions sur le contrôleur des utilisateurs avec leurs tests mais ce n’est terminé. Il nous en manque juste une dernière qui est l’action de destruction. Créons donc le test:
 
@@ -677,6 +678,6 @@ $ git add .
 $ git commit -m "Adds destroy action to the users controller"
 ----
 
-=== Conclusion
+== Conclusion
 
 Oh vous êtes là! Bien joué! Je sais que c’était probablement long mais n’abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s’améliorer, dans le prochain chapitre, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!

@@ -1,5 +1,5 @@
-
-== Introduction
+[#chapter01-introduction]
+= Introduction
 
 Bienvenue sur API on Rails 5, un tutoriel sous stéroïdes pour apprendre la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 5.2 qui est la version actuelle footnote:[pour plus d’informations à ce sujet, consultez http://rubyonrails.org/[rubyonrails.org]]. La version la plus récente de APIs on Rails 5 se trouve sur https://github.com/madeindjs/api_on_rails/[Github]. N'oubliez pas de mettre à jour votre version hors ligne si c’est le cas.
 
@@ -20,7 +20,7 @@ L’application finale sera une application de place de marché footnote:[Une ap
 
 Tout au long de ce voyage (cela dépend de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J’ai aussi pris certaines des pratiques que j’ai trouvées sur http://railscasts.com/[Railscasts], http://codeschool.com/[CodeSchool] et http://jsonapi.org/format/[JSON API].
 
-=== Conventions sur ce livre
+== Conventions sur ce livre
 
 Les conventions de ce livre sont basées sur celles du https://www.railstutorial.org/book[Tutoriel Ruby on Rails]. Dans cette section, je vais en mentionner quelques-unes que vous ne connaissez peut-être pas.
 
@@ -40,22 +40,22 @@ J’utiliserai quelques principes spécifiques à Ruby. C’est-à-dire:
 
 Si vous rencontrez une erreur quelconque lors de l’exécution d’une commande, je vous recommande d’utiliser votre moteur de recherche pour trouver votre solution. Malheureusement, je ne peux pas couvrir toutes les erreurs possibles. Si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours mailto:contact@rousseau-alexandre.fr[m’envoyer un email].
 
-=== Environnements de développement
+== Environnements de développement
 
 Pour presque tous les développeurs, l’une des parties les plus douloureuses est de mettre en place un environnement de développement confortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d’enfant. Je vais vous guider dans cette étape afin de vous faciliter la tâche et de vous motiver.
 
-==== Éditeurs de texte et Terminal
+=== Éditeurs de texte et Terminal
 
 Les environnements de développement diffèrent d’un ordinateur à l’autre. Ce n’est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant certains pensent que c’est la meilleure façon de travailler. Si c’est votre cas, je vous recommande d’essayer http://www.aptana.com/products/radrails[RadRails] ou http://www.jetbrains.com/ruby/index.html[RubyMine]. Tous deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux qui, comme moi, préfèrent des outils simples, je peux vous dire qu’il existe beaucoup d’outils disponibles que vous pourrez personnaliser via des plugins et plus.
 
 * *Éditeur de texte*: J’utilise personnellement http://www.vim.org/[Vim] comme éditeur. Au cas où vous n’êtes pas un fan de Vim, il y a beaucoup d’autres solutions comme http://www.sublimetext.com/[Sublime Text] qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par http://macromates.com/[TextMate]. Une troisième option est d’utiliser un éditeur de texte plus récent comme https://atom.io/[Atom] de http://gitub.com/[Github]. C’est un éditeur de texte prometteur fait en JavaScript. Il est facile à personnaliser pour répondre à vos besoins. N’importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui où vous êtes le plus à l’aise.
 * *Terminal*: Je ne suis pas un fan de l’application Terminal par défaut sous Mac OS. Je recommande http://www.iterm2.com/#/section/home[iTerm2], qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
 
-==== Navigateur web
+=== Navigateur web
 
 Quand il s’agit de navigateurs, je conseillerai directement http://www.mozilla.org/en-US/firefox/new/[Firefox]. Mais d’autres développeurs utilisent https://www.google.com/intl/en/chrome/browser/[Chrome] ou même https://www.apple.com/safari/[Safari]. N’importe lequel d’entre eux vous aidera à construire l’application que vous voulez. Ils proposent tous un bon inspecteur pour le DOM, un analyseur de réseau et de nombreuses autres fonctionnalités que vous connaissez peut-être déjà.
 
-==== Gestionnaire de paquets
+=== Gestionnaire de paquets
 
 * *Mac OS*: Il existe de nombreuses options pour gérer la façon dont vous installez les paquets sur votre Mac, comme https://www.macports.org/[Mac Ports] ou http://brew.sh/[Homebrew]. Les deux sont de bonnes options, mais je choisirais la dernière. J’ai rencontré moins de problèmes lors de l’installation de logiciels avec Homebrew. Pour installer `brew` il suffit d’exécuter la commande ci-dessous:
 
@@ -66,14 +66,14 @@ $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/inst
 
 * *Linux*: Vous êtes déjà prêts! Peu importe si vous utilisez `apt`, `pacman`, `yum` tant que vous vous sentez à l’aise et que vous savez comment installer des paquets.
 
-==== Git
+=== Git
 
 Nous utiliserons beaucoup Git et vous devriez aussi l’utiliser (non seulement pour ce tutoriel mais aussi pour tous vos projets). Pour l’installer, c’est très facile:
 
 * sous Mac OS: `$ brew install git`
 * sous Linux: `$ sudo apt-get install git`
 
-==== Ruby
+=== Ruby
 
 Il existe de nombreuses façons d’installer et de gérer Ruby. Vous devriez probablement déjà avoir une version installée sur votre système. Pour connaître votre version, tapez simplement:
 
@@ -101,7 +101,7 @@ $ rvm install 2.5
 
 Si tout s’est bien passé, il est temps d’installer le reste des dépendances que nous allons utiliser.
 
-===== Gemmes, Rails et bibliothèques manquantes
+==== Gemmes, Rails et bibliothèques manquantes
 
 Tout d’abord, nous mettons à jour les Gemmes sur l’ensemble du système:
 
@@ -135,7 +135,7 @@ $ rails -v 5.2
 5.2.0
 ----
 
-===== Bases de données
+==== Bases de données
 
 Je vous recommande fortement d’installer http://www.postgresql.org/[Postgresql] pour gérer vos bases de données. Mais ici, pour plus de simplicité, nous allons utiliser http://www.sqlite.org/[SQlite]. Si vous utilisez Mac OS vous n’avez pas de bibliothèques supplémentaires à installer. Si vous êtes sous Linux, ne vous inquiétez pas, je vous guide:
 
@@ -151,7 +151,7 @@ ou
 $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 ----
 
-=== Initialisation du projet
+== Initialisation du projet
 
 Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n’est pas le cas, jetez un coup d’œil à cette section.
 
@@ -170,7 +170,7 @@ $ rails new market_place_api --skip-test --api
 
 Comme vous pouvez le deviner, les commandes ci-dessus généreront les éléments indispensables à votre application Rails. La prochaine étape est d’ajouter quelques gemmes que nous utiliserons pour construire l’API.
 
-==== Installer Pow ou Prax
+=== Installer Pow ou Prax
 
 Vous pouvez vous demander:
 
@@ -178,7 +178,7 @@ Vous pouvez vous demander:
 
 La réponse est simple: parce que nous allons travailler avec des http://en.wikipedia.org/wiki/Subdomain[sous-domaines]. http://pow.cx/[Pow] et https://github.com/ysbaddaden/prax.cr[Prax] vont nous aider a les créer très facilement.
 
-===== Installer Pow
+==== Installer Pow
 
 Pow ne fonctionne que sous Mac OS. Mais ne vous inquiétez pas: il existe une alternative qui imite les fonctionnalités sous Linux. Pour l’installer, tapez simplement:
 
@@ -203,7 +203,7 @@ $ ln -s ~/workspace/market_place_api
 
 N’oubliez pas de changer le répertoire utilisateur pour celui qui correspond au vôtre. Vous pouvez maintenant accéder à l’application via http://market_place_api.dev/. Votre application devrait être en cours d’exécution.
 
-===== Installer Prax
+==== Installer Prax
 
 Pour les utilisateurs de Linux uniquement, https://github.com/ysbaddaden/prax.cr[Prax] distribue des paquets déjà compilés pour les distributions Debian / Ubuntu. Il suffit donc de télécharger le paquet `.deb` et de l’installer avec `dpkg`.
 
@@ -287,7 +287,7 @@ $ bundle install
 
 Une fois que la commande a terminé son exécution, il est temps de commencer à *versionner le projet* avec Git.
 
-=== Contrôle de version
+== Contrôle de version
 
 Rappelez-vous que Git vous aide à suivre et à maintenir l’historique de votre code. Gardez à l’esprit que le code source de l’application est publié sur Github. Vous pouvez suivre le projet sur https://github.com/madeindjs/api_on_rails[Github]
 
@@ -365,6 +365,6 @@ $ git push -u origin master
 
 Au fur et à mesure que nous avançons dans le tutoriel, j’utiliserai les pratiques que j’utilise quotidiennement. Cela inclut le travail avec les branches, le rebasage, le squash et bien d’autres. Vous n’avez pas à vous inquiéter si vous ne connaissez pas tous ces termes, je les expliquerai le temps venu.
 
-=== Conclusion
+== Conclusion
 
 Cela a été un chapitre assez long. Si vous êtes arrivés ici, permettez-moi de vous féliciter. Les choses vont s’améliorer à partir de ce point. Commençons à mettre les mains dans le code!
