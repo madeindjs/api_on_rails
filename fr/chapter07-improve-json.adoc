@@ -36,7 +36,7 @@ Or nous voulons un sortie correspondante à celle-là.
 }
 ----
 
-Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme `active_model_serializers`. Pour plus d’informations vous pouvez consulter le https://github.com/rails-api/active_model_serializers[répertoire sur Github]. Je vais couvrir quelques points ici, de l’installation à l’implémentation, mais je vous recommande de jeter un œil à la documentation.
+Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme `active_model_serializers`. Pour plus d’informations vous pouvez consulter le https://github.com/rails-api/active_model_serializers[répertoire sur GitHub]. Je vais couvrir quelques points ici, de l’installation à l’implémentation, mais je vous recommande de jeter un œil à la documentation.
 
 Vous pouvez cloner le projet jusqu’à ce point avec:
 

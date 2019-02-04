@@ -353,7 +353,7 @@ Et bien maintenant je suis satisfait du code. _Commitons_ nos changements:
 $ git commit -am "Refactors test headers for each request"
 ----
 
-Rappelez-vous que vous pouvez revoir le code jusqu’à ce point dans le https://github.com/madeindjs/api_on_rails/[dépôt Github].
+Rappelez-vous que vous pouvez revoir le code jusqu’à ce point dans le https://github.com/madeindjs/api_on_rails/[dépôt GitHub].
 
 == Conclusion
 

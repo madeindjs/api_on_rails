@@ -30,7 +30,7 @@ By this point you must be asking yourself, all right but I need to explore or vi
 
 An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 
-JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement in fact many of the current frameworks consume JSON api’s by default, in Javascript there is https://angularjs.org/[Angular] or http://emberjs.com/[EmberJS], but there are great libraries for objective-c too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android, but because of my lack of experience on that development platform I might not be the right person to recommend you something.
+JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement in fact many of the current frameworks consume JSON api’s by default, in JavaScript there is https://angularjs.org/[Angular] or http://emberjs.com/[EmberJS], but there are great libraries for objective-c too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android, but because of my lack of experience on that development platform I might not be the right person to recommend you something.
 
 All right, so we are building our API with JSON, but there are many ways to achieve this, the first thing that could come to your mind would be just to start dropping some routes defining the http://en.wikipedia.org/wiki/Web_Services_Description_Language#Objects_in_WSDL_1.1_.2F_WSDL_2.0[end points] but they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
 
@@ -57,7 +57,7 @@ This might not be clear enough or may look like a lot of information to digest b
 
 === Routes, Constraints and Namespaces
 
-Before start typing any code, we prepare the code with git, the workflow we’ll be using a branch per chapter, upload it to Github and then merge it with master, so let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
+Before start typing any code, we prepare the code with git, the workflow we’ll be using a branch per chapter, upload it to GitHub and then merge it with master, so let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
 
 [source,bash]
 ----
