@@ -1,7 +1,7 @@
 [#chapter01-introduction]
 = Introduction
 
-Bienvenue sur API on Rails 5, un tutoriel sous stéroïdes pour apprendre la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 5.2 qui est la version actuelle footnote:[pour plus d’informations à ce sujet, consultez http://rubyonrails.org/[rubyonrails.org]]. La version la plus récente de APIs on Rails 5 se trouve sur https://github.com/madeindjs/api_on_rails/[Github]. N'oubliez pas de mettre à jour votre version hors ligne si c’est le cas.
+Bienvenue sur API on Rails 5, un tutoriel sous stéroïdes pour apprendre la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 5.2 qui est la version actuelle footnote:[pour plus d’informations à ce sujet, consultez http://rubyonrails.org/[rubyonrails.org]]. La version la plus récente de APIs on Rails 5 se trouve sur https://github.com/madeindjs/api_on_rails/[GitHub]. N'oubliez pas de mettre à jour votre version hors ligne si c’est le cas.
 
 L’intention de ce livre n’est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API évolutive et maintenable avec Rails. C’est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendrez à:
 
@@ -48,7 +48,7 @@ Pour presque tous les développeurs, l’une des parties les plus douloureuses e
 
 Les environnements de développement diffèrent d’un ordinateur à l’autre. Ce n’est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant certains pensent que c’est la meilleure façon de travailler. Si c’est votre cas, je vous recommande d’essayer http://www.aptana.com/products/radrails[RadRails] ou http://www.jetbrains.com/ruby/index.html[RubyMine]. Tous deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux qui, comme moi, préfèrent des outils simples, je peux vous dire qu’il existe beaucoup d’outils disponibles que vous pourrez personnaliser via des plugins et plus.
 
-* *Éditeur de texte*: J’utilise personnellement http://www.vim.org/[Vim] comme éditeur. Au cas où vous n’êtes pas un fan de Vim, il y a beaucoup d’autres solutions comme http://www.sublimetext.com/[Sublime Text] qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par http://macromates.com/[TextMate]. Une troisième option est d’utiliser un éditeur de texte plus récent comme https://atom.io/[Atom] de http://gitub.com/[Github]. C’est un éditeur de texte prometteur fait en JavaScript. Il est facile à personnaliser pour répondre à vos besoins. N’importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui où vous êtes le plus à l’aise.
+* *Éditeur de texte*: J’utilise personnellement http://www.vim.org/[Vim] comme éditeur. Au cas où vous n’êtes pas un fan de Vim, il y a beaucoup d’autres solutions comme http://www.sublimetext.com/[Sublime Text] qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par http://macromates.com/[TextMate]. Une troisième option est d’utiliser un éditeur de texte plus récent comme https://atom.io/[Atom] de http://gitub.com/[GitHub]. C’est un éditeur de texte prometteur fait en JavaScript. Il est facile à personnaliser pour répondre à vos besoins. N’importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui où vous êtes le plus à l’aise.
 * *Terminal*: Je ne suis pas un fan de l’application Terminal par défaut sous Mac OS. Je recommande http://www.iterm2.com/#/section/home[iTerm2], qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
 
 === Navigateur web
@@ -289,7 +289,7 @@ Une fois que la commande a terminé son exécution, il est temps de commencer à
 
 == Contrôle de version
 
-Rappelez-vous que Git vous aide à suivre et à maintenir l’historique de votre code. Gardez à l’esprit que le code source de l’application est publié sur Github. Vous pouvez suivre le projet sur https://github.com/madeindjs/api_on_rails[Github]
+Rappelez-vous que Git vous aide à suivre et à maintenir l’historique de votre code. Gardez à l’esprit que le code source de l’application est publié sur GitHub. Vous pouvez suivre le projet sur https://github.com/madeindjs/api_on_rails[GitHub]
 
 À ce stade, je suppose que vous avez déjà configuré Git et que vous êtes prêt à l’utiliser pour suivre le projet. Si ce n’est pas votre cas, initialisez simplement les paramètres basiques suivants:
 
@@ -349,7 +349,7 @@ $ git commit -m "Initial commit"
 
 TIP: J’ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu’il a fait. De cette façon il est plus facile de lire et de comprendre l’historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu’à la fin du tutoriel.
 
-Enfin, et c’est une étape optionnelle, nous déployons le projet sur *Github* (je ne vais pas l’expliquer ici) et poussons notre code vers le serveur distant. On commence donc par ajouter un serveur distant:
+Enfin, et c’est une étape optionnelle, nous déployons le projet sur *GitHub* (je ne vais pas l’expliquer ici) et poussons notre code vers le serveur distant. On commence donc par ajouter un serveur distant:
 
 [source,bash]
 ----

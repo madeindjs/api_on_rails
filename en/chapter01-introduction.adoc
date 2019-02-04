@@ -52,7 +52,7 @@ One of the most painful parts for almost every developer is setting everything u
 
 There are many cases in which development environments may differ from computer to computer. That is not the case with text editors or IDE’s. I think for Rails development an IDE is way to much, but some other might find that the best way to go, so if that it’s your case I recommend you go with http://www.aptana.com/products/radrails[RadRails] or http://www.jetbrains.com/ruby/index.html[RubyMine], both are well supported and comes with many integrations out of the box.
 
-* *Text editor*: I personally use http://www.vim.org/[vim] as my default editor with https://github.com/carlhuda/janus[janus] which will add and handle many of the plugins you are probably going to use. In case you are not a _vim_ fan like me, there are a lot of other solutions such as http://www.sublimetext.com/[Sublime Text] which is a cross-platform easy to learn and customize (this is probably your best option), it is highly inspired by http://macromates.com/[TextMate] (only available for Mac OS). A third option is to use a more recent text editor from the guys at http://gitub.com[Github] called https://atom.io/[Atom], it’s a promising text editor made with Javascript, it is easy to extend and customize to meet your needs, give it a try. Any of the editors I present will do the job, so I’ll let you decide which one fits your eye.
+* *Text editor*: I personally use http://www.vim.org/[vim] as my default editor with https://github.com/carlhuda/janus[janus] which will add and handle many of the plugins you are probably going to use. In case you are not a _vim_ fan like me, there are a lot of other solutions such as http://www.sublimetext.com/[Sublime Text] which is a cross-platform easy to learn and customize (this is probably your best option), it is highly inspired by http://macromates.com/[TextMate] (only available for Mac OS). A third option is to use a more recent text editor from the guys at http://gitub.com[GitHub] called https://atom.io/[Atom], it’s a promising text editor made with JavaScript, it is easy to extend and customize to meet your needs, give it a try. Any of the editors I present will do the job, so I’ll let you decide which one fits your eye.
 * *Terminal*: If you decided to go with http://icalialabs.github.io/kaishi/[kaishi] for setting the environment you will notice that it sets the default shell to `zsh`, which I highly recommend. For the terminal, I’m not a fan of the _Terminal_ app that comes out of the box if you are on Mac OS, so check out http://www.iterm2.com/#/section/home[iTerm2], which is a terminal replacement for Mac OS. If you are on Linux you probable have a nice terminal already, but the default should work just fine.
 
 === Browsers
@@ -301,7 +301,7 @@ After the command finish its execution, it is time to start tracking the project
 
 == Versioning
 
-Remember that Git helps you track and maintain history of your code. Keep in mind source code of the application is published on Github. You can follow the repository at https://github.com/madeindjs/api_on_rails[Github]. I’ll assume you have Git already configured and ready to use to start tracking the project. If that is not your case, follow these first-time setup steps:
+Remember that Git helps you track and maintain history of your code. Keep in mind source code of the application is published on GitHub. You can follow the repository at https://github.com/madeindjs/api_on_rails[GitHub]. I’ll assume you have Git already configured and ready to use to start tracking the project. If that is not your case, follow these first-time setup steps:
 
 [source,bash]
 ----
@@ -360,7 +360,7 @@ $ git commit -m "Initial commit"
 
 TIP: I have encounter that commiting with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand(or at least for me). I’ll follow this practice until the end of the tutorial.
 
-Lastly and as an optional step we setup the Github (I’m not going through that in here) project and push our code to the remote server: We first add the remote:
+Lastly and as an optional step we setup the GitHub (I’m not going through that in here) project and push our code to the remote server: We first add the remote:
 
 [source,bash]
 ----

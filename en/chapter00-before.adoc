@@ -11,13 +11,13 @@ Since the original work was not maintained, I wanted to update this excellent wo
 
 https://twitter.com/kurenn[Abraham Kuri] is a Rails developer with 5 years of experience (probably more now). His experience includes working as a freelancer in software product development and more recently in collaboration within the open source community. A graduate in computer science from ITESM, he founded two companies in Mexico (http://icalialabs.com/[Icalia Labs] and http://codeandomexico.org/[Codeando Mexico]).
 
-On my side, my name is http://rousseau-alexandre.fr[Alexandre Rousseau] and I am a Rails developer with more than 4 years of experience (at the time of writing). I am currently a partner in a company (https://isignif.fr[iSignif]) where I build and maintain a SAAS product using Rails. I also contribute to the Ruby community by producing and maintain some gems that you can consult onhttps://rubygems.org/profiles/madeindjs[my Rubygems.org profile]. Most of my projects are on Github so don’t http://github.com/madeindjs/[hesitate to follow me].
+On my side, my name is http://rousseau-alexandre.fr[Alexandre Rousseau] and I am a Rails developer with more than 4 years of experience (at the time of writing). I am currently a partner in a company (https://isignif.fr[iSignif]) where I build and maintain a SAAS product using Rails. I also contribute to the Ruby community by producing and maintain some gems that you can consult onhttps://rubygems.org/profiles/madeindjs[my Rubygems.org profile]. Most of my projects are on GitHub so don’t http://github.com/madeindjs/[hesitate to follow me].
 
-All the source code of this book is available in https://asciidoctor.org/[Asciidoctor] format on https://github.com/madeindjs/api_on_rails[Github]. So don’t hesitate to https://github.com/madeindjs/api_on_rails/fork[forke] the project if you want to improve it or fix a mistake that I didn’t notice.
+All the source code of this book is available in https://asciidoctor.org/[Asciidoctor] format on https://github.com/madeindjs/api_on_rails[GitHub]. So don’t hesitate to https://github.com/madeindjs/api_on_rails/fork[forke] the project if you want to improve it or fix a mistake that I didn’t notice.
 
 == Copyright and license
 
-This book is provided on http://opensource.org/licenses/MIT[MIT license]. All the book’s source code is available on https://fr.wikipedia.org/wiki/Markdown[Markdown] format on https://github.com/madeindjs/api_on_rails[Github]
+This book is provided on http://opensource.org/licenses/MIT[MIT license]. All the book’s source code is available on https://fr.wikipedia.org/wiki/Markdown[Markdown] format on https://github.com/madeindjs/api_on_rails[GitHub]
 
 .MIT license
 ****

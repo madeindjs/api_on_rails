@@ -27,7 +27,7 @@ Devise est livré avec jusqu’à dix modules pour la gestion de l’authentific
 * Validatable
 * Lockable
 
-Si vous n’avez jamais travaillé avec le devise auparavant, je vous recommande de visiter https://github.com/plataformatec/devise[le répertoire Github] et de lire la documentation. Vous y trouverez beaucoup de bons exemples.
+Si vous n’avez jamais travaillé avec le devise auparavant, je vous recommande de visiter https://github.com/plataformatec/devise[le répertoire GitHub] et de lire la documentation. Vous y trouverez beaucoup de bons exemples.
 ****
 
 Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d’aborder autant de sujets que possible. N’hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validation et la gestion des erreurs.

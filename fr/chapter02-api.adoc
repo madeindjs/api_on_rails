@@ -68,7 +68,7 @@ Cela peut sembler compliqué mais au fur et à mesure que nous avancerons dans l
 Avant de commencer à taper du code, nous allons préparer le répertoire Git. Le _workflow_ que nous allons suivre est le suivant:
 
 * Nous allons créer une branche par chapitre
-* Une fois terminé, nous pousserons la branche sur Github
+* Une fois terminé, nous pousserons la branche sur GitHub
 * Nous la fusionnerons avec master
 
 Commençons donc par ouvrir le terminal dans le répertoire `market_place_api` et tapez la commande suivante pour créer la branche:

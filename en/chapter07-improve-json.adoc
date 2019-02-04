@@ -40,7 +40,7 @@ This is further explained in the http://jsonapi.org/format/#document-structure-r
 
 I highly recommend you go and bookmark this reference. It is amazing and will cover some points I might not.
 
-In this chapter we will customize the JSON output using the `active_model_serializers` gem, for more information you can review the https://github.com/rails-api/active_model_serializers[repository] on Github. I’ll cover some points in here from installation to implementation but I do recommend you check the gem docs on your free time.
+In this chapter we will customize the JSON output using the `active_model_serializers` gem, for more information you can review the https://github.com/rails-api/active_model_serializers[repository] on GitHub. I’ll cover some points in here from installation to implementation but I do recommend you check the gem docs on your free time.
 
 You can clone the project up to this point with:
 
