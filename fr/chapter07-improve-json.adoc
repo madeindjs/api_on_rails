@@ -239,7 +239,7 @@ Donc, nous allons incorporer l’objet utilisateur dans le produit. Commençons 
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
     # ...
-    it 'has the user as a embeded object' do
+    it 'has the user as a embedded object' do
       expect(json_response[:user][:email]).to eql @product.user.email
     end
   end
@@ -293,7 +293,7 @@ Tout d’abord, nous nous assurons que le `product_ids` fait partie de l’objet
 RSpec.describe Api::V1::UsersController, type: :controller do
   describe 'GET #show' do
     # ...
-    it 'has the product ids as an embeded object' do
+    it 'has the product ids as an embedded object' do
       expect(json_response[:product_ids]).to eql []
     end
   end

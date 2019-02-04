@@ -74,8 +74,8 @@ $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/inst
 
 We will be using Git a lot, and you should use it too not just for the purpose of this tutorial but for every single project.
 
-* sous Mac OS: `$ brew install git`
-* sous Linux: `$ sudo apt-get install git`
+* on Mac OS: `$ brew install git`
+* on Linux: `$ sudo apt-get install git`
 
 === Ruby
 
@@ -350,7 +350,7 @@ The next step is to ignore some files that we don’t want to track, so your `.g
 /config/master.key
 ----
 
-After modifiying the `.gitignore` file we just need to add the files and commit the changes, the commands necessary are shown below:
+After modifying the `.gitignore` file we just need to add the files and commit the changes, the commands necessary are shown below:
 
 [source,bash]
 ----
@@ -358,7 +358,7 @@ $ git add .
 $ git commit -m "Initial commit"
 ----
 
-TIP: I have encounter that commiting with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand(or at least for me). I’ll follow this practice until the end of the tutorial.
+TIP: I have encounter that committing with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand(or at least for me). I’ll follow this practice until the end of the tutorial.
 
 Lastly and as an optional step we setup the GitHub (I’m not going through that in here) project and push our code to the remote server: We first add the remote:
 

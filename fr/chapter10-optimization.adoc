@@ -62,7 +62,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       expect(json_response[:email]).to eql @user.email
     end
 
-    it 'has the product ids as an embeded object' do
+    it 'has the product ids as an embedded object' do
       expect(json_response[:product_ids]).to eql []
     end
   end
@@ -83,7 +83,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       expect(json_response[:data][:attributes][:email]).to eql @user.email
     end
 
-    it 'has the product ids as an embeded object' do
+    it 'has the product ids as an embedded object' do
       expect(json_response[:data][:attributes][:'product-ids']).to eql []
     end
   end
@@ -153,7 +153,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
       expect(json_response[:data][:attributes][:title]).to eql @product.title
     end
 
-    it 'has the user as a embeded object' do
+    it 'has the user as a embedded object' do
       puts json_response.inspect
       expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
     end
@@ -226,7 +226,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
       expect(json_response[:data][:attributes][:title]).to eql @product.title
     end
 
-    it 'has the user as a embeded object' do
+    it 'has the user as a embedded object' do
       expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
     end
   end
@@ -268,7 +268,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 
     context 'when is not created' do
       # ...
-      it 'renders the json errors on whye the user could not be created' do
+      it 'renders the json errors on why the user could not be created' do
         product_response = json_response
         expect(product_response[:errors][:price]).to include 'is not a number'
       end
@@ -341,7 +341,7 @@ $ rspec spec
 
 Failures:
 
-  1) Api::V1::ProductsController GET #show has the user as a embeded object
+  1) Api::V1::ProductsController GET #show has the user as a embedded object
      Failure/Error: expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
      ...
 
@@ -369,7 +369,7 @@ require 'rails_helper'
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
     # ...
-    it 'has the user as a embeded object' do
+    it 'has the user as a embedded object' do
       expect(json_response[:included].first[:attributes][:email]).to eql @product.user.email
     end
   end

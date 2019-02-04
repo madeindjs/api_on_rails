@@ -29,13 +29,13 @@ As I have been telling you since the beginning of this book, an important and di
 
 One of the most applied conventions is most certainly https://jsonapi.org/[JSON:API]. This convention will allow us to approach pagination more serenely in the next section.
 
-So https://jsonapi.org/format/#document-structure[documentation de JSON:API] gives us some rules to follow concerning JSON presentation.
+So https://jsonapi.org/format/#document-structure[documentation JSON:API] gives us some rules to follow concerning JSON presentation.
 
 So our *document* must follow theses rules:
 
 * `data`: which must contains the data we send back
 * `errors` which must contains a table of errors that have occurred
-* `meta` which contains https://jsonapi.org/format/#document-meta[objet meta]
+* `meta` which contains https://jsonapi.org/format/#document-meta[object meta]
 
 NOTE: The `data` and `errors` keys must not be present at the same time and this makes sense since if an error occurs we should not be able to make data correct.
 
@@ -62,7 +62,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       expect(json_response[:email]).to eql @user.email
     end
 
-    it 'has the product ids as an embeded object' do
+    it 'has the product ids as an embedded object' do
       expect(json_response[:product_ids]).to eql []
     end
   end
@@ -83,7 +83,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       expect(json_response[:data][:attributes][:email]).to eql @user.email
     end
 
-    it 'has the product ids as an embeded object' do
+    it 'has the product ids as an embedded object' do
       expect(json_response[:data][:attributes][:'product-ids']).to eql []
     end
   end
@@ -154,7 +154,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
       expect(json_response[:data][:attributes][:title]).to eql @product.title
     end
 
-    it 'has the user as a embeded object' do
+    it 'has the user as a embedded object' do
       puts json_response.inspect
       expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
     end
@@ -228,7 +228,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
       expect(json_response[:data][:attributes][:title]).to eql @product.title
     end
 
-    it 'has the user as a embeded object' do
+    it 'has the user as a embedded object' do
       expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
     end
   end
@@ -270,7 +270,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 
     context 'when is not created' do
       # ...
-      it 'renders the json errors on whye the user could not be created' do
+      it 'renders the json errors on why the user could not be created' do
         product_response = json_response
         expect(product_response[:errors][:price]).to include 'is not a number'
       end
@@ -344,7 +344,7 @@ $ rspec spec
 
 Failures:
 
-  1) Api::V1::ProductsController GET #show has the user as a embeded object
+  1) Api::V1::ProductsController GET #show has the user as a embedded object
      Failure/Error: expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
      ...
 
@@ -371,7 +371,7 @@ So let’s update our test:
 RSpec.describe Api::V1::ProductsController, type: :controller do
   describe 'GET #show' do
     # ...
-    it 'has the user as a embeded object' do
+    it 'has the user as a embedded object' do
       expect(json_response[:included].first[:attributes][:email]).to eql @product.user.email
     end
   end
