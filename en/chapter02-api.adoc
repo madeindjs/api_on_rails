@@ -162,7 +162,7 @@ Time to commit:
 [source,bash]
 ----
 $ git add config/routes.rb
-$ git commit -m "Set the routes contraints for the api"
+$ git commit -m "Set the routes constraints for the api"
 ----
 
 All right take a deep breath, drink some water, and let’s get going.

@@ -125,7 +125,7 @@ Finished in 0.33759 seconds (files took 3.54 seconds to load)
 8 examples, 0 failures
 ----
 
-The `build_placements_with_product_ids_and_quantities` will build the placement objects and once we trigger the `save` method for the order everything will be inserted into the database. One last step before commiting this is to update the `orders_controller_spec` along with its implementation.
+The `build_placements_with_product_ids_and_quantities` will build the placement objects and once we trigger the `save` method for the order everything will be inserted into the database. One last step before committing this is to update the `orders_controller_spec` along with its implementation.
 
 First we update the `orders_controller_spec` file:
 

@@ -975,7 +975,7 @@ Finished in 1.82 seconds (files took 0.78532 seconds to load)
 98 examples, 0 failures
 ----
 
-Let’s finish this section by commiting this:
+Let’s finish this section by committing this:
 
 [source,bash]
 ----

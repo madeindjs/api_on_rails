@@ -19,7 +19,7 @@ First things first (and as usual when starting a new chapter) we will create a n
 $ git checkout -b chapter5
 ----
 
-== Session sans état
+== Stateless session
 
 Before we go any further, something must be clear: *an API does not handle sessions*. If you don’t have experience building these kind of applications it might sound a little crazy but stay with me. An API should be stateless which means by definition _is one that provides a response after your request, and then requires no further attention._. Which means no previous or future state is required for the system to work.
 
