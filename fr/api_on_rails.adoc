@@ -14,7 +14,7 @@ v1.1, 2019-02-06
 :author: Alexandre Rousseau
 :description: Apprenez les meilleurs pratiques pour construire une API avec Ruby on Rails
 :front-cover-image: image:cover.svg[]
-:revdate: 2019-01-10
+:revdate: 2019-02-06
 
 include::chapter00-before.adoc[]
 
