@@ -3,7 +3,7 @@
 
 == Foreword
 
-"API on Rails 5" is based on http://apionrails.icalialabs.com/book/["APIs on Rails: Building REST APIs with Rails"]. It was initially published in 2014 by https://twitter.com/kurenn[Abraham Kuri] under the licenses http://opensource.org/licenses/MIT[MIT] and http://people.freebsd.org/~phk/[Beerware].
+"API on Rails 6" is based on http://apionrails.icalialabs.com/book/["APIs on Rails: Building REST APIs with Rails"]. It was initially published in 2014 by https://twitter.com/kurenn[Abraham Kuri] under the licenses http://opensource.org/licenses/MIT[MIT] and http://people.freebsd.org/~phk/[Beerware].
 
 Since the original work was not maintained, I wanted to update this excellent work and contribute to the Francophone community by translating it myself. This update is also available in the Molière language footnote:[It means french.].
 
@@ -30,4 +30,4 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ****
 
-"API on Rails 5" by https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] is shared according to http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Attribution-ShareAlike 4.0 International]. Built upon this book http://apionrails.icalialabs.com/book/.
+"API on Rails 6" by https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] is shared according to http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Attribution-ShareAlike 4.0 International]. Built upon this book http://apionrails.icalialabs.com/book/.

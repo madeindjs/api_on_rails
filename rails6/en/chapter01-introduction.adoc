@@ -86,7 +86,7 @@ There are many ways in which you can install and manage ruby, and by now you sho
 $ ruby -v
 ----
 
-Rails 5 requires you to install version 2.2.2 or higher. I recommend you to start using http://rvm.io/[Ruby Version Manager (RVM)] or http://rbenv.org/[rbenv], any of these will allow you to install multiple versions of `ruby`. We will use RVM in this tutorial any of these two options you choose is fine.
+Rails 6 requires you to install version 2.5 or higher. I recommend you to start using http://rvm.io/[Ruby Version Manager (RVM)] or http://rbenv.org/[rbenv], any of these will allow you to install multiple versions of `ruby`. We will use RVM in this tutorial any of these two options you choose is fine.
 
 To install RVM go on https://rvm.io/ and get GPG keyfootnote:[The GPG allow you to verify author identity of the software you download.]. Then:
 
@@ -100,7 +100,7 @@ Next it is time to install ruby:
 
 [source,bash]
 ----
-$ rvm install 2.5
+$ rvm install 2.6
 ----
 
 If everything went smooth, it is time to install the rest of the dependencies we will be using.
@@ -128,15 +128,17 @@ We then install the necessary gems and ignore documentation for each gem:
 $ printf 'gem: --no-document' >> ~/.gemrc
 $ gem install bundler
 $ gem install foreman
-$ gem install rails -v 5.2
+$ gem install rails -v 6.0.0.rc1
 ----
+
+NOTE: You may ask yoursel "what does RC1 mean?". RC1 means _Release Candidate_. As I write these lines, the final version for Rails 6.0 is not finished. So I use the he most recent version wich is 6.0.0.rc1
 
 Check for everything to be running nice and smooth:
 
 [source,bash]
 ----
-$ rails -v 5.2
-5.2.0
+$ rails -v
+Rails 6.0.0.rc1
 ----
 
 ==== Database
@@ -159,90 +161,30 @@ $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 
 Initializing a Rails application must be pretty straightforward for you, if that is not the case, here is a super quick tutorial.
 
-Be aware that we’ll be using http://rspec.info/[Rspec] as the testing suite. So we will use the `--skip-test` option. Also we will use `--api` option.
-
-NOTE: This option came with Rails 5 and it allow to limit gems and Middleware. It will also avoid to generate HTML views when using Rails generators.
-
 There is the command:
 
 [source,bash]
 ----
 $ mkdir ~/workspace
 $ cd ~/workspace
-$ rails new market_place_api --skip-test --api
+$ rails new market_place_api --api
 ----
 
 As you may guess, the commands above will generate the bare bones of your Rails application. The next step is to add some `gems` we’ll be using to build the api.
 
-=== Installing Pow or Prax
-
-You may ask yourself
-
-> Why in the hell would I want to install this type of package?
-
-and the answer is simple, we will be working with http://en.wikipedia.org/wiki/Subdomain[subdomains], and in this case using services like http://pow.cx/[Pow] or https://github.com/ysbaddaden/prax[Prax] help us achieve that very easily
-
-==== Installing Pow
-
-NOTE: Pow only works on Mac OS, but don’t worry there is an alternative which mimics the functionality on Linux.
-
-To install it just type in:
-
-[source,bash]
-----
-$ curl get.pow.cx | sh
-----
-
-And that’s it you are all set. You just have to symlink the application in order to set up the Rack app. First you go the `~/.pow` directory:
-
-[source,bash]
-----
-$ cd ~/.pow
-----
-
-Then you create the http://en.wikipedia.org/wiki/Symbolic_link[symlink]:
-
-[source,bash]
-----
-$ ln -s ~/workspace/market_place_api
-----
-
-Remember to change the user directory to the one matches yours. You can now access the application through http://market_place_api.dev/. Your application should be up a running by now.
-
-==== Installing Prax
-
-For linux users only, https://github.com/ysbaddaden/prax.cr[Prax] distribute some Debian/Ubuntu precompiled packages. You only have to download `.deb` and instal with `dpkg`.
-
-[source,bash]
-----
-$ cd /tmp
-$ wget https://github.com/ysbaddaden/prax.cr/releases/download/v0.8.0/prax_0.8.0-1_amd64.deb
-$ sudo dpkg -i prax_0.8.0-1_amd64.deb
-----
-
-Then we just need to link the apps:
-
-[source,bash]
-----
-$ cd ~/workspace/market_place_api
-$ prax link
-----
-
-If you want to start the Prax server automatically, add this line to the `.profile` file:
-
-....
-prax start
-....
-
-NOTE: When using prax, you have to specify the port for the URL, in this case http://market_place_api.dev:3000
-
-You should see the application up and running, see image bellow:
-
 == Gemfile and Bundler
 
-Once the Rails application is created, the next step is adding a simple but very powerful gem to serialize the resources we are going to expose on the api. The gem is called `active_model_serializers` which is an excellent choice to go when building this type of application. It is well maintained and the https://github.com/rails-api/active_model_serializers[documentation] is amazing.
+Once the Rails application is created, the next step is adding a simple but very powerful gem to serialize the resources we are going to expose on the api. The gem is called https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. It's an excellent choice to building this kind of application and it is well maintained by https://www.netflix.com[Netflix].
 
-So your `Gemfile` should look like this after adding the `active _model_serializers` gem:
+You can add this gem simple using this command:
+
+[source,bash]
+.Gemfile
+----
+$ bundle add fast_jsonapi
+----
+
+So your `Gemfile` should look like this after adding the `fast_jsonapi` gem:
 
 [source,ruby]
 .Gemfile
@@ -250,25 +192,26 @@ So your `Gemfile` should look like this after adding the `active _model_serializ
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.5.3'
+ruby '2.6.3'
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.2.0'
-# Use sqlite3 as the database for Active Record
-gem 'sqlite3'
-# Use Puma as the app server
+gem 'rails', '~> 6.0.0.rc1'
+gem 'sqlite3', '~> 1.4'
 gem 'puma', '~> 3.11'
-# Use SCSS for stylesheets
-gem 'sass-rails', '~> 5.0'
-# Use Uglifier as compressor for JavaScript assets
-gem 'uglifier', '>= 1.3.0'
+gem 'bootsnap', '>= 1.4.2', require: false
 
-# Api gems
-gem 'active_model_serializers'
-# ...
+group :development, :test do
+  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+end
+
+group :development do
+  gem 'listen', '>= 3.0.5', '< 3.2'
+  gem 'spring'
+  gem 'spring-watcher-listen', '~> 2.0.0'
+end
+
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem "fast_jsonapi", "~> 1.5"
 ----
-
-NOTE: I remove the `jbuilder` and `turbolinks` gems because we are not really going to use them anyway.
 
 It is a good practice also to include the ruby version used on the whole project, this prevents dependencies to break if the code is shared among different developers, whether if is a private or public project.
 
@@ -286,17 +229,6 @@ end
 
 This as you may recall will prevent `sqlite` from being installed or required when you deploy your application to a server provider like http://heroku.com/[Heroku].
 
-NOTE:  Due to the structure of the application we are not going to deploy the app to any server, but we will be using http://pow.cx/[Pow] by https://basecamp.com/[Basecamp]. If you are using Linux there is a similar solution called https://github.com/ysbaddaden/prax[Prax] by ysbaddaden
-
-Pow is a zero-config Rack server for Mac OS X. Have it serving your apps locally in under a minute. - Basecamp
-
-Once you have this configuration set up, it is time to run the `bundle install` command to integrate the corresponding dependencies:
-
-[source,bash]
-----
-$ bundle install
-----
-
 After the command finish its execution, it is time to start tracking the project with Git.
 
 == Versioning
@@ -312,18 +244,23 @@ $ git config --global core.editor "vim"
 
 NOTE: Replace the last command editor(`"mvim -f"`) with the one you installed `"subl -w"` for SublimeText ,`"mate -w"` for TextMate, or `"gvim -f"` for gVim.
 
-So it is now time to *init* the project with git. Remember to navigate to the root directory of the `market_place_api` application:
+Rails already initialize the new project as a brand new Git repository. If you encounter some problem you can initialize project like this:
 
 [source,bash]
 ----
 $ git init
-Initialized empty Git repository in ~/workspace/market_place_api/.git/
 ----
 
-The next step is to ignore some files that we don’t want to track, so your `.gitignore` file should look like the one shown below:
+Rails also provide a _.gitignore_ file to ignore some files that we don’t want to track. The default _.gitignore_ file should look like the one shown below:
 
 ..gitignore
 ----
+# See https://help.github.com/articles/ignoring-files for more about ignoring files.
+#
+# If you find yourself ignoring temporary files generated by your text editor
+# or operating system, you probably want to add a global ignore instead:
+#   git config --global core.excludesfile '~/.gitignore_global'
+
 # Ignore bundler config.
 /.bundle
 
@@ -337,20 +274,16 @@ The next step is to ignore some files that we don’t want to track, so your `.g
 !/log/.keep
 !/tmp/.keep
 
-# Ignore uploaded files in development
+# Ignore uploaded files in development.
 /storage/*
-
-/node_modules
-/yarn-error.log
-
-/public/assets
+!/storage/.keep
 .byebug_history
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 ----
 
-After modifying the `.gitignore` file we just need to add the files and commit the changes, the commands necessary are shown below:
+After modifying the _.gitignore_ file we just need to add the files and commit the changes, the commands necessary are shown below:
 
 [source,bash]
 ----
@@ -358,7 +291,7 @@ $ git add .
 $ git commit -m "Initial commit"
 ----
 
-TIP: I have encounter that committing with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand(or at least for me). I’ll follow this practice until the end of the tutorial.
+TIP: I have encounter that committing with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand (or at least for me). I’ll follow this practice until the end of the tutorial.
 
 Lastly and as an optional step we setup the GitHub (I’m not going through that in here) project and push our code to the remote server: We first add the remote:
 

@@ -1,9 +1,9 @@
 [#chapter00-before]
 = Avant-propos
 
-"API on Rails 5" est basé sur http://apionrails.icalialabs.com/book/["APIs on Rails: Building REST APIs with Rails"]. Celui-ci fut initialement publié en 2014 par https://twitter.com/kurenn[Abraham Kuri] sous les licences http://opensource.org/licenses/MIT[MIT] et http://people.freebsd.org/~phk/[Beerware].
+"API on Rails 6" est basé sur http://apionrails.icalialabs.com/book/["APIs on Rails: Building REST APIs with Rails"]. Celui-ci fut initialement publié en 2014 par https://twitter.com/kurenn[Abraham Kuri] sous les licences http://opensource.org/licenses/MIT[MIT] et http://people.freebsd.org/~phk/[Beerware].
 
-L’œuvre originale étant non maintenue, j’ai voulu mettre à jour cet excellent ouvrage et contribuer à la communauté francophone en le traduisant moi-même. Cette mise à jour est aussi disponible dans la langue de Shakespeare footnote:[C'est-à-dire en anglais.].
+L’œuvre originale étant non maintenue, j’ai voulu mettre à jour cet excellent ouvrage et contribuer à la communauté francophone en le traduisant moi-même. Cette mise à jour est aussi disponible dans la langue de Shakespeare.
 
 == A propos de l’auteur original
 
@@ -28,4 +28,4 @@ L’avis de copyright ci-dessus et cette autorisation doit être inclus dans tou
 LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D’AUCUNE SORTE, EXPLICITE OU IMPLICITE, Y COMPRIS, MAIS SANS S’Y LIMITER, LES GARANTIES DE QUALITÉ MARCHANDE, ADAPTATION À UN USAGE PARTICULIER ET D’ABSENCE DE CONTREFAÇON. EN AUCUN CAS LES AUTEURS OU TITULAIRES DU ETRE TENU RESPONSABLE DE TOUT DOMMAGE, RÉCLAMATION OU AUTRES RESPONSABILITÉ, SOIT DANS UNE ACTION DE CONTRAT, UN TORT OU AUTRE, PROVENANT DE, DE OU EN RELATION AVEC LE LOGICIEL OU L’UTILISATION OU DE TRANSACTIONS AUTRES LE LOGICIEL.
 ****
 
-"API on Rails 5" de https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] est mis à disposition selon les termes de la licence http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International]. Fondé sur une œuvre à http://apionrails.icalialabs.com/book/.
+"API on Rails 6" de https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] est mis à disposition selon les termes de la licence http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International]. Fondé sur une œuvre à http://apionrails.icalialabs.com/book/.
