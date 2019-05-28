@@ -1,0 +1,33 @@
+[#chapter00-before]
+= Before
+
+== Foreword
+
+"API on Rails 5" is based on http://apionrails.icalialabs.com/book/["APIs on Rails: Building REST APIs with Rails"]. It was initially published in 2014 by https://twitter.com/kurenn[Abraham Kuri] under the licenses http://opensource.org/licenses/MIT[MIT] and http://people.freebsd.org/~phk/[Beerware].
+
+Since the original work was not maintained, I wanted to update this excellent work and contribute to the Francophone community by translating it myself. This update is also available in the Molière language footnote:[It means french.].
+
+== About the author
+
+https://twitter.com/kurenn[Abraham Kuri] is a Rails developer with 5 years of experience (probably more now). His experience includes working as a freelancer in software product development and more recently in collaboration within the open source community. A graduate in computer science from ITESM, he founded two companies in Mexico (http://icalialabs.com/[Icalia Labs] and http://codeandomexico.org/[Codeando Mexico]).
+
+On my side, my name is http://rousseau-alexandre.fr[Alexandre Rousseau] and I am a Rails developer with more than 4 years of experience (at the time of writing). I am currently a partner in a company (https://isignif.fr[iSignif]) where I build and maintain a SAAS product using Rails. I also contribute to the Ruby community by producing and maintain some gems that you can consult onhttps://rubygems.org/profiles/madeindjs[my Rubygems.org profile]. Most of my projects are on GitHub so don’t http://github.com/madeindjs/[hesitate to follow me].
+
+All the source code of this book is available in https://asciidoctor.org/[Asciidoctor] format on https://github.com/madeindjs/api_on_rails[GitHub]. So don’t hesitate to https://github.com/madeindjs/api_on_rails/fork[forke] the project if you want to improve it or fix a mistake that I didn’t notice.
+
+== Copyright and license
+
+This book is provided on http://opensource.org/licenses/MIT[MIT license]. All the book’s source code is available on https://fr.wikipedia.org/wiki/Markdown[Markdown] format on https://github.com/madeindjs/api_on_rails[GitHub]
+
+.MIT license
+****
+Copyright 2019 Alexandre Rousseau
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+****
+
+"API on Rails 5" by https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] is shared according to http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Attribution-ShareAlike 4.0 International]. Built upon this book http://apionrails.icalialabs.com/book/.
