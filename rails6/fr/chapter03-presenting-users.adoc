@@ -10,25 +10,8 @@ Vous pouvez cloner le projet jusqu’à ce point avec:
 $ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_2
 ----
 
-Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Nous utiliserons le dernier, qui offre un excellent moyen d’intégrer non seulement l’authentification de base, mais de nombreux autres modules pour une utilisation ultérieure.
+Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Nous ne les utiliserons pas afin de mieux apréhender le mécanisme d'authentification. Nous utiliserons néamoins la gemme https://github.com/codahale/bcrypt-ruby[bcrypt] qui nous permettra de hasher les mots de passe de l'utilisateur.
 
-.Devise
-****
-Devise est livré avec jusqu’à dix modules pour la gestion de l’authentification :
-
-* Database Authenticable
-* Omniauthable
-* Confirmable
-* Recoverable
-* Registerable
-* Rememberable
-* Trackable
-* Timeoutable
-* Validatable
-* Lockable
-
-Si vous n’avez jamais travaillé avec le devise auparavant, je vous recommande de visiter https://github.com/plataformatec/devise[le répertoire GitHub] et de lire la documentation. Vous y trouverez beaucoup de bons exemples.
-****
 
 Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d’aborder autant de sujets que possible. N’hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validation et la gestion des erreurs.
 
@@ -39,18 +22,19 @@ Nous voulons suivre ce chapitre, c’est donc un bon moment pour créer une nouv
 $ git checkout -b chapter3
 ----
 
-Assurez-vous simplement d’être sur la branche `master` avant.
+NOTE: Assurez-vous simplement d’être sur la branche `master` avant.
 
 == Modèle d’utilisateur
 
-Nous devons d’abord ajouter la gemme Devise au `Gemfile`
+Nous devons d’abord ajouter la gemme Bcrypt au _Gemfile_. Nous pouvons utiliser la commande `bundle add` 
 
-[source,ruby]
+[source,bash]
 .Gemfile
 ----
-# ...
-gem 'devise'
+$ bundle add bcrypt
 ----
+
+// CURRENT bcrypt
 
 Lancez ensuite la commande `bundle install` pour installer la gemme. Une fois que la commande est terminée, nous devons lancer le générateur d’installation de Devise:
 

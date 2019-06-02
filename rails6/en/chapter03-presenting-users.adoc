@@ -10,25 +10,35 @@ You can clone the project until this point with:
 $ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_2
 ----
 
-As you can already imagine there are a lot of authentication solutions for Rails, https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] and https://github.com/plataformatec/devise[Devise]. We will be using the last one, which offers a great way to integrate not just basic authentication, but many other modules for further use.
+As you can already imagine there are a lot of authentication solutions for Rails, https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] and https://github.com/plataformatec/devise[Devise]. 
 
-.Devise
-****
-Devise comes with up to 10 modules for handling authentication::
+We will not using 
 
-* Database Authenticable
-* Omniauthable
-* Confirmable
-* Recoverable
-* Registerable
-* Rememberable
-* Trackable
-* Timeoutable
-* Validatable
-* Lockable
 
-If you have not work with devise before, I recommend you visit the https://github.com/plataformatec/devise[reposity page] and read the documentation, there are a lot of good examples out there too.
-****
+
+
+
+
+
+We will be using the last one, which offers a great way to integrate not just basic authentication, but many other modules for further use.
+
+// .Devise
+// ****
+// Devise comes with up to 10 modules for handling authentication::
+
+// * Database Authenticable
+// * Omniauthable
+// * Confirmable
+// * Recoverable
+// * Registerable
+// * Rememberable
+// * Trackable
+// * Timeoutable
+// * Validatable
+// * Lockable
+
+// If you have not work with devise before, I recommend you visit the https://github.com/plataformatec/devise[reposity page] and read the documentation, there are a lot of good examples out there too.
+// ****
 
 This is going to be a full-packed chapter. It may be long but I’m trying to cover as many topics along with best practices on the way, so feel free to grab a cup of coffee and let’s get going. By the end of the chapter you will have full user endpoints, along with validations and error server responses.
 
