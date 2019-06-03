@@ -5,6 +5,10 @@
 
 L’œuvre originale étant non maintenue, j’ai voulu mettre à jour cet excellent ouvrage et contribuer à la communauté francophone en le traduisant moi-même. Cette mise à jour est aussi disponible dans la langue de Shakespeare.
 
+// TODO: improve?
+
+Cette version est donc une ré-écriture et une version simplifiée de l'œuvre originale.
+
 == A propos de l’auteur original
 
 https://twitter.com/kurenn[Abraham Kuri] est un développeur Rails avec 5 ans d’expérience (sûrement plus maintenant). Son expérience inclut le travail en tant que _freelance_ dans la construction de produits logiciels et plus récemment dans la collaboration au sein de la communauté open source. Diplômé en informatique d’ITESM, il a fondé deux sociétés au Mexique (http://icalialabs.com/[Icalia Labs] et http://codeandomexico.org/[Codeando Mexico]).

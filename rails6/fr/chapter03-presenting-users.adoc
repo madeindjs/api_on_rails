@@ -10,8 +10,9 @@ Vous pouvez cloner le projet jusqu’à ce point avec:
 $ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_2
 ----
 
-Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Nous ne les utiliserons pas afin de mieux apréhender le mécanisme d'authentification. Nous utiliserons néamoins la gemme https://github.com/codahale/bcrypt-ruby[bcrypt] qui nous permettra de hasher les mots de passe de l'utilisateur.
+Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Nous ne les utiliserons pas afin de mieux appréhender le mécanisme d'authentification.
 
+Néanmoins nous allons mettre en place la gemme https://github.com/codahale/bcrypt-ruby[bcrypt] afin de hasher le mots de passe de l'utilisateur.
 
 Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d’aborder autant de sujets que possible. N’hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validation et la gestion des erreurs.
 
@@ -26,25 +27,231 @@ NOTE: Assurez-vous simplement d’être sur la branche `master` avant.
 
 == Modèle d’utilisateur
 
-Nous devons d’abord ajouter la gemme Bcrypt au _Gemfile_. Nous pouvons utiliser la commande `bundle add` 
+=== Génération du modèle `User`
+
+Nous allons commencer par générer notre modèle `User`. Ce modèle sera vraiment basique et contiendra seulement deux champs:
+
+- `email` qui sera unique et lui permettra de se connecter à l'application
+- `password_digest` qui contiendra la version *haché* du mot de passe (nous en reparlerons plus tard dans ce chapitre)
+
+Afin de générer notre modèle `User`, nous utiliserons la méthode _generate model_ fournie par Ruby on Rails. Elle s'utilise très facilement:
 
 [source,bash]
-.Gemfile
+----
+$ rails generate model User email:string password_digest:string
+invoke  active_record
+      create    db/migrate/20190603195146_create_users.rb
+      create    app/models/user.rb
+      invoke    test_unit
+      create      test/models/user_test.rb
+      create      test/fixtures/users.yml
+----
+
+
+==== La migration
+
+Cette commande génère beaucoup de fichiers! Ne vous inquiétez pas, nous allons les passer en revue les un après les autres.
+
+Le fichier de migration contenu dans le dossier _db/migrate_ contient la *migration* qui décrie les modifications qui seront effectués sur la base de données.
+
+Elle devrait ressembler à ceci
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+class CreateUsers < ActiveRecord::Migration[6.0]
+  def change
+    create_table :users do |t|
+      t.string :email
+      t.string :password_digest
+
+      t.timestamps
+    end
+  end
+end
+----
+
+Nous allons la modifier un petit peut afin de la faire correspondre à nos attentes:
+
+- l'email est unique: on utilise la propriété `unique: true`
+- le mot de passe est obligatoire: on utilise la propriété `null: false`
+
+La migration deviens donc:
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+# ...
+create_table :users do |t|
+  t.string :email, unique: true
+  t.string :password_digest, null: false
+  # ...
+end
+----
+
+Une fois la migration terminée, nous pouvons effectuer les modifications avec la commande suivante:
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+$ rake db:migrate
+== 20190603195146 CreateUsers: migrating ======================================
+-- create_table(:users)
+   -> 0.0027s
+== 20190603195146 CreateUsers: migrated (0.0028s) =============================
+----
+
+NOTE: La commande va convertir notre migration en requête SQL qui va mettre à jour la base de données SQlite3 contenue dans le dossier _db_.
+
+==== Le modèle
+
+Nous avons donc défini notre schéma de la base de données. La prochaine étape est de mettre à jour notre modèle afin de définir les *règles de validation*. Ces règles se définissent dans le modèle situé dans le dossier _app/models_.
+
+Ruby on Rails propose un mécanisme complet de validation que vous pouvez consulter sur https://guides.rubyonrails.org/active_record_validations.html[leur documentation officielle]. Dans notre cas, nous voulons valider deux choses:
+
+- l'email doit avoir un format valide
+- l'email doit être unique
+- le mot de passe doit être remplis
+
+Ces trois règles se définissent par le code suivant:
+
+.app/models/user.rb
+[source,ruby]
+----
+class User < ApplicationRecord
+  validates :email, uniqueness: true
+  validates_format_of :email, with: /@/
+  validates :password_digest, presence: true
+end
+----
+
+Et voilà. Rails utilise une syntaxe très simple et le code est très lisible.
+
+.Validation du courriel
+****
+Vous remarquerez peut être que la validation du courriel utilise une validation simpliste en ne vérifiant que la présence d'un `@`.
+
+C'est normal.
+
+Une infinité d'exceptions existent en la matière d'adresse mail si bien https://davidcel.is/posts/stop-validating-email-addresses-with-regex/[que même `"Look at all these spaces!"@example.com` est une adresse valide]. Il vaut mieux donc privilégier une approche simple et confirmer le mail par un mail de validation.
+
+Par soucis de brièveté, j'ai choisi une approche simpliste.
+****
+
+==== Les tests unitaires
+
+Nous terminons par les tests unitaires. Nous utilisons ici le framework par
+
+
+Nous devons donc commencer par mettre à jour nos données de tests contenue dans le dossier `tests/fixtures`.Les  _Fixtures_ permettent donc de remplir votre base de données de tests avec des données *prédéfinies* avant l'exécution de vos tests. Il y a un fichier par modèle.
+
+NOTE: Les _fixtures_ ne sont pas conçus pour créer tous les données dont vos tests ont besoin. Elle permettent juste de définir les données basiques dont votre application à besoins.
+
+Nous allons donc commencer par créer une _fixture_ définissant un utilisateur:
+
+.test/fixtures/users.yml
+[source,yaml]
+----
+one:
+  email: one@one.org
+  password_digest: hashed_password
+----
+
+Nous pouvons donc maintenant créer les tests. Il y en a trois:
+
+- on vérifie que un utilisateur avec des données valide est valide:
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+test 'user with a valid email should be valid' do
+  user = User.new(email: 'test@test.org', password_digest: 'test')
+  assert user.valid?
+end
+----
+
+- on vérifie que un utilisateur avec un courriel invalide n'est pas valide:
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+test 'user with unvalid email should be unvalid' do
+  user = User.new(email: 'test', password_digest: 'test')
+  assert_not user.valid?
+end
+----
+
+- on vérifie que un utilisateur avec un courriel déjà utilisé n'est pas valide. on utilise donc le même courriel que la _fixture_ que nous venons de créer.
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+test 'user with taken email should be unvalid' do
+  other_user = users(:one)
+  user = User.new(email: other_user.email, password_digest: 'test')
+  assert_not user.valid?
+end
+----
+
+Et voilà. Nous pouvons vérifier que notre est juste en lançant simplement les tests unitaires que nous venons de créer:
+
+[source,bash]
+----
+$ rake test
+# Running:
+
+...
+
+Finished in 0.114983s, 26.0908 runs/s, 26.0908 assertions/s.
+3 runs, 3 assertions, 0 failures, 0 errors, 0 skips
+----
+
+// NOTE: La liste complète des _assertions_ disponibles sont listées la https://guides.rubyonrails.org/testing.html#available-assertions[documentation officielle]
+
+Je pense qu'il est temps de faire un petit _commit_ afin de valider notre avancement:
+
+[source,bash]
+----
+$ git add . && git commit -m "Create user model"
+----
+
+=== Hachage du mot de passe
+
+Nous devons d’abord ajouter la gemme Bcrypt au _Gemfile_. Nous pouvons utiliser la commande `bundle add`. Celle-ci va s'occuper:
+
+1. d'ajouter la gemme au Gemfile en récupérant la version actuelle
+2. lancer la commande `bundle install` qui va installer la gemme et mettre à jour le fichier _Gemfile.lock_ qui "verrouille" la version actuelle de la gemme
+
+Lancez donc la commande suivante:
+
+[source,bash]
 ----
 $ bundle add bcrypt
 ----
 
+Une fois la commande éxécuté, la ligne suivante est ajoutée à la fin du _Gemfile_:
+
+[source,ruby]
+.Gemfile
+----
+gem "bcrypt", "~> 3.1"
+----
+
+NOTE: La version 3.1 de bcrypt est celle actuelle à l'heure ou j'écris ces lignes. Elle peut donc varier pour votre cas.
+
+
+
+
 // CURRENT bcrypt
 
-Lancez ensuite la commande `bundle install` pour installer la gemme. Une fois que la commande est terminée, nous devons lancer le générateur d’installation de Devise:
 
-[source,bash]
-----
-$ rails g devise:install
-  create  config/initializers/devise.rb
-  create  config/locales/devise.en.yml
-  ...
-----
+
+
+
+
 
 Maintenant, et si tout s’est bien passé, nous serons en mesure de générer le modèle `user` à l’aide du *générateur* de Devise:
 
