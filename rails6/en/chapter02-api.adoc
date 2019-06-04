@@ -111,7 +111,7 @@ Rails can handle up to 34 different media types, you can list them by accessing 
 
 [source,bash]
 ----
-$ $ rails c
+$ rails c
 Running via Spring preloader in process 19990
 Loading development environment (Rails 6.0.0.rc1)
 2.6.3 :001 > Mime::SET.collect(&:to_s)

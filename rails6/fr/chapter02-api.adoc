@@ -127,9 +127,10 @@ Rails supporte jusqu’à 35 types de médias différents! Vous pouvez les liste
 [source,bash]
 ----
 $ rails c
-Loading development environment (Rails 5.2.1)
-irb(main):001:0> Mime::SET.collect(&:to_s)
-=> ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip", "application/vnd.web-console.v2"]
+Running via Spring preloader in process 19990
+Loading development environment (Rails 6.0.0.rc1)
+2.6.3 :001 > Mime::SET.collect(&:to_s)
+ => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip"]
 ----
 ****
 
@@ -146,7 +147,9 @@ Rails.application.routes.draw do
 end
 ----
 
-Jusqu’à présent, nous n’avons rien fait de compliqué. Nous voulons maintenant générer une `base_uri` sous un sous-domaine. C’est-à-dire quelque chose comme `api.market_place_api.dev`. Définir l’API sous un sous-domaine est une bonne pratique car cela permet d’adapter l’application à un niveau DNS. Alors, comment y parvenir?
+Jusqu'à présent, nous n'avons rien fait de fou. Nous voulons maintenant générer un _base_uri_ qui inclut la version de l'API comme ceci : http://localhost:3000/api/v1.
+
+NOTE : Régler l'API sous un sous-domaine est une bonne pratique car cela permet d'adapter l'application à un niveau DNS. Mais dans votre cas, nous allons simplifier les choses pour l'instant.
 
 [source,ruby]
 .config/routes.rb
@@ -158,8 +161,6 @@ Rails.application.routes.draw do
   end
 end
 ----
-
-Vous voyez la différence? Nous n’avons pas seulement ajouté un https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l’option chemin d’accès et lui avons donné un _backslash_. Cela indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
 
 === Les conventions des API
 

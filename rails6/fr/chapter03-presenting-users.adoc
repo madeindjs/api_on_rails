@@ -109,8 +109,8 @@ Nous avons donc défini notre schéma de la base de données. La prochaine étap
 
 Ruby on Rails propose un mécanisme complet de validation que vous pouvez consulter sur https://guides.rubyonrails.org/active_record_validations.html[leur documentation officielle]. Dans notre cas, nous voulons valider deux choses:
 
-- l'email doit avoir un format valide
-- l'email doit être unique
+- le courriel doit avoir un format valide
+- le courriel doit être unique
 - le mot de passe doit être remplis
 
 Ces trois règles se définissent par le code suivant:
@@ -220,6 +220,14 @@ $ git add . && git commit -m "Create user model"
 
 === Hachage du mot de passe
 
+Nous avons précédemment mis en place le stockage des données de l'utilisateur. Il nous reste un problème à régler: *le stockage des mot de passe est en clair*.
+
+> Si vous stockez les mots de passe des utilisateurs en clair, alors un attaquant qui vole une copie de votre base de données a une liste géante d'emails et de mots de passe. Certains de vos utilisateurs n'auront qu'un seul mot de passe -- pour leur compte de courriel, pour leur compte bancaire, pour votre application. Un simple piratage pourrait dégénérer en un vol d'identité massif. - https://github.com/codahale/bcrypt-ruby#why-you-should-use-bcrypt[source - Why you should use bcrypt]
+
+Nous allons donc utiliser la gemme bcrypt afin de hacher le mot de passer.
+
+NOTE: Le hachage consiste à transformer une chaîne de caractère en _Hash_. Ce _Hash_ ne permet pas de retrouver la chaîne de caractère d'origine. Cependant nous pouvons facilement l'utiliser afin de savoir si une chaîne de caractère donnée correspond au _hash_ que nous avons stocké.
+
 Nous devons d’abord ajouter la gemme Bcrypt au _Gemfile_. Nous pouvons utiliser la commande `bundle add`. Celle-ci va s'occuper:
 
 1. d'ajouter la gemme au Gemfile en récupérant la version actuelle
@@ -232,7 +240,7 @@ Lancez donc la commande suivante:
 $ bundle add bcrypt
 ----
 
-Une fois la commande éxécuté, la ligne suivante est ajoutée à la fin du _Gemfile_:
+Une fois la commande exécuté, la ligne suivante est ajoutée à la fin du _Gemfile_:
 
 [source,ruby]
 .Gemfile
@@ -243,133 +251,70 @@ gem "bcrypt", "~> 3.1"
 NOTE: La version 3.1 de bcrypt est celle actuelle à l'heure ou j'écris ces lignes. Elle peut donc varier pour votre cas.
 
 
+Active Record nous propose une méthode https://github.com/rails/rails/blob/6-0-stable/activemodel/lib/active_model/secure_password.rb#L61[`ActiveModel::SecurePassword::has_secure_password`] qui va s'interfacer avec Bcrypt et hacher le mot de passe pour nous très facilement.
 
-
-// CURRENT bcrypt
-
-
-
-
-
-
-
-Maintenant, et si tout s’est bien passé, nous serons en mesure de générer le modèle `user` à l’aide du *générateur* de Devise:
-
-[source,bash]
-----
-$ rails g devise User
-    invoke  active_record
-    create    db/migrate/20181113070805_devise_create_users.rb
-    create    app/models/user.rb
-    invoke    rspec
-    create      spec/models/user_spec.rb
-    invoke      factory_bot
-    create        spec/factories/users.rb
-    insert    app/models/user.rb
-    route  devise_for :users
-----
-
-A partir de maintenant, chaque fois que nous créons un modèle, le générateur va également créer un fichier d’usine pour ce modèle. Cela nous aidera à créer facilement des utilisateurs de tests et facilitera la rédaction de nos tests.
 
 [source,ruby]
-.spec/factories/users.rb
+.app/models/user.rb
 ----
-FactoryBot.define do
-  factory :user do
-  end
+class User < ApplicationRecord
+  # ...
+  has_secure_password
 end
 ----
 
-Ensuite, nous allons migrer la base de données et préparer la base de données de test.
+// `has_secure_password` ajoute des méthodes et des validation pour authentifier un mot de passe BCrypt. Ce mécanisme nécessite que vous ayez un attribut `password_digest`.
+`has_secure_password` ajoute les validations suivantes:
 
-[source,bash]
-----
-$ rake db:migrate
-== 20181113070805 DeviseCreateUsers: migrating ================================
--- create_table(:users)
-   -> 0.0008s
--- add_index(:users, :email, {:unique=>true})
-   -> 0.0005s
--- add_index(:users, :reset_password_token, {:unique=>true})
-   -> 0.0007s
-== 20181113070805 DeviseCreateUsers: migrated (0.0023s) =======================
-----
+* Le mot de passe doit être présent lors de la création.
+* La longueur du mot de passe doit être inférieure ou égale à 72 octets.
+* la confirmation du mot de passe à l'aide de l'attribut `password_confirmation` (si il est envoyé)
 
-[source,bash]
-----
-$ rake db:test:prepare
-----
+De plus, cette méthode va ajouter un attribut `User#password` qui sera automatiquement haché et sauvegardé dans l'attribut `User#password_digest`.
 
-Faisons maintenant un _commit_ afin de garder un historique concis:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m "Adds devise user model"
-----
-
-== Notre premier test sur le modèle User
-
-Nous allons ajouter quelques spécifications pour nous assurer que le modèle utilisateur répond aux attributs `email`, `password` et `password_confirmation` fournis par Devise. Pour des raisons de commodité, nous allons modifier le fichier d’usine des utilisateurs pour ajouter les attributs correspondants.
+Essayons cela tout de suite dans la console de Rails. Ouvre une console avec `rails console`:
 
 [source,ruby]
-.spec/factories/users.rb
 ----
-FactoryBot.define do
-  factory :user do
-    email { FFaker::Internet.email }
-    password { '12345678' }
-    password_confirmation { '12345678' }
-  end
-end
+2.6.3 :001 > User.create! email: 'toto@toto.org', password: '123456'
+ =>#<User id: 1, email: "toto@toto.org", password_digest: [FILTERED], created_at: "2019-06-04 10:51:44", updated_at: "2019-06-04 10:51:44">
 ----
 
-Une fois les attributs ajoutés, il est temps de tester notre modèle `User`.
+Nous pouvons aussi d'envoyer un attribut `password_confirmation` qui ne correspond pas à `password`:
 
 [source,ruby]
-.spec/models/user_spec.rb
 ----
-# ...
-RSpec.describe User, type: :model do
-  before { @user = FactoryBot.build(:user) }
-  subject { @user }
-
-  it { should respond_to(:email) }
-  it { should respond_to(:password) }
-  it { should respond_to(:password_confirmation) }
-  it { should be_valid }
-end
+2.6.3 :002 > User.create! email: 'tata@tata.org', password: '123456', password_confirmation: 'azerty'
+ActiveRecord::RecordInvalid (Validation failed: Password confirmation doesn t match Password)
 ----
 
-Vue que nous avons préparé la base de données de test avec `rake db:test:prepare`, nous pouvons exécuter les tests:
+Tout fonctionne comme prévus! Faisons maintenant un _commit_ afin de garder un historique concis:
 
 [source,bash]
 ----
-$ bundle exec rspec spec/models/user_spec.rb
-....
-
-Finished in 0.03231 seconds (files took 0.81624 seconds to load)
-4 examples, 0 failures
+$ git commit -am "Setup Bcrypt"
 ----
 
-C’était facile! Nous devrions maintenant faire un `commit`:
 
-[source,bash]
-----
-$ git add .
-$ git commit -am 'Adds user firsts specs'
-----
 
 == Construire les utilisateurs
 
-Il est temps de faire notre premier point d’entrée. Nous allons juste commencer à construire l’action `show` pour l’utilisateur qui va afficher un utilisateur en JSON. Nous devons d’abord générer le `users_controller`, ajouter les tests correspondants et ensuite construire le code réel. Tout d’abord, nous générons le contrôleur utilisateur:
+Il est temps de faire notre premier point d’entrée. Nous allons juste commencer à construire l’action `show` pour l’utilisateur qui va afficher un utilisateur en JSON. Nous allons d’abord
+
+1. générer le `users_controller`
+2. ajouter les tests correspondants
+3. construire le code réel.
+
+Occupons nous tout d'abord de générer le contrôleur et les test fonctionnels.
+
+Afin de respecter le visionnement de notre API, nous allons découper notre application en utilisant des *modules*. La syntaxe est donc la suivante:
 
 [source,bash]
 ----
-$ rails generate controller users
+$ rails generate controller api::v1::users
 ----
 
-Cette commande va créer le fichier `users_controller_spec.rb`. Avant d’entrer dans le vif du sujet, il y a deux choses que nous voulons tester pour une API:
+Cette commande va créer le fichier `users_controller_test.rb`. Avant d’entrer dans le vif du sujet, il y a deux choses que nous voulons tester pour une API:
 
 * La structure du JSON renvoyée par le serveur
 * Le code de réponse HTTP renvoyé par le serveur
@@ -389,47 +334,28 @@ Le premier chiffre du code d’état spécifie l’une des cinq classes de répo
 Pour une liste complète des codes de réponse HTTP, consultez l’ https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP[article sur Wikipedia].
 ****
 
-Pour garder notre code bien découpé, nous allons créer quelques répertoires sous le répertoire des tests des contrôleurs afin d’être cohérent dans la configuration. Il existe aussi une autre convention qui utilise à la place du répertoire `controllers` un répertoire de `request` ou `integration`. Dans notre cas, je préfère rester cohérent avec le répertoire `app/controllers`.
+Nous allons donc implémenter le test fonctionnel qui vérifie l'accès à la méthode `Users#show`. pour cela,
 
-[source,bash]
-----
-$ mkdir -p spec/controllers/api/v1
-$ mv spec/controllers/users_controller_spec.rb spec/controllers/api/v1
-----
-
-Après avoir créé les répertoires, nous devons changer le nom de la classe `UsersController` en `Api::V1::UsersController`. Le fichier doit ressembler à ça:
 
 [source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
-----
-RSpec.describe Api::V1::UsersController, type: :controller do
-end
-----
-
-Maintenant, voici le fichier avec les tests créés:
-
-[source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
+.test/controllers/api/v1/users_controller_test.rb
 ----
 # ...
-RSpec.describe Api::V1::UsersController, type: :controller do
-  before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1" }
+class UsersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+  end
 
-  describe "GET #show" do
-    before(:each) do
-      @user = FactoryBot.create :user
-      get :show, params: { id: @user.id, format: :json}
-    end
-
-    it "returns the information about a reporter on a hash" do
-      user_response = JSON.parse(response.body, symbolize_names: true)
-      expect(user_response[:email]).to eql @user.email
-    end
-
-    it { expect(response).to be_success }
+  test "should show user" do
+    get api_v1_user_url(@user), as: :json
+    assert_response :success
+    # on teste que la réponse contient le courriel
+    json_response = JSON.parse(self.response.body)
+    assert_equal @user.email, json_response['email']
   end
 end
 ----
+
 
 Il suffit ensuite d’ajouter l’action à notre contrôleur. C’est extrêmement simple:
 
@@ -443,58 +369,31 @@ class  Api::V1::UsersController < ApplicationController
 end
 ----
 
-Les codes HTTP courants. Il est possible qu’il faille activer le module `Devise::Test::ControllerHelpers` au fichier `spec/rails_helper.rb` afin de charger les utilitaires Devise aux test. Si c’est le cas, ajoutez la ligne suivante
+// CURRENT
 
-[source,ruby]
-.spec/rails_helper.rb
-----
-#  ...
-RSpec.configure do |config|
-  #  ...
-  config.include Devise::Test::ControllerHelpers, type: :controller
-  #  ...
-end
-----
-
-Si vous exécutez les tests avec `rspec spec/controllers` vous obtenez l’erreur suivante:
+Si vous exécutez les tests avec `rails test` vous obtenez l’erreur suivante:
 
 ....
-$ rspec spec/controllers
-FF
+$ rails test
 
-Failures:
+# Running:
 
-  1) Api::V1::UsersController GET #show returns the information about a reporter on a hash
-    Failure/Error: get :show, params: { id: @user.id, format: :json}
+...E
 
-    ActionController::UrlGenerationError:
-    No route matches {:action=>"show", :controller=>"api/v1/users", :format=>:json, :id=>1}
-      ...
-
-  2) Api::V1::UsersController GET #show
-    Failure/Error: get :show, params: { id: @user.id, format: :json}
-
-
-    ActionController::UrlGenerationError:
-    No route matches {:action=>"show", :controller=>"api/v1/users", :format=>:json, :id=>1}
-      ...
-
-Finished in 0.01632 seconds (files took 0.47675 seconds to load)
-  2 examples, 2 failures
+Error:
+UsersControllerTest#test_should_show_user:
+DRb::DRbRemoteError: undefined method `api_v1_user_url' for #<UsersControllerTest:0x000055ce32f00bd0> (NoMethodError)
+    test/controllers/users_controller_test.rb:9:in `block in <class:UsersControllerTest>'
 ....
 
-Ce type d’erreur est très courant lorsque vous générer vos ressources à la main! En effet, nous avons totalement oublié les routes. Alors ajoutons-les:
+Ce type d’erreur est très courant lorsque vous générez vos ressources à la main! En effet, nous avons totalement oublié *les routes*. Alors ajoutons-les:
 
 [source,ruby]
 .config/routes.rb
 ----
-require 'api_constraints'
-
 Rails.application.routes.draw do
-  devise_for :users
-  # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
       resources :users, only: [:show]
     end
   end
@@ -503,71 +402,45 @@ end
 
 Vos tests devraient désormais passer:
 
-[source,bash]
 ----
-$ bundle exec rspec spec/controllers
-..
+$ rails test
 
-Finished in 0.02652 seconds (files took 0.47291 seconds to load)
-2 examples, 0 failures
+# Running:
+
+....
+
+Finished in 0.162936s, 24.5496 runs/s, 30.6869 assertions/s.
+4 runs, 5 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Comme d’habitude, après avoir ajouté une des fonctionnalités dont nous sommes satisfaits, nous faisons un `commit`:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds show action the users controller"
+$ git add . && git commit -m "Adds show action the users controller"
 ----
 
 === Tester notre ressource avec cURL
 
 Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions pour la tester. La première qui me vient à l’esprit est l’utilisation de cURL qui est intégré dans presque toutes les distributions Linux. Alors, essayons:
 
-NOTE: Rappelez-vous que notre URI de base est `api.market_place_api.dev`.
 
 [source,bash]
 ----
-$ curl -H 'Accept: application/vnd.marketplace.v1' http://api.market_place_api.dev/users/1
-----
-
-En faisant cela nous obtenons une erreur et c’est normal: l’utilisateur n’existe pas. Créons-le avec le terminal:
-
-[source,bash]
-----
-$ rails console
-Loading development environment (Rails 5.2.1)
-2.5.3 :001 >  User.create email: "example@marketplace.com", password: "12345678", password_confirmation: "12345678"
+$ curl http://localhost:3000/api/v1/users/1
 ----
 
 Après avoir créé l’utilisateur, notre appel cURL devrait fonctionner:
 
 [source,bash]
 ----
-$ curl -H 'Accept: application/vnd.marketplace.v1' \
-http://api.market_place_api.dev/users/1
-{"id":1,"email":"example@marketplace.com", ...
+$ curl http://localhost:3000/api/v1/users/1
+{"id":1,"email":"toto@toto.org", ...
 ----
 
-Et voilà! Vous avez maintenant une entrée d’API d’enregistrement d’utilisateur. Si vous avez des problèmes avec la réponse, vous devrez peut-être modifier le fichier `application_controller.rb` et ajouter la ligne suivante:
+NOTE: N'oubliez pas que nous avons crée l'utilisateur _toto@toto.org_ lors de la précédente section.
 
-[source,ruby]
-.app/controllers/application_controller.rb
-----
-class ApplicationController < ActionController::API
-  # Prevent CSRF attacks by raising an exception.
-  # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :null_session
-end
-----
-
-Comme suggéré même par Rails, nous devrions utiliser `null_session` pour empêcher *les attaques CSFR*. Je vous recommande fortement de le faire sinon les requêtes `POST` et `PUT` ne fonctionneront pas. Après avoir mis à jour le fichier `application_controller.rb` c’est le moment de faire un `commit`:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m "Updates application controller to prevent CSRF exception from being raised"
-----
+Et voilà! Vous avez maintenant une entrée d’API d’enregistrement d’utilisateur.
 
 === Créer les utilisateurs
 
@@ -575,64 +448,44 @@ Maintenant que nous avons une meilleure compréhension de la façon de construir
 
 Assurez-vous que votre répertoire Git est propre et que vous n’avez pas de fichier en _staging_. Si c’est le cas, _committez_-les pour que nous puissions recommencer à zéro.
 
-Commençons donc par écrire notre test tests en ajoutant une entrée pour créer un utilisateur sur le fichier `users_controller_spec.rb` :
+Commençons donc par écrire notre test tests en ajoutant une entrée pour créer un utilisateur sur le fichier `users_controller_test.rb` :
 
 [source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
+.test/controllers/users_controller_test.rb
 ----
-RSpec.describe Api::V1::UsersController, type: :controller do
+# ...
+class UsersControllerTest < ActionDispatch::IntegrationTest
   # ...
-  describe 'POST #create' do
-    context 'when is successfully created' do
-      before(:each) do
-        @user_attributes = FactoryBot.attributes_for :user
-        post :create, params: { user: @user_attributes }, format: :json
-      end
-
-      it 'renders the json representation for the user record just created' do
-        user_response = JSON.parse(response.body, symbolize_names: true)
-        expect(user_response[:email]).to eql @user_attributes[:email]
-      end
-
-      it { expect(response.response_code).to eq(201) }
+  test "should create user" do
+    assert_difference('User.count') do
+      post api_v1_users_url, params: { user: { email: 'test@test.org', password: '123456' } }, as: :json
     end
+    assert_response :created
+  end
 
-    context 'when is not created' do
-      before(:each) do
-        # notice I'm not including the email
-        @invalid_user_attributes = { password: '12345678',
-                                     password_confirmation: '12345678' }
-        post :create, params: { user: @invalid_user_attributes }, format: :json
-      end
-
-      it 'renders an errors json' do
-        user_response = JSON.parse(response.body, symbolize_names: true)
-        expect(user_response).to have_key(:errors)
-      end
-
-      it 'renders the json errors on why the user could not be created' do
-        user_response = JSON.parse(response.body, symbolize_names: true)
-        expect(user_response[:errors][:email]).to include "can't be blank"
-      end
-
-      it {  expect(response.response_code).to eq(422) }
+  test "should not create user with taken email" do
+    assert_no_difference('User.count') do
+      post api_v1_users_url, params: { user: { email: @user.email, password: '123456' } }, as: :json
     end
+    assert_response :unprocessable_entity
   end
 end
 ----
 
 Cela fait beaucoup de code. Ne vous inquiétez pas, je vous explique tout:
 
-* Nous devons valider les états sur lesquels l’enregistrement peut être valide ou invalide. Dans ce cas, nous utilisons les `context` pour réaliser ces scénarios.
-* Au cas où tout se passe bien, nous devrions retourner un code HTTP *201* ainsi que la représentation JSON de cet objet.
-* En cas d’erreur, nous devons renvoyer un code HTTP *422*. Nous retournons également un JSON représentant la raison pour laquelle la ressource n’a pas pu être sauvegardée.
+* dans le premier test nous vérifions la création d'un utilisateur en envoyant une requête POST valide. Ensuite, nous vérifiions qu'un utilisateur supplémentaire existe en base et que le code HTTP de la réponse est `created`
+* dans le premier test nous vérifions que l'utilisateur n'est pas crée en utilisant un courriel déjà utilisé. Ensuite, nous vérifiions que le code HTTP de la réponse est `created`
 
 A ce moment là, les tests doivent échouer:
 
 [source,bash]
 ----
-$ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
-.FFFFFF
+$ rails test
+
+# Running:
+
+...E
 ----
 
 Il est donc temps d’implémenter le code pour que nos tests réussissent:
@@ -642,21 +495,26 @@ Il est donc temps d’implémenter le code pour que nos tests réussissent:
 ----
 class Api::V1::UsersController < ApplicationController
   # ...
+
+  # POST /users
   def create
-    user = User.new user_params
-    if user.save
-      render json: user, status: 201, location: [:api, user]
+    @user = User.new(user_params)
+
+    if @user.save
+      render json: @user, status: :created
     else
-      render json: { errors: user.errors }, status: 422
+      render json: @user.errors, status: :unprocessable_entity
     end
   end
 
   private
 
+  # Only allow a trusted parameter "white list" through.
   def user_params
-    params.require(:user).permit(:email, :password, :password_confirmation)
+    params.require(:user).permit(:email, :password)
   end
 end
+
 ----
 
 Rappelez-vous qu’à chaque fois que nous ajoutons une entrée dans notre API il faut aussi ajouter cette action dans notre fichier `routes.rb`.
@@ -665,9 +523,11 @@ Rappelez-vous qu’à chaque fois que nous ajoutons une entrée dans notre API i
 .config/routes.rb
 ----
 Rails.application.routes.draw do
-  # ...
-  resources :users, only: [:show, :create]
-  # ...
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: [:show, :create]
+    end
+  end
 end
 ----
 
@@ -675,19 +535,19 @@ Comme vous pouvez le constater, l’implémentation est assez simple. Nous avons
 
 [source,bash]
 ----
-$ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
-.......
+$ rails test
+# Running:
+......
 
-Finished in 0.05967 seconds (files took 0.4673 seconds to load)
-7 examples, 0 failures
+Finished in 0.172159s, 34.8516 runs/s, 52.2774 assertions/s.
+6 runs, 9 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Oura! _Committons_ les changements et continuons à construire notre application:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds the user create endpoint"
+$ git commit -am "Adds the user create endpoint"
 ----
 
 === Mettre à jour les utilisateurs
@@ -700,51 +560,20 @@ Le schéma de mise à jour des utilisateurs est très similaire à celui de la c
 Comme d’habitude, nous commençons par écrire nos tests:
 
 [source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
+.test/controllers/users_controller_test.rb
 ----
-RSpec.describe Api::V1::UsersController, type: :controller do
+# ...
+class UsersControllerTest < ActionDispatch::IntegrationTest
   # ...
-  describe "PUT/PATCH #update" do
+  test "should update user" do
+    patch api_v1_user_url(@user), params: { user: { email: @user.email, password: '123456' } }, as: :json
+    assert_response :success
+  end
 
-   context "when is successfully updated" do
-     before(:each) do
-       @user = FactoryBot.create :user
-       patch :update, params: {
-         id: @user.id,
-         user: { email: "newmail@example.com" } },
-         format: :json
-     end
-
-     it "renders the json representation for the updated user" do
-       user_response = JSON.parse(response.body, symbolize_names: true)
-       expect(user_response[:email]).to eql "newmail@example.com"
-     end
-
-     it {  expect(response.response_code).to eq(200) }
-   end
-
-   context "when is not created" do
-     before(:each) do
-       @user = FactoryBot.create :user
-       patch :update, params: {
-         id: @user.id,
-         user: { email: "bademail.com" } },
-         format: :json
-     end
-
-     it "renders an errors json" do
-       user_response = JSON.parse(response.body, symbolize_names: true)
-       expect(user_response).to have_key(:errors)
-     end
-
-     it "renders the json errors on why the user could not be created" do
-       user_response = JSON.parse(response.body, symbolize_names: true)
-       expect(user_response[:errors][:email]).to include "is invalid"
-     end
-
-     it {  expect(response.response_code).to eq(422) }
-   end
- end
+  test "should not update other user" do
+    patch api_v1_user_url(@user), params: { user: { email: 'bad_email', password: '123456' } }, as: :json
+    assert_response :unprocessable_entity
+  end
 end
 ----
 
@@ -766,15 +595,21 @@ Ensuite nous implémentons l’action de mise à jour sur le contrôleur utilisa
 .app/controllers/api/v1/users_controller.rb
 ----
 class Api::V1::UsersController < ApplicationController
+  before_action :set_user, only: %i[show update]
   # ...
-  def update
-    user = User.find(params[:id])
 
-    if user.update(user_params)
-      render json: user, status: 200, location: [:api, user]
+  def update
+    if @user.update(user_params)
+      render json: @user
     else
-      render json: { errors: user.errors }, status: 422
+      render json: @user.errors, status: :unprocessable_entity
     end
+  end
+
+  private
+
+  def set_user
+    @user = User.find(params[:id])
   end
   # ...
 end
@@ -784,19 +619,21 @@ Tous nos tests devraient maintenant passer:
 
 [source,bash]
 ----
-$ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
-............
+$ rails test
 
-Finished in 0.08826 seconds (files took 0.47286 seconds to load)
-12 examples, 0 failures
+# Running:
+
+........
+
+Finished in 0.163526s, 48.9220 runs/s, 67.2677 assertions/s.
+8 runs, 11 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Vue que tout fonctionne, on effectue un _commit_:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds update action the users controller"
+$ git commit -am "Adds update action the users controller"
 ----
 
 === Supprimer l’utilisateur
@@ -804,18 +641,17 @@ $ git commit -m "Adds update action the users controller"
 Jusqu’à présent, nous avons construit pas mal d’actions sur le contrôleur des utilisateurs avec leurs tests mais ce n’est terminé. Il nous en manque juste une dernière qui est l’action de destruction. Créons donc le test:
 
 [source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
+.test/controllers/users_controller_test.rb
 ----
-RSpec.describe Api::V1::UsersController, type: :controller do
-  before(:each) { request.headers['Accept'] = 'application/vnd.marketplace.v1' }
+# ...
+class UsersControllerTest < ActionDispatch::IntegrationTest
   # ...
-  describe "DELETE #destroy" do
-    before(:each) do
-      @user = FactoryBot.create :user
-      delete :destroy, params: { id: @user.id }, format: :json
-    end
 
-    it { expect(response.response_code).to eq(204) }
+  test "should destroy user" do
+    assert_difference('User.count', -1) do
+      delete api_v1_user_url(@user), as: :json
+    end
+    assert_response :no_content
   end
 end
 ----
@@ -828,12 +664,14 @@ La mise en œuvre de l’action de destruction est également assez simple:
 .app/controllers/api/v1/users_controller.rb
 ----
 class Api::V1::UsersController < ApplicationController
+  before_action :set_user, only: %i[show update destroy]
   # ...
+
   def destroy
-    user = User.find(params[:id])
-    user.destroy
+    @user.destroy
     head 204
   end
+
   # ...
 end
 ----
@@ -865,8 +703,7 @@ Rappelez-vous qu’après avoir apporté quelques modifications à notre code, i
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds destroy action to the users controller"
+$ git commit -am "Adds destroy action to the users controller"
 ----
 
 == Conclusion
