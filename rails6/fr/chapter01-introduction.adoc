@@ -1,13 +1,16 @@
 [#chapter01-introduction]
 = Introduction
 
-Bienvenue sur API on Rails 6, un tutoriel sous stéroïdes pour apprendre la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 5.2 qui est la version actuelle footnote:[pour plus d’informations à ce sujet, consultez http://rubyonrails.org/[rubyonrails.org]]. La version la plus récente de APIs on Rails 6 se trouve sur https://github.com/madeindjs/api_on_rails/[GitHub]. N'oubliez pas de mettre à jour votre version hors ligne si c’est le cas.
+Bienvenue sur API on Rails 6, un tutoriel sous stéroïdes pour apprendre la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 6.0 qui est la version actuelle.
+
+// La version la plus récente de APIs on Rails 6 se trouve sur https://github.com/madeindjs/api_on_rails/[GitHub]. N'oubliez pas de mettre à jour votre version hors ligne si c’est le cas.
 
 L’intention de ce livre n’est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API évolutive et maintenable avec Rails. C’est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendrez à:
 
 * Construire des réponses JSON
 * Utiliser Git pour le contrôle de version
 * Test de vos points finaux
+* Mettre en place une authentification avec des JSON Web Tokens (JWT)
 * Optimiser et mettre en cache l’API
 
 Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vais vous donner des conseils et des astuces pour vous améliorer tout au long du livre. Vous pouvez vous considérer comme le personnage principal d’un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
@@ -16,7 +19,7 @@ Dans ce premier chapitre, je vous expliquerai comment configurer votre environne
 
 Dans les prochains chapitres, nous allons construire l’application en suivant une méthode de travail simple que j’utilise quotidiennement. Nous développerons toute l’application en utilisant le *développement piloté par les tests* (TDD). Je vous expliquerai aussi l’intérêt d’utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l’application en construisant toutes les routes nécessaires. Nous sécuriserons aussi l’accès à l’API en construisant une authentification par échange d’en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d’optimisation pour améliorer la structure et les temps de réponse du serveur.
 
-L’application finale sera une application de place de marché footnote:[Une application de type de marché permet à des vendeurs de mettre en place leur propore boutique en ligne.] où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme http://shopify.com/[Shopify], http://spreecommerce.com/[Spree] ou http://magento.com/[Magento].
+L’application finale sera une application de place de marché footnote:[Une application de type de marché permet à des vendeurs de mettre en place leur propre boutique en ligne.] où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme http://shopify.com/[Shopify], http://spreecommerce.com/[Spree] ou http://magento.com/[Magento].
 
 Tout au long de ce voyage (cela dépend de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J’ai aussi pris certaines des pratiques que j’ai trouvées sur http://railscasts.com/[Railscasts], http://codeschool.com/[CodeSchool] et http://jsonapi.org/format/[JSON API].
 
@@ -96,7 +99,7 @@ Ensuite, vous pouvez installer la dernière version de Ruby:
 
 [source,bash]
 ----
-$ rvm install 2.5
+$ rvm install 2.6
 ----
 
 Si tout s’est bien passé, il est temps d’installer le reste des dépendances que nous allons utiliser.
@@ -124,15 +127,17 @@ Nous installons ensuite les gemmes nécessaires et ignorons la documentation pou
 $ printf 'gem: --no-document' >> ~/.gemrc
 $ gem install bundler
 $ gem install foreman
-$ gem install rails -v 5.2
+$ gem install rails -v 6.0.0.rc1
 ----
+
+NOTE: Vous pouvez vous demander ce que signifie RC1. RC1 signifie _Release Candidate_. Au moment où j'écris ces lignes, la version finale pour Rails 6.0 n'est pas terminée. J'utilise donc la version la plus récente qui est 6.0.0.0.rc1
 
 Vérifiez que tout fonctionne bien:
 
 [source,bash]
 ----
-$ rails -v 5.2
-5.2.0
+$ rails -v
+Rails 6.0.0.rc1
 ----
 
 ==== Bases de données
@@ -155,82 +160,22 @@ $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 
 Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n’est pas le cas, jetez un coup d’œil à cette section.
 
-Sachez que nous utiliserons http://rspec.info/[Rspec] comme suite de test. Assurez-vous donc d’inclure l’option `--skip-test` lors de la création de l’application et l’option `--api`.
-
-NOTE: L’option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et _Middleware_ inclus dans l’application. Cela permet aussi d’éviter de générer les vues HTML lors de l’utilisation des générateurs de Rails.
-
 La commande est donc la suivante:
 
 [source,bash]
 ----
 $ mkdir ~/workspace
 $ cd ~/workspace
-$ rails new market_place_api --skip-test --api
+$ rails new market_place_api --api
 ----
+
+NOTE: L’option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et _Middleware_ inclus dans l’application. Cela permet aussi d’éviter de générer les vues HTML lors de l’utilisation des générateurs de Rails.
 
 Comme vous pouvez le deviner, les commandes ci-dessus généreront les éléments indispensables à votre application Rails. La prochaine étape est d’ajouter quelques gemmes que nous utiliserons pour construire l’API.
 
-=== Installer Pow ou Prax
+// CURRENT
 
-Vous pouvez vous demander:
-
-> Pourquoi diable voudrais-je installer ce type de paquet?
-
-La réponse est simple: parce que nous allons travailler avec des http://en.wikipedia.org/wiki/Subdomain[sous-domaines]. http://pow.cx/[Pow] et https://github.com/ysbaddaden/prax.cr[Prax] vont nous aider a les créer très facilement.
-
-==== Installer Pow
-
-Pow ne fonctionne que sous Mac OS. Mais ne vous inquiétez pas: il existe une alternative qui imite les fonctionnalités sous Linux. Pour l’installer, tapez simplement:
-
-[source,bash]
-----
-$ curl get.pow.cx | sh
-----
-
-Et c’est tout ce que vous avez à faire. Il suffit d’établir un lien symbolique avec l’application pour configurer l’application Rack. D’abord vous allez dans le répertoire `~/.pow`:
-
-[source,bash]
-----
-$ cd ~/.pow
-----
-
-Ensuite, vous pouvez créer le http://en.wikipedia.org/wiki/Symbolic_link[lien symbolique]
-
-[source,bash]
-----
-$ ln -s ~/workspace/market_place_api
-----
-
-N’oubliez pas de changer le répertoire utilisateur pour celui qui correspond au vôtre. Vous pouvez maintenant accéder à l’application via http://market_place_api.dev/. Votre application devrait être en cours d’exécution.
-
-==== Installer Prax
-
-Pour les utilisateurs de Linux uniquement, https://github.com/ysbaddaden/prax.cr[Prax] distribue des paquets déjà compilés pour les distributions Debian / Ubuntu. Il suffit donc de télécharger le paquet `.deb` et de l’installer avec `dpkg`.
-
-[source,bash]
-----
-$ cd /tmp
-$ wget https://github.com/ysbaddaden/prax.cr/releases/download/v0.8.0/prax_0.8.0-1_amd64.deb
-$ sudo dpkg -i prax_0.8.0-1_amd64.deb
-----
-
-Ensuite, il ne nous reste plus qu’à lier les applications:
-
-[source,bash]
-----
-$ cd ~/workspace/market_place_api
-$ prax link
-----
-
-Si vous voulez démarrer le Prax automatiquement, ajoutez cette ligne au fichier `.profile`:
-
-....
-prax start
-....
-
-Lors de l’utilisation de https://github.com/ysbaddaden/prax.cr[Prax] vous devez spécifier le port de l’URL, dans ce cas-ci: http://market_place_api.dev:3000. Vous devriez ainsi voir l’application en marche comme le montre l’image suivante.
-
-image:pow_running.png[L’application tourne sur l’URL market_place_api.dev/]
+== Gemfile et Bundler
 
 Une fois l’application Rails créée, l’étape suivante consiste à ajouter une gemme simple (mais très puissante) pour sérialiser les ressources que nous allons exposer avec l’API. La gemme s’appelle `active_model_serializers`. C’est un excellent choix pour la construction de ce type d’application car la librairie est bien maintenue et la https://github.com/rails-api/active_model_serializers[documentation] est incroyable.
 

@@ -170,6 +170,8 @@ $ cd ~/workspace
 $ rails new market_place_api --api
 ----
 
+NOTE: The `--api` option appeared in version 5 of Rails. It allows to limit the libraries and _Middleware_ included in the application. This also avoids generating HTML views when using Rails generators.
+
 As you may guess, the commands above will generate the bare bones of your Rails application. The next step is to add some `gems` we’ll be using to build the api.
 
 == Gemfile and Bundler
