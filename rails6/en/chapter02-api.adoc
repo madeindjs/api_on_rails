@@ -7,9 +7,7 @@ You can clone the project until this point with:
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api
-$ cd market_place_api
-$ git checkout tags/chapter1
+$ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_1
 ----
 
 And as a quick recap, we really just update the `Gemfile` to add the https://github.com/Netflix/fast_jsonapi[fast_jsonapi] gem.

@@ -7,9 +7,7 @@ Vous pouvez cloner le projet jusqu’ici avec:
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api
-$ cd market_place_api
-$ git checkout -b chapter1 b98a9a7a328017640482af95beebc1d6e612e0ac
+$ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_1
 ----
 
 Pour résumer, nous avons mis à jour le `Gemfile` pour ajouter la gemme `active_model_serializers`.
@@ -28,7 +26,7 @@ Nous n’allons pas construire d’interface pour l’interaction avec l’API a
 
 > D’accord, mais j’ai besoin d’explorer et de visualiser l’API que je vais construire, non?
 
-C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outils en ligne de commande disponnible presque partout.
+C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outils en ligne de commande disponible presque partout.
 
 == Mettre en place l’API
 
@@ -147,28 +145,43 @@ Rails.application.routes.draw do
 end
 ----
 
-Jusqu'à présent, nous n'avons rien fait de fou. Nous voulons maintenant générer un _base_uri_ qui inclut la version de l'API comme ceci : http://localhost:3000/api/v1.
+Jusqu'à présent, nous n'avons rien fait de fou. Nous voulons maintenant générer un _base_uri_ qui inclut la version de l'API comme ceci: http://localhost:3000/api/v1.
 
-NOTE : Régler l'API sous un sous-domaine est une bonne pratique car cela permet d'adapter l'application à un niveau DNS. Mais dans votre cas, nous allons simplifier les choses pour l'instant.
+NOTE: Régler l'API sous un sous-domaine est une bonne pratique car cela permet d'adapter l'application à un niveau DNS. Mais dans votre cas, nous allons simplifier les choses pour l'instant.
+
+Vous devriez vous soucier de versionner votre application dès le début car cela donnera une *meilleure structure* à votre API. Lorsque des changements interviendront sur votre API, vous pouvez ainsi proposer aux développeurs de s’adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées.
 
 [source,ruby]
 .config/routes.rb
 ----
 Rails.application.routes.draw do
-  # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
-    # We are going to list our resources here
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      # We are going to list our resources here
+    end
   end
 end
 ----
 
-=== Les conventions des API
-
+.Les conventions des API
+****
 Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d’une API. En supposant que nous versionnons notre api:
 
 * `api.example.com/`: Je suis d’avis que c’est la voie à suivre, elle vous donne une meilleure interface et l’isolement, et à long terme peut vous aider à http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[mettre rapidement à l’échelle]
 * `example.com/api/`: Ce modèle est très commun. C’est un bon moyen de commencer quand vous ne voulez pas de _Namespace_ de votre API avec sous un sous-domaine
 * `example.com/api/v1`: Cela semble être une bonne idée. Définir la version de l’API par l’URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version à l’URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
+****
+
+
+
+Afin de définir la version de l’API, nous devons d’abord ajouter un autre répertoire sous le dossier `api/` que nous avons créé:
+
+[source,bash]
+----
+$ mkdir app/controllers/api/v1
+----
+
+L’API est désormais _scopée_ via l’URL. Par exemple, avec la configuration actuelle, la récupération d’un produit via l’API se ferait avec cette url: http://api.marketplace.dev/v1/products/1.
 
 Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnement plus tard. Il est temps de _commiter_:
 
@@ -178,45 +191,30 @@ $ git add config/routes.rb
 $ git commit -m "Set the routes contraints for the api"
 ----
 
-== Versionnement de l’API
+// CURRENT
+//
+// == Versionnement de l’API
+//
+// A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l’espacement des noms des requêtes. Votre fichier `routes.rb` devrait ressembler à ceci:
+//
+// [source,ruby]
+// .config/routes.rb
+// ----
+// Rails.application.routes.draw do
+//   namespace :api, defaults: { format: :json } do
+//     namespace :v1 do
+//       # We are going to list our resources here
+//     end
+//   end
+// end
+// ----
 
-A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l’espacement des noms des requêtes. Votre fichier `routes.rb` devrait ressembler à ceci:
+// Il est maintenant temps de mettre en place d’autres contraintes pour le _versioning_.
 
-[source,ruby]
-.config/routes.rb
-----
-Rails.application.routes.draw do
-  # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
-    # We are going to list our resources here
-  end
-end
-----
-
-Il est maintenant temps de mettre en place d’autres contraintes pour le _versioning_. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une *meilleure structure* à votre API. Lorsque des changements interviendront sur votre API, vous pouvez ainsi proposer aux développeurs de s’adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées.
-
-Afin de définir la version de l’API, nous devons d’abord ajouter un autre répertoire sous le dossier `api/` que nous avons créé:
-
-[source,bash]
-----
-$ mkdir app/controllers/api/v1
-----
 
 De cette façon, nous pouvons très facilement définir la portée de notre API dans différentes versions. Il ne nous reste plus qu’à ajouter le code nécessaire dans le fichier `routes.rb`
 
-[source,ruby]
-.config/routes.rb
-----
-Rails.application.routes.draw do
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
-    scope module: :v1 do
-      # We are going to list our resources here
-    end
-  end
-end
-----
 
-L’API est désormais _scopée_ via l’URL. Par exemple, avec la configuration actuelle, la récupération d’un produit via l’API se ferait avec cette url: http://api.marketplace.dev/v1/products/1.
 
 == Améliorer le versionnement
 
