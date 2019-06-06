@@ -36,31 +36,125 @@ Le processus d’authentification de l’utilisateur via une API est très simpl
 Dans cette section et la suivante, nous nous concentrerons sur la construction d’un contrôleur de sessions avec ses actions correspondantes. Nous compléterons ensuite le flux de demandes en ajoutant l’accès d’autorisation nécessaire.
 
 
-=== Le jeton d’authentification
+=== Présentation de JSON Web Token
 
 Lorsqu'on parle de jeton d'authentification, un standard existe: le JSON Web Token (JWT).
 
 > JWT est un standard ouvert défini dans la RFC 75191. Il permet l'échange sécurisé de jetons (tokens) entre plusieurs parties. - https://fr.wikipedia.org/wiki/JSON_Web_Token[Wikipedia]
 
-Globalement, un token JWT est composé de trois parties:
+Globalement, un jeton JWT est composé de trois parties:
 
-- un _header_ structurés en JSON qui contiendra par exemple la date de validité du token.
-- un _payload_ structurés en JSON qui peut contenir n'importe quelle données. Dans notre cas, il contiendra l’identifiant de l'utilisateur a titulaire du token.
-- une signature qui nous permettra de vérifier que le token a bien été chiffré par notre application et donc qu'il est valide.
+- un en-tête structuré en JSON qui contiendra par exemple la date de validité du jeton.
+- un _payload_ structuré en JSON qui peut contenir n'importe quelle données. Dans notre cas, il contiendra l’identifiant de l'utilisateur a titulaire du jeton.
+- une signature qui nous permettra de vérifier que le jeton a bien été chiffré par notre application et donc qu'il est valide.
 
 Ces trois parties sont chacune encodées en base64 puis concaténées en utilisant des points (`.`). Ce qui nous donne quelque chose comme ça:
 
-. Un token JWT valide
+.Un jeton JWT valide
 ----
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 ----
 
+Une fois décodé, ce jeton nous donne les informations suivantes:
+
+.L'en-tête du jeton JWT
+[source,json]
+----
+{ "alg": "HS256", "typ": "JWT" }
+----
+
+.Le payload du jeton JWT
+[source,json]
+----
+{ "sub": "1234567890", "name": "John Doe", "iat": 1516239022 }
+----
+
+
+NOTE: Pour plus d'information à propos des jetons JWT je vous invite à consulter https://jwt.io[jwt.io]
+
+
+=== Mise en place du jeton d’authentification
+
+La norme JWT possède beaucoup d'implémentation dans des langages et des librairies diverses. Bien entendu, il existe une gemme Ruby à ce sujet: https://github.com/jwt/ruby-jwt[ruby-jwt].
+
+Commençons donc par l'installer:
+
+[source,bash]
+----
+$ bundle add jwt
+----
+
+Une fois effectué, il ligne est ajoutée dans votre _Gemfile_:
+
+[source,ruby]
+----
+gem "jwt", "~> 2.2"
+----
+
+La libraire s'utilise très facilement avec `JWT.encode` et `JWT.decode`. Ouvrons un terminal avec `rails console`.
+
+[source,ruby]
+----
+2.6.3 :001 > token = JWT.encode({message: 'Hello World'}, 'my_secret_key')
+2.6.3 :002 > JWT.decode(token, 'my_secret_key')
+ => [{"message"=>"Hello World"}, {"alg"=>"HS256"}]
+----
+
+Lors de la première ligne nous avons encodé un _payload_ avec la clé secrète _my_secret_key_. Nous obtenons donc un jeton que nous pouvons décoder, tout simplement.
+
+
+Nous allons maintenant englober toute cette logique dans une classe `JsonWebToken` qui nous permettra d'éviter créer une classe `lib/json_web_token.rb` qui s'occupera d'encoder et de décoder les jeton JWT. Voici donc l'implémentation.
+
+
+.lib/json_web_token.rb
+[source,ruby]
+----
+class JsonWebToken
+  SECRET_KEY = Rails.application.secrets.secret_key_base.to_s
+
+  def self.encode(payload, exp = 24.hours.from_now)
+    payload[:exp] = exp.to_i
+    JWT.encode(payload, SECRET_KEY)
+  end
+
+  def self.decode(token)
+    decoded = JWT.decode(token, SECRET_KEY).first
+    HashWithIndifferentAccess.new decoded
+  end
+end
+----
+
+"Hé, ça fait beaucoup plus de code que dans ton exemple!", je sais, mais nous allons le revoir ensemble.
+
+- la méthode `JsonWebToken.encode` va s'occuper d'encoder le _payload_ en rajoutant une expiration à 24 heures par défaut. Nous utilisaons aussi la même clé de chiffrement que celle configurée avec Rails
+- la méthode `JsonWebToken.decode` va décoder le jeton JWT et récupérer le _payload_. Nous utilisons ensuite la classe https://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html[`HashWithIndifferentAccess`] fournie par Rails qui permet de récupérer une valeur d'un `Hash` avec un `Symbol` ou un `String`.
+
+
+Et voilà. Afin de charger le fichier dans notre application, il faut spécifier le dossier `lib` dans la liste des _autoload_ de Ruby on Rails. Pour cela, rajoutez la configuration suivante dans le fichier `application.rb`:
+
+
+.lib/json_web_token.rb
+[source,ruby]
+----
+# ...
+module MarketPlaceApi
+  class Application < Rails::Application
+    # ...
+    config.autoload_paths << Rails.root.join('lib')
+  end
+end
+----
+
+Et voilà. Il est temps de faire un _commit_.
+
+[source,bash]
+----
+$ git add . && git commit -m "Setup JWT gem"
+----
+
+=== Utilisation du jeton d’authentification
+
 // CURRENT
-
-
-
-=== Le jeton d’authentification
-
 Avant de procéder à la logique sur le contrôleur de sessions, nous devons d’abord ajouter le champ du jeton d’authentification au modèle utilisateur. Ensuite, il faudra ajouter une méthode pour définir ce jeton.
 
 Nous commençons donc par générer un fichier de migration:
