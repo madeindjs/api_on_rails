@@ -152,375 +152,128 @@ Et voilà. Il est temps de faire un _commit_.
 $ git add . && git commit -m "Setup JWT gem"
 ----
 
-=== Utilisation du jeton d’authentification
+
+
+
+=== Le contrôleur de jeton
+
+Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui générer un jeton JWT.
+
+Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create`.
+
+// et la déconnexion par une demande `DELETE` à l’action `destroy`.
+
+Pour commencer, nous allons commencer par créer le contrôleur de et la méthode `create` dans le _namespace_ `/api/v1`. Avec Rails, une comande suffit:
+
+[source,bash]
+----
+$ rails generate controller api::v1::tokens create
+----
+
+Nous allons modifier un peu la route afin de respecter les conventions _REST_:
+
+.config/routes.rb
+[source,ruby]
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      # ...
+      resources :tokens, only: [:create]
+    end
+  end
+end
+----
+
+Avant d'aller plus loin, nous allons mettre les tests fonctionnel. Les tests sont: si j'envoie un couple courriel / mot de passe valide, je reçois un jeton, sinon j'ai une réponse de type `forbidden`. Le test se matérialise donc comme ceci:
+
+.test/controllers/api/v1/tokens_controller_test.rb
+[source,ruby]
+----
+require 'test_helper'
+
+class Api::V1::TokensControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+  end
+
+  test 'should get JWT token' do
+    post api_v1_tokens_url, params: { user: { email: @user.email, password: 'g00d_pa$$' } }, as: :json
+    assert_response :success
+
+    json_response = JSON.parse(response.body)
+    assert_not_nil json_response['token']
+  end
+
+  test 'should not get JWT token' do
+    post api_v1_tokens_url, params: { user: { email: @user.email, password: 'b@d_pa$$' } }, as: :json
+    assert_response :unauthorized
+  end
+end
+----
+
+Vous vous demandez sûrmenent: "mais comment peux tu connaitre le mot de passe de l'utilisateur?". Il suffit tout simplement d'utiliser la méthode `BCrypt::Password.create` dans les _fixtures_ des utilisateurs:
+
+.test/fixtures/users.yml
+[source,yaml]
+----
+one:
+  email: one@one.org
+  password_digest: <%= BCrypt::Password.create('g00d_pa$$') %>
+----
+
+A ce moment précis, si vous lancez les test vous obtenez deux erreurs:
+
+----
+$ rake test
+
+# Running:
+
+........E
+
+Error:
+Api::V1::TokensControllerTest#test_should_get_JWT_token:
+JSON::ParserError: 767: unexpected token at ''
+
+
+Failure:
+Expected response to be a <401: unauthorized>, but was a <204: No Content>
+
+Finished in 0.199738s, 55.0721 runs/s, 75.0983 assertions/s.
+11 runs, 15 assertions, 1 failures, 1 errors, 0 skips
+----
+
+C'est normal. Il est maintenant temps d'implémenter la logique pour créer le jeton JWT. Elle est très simple.
+
+
+.config/routes.rb
+[source,ruby]
+----
+class Api::V1::TokensController < ApplicationController
+  def create
+    @user = User.find_by_email(user_params[:email])
+    if @user&.authenticate(user_params[:password])
+      render json: {
+        token: JsonWebToken.encode(user_id: @user.id),
+        email: @user.email
+      }
+    else
+      head :unauthorized
+    end
+  end
+
+  private
+
+  # Only allow a trusted parameter "white list" through.
+  def user_params
+    params.require(:user).permit(:email, :password)
+  end
+end
+----
 
 // CURRENT
-Avant de procéder à la logique sur le contrôleur de sessions, nous devons d’abord ajouter le champ du jeton d’authentification au modèle utilisateur. Ensuite, il faudra ajouter une méthode pour définir ce jeton.
 
-Nous commençons donc par générer un fichier de migration:
 
-[source,bash]
-----
-$ rails generate migration add_authentification_token_to_users auth_token:string
-----
-
-Comme une bonne pratique, j’aime configurer les valeurs `String` à une chaîne vide. Et dans ce cas, nous allons ajouter un index avec une condition d’unicité. Ainsi, nous garantissons qu’il n’y a pas d’utilisateurs avec le même jeton. Alors faisons-le:
-
-[source,ruby]
-.db/migrate/20181114134521_add_authentification_token_to_users.rb
-----
-class AddauthentificationTokenToUsers < ActiveRecord::Migration[5.2]
-  def change
-    add_column :users, :auth_token, :string, default: ''
-    add_index :users, :auth_token, unique: true
-  end
-end
-----
-
-Ensuite, nous exécutons les migrations pour ajouter le champ et préparer la base de données de test:
-
-[source,bash]
-----
-$ rake db:migrate
-== 20181114134521 AddauthentificationTokenToUsers: migrating ====================
--- add_column(:users, :auth_token, :string, {:default=>""})
-   -> 0.0004s
--- add_index(:users, :auth_token, {:unique=>true})
-   -> 0.0010s
-== 20181114134521 AddauthentificationTokenToUsers: migrated (0.0016s) ===========
-----
-
-Il est maintenant temps d’ajouter quelques tests de réponse et d’unicité à nos spécifications de modèle utilisateur.
-
-[source,ruby]
-.spec/models/user_spec.rb
-----
-RSpec.describe User, type: :model do
-  # ...
-  it { should respond_to(:auth_token) }
-  it { should validate_uniqueness_of(:auth_token)}
-end
-----
-
-Nous passons ensuite au fichier `user.rb` et ajoutons le code nécessaire pour faire passer nos tests:
-
-[source,ruby]
-.app/models/user.rb
-----
-class User < ApplicationRecord
-  validates :auth_token, uniqueness: true
-  # ...
-end
-----
-
-Maintenant nous allons implémenter une méthode qui générera un jeton d’authentification unique pour chaque utilisateur afin de les authentifier plus tard via l’API. Construisons donc d’abord les tests.
-
-[source,ruby]
-.spec/models/user_spec.rb
-----
-RSpec.describe User, type: :model do
-  # ...
-  describe "#generate_authentification_token!" do
-    it "generates a unique token" do
-      @user.generate_authentification_token!
-      expect(@user.auth_token).not_to be_nil
-    end
-
-    it "generates another token when one already has been taken" do
-      existing_user = FactoryBot.create(:user, auth_token: "auniquetoken123")
-      @user.generate_authentification_token!
-      expect(@user.auth_token).not_to eql existing_user.auth_token
-    end
-  end
-end
-----
-
-Afin d’utiliser la méthode `validate_uniqueness_of`, il faut installer la gemme `shoulda-matchers`. Pour cela, nous rajoutons la gemme dans le `Gemfile`:
-
-[source,ruby]
-.Gemfile
-----
-# ...
-group :test do
-  # ...
-  gem 'shoulda-matchers'
-end
-----
-
-Et nous la chargeons dans le fichier `rails_helper.rb`:
-
-[source,ruby]
-.spec/rails_helper.rb
-----
-# ...
-RSpec.configure do |config|
-  # ...
-  RSpec.configure do |config|
-    config.include(Shoulda::Matchers::ActiveModel, type: :model)
-    config.include(Shoulda::Matchers::ActiveRecord, type: :model)
-  end
-end
-----
-
-Les tests échouent comme prévu:
-
-....
-$ bundle exec rspec spec/models/user_spec.rb
-.......FF
-
-Failures:
-
-  1) User#generate_authentification_token! generates a unique token
-     Failure/Error: @user.generate_authentification_token!
-
-     NoMethodError:
-       undefined method `generate_authentification_token!' for #<User:0x0000558948d23760>
-     # ./spec/models/user_spec.rb:23:in `block (3 levels) in <top (required)>'
-
-  2) User#generate_authentification_token! generates another token when one already has been taken
-     Failure/Error: @user.generate_authentification_token!
-
-     NoMethodError:
-       undefined method `generate_authentification_token!' for #<User:0x0000558948d18720>
-     # ./spec/models/user_spec.rb:29:in `block (3 levels) in <top (required)>'
-....
-
-C’est normal: la méthode `generate_authentification_token` n’existe pas encore. Nous allons l’implémenter et l’accrocher à l’appel `before_create` pour garantir que chaque utilisateur a un jeton d’authentification. Il y a beaucoup de solutions pour créer le jeton. Je vais utiliser la méthode `friendly_token` qui conçoit déjà des jetons mais je pourrais aussi le faire avec la méthode `hex` de la classe https://ruby-doc.org/stdlib-2.5.3/libdoc/securerandom/rdoc/SecureRandom.html[`SecureRandom`].
-
-Le code pour générer le jeton est assez simple:
-
-[source,ruby]
-.app/models/user.rb
-----
-class User < ApplicationRecord
-  before_create :generate_authentification_token!
-  # ...
-  def generate_authentification_token!
-    begin
-      self.auth_token = Devise.friendly_token
-    end while self.class.exists?(auth_token: auth_token)
-  end
-end
-----
-
-Après avoir fait cela, nous tests devraient passer:
-
-[source,bash]
-----
-$ bundle exec rspec spec/models/user_spec.rb
-.........
-
-Finished in 0.05079 seconds (files took 0.49029 seconds to load)
-9 examples, 0 failures
-----
-
-Comme d’habitude, nous _commitons_ nos modifications:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m "Adds user authentification token"
-----
-
-=== Le contrôleur de session
-
-De retour au contrôleur de sessions. Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create` et la déconnexion par une demande `DELETE` à l’action `destroy`.
-
-Pour commencer, nous allons commencer par créer le contrôleur de sessions:
-
-[source,bash]
-----
-$ rails generate controller sessions
-----
-
-Ensuite, nous devons déplacer les fichiers dans le répertoire `api/v1`, à la fois pour le dossier `app` mais aussi pour le dossier `spec`:
-
-[source,bash]
-----
-$ mv app/controllers/sessions_controller.rb app/controllers/api/v1
-$ mv spec/controllers/sessions_controller_spec.rb spec/controllers/api/v1
-----
-
-Après avoir déplacé les fichiers, nous devons les mettre à jour pour qu’ils correspondent à la structure des répertoires que nous avons actuellement, comme le montrent les listing suivants.
-
-[source,ruby]
-.app/controllers/api/v1/sessions_controller.rb
-----
-class Api::V1::SessionsController < ApplicationController
-end
-----
-
-[source,ruby]
-.spec/controllers/api/v1/sessions_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::SessionsController, type: :controller do
-end
-----
-
-==== Connexion réussie
-
-Notre premier arrêt sera l’action de création. Mais d’abord, et comme d’habitude, générons nos tests.
-
-[source,ruby]
-.spec/controllers/api/v1/sessions_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::SessionsController, type: :controller do
-  describe 'POST #create' do
-    before(:each) do
-      @user = FactoryBot.create :user
-    end
-
-    context 'when the credentials are correct' do
-      before(:each) do
-        post :create, params: {
-          session: { email: @user.email, password: '12345678' }
-        }
-      end
-
-      it 'returns the user record corresponding to the given credentials' do
-        @user.reload
-        expect(json_response[:auth_token]).to eql @user.auth_token
-      end
-
-      it { expect(response.response_code).to eq(200) }
-    end
-
-    context 'when the credentials are incorrect' do
-      before(:each) do
-        post :create, params: {
-          session: { email: @user.email, password: 'invalidpassword' }
-        }
-      end
-
-      it 'returns a json with an error' do
-        expect(json_response[:errors]).to eql 'Invalid email or password'
-      end
-
-      it { expect(response.response_code).to eq(422) }
-    end
-  end
-end
-----
-
-Les tests sont assez simples. Nous renvoyons simplement l’utilisateur au format JSON si les informations d’identification sont correctes, sinon nous envoyons simplement un JSON avec le message d’erreur.
-
-Nous devons maintenant implémenter le code pour que nos tests passent. Mais avant cela, nous ajouterons les routes à notre fichier `route.rb`.
-
-[source,ruby]
-.config/routes.rb
-----
-# ...
-Rails.application.routes.draw do
-  # ...
-  resources :sessions, :only => [:create, :destroy]
-end
-----
-
-[source,ruby]
-.app/controllers/api/v1/sessions_controller.rb
-----
-class Api::V1::SessionsController < ApplicationController
-  def create
-    user_password = params[:session][:password]
-    user_email = params[:session][:email]
-    user = user_email.present? && User.find_by(email: user_email)
-
-    if user.valid_password? user_password
-      sign_in user
-      user.generate_authentification_token!
-      user.save
-      render json: user, status: 200, location: [:api, user]
-    else
-      render json: { errors: 'Invalid email or password' }, status: 422
-    end
-  end
-end
-----
-
-Avant d’exécuter nos tests, il est nécessaire d’ajouter les `helpers` dans le fichier `rails_helper.rb`:
-
-[source,ruby]
-.spec/rails_helper.rb
-----
-# ...
-RSpec.configure do |config|
-  # ...
-  config.include Devise::Test::ControllerHelpers, :type => :controller
-end
-----
-
-Et maintenant nous pouvons lancer nos tests:
-
-[source,bash]
-----
-$ bundle exec rspec spec/controllers/api/v1/sessions_controller_spec.rb
-....
-
-Finished in 0.06515 seconds (files took 0.49218 seconds to load)
-4 examples, 0 failures
-----
-
-Ourah! Faisons un `commit`:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m "Adds sessions controller create action"
-----
-
-==== Déconnexion
-
-Nous avons maintenant l’entrée de l’API. Il est temps de construire un point de sortie. Vous vous demandez peut-être pourquoi, puisque nous ne gérons pas les sessions et qu’il n’y a rien à détruire. Et c’est bien vrai! Lors d’une destruction, nous devons mettre à jour le jeton d’authentification pour que ce dernier devienne inutile et ne puisse plus être utilisé.
-
-Il n’est en fait pas nécessaire d’inclure ce point final, mais j’aime l’inclure pour expirer les jetons d’authentification.
-
-Comme d’habitude, nous commençons par les tests:
-
-[source,ruby]
-.spec/controllers/api/v1/sessions_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::SessionsController, type: :controller do
-  # ...
-  describe "DELETE #destroy" do
-
-    before(:each) do
-      @user = FactoryBot.create :user
-      sign_in @user, store: false
-      delete :destroy, params: { id: @user.auth_token }
-    end
-
-    it { expect(response.response_code).to eq(204) }
-
-  end
-end
-----
-
-Comme vous pouvez le voir le test est super simple! Maintenant nous avons juste besoin d’implémenter le code nécessaire pour faire passer nos tests:
-
-[source,ruby]
-.app/controllers/api/v1/sessions_controller.rb
-----
-class Api::V1::SessionsController < ApplicationController
-  # ...
-  def destroy
-    user = User.find_by(auth_token: params[:id])
-    user.generate_authentication_token!
-    user.save
-    head 204
-  end
-end
-----
-
-Ici, nous nous attendons à ce qu’un identifiant soit envoyé sur la requête (qui doit correspondre au jeton d’authentification de l’utilisateur). Nous ajouterons une méthode `current_user` pour gérer cela plus facilement plus tard. Pour l’instant, _commitons_ notre avancée:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m "Adds destroy session action added"
-----
 
 == Utilisateur connecté
 
