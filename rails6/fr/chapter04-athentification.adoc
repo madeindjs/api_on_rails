@@ -1,13 +1,17 @@
-[#chapter05-athentification]
+[#chapter04-athentification]
 = Authentification des utilisateurs
 
-Cela fait longtemps que vous avez commencé. J’espère que vous appréciez ce voyage autant que moi. Au chapitre 4, nous avons factorisé notre suite de tests et, comme nous n’avons pas ajouté beaucoup de code, cela n’a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
+Cela fait longtemps que vous avez commencé. J’espère que vous appréciez ce voyage autant que moi.
+
+Dans le chapitre précédent nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n’avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c’est une introduction aux réponses JSON.
+
+// Au chapitre 4, nous avons factorisé notre suite de tests et, comme nous n’avons pas ajouté beaucoup de code, cela n’a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
 
 Vous pouvez cloner le projet jusqu’ici:
 
 [source,bash]
 ----
-$ git clone --branch chapitre_4 https://github.com/madeindjs/market_place_api
+$ git checkout tags/checkpoint_chapter04
 ----
 
 Dans ce chapitre, les choses vont devenir plus intéressantes. Nous allons mettre en place notre mécanisme d’authentification. À mon avis, ce sera l’un des chapitres les plus intéressants car nous allons introduire beaucoup de nouveaux concepts. A la fin, vous aurez un système d’authentification simple mais puissant. Ne paniquez pas, nous y arriverons.
@@ -16,7 +20,7 @@ Commençons par le commencement. Comme d’habitude quand nous démarrons un nou
 
 [source,bash]
 ----
-$ git checkout -b chapter5
+$ git checkout -b chapter04
 ----
 
 == Session sans état
@@ -30,6 +34,30 @@ Le processus d’authentification de l’utilisateur via une API est très simpl
 . Pour chaque page qui nécessite une authentification, le client doit envoyer ce jeton d’authentification.
 
 Dans cette section et la suivante, nous nous concentrerons sur la construction d’un contrôleur de sessions avec ses actions correspondantes. Nous compléterons ensuite le flux de demandes en ajoutant l’accès d’autorisation nécessaire.
+
+
+=== Le jeton d’authentification
+
+Lorsqu'on parle de jeton d'authentification, un standard existe: le JSON Web Token (JWT).
+
+> JWT est un standard ouvert défini dans la RFC 75191. Il permet l'échange sécurisé de jetons (tokens) entre plusieurs parties. - https://fr.wikipedia.org/wiki/JSON_Web_Token[Wikipedia]
+
+Globalement, un token JWT est composé de trois parties:
+
+- un _header_ structurés en JSON qui contiendra par exemple la date de validité du token.
+- un _payload_ structurés en JSON qui peut contenir n'importe quelle données. Dans notre cas, il contiendra l’identifiant de l'utilisateur a titulaire du token.
+- une signature qui nous permettra de vérifier que le token a bien été chiffré par notre application et donc qu'il est valide.
+
+Ces trois parties sont chacune encodées en base64 puis concaténées en utilisant des points (`.`). Ce qui nous donne quelque chose comme ça:
+
+. Un token JWT valide
+----
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+----
+
+// CURRENT
+
+
 
 === Le jeton d’authentification
 

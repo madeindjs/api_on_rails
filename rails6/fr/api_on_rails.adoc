@@ -32,11 +32,11 @@ include::chapter03-presenting-users.adoc[]
 
 <<<
 
-include::chapter04-refactoring-tests.adoc[]
+include::chapter04-athentification.adoc[]
 
-<<<
-
-include::chapter05-athentification.adoc[]
+// <<<
+//
+// include::chapter05-athentification.adoc[]
 
 <<<
 

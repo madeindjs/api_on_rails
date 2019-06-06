@@ -7,7 +7,7 @@ Vous pouvez cloner le projet jusqu’à ce point avec:
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_2
+$ git checkout tags/checkpoint_chapter03
 ----
 
 Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Nous ne les utiliserons pas afin de mieux appréhender le mécanisme d'authentification.
@@ -20,7 +20,7 @@ Nous voulons suivre ce chapitre, c’est donc un bon moment pour créer une nouv
 
 [source,bash]
 ----
-$ git checkout -b chapter3
+$ git checkout -b chapter03
 ----
 
 NOTE: Assurez-vous simplement d’être sur la branche `master` avant.
@@ -295,8 +295,6 @@ Tout fonctionne comme prévus! Faisons maintenant un _commit_ afin de garder un 
 $ git commit -am "Setup Bcrypt"
 ----
 
-
-
 == Construire les utilisateurs
 
 Il est temps de faire notre premier point d’entrée. Nous allons juste commencer à construire l’action `show` pour l’utilisateur qui va afficher un utilisateur en JSON. Nous allons d’abord
@@ -368,8 +366,6 @@ class  Api::V1::UsersController < ApplicationController
   end
 end
 ----
-
-// CURRENT
 
 Si vous exécutez les tests avec `rails test` vous obtenez l’erreur suivante:
 
@@ -525,7 +521,7 @@ Rappelez-vous qu’à chaque fois que nous ajoutons une entrée dans notre API i
 Rails.application.routes.draw do
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :users, only: [:show, :create]
+      resources :users, only: %i[show create]
     end
   end
 end
@@ -584,7 +580,7 @@ Pour que les tests réussissent, nous devons construire l’action de mise à jo
 ----
 Rails.application.routes.draw do
   # ...
-  resources :users, only: [:show, :create, :update]
+  resources :users, only: %i[show create update]
   # ...
 end
 ----
@@ -596,11 +592,18 @@ Ensuite nous implémentons l’action de mise à jour sur le contrôleur utilisa
 ----
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[show update]
+
+  def show
+    render json: @user
+  end
+
   # ...
 
-  def update
-    if @user.update(user_params)
-      render json: @user
+  def create
+    @user = User.new(user_params)
+
+    if @user.save
+      render json: @user, status: :created
     else
       render json: @user.errors, status: :unprocessable_entity
     end
@@ -608,11 +611,13 @@ class Api::V1::UsersController < ApplicationController
 
   private
 
+  # ...
+
   def set_user
     @user = User.find(params[:id])
   end
-  # ...
 end
+
 ----
 
 Tous nos tests devraient maintenant passer:
@@ -683,7 +688,7 @@ N’oubliez pas d’ajouter l’action `destroy` dans le fichier `routes.rb`:
 ----
 Rails.application.routes.draw do
   # ...
-  resources :users, only: [:show, :create, :update, :destroy]
+  resources :users, only: %i[show create update destroy]
   # ...
 end
 ----
@@ -692,11 +697,16 @@ Si tout est correct, vos tests devraient passer:
 
 [source,bash]
 ----
-$ bundle exec rspec spec/controllers/api/v1/users_controller_spec.rb
-.............
+$ rails test
+Running via Spring preloader in process 22051
+Run options: --seed 9630
 
-Finished in 0.09255 seconds (files took 0.4618 seconds to load)
-13 examples, 0 failures
+# Running:
+
+.........
+
+Finished in 0.288557s, 31.1897 runs/s, 45.0518 assertions/s.
+9 runs, 13 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Rappelez-vous qu’après avoir apporté quelques modifications à notre code, il est de bonne pratique de les _commiter_ afin que nous gardions un historique bien découpé.
@@ -704,6 +714,14 @@ Rappelez-vous qu’après avoir apporté quelques modifications à notre code, i
 [source,bash]
 ----
 $ git commit -am "Adds destroy action to the users controller"
+----
+
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter03
 ----
 
 == Conclusion

@@ -7,10 +7,10 @@ Vous pouvez cloner le projet jusqu’ici avec:
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_1
+$ git checkout tags/checkpoint_chapter02
 ----
 
-Pour résumer, nous avons mis à jour le `Gemfile` pour ajouter la gemme `active_model_serializers`.
+Pour résumer, nous avons simplement généré notre application Rails et réalisé notre premier commit.
 
 == Planification de l’application
 
@@ -30,7 +30,7 @@ C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une A
 
 == Mettre en place l’API
 
-Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme _une interface de programmation d’application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d’autres logiciels_. En d’autres termes, il s’agit d’une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)footnote:[Il existe d’autres types de protocoles de communication comme SOAP, mais nous n’en parlons pas ici.].
+Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme _une interface de programmation d’application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d’autres logiciels_. En d’autres termes, il s’agit d’une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON). Il existe d’autres types de protocoles de communication comme SOAP, mais nous n’en parlons pas ici.
 
 JSON est devenu incontournable en tant que média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l’utilisent comme protocole par défaut comme https://angularjs.org/[Angular] ou http://emberjs.com/[EmberJS]. D’autres grandes bibliothèques en Objective-C l’utilisent comme https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Il existe probablement de bonnes solutions pour Android mais en raison de mon manque d’expérience sur cette plate-forme de développement je ne peux pas vous recommander quelque chose.
 
@@ -73,12 +73,11 @@ Commençons donc par ouvrir le terminal dans le répertoire `market_place_api` e
 
 [source,bash]
 ----
-$ git checkout -b setting-api
-Switched to a new branch 'setting-api'
+$ git checkout -b chapter02
+Switched to a new branch 'chapter02'
 ----
 
 Nous allons seulement travailler sur le fichier `config/routes.rb` car nous allons simplement définir les contraintes et le format de réponse par défaut pour chaque requête.
-
 
 [source,ruby]
 .config/routes.rb
@@ -92,8 +91,7 @@ Effacez tout le code commenté qui se trouve dans le fichier. Nous n’en aurons
 
 [source,bash]
 ----
-$ git add config/routes.rb
-$ git commit -m "Removes comments from the routes file"
+$ git commit -am "Removes comments from the routes file"
 ----
 
 Nous allons isoler les contrôleurs API dans des _Namespace_. Avec Rails, c’est assez simple. Il suffit de créer un dossier sous `app/controllers` nommé `api`. Le nom est important car c’est le _Namespace_ que nous allons utiliser pour gérer les contrôleurs pour les points d’entrée de l’API
@@ -187,191 +185,19 @@ Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnem
 
 [source,bash]
 ----
-$ git add config/routes.rb
-$ git commit -m "Set the routes contraints for the api"
+$ git commit -am "Set the routes namespaces for the api"
 ----
 
-// CURRENT
-//
-// == Versionnement de l’API
-//
-// A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l’espacement des noms des requêtes. Votre fichier `routes.rb` devrait ressembler à ceci:
-//
-// [source,ruby]
-// .config/routes.rb
-// ----
-// Rails.application.routes.draw do
-//   namespace :api, defaults: { format: :json } do
-//     namespace :v1 do
-//       # We are going to list our resources here
-//     end
-//   end
-// end
-// ----
+NOTE: Il existe certaines pratiques dans la construction d'API qui recommande de ne pas versionner l'API via l’URL. C'est vrai. Le développeur ne devrait pas être au courant de la version qu’il utilise. Dans un soucis de simplicité, j'ai choisi de mettre de côté cette convention que nous pourrons appliquer dans un second temps.
 
-// Il est maintenant temps de mettre en place d’autres contraintes pour le _versioning_.
-
-
-De cette façon, nous pouvons très facilement définir la portée de notre API dans différentes versions. Il ne nous reste plus qu’à ajouter le code nécessaire dans le fichier `routes.rb`
-
-
-
-== Améliorer le versionnement
-
-Jusqu’à présent, l’API est versionnée via l’URL. Mais quelque chose ne va pas. De mon point de vue, le développeur ne devrait pas être au courant de la version qu’il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir?
-
-Tout d’abord, nous devons améliorer l’accès à la version de l’API via les http://en.wikipedia.org/wiki/List_of_HTTP_header_fields[en-têtes HTTP]. Cela permet de supprimer la version de l’API situé dans l’URL.
-
-.Les champs d’en-tête HTTP courants
-****
-Les champs d’en-tête HTTP sont des composants de l’en-tête de demandes et de réponses dans le protocole HTTP. Ils définissent les paramètres de fonctionnement d’une transaction HTTP. Voici une liste commune des en-têtes couramment utilisés:
-
-* *Accept*: Types de contenus acceptables pour la réponse. Exemple: `Accept: text/plain`
-* *Authorization*: Identifiants d’authentification pour l’authentification HTTP. Exemple: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
-* *Content-Type*: Le type MIME du corps de la requête (utilisé avec les requêtes POST et PUT). Exemple: `Content-Type: application/x-www-form-urlencoded`
-* *Origin*: Lance une demande de partage de ressources d’origines croisées (demande au serveur un en-tête de réponse `Access-Controle-Autorisation-Autorisation-Origin`). Exemple: `Origin: http://www.example-social-network.com`
-* *User-Agent*: La chaîne d’agent utilisateur de l’agent utilisateur. Exemple: `User-Agent: Mozilla/5.0`
-
-Il est important que vous vous sentiez à l’aise et que vous compreniez ces en-tête HTTP.
-****
-
-Avec Rails, il est très facile d’ajouter ce type de versionnement par le biais d’un en-tête HTTP `Accept`. Nous allons créer une classe sous le répertoire `lib`. N’oubliez pas que nous faisons du TDD donc nous allons commencer par un test.
-
-Tout d’abord, nous devons ajouter notre suite de tests, qui dans notre cas sera http://rspec.info/[Rspec]:
-
-[source,ruby]
-.Gemfile
-----
-group :test do
-  gem 'rspec-rails', '~> 3.8'
-  gem 'factory_bot_rails', '~> 4.9'
-  gem 'ffaker', '~> 2.10'
-end
-----
-
-Ensuite nous lançons la commande `bundle` pour installer les gemmes:
+Nous arrivons à la fin de notre chapitre. Il est donc temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`. Pour cela, on se place sur la branche `master` et on _merge_ `chapter02`:
 
 [source,bash]
 ----
-$ bundle install
+$ git checkout master
+$ git merge chapter02
 ----
 
-Enfin, nous installons `rspec` et ajoutons de la configuration pour éviter que des _views_ et des _helpers_ ne soient générés:
-
-[source,bash]
-----
-$ rails generate rspec:install
-----
-
-[source,ruby]
-.config/application.rb
-----
-# ...
-module MarketPlaceApi
-  class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.2
-
-    config.generators do |g|
-      g.test_framework :rspec, fixture: true
-      g.fixture_replacement :factory_bot, dir: 'spec/factories'
-      g.view_specs false
-      g.helper_specs false
-      g.stylesheets = false
-      g.javascripts = false
-      g.helper = false
-    end
-    config.autoload_paths += %W(\#{config.root}/lib)
-    # Don't generate system test files.
-    config.generators.system_tests = nil
-  end
-end
-----
-
-Si tout s’est bien passé, il est maintenant temps d’ajouter un répertoire `spec` sous `lib` et d’ajouter le fichier `api_constraints_spec.rb`:
-
-[source,bash]
-----
-$ mkdir lib/spec
-$ touch lib/spec/api_constraints_spec.rb
-----
-
-Nous ajoutons ensuite une série de spécifications décrivant notre classe:
-
-[source,ruby]
-.lib/spec/api_constraints_spec.rb
-----
-require 'spec_helper'
-require './lib/api_constraints'
-
-describe ApiConstraints do
-  let(:api_constraints_v1) { ApiConstraints.new(version: 1) }
-  let(:api_constraints_v2) { ApiConstraints.new(version: 2, default: true) }
-
-  describe 'matches?' do
-    it "returns true when the version matches the 'Accept' header" do
-      request = double(host: 'api.marketplace.dev',
-                       headers: { 'Accept' => 'application/vnd.marketplace.v1' })
-      expect(api_constraints_v1.matches?(request)).to be_truthy
-    end
-
-    it "returns the default version when 'default' option is specified" do
-      request = double(host: 'api.marketplace.dev')
-      expect(api_constraints_v2.matches?(request)).to be_truthy
-    end
-  end
-end
-----
-
-Laissez-moi vous expliquer le code. Nous initialisons la classe avec un https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] d’options qui contiendra:
-
-* la version de l’API
-* une valeur par défaut pour gérer la version par défaut
-
-Nous fournissons une méthode `match?` afin que le routeur devine si la version par défaut est requise ou si l’en-tête `Accept` correspond à la chaîne donnée. L’implémentation ressemble à ceci
-
-[source,ruby]
-.lib/api_constraints.rb
-----
-class ApiConstraints
-  def initialize(options)
-    @version = options[:version]
-    @default = options[:default]
-  end
-
-  def matches?(req)
-    @default || req.headers['Accept'].include?("application/vnd.marketplace.v#{@version}")
-  end
-end
-----
-
-Comme vous l’imaginez, nous devons ajouter la classe à notre fichier `routes.rb` et la définir comme option de portée de contrainte:
-
-[source,ruby]
-.config/routes.rb
-----
-require 'api_constraints'
-
-Rails.application.routes.draw do
-  # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-      # We are going to list our resources here
-    end
-  end
-end
-----
-
-La configuration ci-dessus gère maintenant le _versioning_ par le biais des en-têtes HTTP. Pour l’instant la version 1 est la version par défaut. Chaque requête sera redirigée vers cette version, peu importe si l’en-tête avec la version est présent ou non. Avant de nous dire au revoir, faisons nos premiers tests et assurons-nous que notre test fonctionne:
-
-[source,bash]
-----
-$ bundle exec rspec lib/spec/api_constraints_spec.rb
-..
-
-Finished in 0.00294 seconds (files took 0.06292 seconds to load)
-2 examples, 0 failures
-----
 
 == Conclusion
 
