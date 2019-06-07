@@ -152,9 +152,6 @@ Et voilà. Il est temps de faire un _commit_.
 $ git add . && git commit -m "Setup JWT gem"
 ----
 
-
-
-
 === Le contrôleur de jeton
 
 Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui générer un jeton JWT.
@@ -224,6 +221,7 @@ one:
 
 A ce moment précis, si vous lancez les test vous obtenez deux erreurs:
 
+[source,bash]
 ----
 $ rake test
 
@@ -238,9 +236,6 @@ JSON::ParserError: 767: unexpected token at ''
 
 Failure:
 Expected response to be a <401: unauthorized>, but was a <204: No Content>
-
-Finished in 0.199738s, 55.0721 runs/s, 75.0983 assertions/s.
-11 runs, 15 assertions, 1 failures, 1 errors, 0 skips
 ----
 
 C'est normal. Il est maintenant temps d'implémenter la logique pour créer le jeton JWT. Elle est très simple.
@@ -271,58 +266,132 @@ class Api::V1::TokensController < ApplicationController
 end
 ----
 
-// CURRENT
+Cela fait beaucoup de code mais c'est très simple:
 
+. On filtre toujours les paramètres avec la méthode `user_params`
+. On récupère l'utilisateur avec la méthode `User.find_by_email` (qui est une méthode "magique" de _Active Record_ puisque le champ `email` est présent en base) et on récupère l'utilisateur
+. On utilise la méthode `User#authenticate` (qui existe grâce à la gemme `bcrypt`) avec le mot de passe en paramètre. Bcrypt va _hasher_ le mot de passe et vérifier s'il correspond à l'attribut `password_digest`. La fonction renvoie `true` si tout s'est bien passé, `false` dans le cas contraire.
+. Dans le cas ou le mot de passe correspond au _hash_, on renvoie un JSON contenant le _token_ généré avec la classe `JsonWebToken`. Dans le cas contraire, on renvoie une réponse vide avec un en-tête `unauthorized`
 
+Toujours là? Ne vous inquiétez pas, c'est fini! Maintenant vos tests doivent passer.
+
+[source,bash]
+----
+$ rake test
+
+# Running:
+
+...........
+
+Finished in 0.226196s, 48.6304 runs/s, 70.7351 assertions/s.
+11 runs, 16 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Il est temps de faire un commit qui va contenir toutes nos modifications:
+
+[source,bash]
+----
+$ git add . && git commit -m "Setup tokens controller"
+----
 
 == Utilisateur connecté
 
-Si vous avez déjà travaillé avec https://github.com/plataformatec/devise[devise], vous connaissez sûrement déjà les méthodes générées pour gérer l’authentification ou bien pour obtenir l’utilisateur connecté (voir la https://github.com/plataformatec/devise#getting-started[documentation]).
+Nous avons donc mis en place la logique suivante: une fois que le client se connecte, l’API lui retourne son jeton d’authentification.
 
-Dans notre cas, nous allons remplacer la méthode `current_user` pour répondre à nos besoins. C’est-à-dire retrouver l’utilisateur grâce à son jeton d’authentification qui est envoyé sur chaque requête. Laissez moi clarifier ce point.
-
-Une fois que le client se connecte, l’API lui retourne son jeton d’authentification. A chaque fois que ce client demande une page protégée, nous devrons retrouver l’utilisateur à partir de ce jeton d’authentification que l’utilisateur aura passé en paramètre ou dans l’en-tête HTTP.
+Nous allons maintenant implémenter la logique suivante: A chaque fois que ce client demandera une page protégée, nous devrons retrouver l’utilisateur à partir de ce jeton d’authentification que l’utilisateur aura passé en paramètre ou dans l’en-tête HTTP.
 
 Dans notre cas, nous utiliserons l’en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je le trouve que c’est la meilleure manière parce que cela donne un contexte à la requête sans polluer l’URL avec des paramètres supplémentaires.
 
-Quand il s’agit de l’authentification, j’aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d’inclure le fichier dans le `ApplicationController`. De cette façon, il est très facile à tester de manière isolée. Créons-donc le fichier dans le répertoire `controllers/concerns`:
+Nous allons donc créer une méthode `current_user` pour répondre à nos besoins. C’est-à-dire retrouver l’utilisateur grâce à son jeton d’authentification qui est envoyé sur chaque requête.
 
-[source,bash]
-----
-$ touch app/controllers/concerns/authenticable.rb
-----
-
-Ensuite, créons un répertoire `concerns` sous `spec/controllers/` et un fichier `authenticable_spec.rb` pour nos tests d’authentification:
-
-[source,bash]
-----
-$ mkdir spec/controllers/concerns
-$ touch spec/controllers/concerns/authenticable_spec.rb
-----
-
-Comme d’habitude, nous commençons par écrire nos tests. Dans ce cas, notre méthode `current_user` va chercher un utilisateur par le jeton d’authentification dans l’en-tête HTTP `Authorization`.
+Quand il s’agit de l’authentification, j’aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d’inclure le fichier dans le `ApplicationController`. De cette façon, il est très facile à tester de manière isolée. Créons-donc le fichier dans le répertoire `controllers/concerns` avec une méthode `current_user` que nous implémenterons juste après:
 
 [source,ruby]
-.spec/controllers/concerns/authenticable_spec.rb
+.app/controllers/concerns/authenticable.rb
+----
+module Authenticable
+  def current_user
+    # TODO
+  end
+end
+----
+
+Ensuite, créons un répertoire `concerns` sous `tests/controllers/` et un fichier `authenticable_test.rb` pour nos tests d’authentification:
+
+[source,bash]
+----
+$ mkdir test/controllers/concerns
+$ touch test/controllers/concerns/authenticable_test.rb
+----
+
+Comme d’habitude, nous commençons par écrire nos tests. Dans ce cas, notre méthode `current_user` va chercher un utilisateur par le jeton d’authentification dans l’en-tête HTTP `Authorization`. Le test est assez basique:
+
+[source,ruby]
+.test/controllers/concerns/authenticable_test.rb
 ----
 # ...
-class Authentication < ActionController::API
-  include Authenticable
+class AuthenticableTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+    @authentication = MockController.new
+  end
+
+  test 'should get user from Authorization token' do
+    @authentication.request.headers['Authorization'] = JsonWebToken.encode(user_id: @user.id)
+    assert_equal @user.id, @authentication.current_user.id
+  end
+
+  test 'should not get user from empty Authorization token' do
+    @authentication.request.headers['Authorization'] = nil
+    assert_nil @authentication.current_user
+  end
 end
+----
 
-RSpec.describe Authenticable do
-  let(:authentication) { Authentication.new }
-  subject { authentication }
+Vous vous demandez sûrment "mais d'ou provient `MockController`??". En fait il s'agit d'un _Mock_, c'est à dire une classe qui imite le comportement d'une autre dans le but de tester un comportement.
 
-  describe "#current_user" do
-    before do
-      @user = FactoryBot.create :user
-      request.headers["Authorization"] = @user.auth_token
-      authentication.stub(:request).and_return(request)
-    end
-    it "returns the user from the authorization header" do
-      expect(authentication.current_user.auth_token).to eql @user.auth_token
-    end
+Nous pouvons définir la classe `MockController` juste au dessus de notre test:
+
+[source,ruby]
+.test/controllers/concerns/authenticable_test.rb
+----
+# ...
+class MockController
+  include Authenticable
+  attr_accessor :request
+
+  def initialize
+    mock_request = Struct.new(:headers)
+    self.request = mock_request.new({})
+  end
+end
+# ...
+----
+
+La classe `MockController` inclue simplement notre module `Authenticable` que nous allons tester. Elle contient un attribut `request` qui contient une simple https://ruby-doc.org/core-2.6.3/Struct.html[`Struct`] qui imite le comportement d'une requête Rails en contenant un attribut `headers` de type `Hash`.
+
+
+Ensuite nous pouvons implémenter nos deux tests justes après
+
+[source,ruby]
+.test/controllers/concerns/authenticable_test.rb
+----
+# ...
+class AuthenticableTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+    @authentication = Authentication.new
+  end
+
+  test 'should get user from Authorization token' do
+    @authentication.request.headers['Authorization'] = JsonWebToken.encode(user_id: @user.id)
+    assert_not_nil @authentication.current_user
+    assert_equal @user.id, @authentication.current_user.id
+  end
+
+  test 'should not get user from empty Authorization token' do
+    @authentication.request.headers['Authorization'] = nil
+    assert_nil @authentication.current_user
   end
 end
 ----
@@ -333,22 +402,34 @@ Notre test doivent échouer. Implémentons donc le code pour qu’il passe:
 .app/controllers/concerns/authenticable.rb
 ----
 module Authenticable
-  # Devise methods overwrites
   def current_user
-    @current_user ||= User.find_by(auth_token: request.headers['Authorization'])
+    return @current_user if @current_user
+
+    header = request.headers['Authorization']
+    return nil if header.nil?
+
+    decoded = JsonWebToken.decode(header)
+
+    @current_user = User.find(decoded[:user_id]) rescue ActiveRecord::RecordNotFound
   end
 end
 ----
 
-Maintenant notre test devrait passer:
+Et voilà! On récupère le jeton dans l'en-tête `Authorization` et nous cherchons l’utilisateur correspondant. Rien de bien sorcier.
+
+Maintenant nos test doivent passer:
 
 [source,bash]
 ----
-$ rspec spec/controllers/concerns/authenticable_spec.rb
-.
+$ rake test
+Run options: --seed 59016
 
-Finished in 0.0149 seconds (files took 0.49496 seconds to load)
-1 example, 0 failures
+# Running:
+
+.............
+
+Finished in 0.185867s, 69.9423 runs/s, 102.2234 assertions/s.
+13 runs, 19 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Nous n’avons plus qu’à inclure le module `Authenticable` dans la classe `ApplicationController`:
@@ -366,323 +447,129 @@ Et maintenant il est temps de _commiter_ nos changements:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds authenticable module for managing authentication methods"
+$ git add . && git commit -m "Adds authenticable module for managing authentication methods"
 ----
 
 == Authentification avec le jeton
 
 L’autorisation joue un rôle important dans la construction des applications car, contrairement à l’authentification qui permet d’identifier l’utilisateur, l’autorisation nous aide à définir ce qu’il a le droit de faire.
 
-Nous avons une route pour mettre à jour l’utilisateur mais il y a un problème: n’importe qui peut mettre à jour n’importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l’utilisateur soit connecté afin d’empêcher tout accès non autorisé. Nous retournerons un message d’erreur JSON avec un code HTTP correspondant.
-
-Tout d’abord, nous allons ajouter quelques tests sur le fichier `authenticable_spec.rb` pour la méthode `authenticate_with_token` .
-
-[source,ruby]
-.spec/controllers/concerns/authenticable_spec.rb
-----
-# ...
-class Authentication < ActionController::API
-  include Authenticable
-end
-
-RSpec.describe Authenticable do
-  # ...
-  describe '#authenticate_with_token' do
-    before do
-      @user = FactoryBot.create :user
-      authentication.stub(:current_user).and_return(nil)
-      response.stub(:response_code).and_return(401)
-      response.stub(:body).and_return({ 'errors' => 'Not authenticated' }.to_json)
-      authentication.stub(:response).and_return(response)
-    end
-
-    it 'render a json error message' do
-      expect(json_response[:errors]).to eql 'Not authenticated'
-    end
-
-    it { expect(response.response_code).to eq(401) }
-  end
-end
-----
-
-Comme vous pouvez le voir, nous utilisons à nouveau la classe Authentification et nous écrasons la requête et la réponse pour traiter la réponse attendue du serveur. Il est maintenant temps d’implémenter le code pour faire passer nos tests.
-
-[source,ruby]
-.app/controllers/concerns/authenticable.rb
-----
-module Authenticable
-  # ...
-  def authenticate_with_token!
-    unless current_user.present?
-      render json: { errors: 'Not authenticated' },
-             status: :unauthorized
-    end
-  end
-end
-----
-
-A ce stade, nous venons de construire un mécanisme d’autorisation très simple pour empêcher les utilisateurs non signés d’accéder à l’API. Il suffit de mettre à jour le fichier `users\_controller.rb` avec la méthode `current_user` et d’empêcher l’accès avec la commande `authenticate_with_token!`!
-
-_Commitons_ ces changements et continuons d’avancer:
-
-[source,bash]
-----
-$ git commit -m "Adds the authenticate with token method to handle access to actions"
-----
+Nous avons une route pour mettre à jour l’utilisateur mais il y a un problème: n’importe qui peut mettre à jour n’importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l’utilisateur soit connecté afin d’empêcher tout accès non autorisé.
 
 == Autoriser les actions
 
 Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l’accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l’action `update` et `destroy` afin de s’assurer que l’utilisateur qui est connecté ne sera capable de mettre à jour que ses données et qu’il ne pourra supprimer que (et uniquement) son compte.
 
-Nous allons commencer par l’action `update`. Nous n’irons plus chercher l’utilisateur par son identifiant mais par l’ `auth_token` sur l’en-tête `Authorization` fourni par la méthode `current_user`.
+Nous allons donc découper notre test _should update user_ et _should destroy user_ en deux tests
 
+Commençons par la mise à jour du test _should update user_.
+
+.test/controllers/api/v1/users_controller_test.rb
 [source,ruby]
 ----
-# app/controllers/api/v1/users_controller.rb
-class Api::V1::UsersController < ApplicationController
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
   # ...
-  def update
-    # on change juste la methode ici
-    user = current_user
-
-    if user.update(user_params)
-      render json: user, status: 200, location: [:api, user]
-    else
-      render json: { errors: user.errors }, status: 422
-    end
+  test "should update user" do
+    patch api_v1_user_url(@user),
+      params: { user: { email: @user.email } },
+      headers: { Authorization: JsonWebToken.encode(user_id: @user.id) },
+      as: :json
+    assert_response :success
   end
+
+  test "should forbid update user" do
+    patch api_v1_user_url(@user), params: { user: { email: @user.email } }, as: :json
+    assert_response :forbidden
+  end
+end
+----
+
+VOus voyez que maintenant nous devons ajouter une en-tête _Authorization_ pour que le modification de l'utilisateur soit acceptée. Si nous le faisons pas, nous voulons recevoir une réponse de type _forbidden_.
+
+Nous pouvons imaginer à peu près la même chose pour le test _should forbid destroy user_:
+
+
+.test/controllers/api/v1/users_controller_test.rb
+[source,ruby]
+----
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
   # ...
+  test "should destroy user" do
+    assert_difference('User.count', -1) do
+      delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }, as: :json
+    end
+    assert_response :no_content
+  end
+
+  test "should forbid destroy user" do
+    assert_no_difference('User.count') do
+      delete api_v1_user_url(@user), as: :json
+    end
+    assert_response :forbidden
+  end
 end
 ----
 
 Et comme vous pouvez vous y attendre, si nous exécutons les tests de notre _controller_ utilisateurs, ils devraient échouer:
 
-....
-$ rspec spec/controllers/api/v1/users_controller_spec.rb
-.......FFFFF.
+[source,bash]
+----
+$ rails test test/controllers/api/v1/users_controller_test.rb
 
-Failures:
+# Running:
 
-  1) Api::V1::UsersController PUT/PATCH #update when is successfully updated renders the json representation for the updated user
-     Failure/Error: if user.update(user_params)
+..F
 
-     NoMethodError:
-       undefined method 'update' for nil:NilClass
-   ...
-....
+Failure:
+Expected response to be a <2XX: success>, but was a <403: Forbidden>
 
-La solution est assez simple, il suffit d’ajouter l’en-tête `Authorization` à la requête:
+..F
+
+Failure:
+"User.count" didn t change by -1.
+Expected: 0
+  Actual: 1
+----
+
+La solution est assez simple. Nous allons ajouter un `before_action` qui appellera la méthode `check_owner` pour les action `update` et `destroy`. Ainsi nous vérifierons que l’utilisateur correspondant au jeton JWT est le même que l'utilisateur qui doit être mis à jour.
+
+Voici l'implémentation:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::UsersController, type: :controller do
-  # ...
-  describe 'PUT/PATCH #update' do
-    context 'when is successfully updated' do
-      before(:each) do
-        @user = FactoryBot.create :user
-        request.headers['Authorization'] = @user.auth_token
-        patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
-      end
-      # ...
-    end
-
-    context 'when is not created' do
-      before(:each) do
-        @user = FactoryBot.create :user
-        request.headers['Authorization'] = @user.auth_token
-        patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
-      end
-      # ...
-    end
-  end
-  # ...
-end
-----
-
-Maintenant, les tests devraient passer. Mais attendez, quelque chose ne va pas, n’est-ce pas? Nous pouvons factoriser la ligne que nous venons d’ajouter et la mettre dans le module `HeadersHelpers`:
-
-[source,ruby]
-.spec/support/request_helpers.rb
-----
-module Request
-  # ...
-  module HeadersHelpers
-    # ...
-    def api_authorization_header(token)
-      request.headers['Authorization'] = token
-    end
-  end
-end
-----
-
-Maintenant, chaque fois que nous avons besoin d’avoir l’utilisateur courant sur nos tests, nous appelons simplement la méthode `api_authorization_header`. Je vous laisse le faire avec `users_controller_spec.rb` pour le test de mise à jour ?:
-
-[source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::UsersController, type: :controller do
-  # ...
-  describe 'PUT/PATCH #update' do
-    context 'when is successfully updated' do
-      before(:each) do
-        @user = FactoryBot.create :user
-        api_authorization_header @user.auth_token
-        patch :update, params: { id: @user.id, user: { email: 'newmail@example.com' } }, format: :json
-      end
-      # ...
-    end
-
-    context 'when is not created' do
-      before(:each) do
-        @user = FactoryBot.create :user
-        api_authorization_header @user.auth_token
-        patch :update, params: { id: @user.id, user: { email: 'bademail.com' } }, format: :json
-      end
-      # ...
-    end
-  end
-  # ...
-end
-----
-
-Pour l’action `destroy`, nous ferons la même chose car nous devons juste nous assurer qu’un utilisateur est capable de se supprimer:
-
-[source,ruby]
-.app/controllers/api/v1/users_controller.rb
 ----
 class Api::V1::UsersController < ApplicationController
+  before_action :set_user, only: %i[show update destroy]
+  before_action :check_owner, only: %i[update destroy]
   # ...
-  def destroy
-    current_user.destroy
-    head 204
-  end
+
+  private
   # ...
-end
-----
-
-Maintenant, pour le fichier de spécification, et comme mentionné précédemment, nous avons juste besoin d’ajouter l’en-tête `api_authorization_header`:
-
-[source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::UsersController, type: :controller do
-  # ...
-  describe 'DELETE #destroy' do
-    before(:each) do
-      @user = FactoryBot.create :user
-      api_authorization_header @user.auth_token
-      delete :destroy, params: { id: @user.id }
-    end
-
-    it { expect(response.response_code).to eq(204) }
+  def check_owner
+    head :forbidden unless @user.id == current_user&.id
   end
 end
 ----
 
-Tous nos tests devraient passer. La dernière étape de cette section consiste à ajouter les droits d’accès correspondants pour ces deux dernières actions.
-
-Il est courant de simplement empêcher les actions sur lesquelles l’utilisateur effectue des actions sur le modèle lui-même. Dans ce cas l’action `update` et `destroy`.
-
-Sur le `users_controller.rb` nous devons filtrer certaines de ces actions pour empêcher l’accès.
-
-[source,ruby]
-.app/controllers/api/v1/users_controller.rb
-----
-class Api::V1::UsersController < ApplicationController
-  before_action :authenticate_with_token!, only: %i[update destroy]
-  respond_to :json
-  # ...
-end
-----
-
-Nos tests devraient être encore bons. Et à partir de maintenant, chaque fois que nous voulons éviter qu’une action ne soit déclenchée, nous ajoutons simplement la méthode `authenticate_with_token!` sur un _hook_ `before_action`.
-
-_Commitons_ tout ça:
+Et voilà! L'implémentation est vraiment simple. Il est donc temps de _commiter_:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds authorization for the users controller"
+$ git commit -am "Adds authorization for the users controller"
 ----
 
-Enfin, nous terminerons le chapitre en remaniant la méthode `authenticate_with_token!`, C’est une petite amélioration mais cela rendra la méthode plus parlante. Vous comprendrez ce que je veux dire dans une minute, mais avant tout, ajoutons quelques tests.
-
-[source,ruby]
-.spec/controllers/concerns/authenticable_spec.rb
-----
-# ...
-RSpec.describe Authenticable do
-  # ...
-  describe '#user_signed_in?' do
-    context "when there is a user on 'session'" do
-      before do
-        @user = FactoryBot.create :user
-        authentication.stub(:current_user).and_return(@user)
-      end
-
-      it { should be_user_signed_in }
-    end
-
-    context "when there is no user on 'session'" do
-      before do
-        @user = FactoryBot.create :user
-        authentication.stub(:current_user).and_return(nil)
-      end
-
-      it { should_not be_user_signed_in }
-    end
-  end
-end
-----
-
-Comme vous pouvez le voir, nous avons ajouté deux simples tests pour savoir si l’utilisateur est connecté ou non. Et comme je l’ai déjà dit, c’est juste pour la clarté visuelle. Mais continuons et ajoutons l’implémentation:
-
-[source,ruby]
-.app/controllers/concerns/authenticable.rb
-----
-module Authenticable
-  # ...
-  def authenticate_with_token!
-    unless user_signed_in?
-      render json: { errors: 'Not authenticated' }, status: :unauthorized
-    end
-  end
-
-  def user_signed_in?
-    current_user.present?
-  end
-end
-----
-
-Comme vous pouvez le voir, maintenant `authenticate_with_token!` est plus facile à lire non seulement pour vous mais aussi pour les autres développeurs qui rejoigneront le projet. Cette approche a également un avantage secondaire: si vous voulez modifier ou améliorer la façon de valider, vous pouvez simplement le faire sur la méthode `user_signed_in?`.
-
-Maintenant, nos tests devraient être tous verts:
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
 
 [source,bash]
 ----
-$ rspec spec/controllers/concerns/authenticable_spec.rb
-.....
-
-Finished in 0.07415 seconds (files took 0.702 seconds to load)
-5 examples, 0 failures
-----
-
-_Commitons_ tout ça:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m "Adds user_signed_in? method to know whether the user is logged in or not"
+$ git checkout master
+$ git merge chapter04
 ----
 
 == Conclusion
 
 Vous l’avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c’est un grand pas en avant sur la mise en place d’un mécanisme solide pour gérer l’authentification utilisateur et nous grattons même la surface pour de simples règles d’autorisation.
 
-Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l’utilisateur avec `active_model_serializers` et l’ajout d’un modèle de produit en donnant à l’utilisateur la possibilité de créer un produit et le publier pour la vente.
+Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l’utilisateur avec https://github.com/Netflix/fast_jsonapi[`fast_jsonapi`] et l’ajout d’un modèle de produit en donnant à l’utilisateur la possibilité de créer un produit et le publier pour la vente.
