@@ -1,4 +1,4 @@
-[#chapter07-improve-json]
+[#chapter06-improve-json]
 = Modélisation du JSON
 
 Dans le chapitre précédent, nous avons ajouté les produits à l’application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
@@ -22,50 +22,56 @@ Maintenant, vous devriez être satisfaits de tout ce travail. Mais nous avons en
 }
 ----
 
-Or nous voulons un sortie correspondante à celle-là.
+Or nous voulons un sortie qui ne contient pas les champs `user_id`, `created_at` et `updated_at`.
 
-[source,json]
-----
-{
-  "products": [
-      {
-          "id": 1,
-          "title": "Tag Case",
-      },
-    ]
-}
-----
-
-Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme `active_model_serializers`. Pour plus d’informations vous pouvez consulter le https://github.com/rails-api/active_model_serializers[répertoire sur GitHub]. Je vais couvrir quelques points ici, de l’installation à l’implémentation, mais je vous recommande de jeter un œil à la documentation.
+Aussi, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions que vous allez découvrir dans ce chapitre.
 
 Vous pouvez cloner le projet jusqu’à ce point avec:
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api.git -b chapter6
+$ git checkout tags/checkpoint_chapter06
 ----
 
 Commençons une nouvelle branche pour ce chapitre:
 
 [source,bash]
 ----
-$ git checkout -b chapter7
+$ git checkout -b chapter06
 ----
+
+
+== Présentation de https://jsonapi.org/[JSON:API]
+
+Une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines conventions existes déjà.
+
+L'une d'elles, certainement la plus utilisée est https://jsonapi.org/[JSON:API]. La https://jsonapi.org/format/#document-structure[documentation de JSON:API] nous donne quelques règles à suivre concernant le formatage du document JSON.
+
+Ainsi, notre document *doit* contenir ces clefs:
+
+* `data`: qui doit contenir les données que nous renvoyons
+* `errors` qui doit contenir un tableau des erreurs qui sont survenues.
+* `meta` qui contient un https://jsonapi.org/format/#document-meta[objet meta]
+
+Le contenu de la clé `data` est lui aussi assez stricte:
+
+* il doit posséder une clé `type`qui décrit le type du modèle JSON (si c’est un article, un utilisateur, etc..)
+* les propriétés de l’objets doivent être placées dans une clé `attributes` et les _undescore_ (`_`) sont remplacés par des tirets (`-`)
+* les liaisons de l’objets doivent être placées dans une clé `relationships`
+
+Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi] de Netflix.
+
 
 == Mise en place de la gemme
 
-Si vous avez suivi le tutoriel depuis le début, vous devriez déjà avoir la gemme installée. Mais au cas où vous auriez atterri ici, je vais vous guider dans l’installation.
+Installons donc la gemme `fast_jsonapi`:
 
-Ajoutez la ligne suivante à votre `Gemfile`:
-
-[source,ruby]
-.Gemfile
+[source,bash]
 ----
-# ...
-gem 'active_model_serializers', '~> 0.10.8'
+$ bundle add fast_jsonapi
 ----
 
-Exécutez la commande d’installation du paquet pour installer la gemme… et c’est tout! Vous devriez être prêts à continuer avec ce tutoriel.
+Vous devriez être prêts à continuer avec ce tutoriel.
 
 == Sérialiser l’utilisateur
 
@@ -73,8 +79,8 @@ Nous devons d’abord ajouter un fichier `user_serializer`. Nous pouvons le fair
 
 [source,bash]
 ----
-$ rails generate serializer user
-  create  app/serializers/user_serializer.rb
+$ rails generate serializer User email
+      create  app/serializers/user_serializer.rb
 ----
 
 Ceci a créé un fichier appelé `user_serializer.rb` sous le répertoire `app/serializers`, qui devrait ressembler au fichier suivant:
@@ -82,28 +88,79 @@ Ceci a créé un fichier appelé `user_serializer.rb` sous le répertoire `app/s
 [source,ruby]
 .app/serializers/user_serializer.rb
 ----
-class UserSerializer < ActiveModel::Serializer
-  attributes :id
+class UserSerializer
+  include FastJsonapi::ObjectSerializer
+  attributes :email
 end
 ----
 
-Nous devrions avoir des tests qui échouent. Essayez par vous même:
+Ce _serializer_ va nous permettre de convertir notre objet `User` en JSON qui implémente correctement la norme JSON:API. Nous avons spécifié l'attribut `email` afin qu'il soit présent dans le tableau `data`.
+
+Essayons tout ça dans la console Rails avec `rails console`:
+
+[source,ruby]
+----
+2.6.3 :001 > UserSerializer.new( User.first ).serializable_hash
+=> {:data=>{:id=>"25", :type=>:user, :attributes=>{:email=>"tova@beatty.org"}}}
+----
+
+Et voilà. Comme vous le voyez, tout se fait très facilement. Nous pouvons donc utiliser notre nouveau _serializer_ dans notre _controller_:
+
+.app/controllers/api/v1/users_controller.rb
+[source,ruby]
+----
+class Api::V1::UsersController < ApplicationController
+  # ...
+  def show
+    render json: UserSerializer.new(@user).serializable_hash
+  end
+
+  def update
+    if @user.update(user_params)
+      render json: UserSerializer.new(@user).serializable_hash
+    else
+      # ...
+    end
+  end
+
+  def create
+    # ...
+    if @user.save
+      render json: UserSerializer.new(@user).serializable_hash, status: :created
+    else
+      # ...
+    end
+  end
+
+  # ...
+end
+----
+
+Assez facile, non? Cependant nous devrions avoir un test qui échoue. Essayez par vous même:
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/users_controller_spec.rb
-F.F....F.....
+$ rake test
+
+Failure:
+Expected: "one@one.org"
+  Actual: nil
 ----
 
-NOTE: Rails recherchera automatiquement un sérialiseur nommé `PostSerializer`, et s’il existe, l’utilisera pour sérialiser un `Post`. Cela fonctionne aussi avec `respond_with`, qui utilise `to_json` sous le capot. Notez également que toutes les options passées pour rendre `:json` seront passées à votre sérialiseur et disponibles comme `@options` à l’intérieur. Cela signifie que peu importe si nous utilisons la méthode `render json` ou `respond_with`. A partir de maintenant, Rails recherchera le sérialiseur correspondant en premier.
 
-Maintenant, de retour aux tests, vous pouvez voir que pour une raison quelconque, la réponse n’est pas tout à fait ce que nous attendons. C’est parce que la gemme réduit la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit d’ajouter les attributs à sérialiser dans le `user_serializer.rb` et de mettre à jour le fichier `users_controller_spec.rb`:
+Vous pouvez voir que pour une raison quelconque, la réponse n’est pas tout à fait ce que nous attendons. C’est parce que la gemme modifie la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit de mettre à jour notre test:
 
 [source,ruby]
-.app/serializers/user_serializer.rb
+.test/controllers/api/v1/users_controller_test.rb
 ----
-class UserSerializer < ActiveModel::Serializer
-  attributes :id, :email, :created_at, :updated_at, :auth_token
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test "should show user" do
+    # ...
+    assert_equal @user.email, json_response['data']['attributes']['email']
+  end
+  # ...
 end
 ----
 
@@ -111,11 +168,11 @@ Si vous faites les tests maintenant, ils devraient passer:
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/users_controller_spec.rb
-.............
+$ rake test
 
-Finished in 0.16712 seconds (files took 0.80637 seconds to load)
-13 examples, 0 failures
+# Running:
+
+........................
 ----
 
 _Commitons_ ces changements et continuons d’avancer:
@@ -126,16 +183,14 @@ $ git add .
 $ git commit -am "Adds user serializer for customizing the json output"
 ----
 
-Nous pouvons également tester les objets du sérialiseur, comme indiqué dans la documentation, mais je vous laisse le soin de décider si vous voulez tester ou non.
-
 == Sérialiser les produits
 
 Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape est identique à celle pour l’utilisateur, nous avons besoin d’un sérialiseur de produit, alors faisons-le:
 
 [source,bash]
 ----
-$ rails generate serializer product
-    create  app/serializers/product_serializer.rb
+$ rails generate serializer Product title price published
+      create  app/serializers/product_serializer.rb
 ----
 
 Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l’avons fait avec l’utilisateur dans la section précédente:
@@ -143,26 +198,79 @@ Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l�
 [source,ruby]
 .app/serializers/product_serializer.rb
 ----
-class ProductSerializer < ActiveModel::Serializer
-  attributes :id, :title, :price, :published
+class ProductSerializer
+  include FastJsonapi::ObjectSerializer
+  attributes :title, :price, :published
 end
 ----
 
-Et voilà. Ce n’est pas plus compliqué que ça. Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons.
+Et voilà. Ce n’est pas plus compliqué que ça. Modifions un petit peu notre contrôleur.
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    @products = Product.all
+    render json: ProductSerializer.new(@products).serializable_hash
+  end
+
+  def show
+    render json: ProductSerializer.new(@product).serializable_hash
+  end
+
+  def create
+    product = current_user.products.build(product_params)
+    if product.save
+      render json: ProductSerializer.new(product).serializable_hash, status: :created
+    else
+      # ...
+    end
+  end
+
+  def update
+    if @product.update(product_params)
+      render json: ProductSerializer.new(@product).serializable_hash
+    else
+      # ...
+    end
+  end
+  # ...
+end
+----
+
+Et on met à jour notre test fonctionnel:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+# ...
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show product' do
+    # ...
+    assert_equal @product.title, json_response['data']['attributes']['title']
+  end
+  # ...
+end
+----
+
+Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons.
 
 _Commitons_ ces petits changements:
 
 [source,bash]
 ----
 $ git add .
-$ git commit -a "Adds product serializer for custom json output"
+$ git commit -m "Adds product serializer for custom json output"
 ----
 
 === Sérialiser les associations
 
-Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c’est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne.
+Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c’est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne. Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre.
 
-Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre. Ici, je vais expliquer ce que j’ai trouvé et ce qui fonctionne pour moi. Ce n’est pas la seule manière de faire, je vous laisse juger si elle vous convient. Dans cette section, nous allons étendre notre API pour gérer l’association produit/utilisateur. Je vais aussi vous expliquer certaines des erreurs courantes dans lesquels vous pouvez tomber.
+Nous n'avons pas à nous soucier de ce problème dans notre cas, la norme JSON:API l'a fait pour nous!
 
 Pour résumer, nous avons une association de type `has_many` entre l’utilisateur et le modèle de produit.
 
@@ -186,49 +294,174 @@ end
 
 C’est une bonne idée d’intégrer des modèles dans d’autres modèles dans d’autres modèles car cela évite au client de l’API d’exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d’étranglement.
 
-== Cas d’utilisation d’un objet incorporé dans une association
+== Théorie de l'injection des relations
 
 Imaginez un scénario où vous allez chercher les produits dans l’API, mais dans ce cas, vous devez afficher une partie des informations de l’utilisateur.
 
 Une solution possible serait d’ajouter l’attribut `user_id` au `product_serializer` pour que nous puissions récupérer l’utilisateur correspondant plus tard. Cela peut sembler être une bonne idée, mais si vous vous souciez de la performance, ou si les transactions de votre base de données ne sont pas assez rapides, vous devriez reconsidérer cette approche. Vous devez comprendre que pour chaque produit que vous récupérez, vous allez devoir récupérer son utilisateur correspondant.
 
-Face à ce problème, je suis venu avec deux alternatives possibles:
+Face à ce problème, il y a plusieurs alternatives possibles.
 
-* Une bonne solution à mon avis est d’intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
+=== Intégrer dans un attribut meta
 
+La première solution  Une bonne solution à mon avis est d’intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
 [source,json]
 ----
 {
   "meta": { "user_ids": [1,2,3] },
-  "products": [
+  "data": [
 
   ]
 }
 ----
+Cela peut nécessiter une configuration supplémentaire sur le terminal de l’utilisateur, afin que le client puisse récupérer ces utilisateurs à partir de ces `user_ids`.
 
-Cela peut nécessiter une configuration supplémentaire sur le terminal de l’utilisateur, afin que le client puisse récupérer ces utilisateurs à partir de ces `user_ids`. - Une autre solution, et celle que j’utiliserai ici, est d’incorporer l’objet `user` dans l’objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n’a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
+=== Incorporer l'objet dans l'attribut
+
+Une autre solution, est d’incorporer l’objet `user` dans l’objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n’a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
 
 [source,json]
 ----
 {
-  "products":
+  "data":
   [
       {
          "id": 1,
-         "title": "Digital Portable System",
-         "price": "25.0277354166289",
-         "published": false,
-         "user": {
-            "id": 2,
-            "email": "stephany@lind.co.uk",
-            "created_at": "2014-07-29T03:52:07.432Z",
-            "updated_at": "2014-07-29T03:52:07.432Z",
-            "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-          }
+         "type": "product",
+         "attributes": {
+           "title": "First product",
+           "price": "25.02",
+           "published": false,
+           "user": {
+             "id": 2,
+             "attributes": {
+               "email": "stephany@lind.co.uk",
+               "created_at": "2014-07-29T03:52:07.432Z",
+               "updated_at": "2014-07-29T03:52:07.432Z",
+               "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+             }
+           }
+         }
       }
    ]
 }
 ----
+
+Le problème de cette approche est que nous devons dupliquer les objets `User` pour chaque produits qui appartiennent au même utilisateur:
+
+[source,json]
+----
+{
+  "data":
+  [
+      {
+         "id": 1,
+         "type": "product",
+         "attributes": {
+           "title": "First product",
+           "price": "25.02",
+           "published": false,
+           "user": {
+             "id": 2,
+             "type": "user",
+             "attributes": {
+               "email": "stephany@lind.co.uk",
+               "created_at": "2014-07-29T03:52:07.432Z",
+               "updated_at": "2014-07-29T03:52:07.432Z",
+               "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+             }
+           }
+         }
+      },
+      {
+         "id": 2,
+         "type": "product",
+         "attributes": {
+           "title": "Second product",
+           "price": "25.02",
+           "published": false,
+           "user": {
+             "id": 2,
+             "type": "user",
+             "attributes": {
+               "email": "stephany@lind.co.uk",
+               "created_at": "2014-07-29T03:52:07.432Z",
+               "updated_at": "2014-07-29T03:52:07.432Z",
+               "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+             }
+           }
+         }
+      }
+   ]
+}
+----
+
+=== Incorporer les relation dans `include`
+
+La troisième solution, choisie par la norme JSON:API, est un mélange des deux premières.
+
+Nous allons inclure tous les relations dans une clé `include` qui contiendra tous les relations des objets précédemment cité. Aussi, chaque objet inclura une clé `relationships` définissant la relation et qu'il faudra retrouver dans la clé `include`.
+
+Un JSON vaux mile mots:
+
+[source,json]
+----
+{
+  "data":
+  [
+      {
+         "id": 1,
+         "type": "product",
+         "attributes": {
+           "title": "First product",
+           "price": "25.02",
+           "published": false
+         },
+         "relationships": {
+           "user": {
+             "id": 1,
+             "type": "user"
+           }
+         }
+      },
+      {
+         "id": 2,
+         "type": "product",
+         "attributes": {
+           "title": "Second product",
+           "price": "25.02",
+           "published": false
+         },
+         "relationships": {
+           "user": {
+             "id": 1,
+             "type": "user"
+           }
+         }
+      }
+   ],
+   "include": [
+     {
+       "id": 2,
+       "type": "user",
+       "attributes": {
+         "email": "stephany@lind.co.uk",
+         "created_at": "2014-07-29T03:52:07.432Z",
+         "updated_at": "2014-07-29T03:52:07.432Z",
+         "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+       }
+     }
+   ]
+}
+----
+
+Vous voyez la différence? Cette solution réduit drastiquement la taille du JSON et donc la bande passante utilisée.
+
+== Application de l'injection des relations
+
+// CURRENT
+
+
 
 Donc, nous allons incorporer l’objet utilisateur dans le produit. Commençons par ajouter quelques tests. Nous allons simplement modifier les tests des routes `Products#index` et `Products#show` .
 

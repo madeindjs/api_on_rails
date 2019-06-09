@@ -23,27 +23,7 @@ Créons une nouvelle branche pour ce chapitre:
 $ git checkout -b chapter10
 ----
 
-== Mettre en conformité notre structure JSON avec celle de https://jsonapi.org/[JSON:API]
 
-Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions.
-
-Une des convention les plus appliquée est très certainement https://jsonapi.org/[JSON:API]. Cette convention nous permettra d’aborder la pagination plus sereinement dans la prochaine section.
-
-Ainsi, la https://jsonapi.org/format/#document-structure[documentation de JSON:API] nous donne quelques règles à suivre concernant le formatage du document JSON.
-
-Ainsi, notre document *doit* contenir ces clefs:
-
-* `data`: qui doit contenir les données que nous renvoyons
-* `errors` qui doit contenir un tableau des erreurs qui sont survenues.
-* `meta` qui contient un https://jsonapi.org/format/#document-meta[objet meta]
-
-NOTE: Les clés `data` et `errors` ne doivent pas être présentes en même temps et c’est logique puisque si une erreur survient nous ne devrions pas être en mesure de rendre des données correctes.
-
-Le contenu de la clé `data`est lui aussi assez stricte:
-
-* il doit posséder une clé `type`qui décrit le type du modèle JSON (si c’est un article, un utilisateur, etc..)
-* les propriétés de l’objets doivent être placées dans une clé `attributes` et les undescore (`_`) sont remplacés par des tirets (`-`)
-* les liaisons de l’objets doivent être placées dans une clé `relationships`
 
 Cela risque de nous faire pas mal de changements puisque nous n’avons implémenté aucune de ces règles. Ne vous inquiétez pas, nous avons mis en place des tests unitaires afin de nous assurer qu’il n’y aura pas de régression. Commençons donc par les mettre à jour
 

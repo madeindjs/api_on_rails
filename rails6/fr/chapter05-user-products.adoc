@@ -1,4 +1,4 @@
-[#chapter06-user-products]
+[#chapter05-user-products]
 = Produits des utilisateurs
 
 Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application.
@@ -638,82 +638,115 @@ $ git commit -am "Adds the products create, update and destroy action nested on 
 
 == Remplir la base de données
 
-Avant de continuer avec plus de code, remplissons la base de données avec de fausses données. Nous avons des usines qui devraient faire le travail à notre place. Alors utilisons-les.
+Avant de continuer avec plus de code, remplissons la base de données avec de fausses données. Pour faire cela, nous allons utiliser des _seeds_.
 
-Tout d’abord, nous exécutons la commande de la console Rails à partir du Terminal:
+Avec le fichier `db/seeds.rb`, Rails nous donne un moyen de fournir facilement et rapidement des valeurs par défaut à une nouvelle installation. C'est un simple fichier Ruby qui donne un accès complet à toutes les classes et méthodes de l'application. Vous n'avez donc pas besoin de tout saisir manuellement avec la console Rails mais vous pouvez simplement utiliser le fichier `db/seeds.rb` avec la commande `rake db:seed`.
+
+Commençons donc par créer un utilisateur:
+
+.db/seeds.rb
+[source,ruby]
+----
+User.delete_all
+user = User.create! email: 'toto@toto.fr', password: 'toto123'
+puts "Created a new user: #{user.email}"
+----
+
+Et maintenant vous pouvez créer l'utilsateur en éxecutant simplment la commande suivante:
 
 [source,bash]
 ----
-$ rails console
+$ rake db:seed
+Created a new user: toto@toto.fr
 ----
 
-Nous créons ensuite un tas d’objets produits avec la gemme FactoryBot:
-
-[source,ruby]
-----
-Loading development environment (Rails 5.2.1)
-2.5.3 :001 > 20.times { FactoryBot.create :product }
-----
-
-Oups, vous avez probablement des erreurs qui se sont produites:
-
-....
-Traceback (most recent call last):
-        3: from (irb):1
-        2: from (irb):1:in `times'
-        1: from (irb):1:in `block in irb_binding'
-NameError (uninitialized constant FactoryBot)
-....
-
-C’est parce que nous utilisons la console sur l’environnement de développement. Mais ça n’a pas de sens avec notre `Gemfile` qui ressemble actuellement à ceci:
-
-[source,ruby]
-.Gemfile
-----
-# ...
-group :test do
-  gem 'factory_bot_rails'
-  gem 'ffaker', '~> 2.10'
-  gem 'rspec-collection_matchers', '~> 1.1'
-  gem 'rspec-rails', '~> 3.8'
-  gem 'shoulda-matchers'
-end
-----
-
-Vous voyez où est le problème? Si vous faites attention, vous remarquerez que la gemme `factory_bot_rails` n’est disponible que pour l’environnement de test et non pour le développement. Cela peut être corrigé très rapidement:
-
-[source,ruby]
-.Gemfile
-----
-# ...
-group :development, :test do
-  gem 'factory_bot_rails'
-  gem 'ffaker', '~> 2.10'
-end
-
-group :test do
-  # ...
-end
-----
-
-Notez que nous avons déplacé la gemme `ffaker` vers le groupe partagé comme nous l’utilisons à l’intérieur des usines que nous décrivons plus haut. Lancez maintenant la commande `bundle` pour mettre à jour les bibliothèques. Alors construisez les produits que vous voulez comme ça:
-
-....
-$ rails console
-Loading development environment (Rails 5.2.1)
-2.5.3 :001 > 20.times { FactoryBot.create :product }
-....
-
-Désormais, vous pourrez créer n’importe quel objet à partir d’usines, comme les utilisateurs, les produits, les commandes, etc.
-
-_commitons_ les changements!
+Ca fonctionne. Mais je ne sais pas vous, mais moi j'aime bien avoir des données factices qui remplisse correctement ma base de données de test. Seulement je n'ai pas toujours l'inspiration pour donner du sens à mes _seed_ alors j'utilise la gemme https://github.com/stympy/faker[`faker`]. Installons là:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Updates test environment factory gems to work on development"
+$ bundle add faker
+----
+
+Maintenant nous pouvons l'utiliser pour créer cinq utilisateurs d'un coup.
+
+.db/seeds.rb
+[source,ruby]
+----
+User.delete_all
+
+5.times do
+  user = User.create! email: Faker::Internet.email, password: 'locadex1234'
+  puts "Created a new user: #{user.email}"
+end
+----
+
+Et voyons le résultat:
+
+[source,bash]
+----
+$ rake db:seed
+Created a new user: barbar@greenholt.io
+Created a new user: westonpaucek@ortizbotsford.net
+Created a new user: ricardo@schneider.com
+Created a new user: scott@moenerdman.biz
+Created a new user: chelsie@wiza.net
+----
+
+Et voilà. Mais nous pouvons aller plus loin en créant des produit associés à ces utilisateurs:
+
+.db/seeds.rb
+[source,ruby]
+----
+Product.delete_all
+User.delete_all
+
+3.times do
+  user = User.create! email: Faker::Internet.email, password: 'locadex1234'
+  puts "Created a new user: #{user.email}"
+
+  2.times do
+    product = Product.create!(
+      title: Faker::Commerce.product_name,
+      price: rand(1.0..100.0),
+      published: true,
+      user_id: user.id
+    )
+    puts "Created a brand new product: #{product.title}"
+  end
+end
+----
+
+Et voilà. Le résultat est bluffant. En une commande nous pouvons créer trois utilisateurs et six produits:
+
+[source,bash]
+----
+$ rake db:seed
+Created a new user: tova@beatty.org
+Created a brand new product: Lightweight Steel Hat
+Created a brand new product: Ergonomic Aluminum Lamp
+Created a new user: tommyrunolfon@tremblay.biz
+Created a brand new product: Durable Plastic Car
+Created a brand new product: Ergonomic Leather Shirt
+Created a new user: jordon@torp.io
+Created a brand new product: Incredible Paper Hat
+Created a brand new product: Sleek Concrete Pants
+----
+
+_commitons_ les changements:
+
+[source,bash]
+----
+$ git commit -am "Create a seed to populate database"
+----
+
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter05
 ----
 
 == Conclusion
 
-Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produits à l’aide de la gemme _active model serializers_. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
+Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produits à l’aide de la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
