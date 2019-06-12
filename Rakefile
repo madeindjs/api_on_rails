@@ -1,5 +1,11 @@
+require 'asciidoctor'
+require 'asciidoctor-pdf'
+
 LANGS = %w[en fr].freeze
 VERSIONS = %w[5 6].freeze
+OUTPUT_DIR = File.join __dir__, 'build'
+THEMES_DIR = File.join __dir__, 'themes'
+FONTS_DIR = File.join __dir__, 'fonts'
 
 def check_args(args)
   lang = args[:lang]
@@ -37,9 +43,24 @@ namespace :build do
   desc 'Build a PDF version'
   task :pdf, [:version, :lang] do |_task, args|
     check_args(args)
+
     input = in_filename args
     output = out_filename args, 'pdf'
-    `asciidoctor-pdf #{input} --destination-dir build --out-file #{output}`
+
+    Asciidoctor.convert_file input,
+                             safe: :unsafe,
+                             backend: 'pdf',
+                             to_dir: OUTPUT_DIR,
+                             mkdirs: true,
+                             to_file: output,
+                             attributes: {
+                               'pdf-stylesdir' => THEMES_DIR,
+                               'pdf-style' => 'my',
+                               'pdf-fontsdir' => FONTS_DIR,
+                             }
+
+
+    # `asciidoctor-pdf #{input} --destination-dir build --out-file #{output}`
     puts "Book compiled on build/#{output}"
   end
 
