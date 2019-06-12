@@ -1,4 +1,4 @@
-[#chapter08-placing-orders]
+[#chapter07-placing-orders]
 = Création des commandes
 
 Dans les chapitres précédents nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir _scaler_ footnote:[_Scale_ signifie mettre son application à l’échelle afin de pouvoir répondre à une forte demande.] rapidement et facilement. Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre les trois modèles. Nous devons être assez malin pour gérer la sortie JSON que nous fournissons.
@@ -13,14 +13,14 @@ Maintenant que tout est clair, on peut commencer à travailler. Vous pouvez clon
 
 [source,bash]
 ----
-$ git clone --branch chapter7 https://github.com/madeindjs/market_place_api
+$ git checkout tags/checkpoint_chapter07
 ----
 
 Créons une nouvelle branche afin de commencer à travailler:
 
 [source,bash]
 ----
-$ git checkout -b chapter8
+$ git checkout -b chapter07
 ----
 
 == Modélisation de l’ordre
@@ -31,32 +31,28 @@ Commençons par créer le modèle de la commande:
 
 [source,bash]
 ----
-$ rails generate model order user:references total:decimal
+$ rails generate model order user:belongs_to total:decimal
 ----
 
-La commande ci-dessus va générer le modèle `Order`. Je profite de la méthode des `references` pour créer la clé étrangère correspondante pour que la commande appartienne à un utilisateur. Elle ajoute aussi la directive `belongs_to` dans le modèle des commandes. Migrons la base de données:
+La commande ci-dessus va générer le modèle `Order`. Je profite de la méthode des `belongs_to` pour créer la clé étrangère correspondante pour que la commande appartienne à un utilisateur. Elle ajoute aussi la directive `belongs_to` dans le modèle des commandes. Migrons la base de données:
 
 [source,bash]
 ----
 $ rake db:migrate
 ----
 
-Il est maintenant temps de créer quelques tests dans le fichier `order_spec.rb`:
+Il est maintenant temps de créer quelques tests dans le fichier `order_test.rb`:
 
 [source,ruby]
-.spec/models/order_spec.rb
+.test/models/order_test.rb
 ----
 # ...
-RSpec.describe Order, type: :model do
-  let(:order) { FactoryBot.build :order }
-  subject { order }
-
-  it { should respond_to(:total) }
-  it { should respond_to(:user_id) }
-  it { should validate_presence_of :user_id }
-  it { should validate_presence_of :total }
-  it { should validate_numericality_of(:total).is_greater_than_or_equal_to(0) }
-  it { should belong_to :user }
+class OrderTest < ActiveSupport::TestCase
+  test 'Should have a positive total' do
+    order = orders(:one)
+    order.total = -1
+    assert_not order.valid?
+  end
 end
 ----
 
@@ -69,7 +65,19 @@ class Order < ApplicationRecord
   belongs_to :user
   validates :total, numericality: { greater_than_or_equal_to: 0 }
   validates :total, presence: true
-  validates :user_id, presence: true
+end
+----
+
+N'oubliez pas d'ajouter la relation `orders` à nos utilisateur en spécifiant la suppression en cascade:
+
+[source,ruby]
+.app/models/user.rb
+----
+class User < ApplicationRecord
+  # ...
+  has_many :products, dependent: :destroy
+  has_many :orders, dependent: :destroy
+  # ...
 end
 ----
 
@@ -77,11 +85,16 @@ Les tests devraient passer:
 
 [source,bash]
 ----
-$ rspec spec/models/order_spec.rb
-......
+$ rake test
+..................................
+34 runs, 50 assertions, 0 failures, 0 errors, 0 skips
+----
 
-Finished in 0.16229 seconds (files took 4.08 seconds to load)
-6 examples, 0 failures
+Et _commitons_ tout ça:
+
+[source,bash]
+----
+$ git add . && git commit -m "Generate orders"
 ----
 
 === Les commandes et les produits
@@ -90,7 +103,7 @@ Nous devons établir l’association entre la commande et le produit. Cela se fa
 
 [source,bash]
 ----
-$ rails generate model placement order:references product:references
+$ rails generate model placement order:belongs_to product:belongs_to
 ----
 
 Migrons la base de données:
@@ -100,81 +113,36 @@ Migrons la base de données:
 $ rake db:migrate
 ----
 
-Ajoutons d’abord les tests de l’association des commandes aux produits:
-
-[source,ruby]
-.spec/models/order_spec.rb
-----
-# ...
-RSpec.describe Order, type: :model do
-  # ...
-  it { should have_many(:placements) }
-  it { should have_many(:products).through(:placements) }
-end
-----
-
 L’implémentation est la suivante:
-
-[source,ruby]
-.app/models/order.rb
-----
-class Order < ApplicationRecord
-  has_many :placements
-  has_many :products, through: :placements
-  # ...
-end
-----
-
-Il est maintenant temps de se lancer dans l’association `product-placement`:
-
-[source,ruby]
-.spec/models/product_spec.rb
-----
-# ...
-RSpec.describe Product, type: :model do
-  # ...
-  it { should have_many(:placements) }
-  it { should have_many(:orders).through(:placements) }
-  # ...
-end
-----
-
-Ajoutons le code pour le faire passer:
 
 [source,ruby]
 .app/models/product.rb
 ----
 class Product < ApplicationRecord
   belongs_to :user
-  has_many :placements
-  has_many :orders, through: :placements
+  has_many :placements, dependent: :destroy
+  has_many :products, through: :placements
   # ...
 end
 ----
 
-Enfin, et ce n’est pas le moins important, les tests de placement:
-
 [source,ruby]
-.spec/models/placement_spec.rb
+.app/models/order.rb
 ----
-# ...
-RSpec.describe Placement, type: :model do
-  let(:placement) { FactoryBot.build :placement }
-  subject { placement }
-  it { should respond_to :order_id }
-  it { should respond_to :product_id }
-  it { should belong_to :order }
-  it { should belong_to :product }
+class Order < ApplicationRecord
+  has_many :placements, dependent: :destroy
+  has_many :products, through: :placements
+  # ...
 end
 ----
 
-Si vous avez suivi le tutoriel jusqu’à présent, l’implémentation est déjà là, grâce au type de références que nous passons au générateur de commandes du modèle. Nous devrions ajouter l’option inverse au modèle de placement pour chaque appel aux `belongs_to`. Cela donne un petit coup de pouce lors du référencement de l’objet parent.
+Si vous avez suivi le tutoriel jusqu’à présent, l’implémentation est déjà là, grâce au type de `belongs_to` que nous passons au générateur de commandes du modèle. Nous devrions ajouter l’option `inverse_of` au modèle de placement pour chaque appel aux `belongs_to`. Cela donne un petit coup de pouce lors du référencement de l’objet parent.
 
 [source,ruby]
 .app/models/placement.rb
 ----
 class Placement < ApplicationRecord
-  belongs_to :order, inverse_of: :placements
+  belongs_to :order
   belongs_to :product, inverse_of: :placements
 end
 ----
@@ -183,70 +151,21 @@ Et maintenant, lançons tous les tests des modèles afin de nous assurer que tou
 
 [source,bash]
 ----
-$ rspec spec/models
-...........................................
-
-Finished in 0.53127 seconds (files took 0.73125 seconds to load)
-43 examples, 0 failures
+$ rake test
+..................................
+34 runs, 50 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Maintenant que tout est beau et vert, _commitons_ les changements:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Associates products and orders with a placements model"
-----
-
-== Commandes de l’utilisateur
-
-Il nous manque juste une petite (mais très importante) partie qui est de relier l’utilisateur aux commandes. Alors faisons-le. Ouvrez d’abord le fichier `user_model_spec.rb` pour ajouter les tests correspondants:
-
-[source,ruby]
-.spec/models/user_spec.rb
-----
-# ...
-RSpec.describe User, type: :model do
-  # ...
-  it { should have_many(:orders) }
-  # ...
-end
-----
-
-Et puis il suffit d’ajouter l’implémentation qui est très simple:
-
-[source,ruby]
-.app/models/user.rb
-----
-class User < ApplicationRecord
-  # ...
-  has_many :orders, dependent: :destroy
-  # ...
-end
-----
-
-Vous pouvez exécuter les tests pour les deux fichiers, et ils devraient tous passer:
-
-[source,bash]
-----
-$ rspec spec/models/{order,user}_spec.rb
-....................
-
-Finished in 0.14279 seconds (files took 0.72848 seconds to load)
-20 examples, 0 failures
-----
-
-_Commitons_ ces changements et continuons d’avancer:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m 'Adds user order has many relation'
+$ git add . && git commit -m "Associates products and orders with a placements model"
 ----
 
 == Exposer le modèle d’utilisateur
 
-Il est maintenant temps de préparer le contrôleur de commandes à exposer la bonne commande. Si vous vous souvenez des chapitres précédents ou l’on avait utilisé https://github.com/rails-api/active_model_serializers[ActiveModelSerializers] vous devez vous rappeler que c’était vraiment facile.
+Il est maintenant temps de préparer le contrôleur de commandes à exposer la bonne commande. Si vous vous souvenez des chapitres précédents ou l’on avait utilisé https://github.com/Netflix/fast_jsonapi[fast_jsonapi] vous devez vous rappeler que c’était vraiment facile.
 
 Vous devez vous demander:
 
@@ -254,7 +173,6 @@ Vous devez vous demander:
 
 Vous avez raison! Définissons d’abord quelles actions nous allons mettre en place:
 
-[arabic]
 . Une action d’indexation pour récupérer les commandes des utilisateurs en cours
 . Une action show pour récupérer une commande particulière de l’utilisateur courant
 . Une action de création pour passer réellement la commande
@@ -263,7 +181,7 @@ Commençons par l’action `index`. Nous devons d’abord créer le contrôleur 
 
 [source,bash]
 ----
-$ rails g controller api/v1/orders
+$ rails generate controller api::v1::orders
 ----
 
 Jusqu’ici, et avant de commencer à taper du code, nous devons nous demander:
@@ -273,23 +191,25 @@ Jusqu’ici, et avant de commencer à taper du code, nous devons nous demander:
 La réponse est vraiment simple: cela dépend de la quantité d’informations que vous voulez exposer au développeur . Dans notre cas, je vais emboîter les routes, parce que j’aime donner ce type d’information aux développeurs. Je pense que cela donne plus de contexte à la requête elle-même. Commençons par quelques tests:
 
 [source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
+.test/controllers/api/v1/orders_controller_test.rb
 ----
 # ...
-RSpec.describe Api::V1::OrdersController, type: :controller do
-  describe 'GET #index' do
-    before(:each) do
-      current_user = FactoryBot.create :user
-      api_authorization_header current_user.auth_token
-      4.times { FactoryBot.create :order, user: current_user }
-      get :index, params: { user_id: current_user.id }
-    end
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @order = products(:one)
+  end
 
-    it 'returns 4 order records from the user' do
-      expect(json_response).to have(4).items
-    end
+  test 'should forbid orders for unlogged' do
+    get api_v1_user_orders_url(user_id: @order.user_id), as: :json
+    assert_response :forbidden
+  end
 
-    it { expect(response.response_code).to eq(200) }
+  test 'should show orders' do
+    get api_v1_user_orders_url(user_id: @order.user_id), headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },  as: :json
+    assert_response :success
+
+    json_response = JSON.parse(response.body)
+    assert_equal @order.user.orders.count, json_response['data'].count
   end
 end
 ----
@@ -299,18 +219,34 @@ Si nous exécutons la suite de tests maintenant, comme vous pouvez vous y attend
 [source,ruby]
 .config/routes.rb
 ----
-# ...
 Rails.application.routes.draw do
-  # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
       resources :users, only: %i[show create update destroy] do
-        # ...
         resources :orders, only: [:index]
       end
       # ...
     end
   end
+end
+----
+
+Nous allons donc générer un nouveau _serializer_ pour les commandes:
+
+
+[source,bash]
+----
+$ rails generate controller api::v1::orders
+----
+
+Et ajoutons les relations:
+
+.app/serializers/order_serializer.rb
+[source,ruby]
+----
+class OrderSerializer
+  include FastJsonapi::ObjectSerializer
+  belongs_to :user
 end
 ----
 
@@ -320,10 +256,10 @@ Il est maintenant temps d’implémenter le contrôleur des commandes:
 .app/controllers/api/v1/orders_controller.rb
 ----
 class Api::V1::OrdersController < ApplicationController
-  before_action :authenticate_with_token!
+  before_action :check_login, only: %i[index]
 
   def index
-    render json: current_user.orders
+    render json: OrderSerializer.new(current_user.orders).serializable_hash
   end
 end
 ----
@@ -332,20 +268,19 @@ Et maintenant nos tests devraient passer:
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/orders_controller_spec.rb
-..
-
-Finished in 0.07943 seconds (files took 0.7232 seconds to load)
-2 examples, 0 failures
+$ rake test
+....................................
+36 runs, 53 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Nous aimons nos commits très petits. Alors _commitons_ dès maintenant:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds the show action for order"
+$ git add . && git commit -m "Adds the show action for order"
 ----
+
+// CURRENT
 
 === Afficher une seule commande
 

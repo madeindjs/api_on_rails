@@ -40,11 +40,11 @@ include::chapter05-user-products.adoc[]
 
 <<<
 
-include::chapter07-improve-json.adoc[]
+include::chapter06-improve-json.adoc[]
 
 <<<
 
-include::chapter08-placing-orders.adoc[]
+include::chapter07-placing-orders.adoc[]
 
 <<<
 
