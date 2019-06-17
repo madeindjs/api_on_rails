@@ -78,9 +78,6 @@ A ce moment si vous lancez les tests, un test doit échouer:
 [source,bash]
 ----
 $ rake test
-
-# Running:
-
 ....E
 
 Error:
@@ -179,9 +176,6 @@ Les tests passent désormais:
 [source,bash]
 ----
 $ rake test
-
-# Running:
-
 ................
 ----
 
@@ -266,9 +260,6 @@ Maintenant, on s’assure que les tests passent:
 [source,bash]
 ----
 $ rake test
-
-# Running:
-
 .................
 ----
 
@@ -435,9 +426,6 @@ Si vous faites les tests maintenant, ils devraient tous passer:
 
 ....
 $ rake test
-
-# Running:
-
 ....................
 ....
 
@@ -544,9 +532,6 @@ Si on lance les tests, ils devraient passer:
 [source,bash]
 ----
 $ rake test
-
-# Running:
-
 ......................
 ----
 
@@ -621,9 +606,6 @@ Comme vous pouvez le voir, l’implémentation fait le travail en trois lignes. 
 [source,bash]
 ----
 $ rake test
-
-# Running:
-
 ........................
 ----
 
@@ -633,8 +615,6 @@ Après cela, nous _commitons_ les changements.
 ----
 $ git commit -am "Adds the products create, update and destroy action nested on the user resources"
 ----
-
-// CURRENT
 
 == Remplir la base de données
 

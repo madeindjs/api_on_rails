@@ -225,8 +225,6 @@ A ce moment précis, si vous lancez les test vous obtenez deux erreurs:
 ----
 $ rake test
 
-# Running:
-
 ........E
 
 Error:
@@ -278,8 +276,6 @@ Toujours là? Ne vous inquiétez pas, c'est fini! Maintenant vos tests doivent p
 [source,bash]
 ----
 $ rake test
-
-# Running:
 
 ...........
 
@@ -422,13 +418,7 @@ Maintenant nos test doivent passer:
 [source,bash]
 ----
 $ rake test
-Run options: --seed 59016
-
-# Running:
-
 .............
-
-Finished in 0.185867s, 69.9423 runs/s, 102.2234 assertions/s.
 13 runs, 19 assertions, 0 failures, 0 errors, 0 skips
 ----
 
@@ -517,9 +507,6 @@ Et comme vous pouvez vous y attendre, si nous exécutons les tests de notre _con
 [source,bash]
 ----
 $ rails test test/controllers/api/v1/users_controller_test.rb
-
-# Running:
-
 ..F
 
 Failure:

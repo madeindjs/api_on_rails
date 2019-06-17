@@ -201,11 +201,7 @@ Et voilà. Nous pouvons vérifier que notre est juste en lançant simplement les
 [source,bash]
 ----
 $ rake test
-# Running:
-
 ...
-
-Finished in 0.114983s, 26.0908 runs/s, 26.0908 assertions/s.
 3 runs, 3 assertions, 0 failures, 0 errors, 0 skips
 ----
 
@@ -372,8 +368,6 @@ Si vous exécutez les tests avec `rails test` vous obtenez l’erreur suivante:
 ....
 $ rails test
 
-# Running:
-
 ...E
 
 Error:
@@ -400,12 +394,7 @@ Vos tests devraient désormais passer:
 
 ----
 $ rails test
-
-# Running:
-
 ....
-
-Finished in 0.162936s, 24.5496 runs/s, 30.6869 assertions/s.
 4 runs, 5 assertions, 0 failures, 0 errors, 0 skips
 ----
 
@@ -478,9 +467,6 @@ A ce moment là, les tests doivent échouer:
 [source,bash]
 ----
 $ rails test
-
-# Running:
-
 ...E
 ----
 
@@ -532,10 +518,7 @@ Comme vous pouvez le constater, l’implémentation est assez simple. Nous avons
 [source,bash]
 ----
 $ rails test
-# Running:
 ......
-
-Finished in 0.172159s, 34.8516 runs/s, 52.2774 assertions/s.
 6 runs, 9 assertions, 0 failures, 0 errors, 0 skips
 ----
 
@@ -625,12 +608,7 @@ Tous nos tests devraient maintenant passer:
 [source,bash]
 ----
 $ rails test
-
-# Running:
-
 ........
-
-Finished in 0.163526s, 48.9220 runs/s, 67.2677 assertions/s.
 8 runs, 11 assertions, 0 failures, 0 errors, 0 skips
 ----
 
@@ -698,14 +676,7 @@ Si tout est correct, vos tests devraient passer:
 [source,bash]
 ----
 $ rails test
-Running via Spring preloader in process 22051
-Run options: --seed 9630
-
-# Running:
-
 .........
-
-Finished in 0.288557s, 31.1897 runs/s, 45.0518 assertions/s.
 9 runs, 13 assertions, 0 failures, 0 errors, 0 skips
 ----
 

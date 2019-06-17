@@ -188,7 +188,9 @@ Jusqu’ici, et avant de commencer à taper du code, nous devons nous demander:
 
 > Est-ce que je dois laisser les routes de ma commande imbriqués dans le `UsersController` ou bien je dois les isoler?
 
-La réponse est vraiment simple: cela dépend de la quantité d’informations que vous voulez exposer au développeur . Dans notre cas, je vais emboîter les routes, parce que j’aime donner ce type d’information aux développeurs. Je pense que cela donne plus de contexte à la requête elle-même. Commençons par quelques tests:
+La réponse est vraiment simple: cela dépend de la quantité d’informations que vous voulez exposer au développeur.
+
+Dans notre cas, nous n'allons pas le faire car nous allons récupérer les commandes de utilisateur sur la route `/orders`. Commençons par quelques tests:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -200,12 +202,14 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should forbid orders for unlogged' do
-    get api_v1_user_orders_url(user_id: @order.user_id), as: :json
+    get api_v1_orders_url, as: :json
     assert_response :forbidden
   end
 
   test 'should show orders' do
-    get api_v1_user_orders_url(user_id: @order.user_id), headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },  as: :json
+    get api_v1_orders_url,
+      headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
+      as: :json
     assert_response :success
 
     json_response = JSON.parse(response.body)
@@ -222,9 +226,7 @@ Si nous exécutons la suite de tests maintenant, comme vous pouvez vous y attend
 Rails.application.routes.draw do
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :users, only: %i[show create update destroy] do
-        resources :orders, only: [:index]
-      end
+      resources :orders, only: [:index]
       # ...
     end
   end
@@ -247,6 +249,7 @@ Et ajoutons les relations:
 class OrderSerializer
   include FastJsonapi::ObjectSerializer
   belongs_to :user
+  has_many :products
 end
 ----
 
@@ -277,14 +280,13 @@ Nous aimons nos commits très petits. Alors _commitons_ dès maintenant:
 
 [source,bash]
 ----
-$ git add . && git commit -m "Adds the show action for order"
+$ git add . && git commit -m "Adds the index action for order"
 ----
 
-// CURRENT
 
 === Afficher une seule commande
 
-Comme vous pouvez déjà l’imaginer, cette route est très facile. Nous n’avons qu’à mettre en place quelques configurations (routes, action du contrôleur) et ce sera tout pour cette section.
+Comme vous pouvez déjà l’imaginer, cette route est très facile. Nous n’avons qu’à mettre en place quelques configurations (routes, action du contrôleur) et ce sera tout pour cette section. Nous allons aussi inclure les produits liés à cette commande dans le JSOn de sortie.
 
 Commençons par ajouter quelques tests:
 
@@ -292,24 +294,19 @@ Commençons par ajouter quelques tests:
 .spec/controllers/api/v1/orders_controller_spec.rb
 ----
 # ...
-RSpec.describe Api::V1::OrdersController, type: :controller do
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
   # ...
-  describe 'GET #show' do
-    before(:each) do
-      current_user = FactoryBot.create :user
-      api_authorization_header current_user.auth_token
-      @order = FactoryBot.create :order, user: current_user
-      get :show, params: { user_id: current_user.id, id: @order.id }
-    end
+  test 'should show orders' do
+    get api_v1_orders_url, headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },  as: :json
+    assert_response :success
 
-    it 'returns the user order record matching the id' do
-      expect(json_response[:id]).to eql @order.id
-    end
-
-    it { expect(response.response_code).to eq(200) }
+    json_response = JSON.parse(response.body)
+    assert_equal @order.user.orders.count, json_response['data'].count
   end
 end
 ----
+
+Comme vous pouvez le voir, la deuxième partie du test vérifie que le produit est inclue dans le JSON.
 
 Ajoutons l’implémentation pour faire passer nos tests. Sur le fichier `routes.rb` ajoutez l’action `show` aux routes des commandes:
 
@@ -319,7 +316,7 @@ Ajoutons l’implémentation pour faire passer nos tests. Sur le fichier `routes
 # ...
 Rails.application.routes.draw do
   # ...
-  resources :orders, only: [:index, :show]
+  resources :orders, only: %i[index show]
   # ...
 end
 ----
@@ -330,9 +327,17 @@ Et l’implémentation devrait ressembler à ceci:
 .app/controllers/api/v1/orders_controller.rb
 ----
 class Api::V1::OrdersController < ApplicationController
+  before_action :check_login, only: %i[index show]
   # ...
   def show
-    render json: current_user.orders.find(params[:id])
+    order = current_user.orders.find(params[:id])
+
+    if order
+      options = { include: [:products] }
+      render json: OrderSerializer.new(order, options).serializable_hash
+    else
+      head 404
+    end
   end
 end
 ----
@@ -341,19 +346,16 @@ Tous nos tests passent désormais:
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/orders_controller_spec.rb
-....
-
-Finished in 0.12767 seconds (files took 0.73322 seconds to load)
-4 examples, 0 failures
+$ rake test
+.....................................
+37 runs, 55 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 _Commitons_ les changements et passons à l’action `Product#create`.
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds the show action for order"
+$ git commit -am "Adds the show action for order"
 ----
 
 === Placement et commandes
@@ -371,27 +373,35 @@ On dirait qu’il reste un paquet de chose à faire mais croyez-moi: vous êtes 
 Si vous vous rappelez le modèle de commande, nous avons besoin de trois choses: un total pour la commande, l’utilisateur qui passe la commande et les produits pour la commande. Compte tenu de cette information, nous pouvons commencer à ajouter quelques tests:
 
 [source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
+.test/controllers/api/v1/orders_controller_test.rb
 ----
 # ...
-RSpec.describe Api::V1::OrdersController, type: :controller do
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    # ...
+    @order_params = { order: {
+      product_id: [products(:one).id, products(:two).id],
+      total: 50
+    } }
+  end
+
   # ...
-  describe 'POST #create' do
-    before(:each) do
-      current_user = FactoryBot.create :user
-      api_authorization_header current_user.auth_token
 
-      product_1 = FactoryBot.create :product
-      product_2 = FactoryBot.create :product
-      order_params = { total: 50, user_id: current_user.id, product_ids: [product_1.id, product_2.id] }
-      post :create, params: { user_id: current_user.id, order: order_params }
+  test 'should forbid create order for unlogged' do
+    assert_no_difference('Order.count') do
+      post api_v1_orders_url, params: @order_params, as: :json
     end
+    assert_response :forbidden
+  end
 
-    it 'returns the just user order record' do
-      expect(json_response[:id]).to be_present
+  test 'should create order with two products' do
+    assert_difference('Order.count', 1) do
+      post api_v1_orders_url,
+        params: @order_params,
+        headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
+        as: :json
     end
-
-    it { expect(response.response_code).to eq(201) }
+    assert_response :created
   end
 end
 ----
@@ -417,12 +427,14 @@ Ensuite, la mise en œuvre qui est facile:
 .app/controllers/api/v1/orders_controller.rb
 ----
 class Api::V1::OrdersController < ApplicationController
+  before_action :check_login, only: %i[index show create]
   # ...
+
   def create
     order = current_user.orders.build(order_params)
 
     if order.save
-      render json: order, status: 201, location: [:api, current_user, order]
+      render json: order, status: 201
     else
       render json: { errors: order.errors }, status: 422
     end
@@ -431,7 +443,7 @@ class Api::V1::OrdersController < ApplicationController
   private
 
   def order_params
-    params.require(:order).permit(:total, :user_id, product_ids: [])
+    params.require(:order).permit(:total, product_ids: [])
   end
 end
 ----
@@ -440,11 +452,9 @@ Et maintenant, nos tests devraient tous passer:
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/orders_controller_spec.rb
-......
-
-Finished in 0.16817 seconds (files took 0.64624 seconds to load)
-6 examples, 0 failures
+$ rake test
+.......................................
+39 runs, 59 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Ok donc tout va bien. Nous devrions maintenant passer au chapitre suivant, non? Laissez-moi faire une pause avant. Nous avons de graves erreurs sur l’application et elles ne sont pas liées au code lui-même mais sur la partie métier.
@@ -456,22 +466,22 @@ Nous devons donc ajouter quelques validations et calculer le total de la command
 Nous devons d’abord ajouter quelques tests pour le modèle de commande:
 
 [source,ruby]
-.spec/models/order_spec.rb
+.test/models/order_test.rb
 ----
 # ...
-RSpec.describe Order, type: :model do
-  # ...
-  describe '#set_total!' do
-    before(:each) do
-      product_1 = FactoryBot.create :product, price: 100
-      product_2 = FactoryBot.create :product, price: 85
+class OrderTest < ActiveSupport::TestCase
 
-      @order = FactoryBot.build :order, product_ids: [product_1.id, product_2.id]
-    end
+  setup do
+    @order = orders(:one)
+  end
 
-    it 'returns the total amount to pay for the products' do
-      expect { @order.set_total! }.to change { @order.total }.from(0).to(185)
-    end
+  test 'Should set total' do
+    order = Order.new user_id: @order.user_id
+    order.products << products(:one)
+    order.products << products(:two)
+    order.save
+
+    assert_equal (@product1.price + @product2.price), order.total
   end
 end
 ----
@@ -484,23 +494,13 @@ Nous pouvons maintenant ajouter l’implémentation:
 class Order < ApplicationRecord
   # ...
   def set_total!
-    self.total = products.map(&:price).sum
+    self.total = self.products.map(&:price).sum
   end
 end
 ----
 
 Juste avant que vous ne lanciez vos tests, nous avons besoin de mettre à jour l’usine de commande:
 
-[source,ruby]
-.spec/factories/orders.rb
-----
-FactoryBot.define do
-  factory :order do
-    user { nil }
-    total { 0.0 }
-  end
-end
-----
 
 Nous pouvons maintenant _hooker_ footnote:[Le _hook_ est une méthode qui se déclenchera automatiquement lors de l'execution] la méthode `set_total!` à un rappel `before_validation` pour s’assurer qu’il a le bon total avant la validation.
 
@@ -517,84 +517,23 @@ A ce stade, nous nous assurons que le total est toujours présent et supérieur 
 
 [source,bash]
 ----
-$ rspec spec/models/order_spec.rb
-.........
+$ rake test
 
-Finished in 0.06807 seconds (files took 0.66165 seconds to load)
-9 examples, 0 failures
+...........F
+
+Failure:
+OrderTest#test_Should_have_a_positive_total [/home/arousseau/github/madeindjs/market_place_api/test/models/order_test.rb:14]:
+Expected true to be nil or false
+
+
+rails test test/models/order_test.rb:11
+
+............................
+
+Finished in 0.542600s, 73.7191 runs/s, 110.5786 assertions/s.
 ----
 
-C’est maintenant le moment de voir le fichier `orders_controller_spec.rb` et de factoriser du code. Actuellement, nous avons quelque chose comme:
-
-[source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::OrdersController, type: :controller do
-  # ...
-  describe 'POST #create' do
-    before(:each) do
-      current_user = FactoryBot.create :user
-      api_authorization_header current_user.auth_token
-
-      product_1 = FactoryBot.create :product
-      product_2 = FactoryBot.create :product
-      order_params = { total: 50, user_id: current_user.id, product_ids: [product_1.id, product_2.id] }
-      post :create, params: { user_id: current_user.id, order: order_params }
-    end
-
-    it 'returns the just user order record' do
-      expect(json_response[:id]).to be_present
-    end
-
-    it { expect(response.response_code).to eq(201) }
-  end
-end
-----
-
-Il suffit de supprimer l’`user_id` et les paramètres `total` car l’identifiant utilisateur n’est pas vraiment nécessaire et le total est calculé par le modèle. Après avoir effectué les modifications, le code doit ressembler à ce qui suit:
-
-[source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::OrdersController, type: :controller do
-  # ...
-  describe 'POST #create' do
-    before(:each) do
-      current_user = FactoryBot.create :user
-      api_authorization_header current_user.auth_token
-
-      product_1 = FactoryBot.create :product
-      product_2 = FactoryBot.create :product
-      # changes heres
-      order_params = { product_ids: [product_1.id, product_2.id] }
-      post :create, params: { user_id: current_user.id, order: order_params }
-    end
-
-    it 'returns the just user order record' do
-      expect(json_response[:id]).to be_present
-    end
-
-    it { expect(response.response_code).to eq(201) }
-  end
-end
-----
-
-Si vous exécutez les tests maintenant, ils passeront. Mais avant, supprimons le `total` et `user_id` des paramètres autorisés et évitons l’affectation en masse. La méthode `order_params` devrait ressembler à ceci:
-
-[source,ruby]
-.app/controllers/api/v1/orders_controller.rb
-----
-class Api::V1::OrdersController < ApplicationController
-  # ...
-  private
-
-  def order_params
-    params.require(:order).permit(product_ids: [])
-  end
-end
-----
+Oups! Nous obtenons une _failure_ sur notre précédent test _Should have a positive total_. C'est logique puisque le total de a commande se calcule dynamiquement. Nous pouvons donc tout simplement supprimer ce test qui est devenu obsolète.
 
 Nos tests doivent continuer à passer. _Commitons_ nos changements:
 
@@ -603,140 +542,7 @@ Nos tests doivent continuer à passer. _Commitons_ nos changements:
 $ git commit -am "Adds the create method for the orders controller"
 ----
 
-== Customiser l’affichage JSON des commandes
-
-Maintenant que nous avons construit les routes nécessaires pour les commandes nous pouvons personnaliser les informations que nous voulons rendre sur la sortie JSON pour chaque commande.
-
-Si vous vous souvenez du chapitre précédent, nous allons ici aussi utiliser _Active Model Serializers_. Commençons donc par créer un sérialiseur pour les commandes:
-
-[source,bash]
-----
-$ rails generate serializer order
-----
-
-Ensuite, ouvrons le fichier `order_serializer.rb` qui doit ressembler à ça:
-
-[source,ruby]
-.app/serializers/order_serializer.rb
-----
-class OrderSerializer < ActiveModel::Serializer
-  attributes :id
-end
-----
-
-Nous allons ajouter l’association des produits et l’attribut `total` à la sortie JSON. Pour nous assurer que tout fonctionne bien, et comme d’habitude, nous ferons quelques tests. Afin d’éviter la duplication de code sur les tests, je vais juste ajouter une spécification pour le spectacle et m’assurer que les données supplémentaires sont rendues. C’est parce que j’utilise le même sérialiseur chaque fois qu’un objet d’ordre est analysé à JSON, donc dans ce cas, je dirais qu’il est très bien:
-
-[source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::OrdersController, type: :controller do
-  # ...
-  describe 'GET #show' do
-    before(:each) do
-      current_user = FactoryBot.create :user
-      api_authorization_header current_user.auth_token
-      @order = FactoryGirl.create :order, user: current_user, product_ids: [@product.id]
-      get :show, params: { user_id: current_user.id, id: @order.id }
-    end
-
-    it 'returns the user order record matching the id' do
-      expect(json_response[:id]).to eql @order.id
-    end
-
-    it 'includes the total for the order' do
-      expect(json_response[:total]).to eql @order.total.to_s
-    end
-
-    it 'includes the products on the order' do
-      expect(json_response[:products]).to have(1).item
-    end
-    # ...
-  end
-  # ...
-end
-----
-
-Ces tests devraient échouer mais ils sont faciles à faire passer sur le sérialiseur de commande:
-
-[source,ruby]
-.app/serializers/order_serializer.rb
-----
-class OrderSerializer < ActiveModel::Serializer
-  attributes :id, :total
-  has_many :products
-end
-----
-
-Et désormais nos tests devraient passer:
-
-[source,bash]
-----
-$ rspec spec/controllers/api/v1/orders_controller_spec.rb
-........
-
-Finished in 0.22865 seconds (files took 0.70506 seconds to load)
-8 examples, 0 failures
-----
-
-Dans le chapitre précédent nous avons intégré l’utilisateur dans le produit. Mais ici, cela ne sert à rien sachant que nous connaissons toujours l’utilisateur car il s’agit de l’utilisateur courant. Il n’y a pas lieu de l’ajouter car ce n’est pas efficace. Corrigeons cela en ajoutant un nouveau sérialiseur:
-
-[source,bash]
-----
-$ rails g serializer order_product
-----
-
-Nous voulons que les informations sur les produits restent cohérentes avec celles que nous avons actuellement de sorte que nous puissions simplement en hériter le comportement comme cela:
-
-[source,ruby]
-.app/serializers/order_product_serializer.rb
-----
-class OrderProductSerializer < OrderSerializer
-end
-----
-
-De cette façon, les deux sérialiseurs seront maintenant liés et il suffira d’ajouter un champ à `ProductSerializer` et il sera ajouté à `OrderProductSerializer`. Maintenant, nous voulons supprimer l’utilisateur associé. Nous ajouterons simplement une méthode qui permet de faire cela[^18]:
-
-[source,ruby]
-.app/serializers/order_product_serializer.rb
-----
-class OrderProductSerializer < ProductSerializer
-  def include_user?
-    false
-  end
-end
-----
-
-Après avoir fait ce changement, nous devons dire au `order_serializer` d’utiliser le sérialiseur que nous venons de créer en passant simplement une option à l’association `has_many` sur le `order_serializer`:
-
-[source,ruby]
-.app/serializers/order_product_serializer.rb
-----
-class OrderProductSerializer < ProductSerializer
-  def include_user?
-    false
-  end
-end
-----
-
-Et nos tests devraient continuer à passer:
-
-[source,bash]
-----
-$ rspec spec/controllers/api/v1/orders_controller_spec.rb
-........
-
-Finished in 0.24024 seconds (files took 0.70072 seconds to load)
-8 examples, 0 failures
-----
-
-_Commitons_ nos changements et passons à la section suivante:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m "Adds a custom order product serializer to remove the user association"
-----
+// CURRENT
 
 == Envoyer un email de confirmation
 
