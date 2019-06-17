@@ -542,7 +542,6 @@ Nos tests doivent continuer à passer. _Commitons_ nos changements:
 $ git commit -am "Adds the create method for the orders controller"
 ----
 
-// CURRENT
 
 == Envoyer un email de confirmation
 
@@ -550,83 +549,34 @@ La dernière section de ce chapitre sera d’envoyer un courriel de confirmation
 
 Vous êtes peut-être familier avec la manipulation des courriels avec Rails, je vais essayer de rendre cela simple et rapide:
 
-Nous commençons par créer le `order_mailer`:
+Nous commençons par créer le `order_mailer` avec un mail nommé `send_confirmation`:
 
 [source,bash]
 ----
-$ rails generate mailer order_mailer
-----
-
-Pour faciliter le test de l’email, nous utiliserons une gemme appelée https://github.com/email-spec/email-spec[email_spec]. Elle inclut un tas de méthodes utiles pour tester les courriels.
-
-Donc d’abord ajoutons la gemme au `Gemfile`:
-
-[source,ruby]
-.Gemfile
-----
-# ...
-group :test do
-  gem 'rspec-collection_matchers', '~> 1.1'
-  gem 'rspec-rails', '~> 3.8'
-  gem "email_spec"
-  gem 'shoulda-matchers'
-end
-# ...
-----
-
-Lancez maintenant la commande `bundle install` pour installer toutes les dépendances. Je vais suivre https://github.com/email-spec/email-spec#rspec-31[les étapes de documentation] pour configurer la gemme. Lorsque vous avez terminé, votre fichier `rails_helper.rb` devrait ressembler à ça:
-
-[source,ruby]
-.spec/rails_helper.rb
-----
-require File.expand_path('../config/environment', __dir__)
-ENV['RAILS_ENV'] ||= 'test'
-# Prevent database truncation if the environment is production
-abort('The Rails environment is running in production mode!') if Rails.env.production?
-
-require 'spec_helper'
-require 'email_spec'
-require 'email_spec/rspec'
-require 'rspec/rails'
-# ...
+$ rails generate mailer order_mailer send_confirmation
 ----
 
 Maintenant, nous pouvons ajouter quelques tests pour les mails de commandes que nous venons de créer:
 
 [source,ruby]
-.spec/mailers/order_mailer_spec.rb
+.test/mailers/order_mailer_test.rb
 ----
 # ...
-RSpec.describe OrderMailer, type: :mailer do
-  include Rails.application.routes.url_helpers
+class OrderMailerTest < ActionMailer::TestCase
 
-  describe '.send_confirmation' do
-    before(:all) do
-      @user = FactoryBot.create :user
-      @order = FactoryBot.create :order, user: @user
-      @order_mailer = OrderMailer.send_confirmation(@order)
-    end
-
-    it 'should be set to be delivered to the user from the order passed in' do
-      expect(@order_mailer).to deliver_to(@user.email)
-    end
-
-    it 'should be set to be send from no-reply@marketplace.com' do
-      expect(@order_mailer).to deliver_from('no-reply@marketplace.com')
-    end
-
-    it "should contain the user's message in the mail body" do
-      expect(@order_mailer).to have_body_text(/Order: ##{@order.id}/)
-    end
-
-    it 'should have the correct subject' do
-      expect(@order_mailer).to have_subject(/Order Confirmation/)
-    end
-
-    it 'should have the products count' do
-      expect(@order_mailer).to have_body_text(/You ordered #{@order.products.count} products:/)
-    end
+  setup do
+    @order = orders(:one)
   end
+
+  test "should be set to be delivered to the user from the order passed in" do
+    mail = OrderMailer.send_confirmation(@order)
+    assert_equal "Order Confirmation", mail.subject
+    assert_equal [@order.user.email], mail.to
+    assert_equal ['no-reply@marketplace.com'], mail.from
+    assert_match "Order: ##{@order.id}", mail.body.encoded
+    assert_match "You ordered #{@order.products.count} products", mail.body.encoded
+  end
+
 end
 ----
 
@@ -675,11 +625,9 @@ Maintenant, nos tests devraient passer:
 
 [source,bash]
 ----
-$ rspec spec/mailers/order_mailer_spec.rb
-.....
-
-Finished in 0.24919 seconds (files took 0.75369 seconds to load)
-5 examples, 0 failures
+$ rake test
+........................................
+40 runs, 66 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Et maintenant, il suffit d’appeler la méthode `OrderMailer#send_confirmation` dans l’action de création sur le contrôleur des ordres:
@@ -694,7 +642,7 @@ class Api::V1::OrdersController < ApplicationController
 
     if order.save
       OrderMailer.send_confirmation(order).deliver
-      render json: order, status: 201, location: [:api, current_user, order]
+      render json: order, status: 201
     else
       render json: { errors: order.errors }, status: 422
     end
@@ -707,19 +655,25 @@ Pour être sûr que nous n’avons rien cassé, lançons tous les tests:
 
 [source,bash]
 ----
-$ rspec spec
-..................................................................................................
-
-Finished in 1.82 seconds (files took 0.78532 seconds to load)
-98 examples, 0 failures
+$ rake test
+........................................
+40 runs, 66 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 _Commitons_ tout ce que nous venons de faire pour terminer cette section:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds order confirmation mailer"
+$ git add . && git commit -m "Adds order confirmation mailer"
+----
+
+
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter07
 ----
 
 == Conclusion
