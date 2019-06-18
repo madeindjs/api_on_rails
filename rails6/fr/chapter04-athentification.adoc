@@ -14,7 +14,7 @@ Vous pouvez cloner le projet jusqu’ici:
 $ git checkout tags/checkpoint_chapter04
 ----
 
-Dans ce chapitre, les choses vont devenir plus intéressantes. Nous allons mettre en place notre mécanisme d’authentification. À mon avis, ce sera l’un des chapitres les plus intéressants car nous allons introduire beaucoup de nouveaux concepts. A la fin, vous aurez un système d’authentification simple mais puissant. Ne paniquez pas, nous y arriverons.
+Dans ce chapitre, les choses vont devenir plus intéressantes. Nous allons mettre en place notre mécanisme d’authentification. À mon avis, ce sera l’un des chapitres les plus intéressants car nous allons introduire beaucoup de nouveaux concepts. A la fin, vous aurez un système d’authentification simple mais puissante. Ne paniquez pas, nous y arriverons.
 
 Commençons par le commencement. Comme d’habitude quand nous démarrons un nouveau chapitre, nous allons créer une nouvelle branche:
 
@@ -45,7 +45,7 @@ Lorsqu'on parle de jeton d'authentification, un standard existe: le JSON Web Tok
 Globalement, un jeton JWT est composé de trois parties:
 
 - un en-tête structuré en JSON qui contiendra par exemple la date de validité du jeton.
-- un _payload_ structuré en JSON qui peut contenir n'importe quelle données. Dans notre cas, il contiendra l’identifiant de l'utilisateur a titulaire du jeton.
+- un _payload_ structuré en JSON qui peut contenir n'importe quelle donnée. Dans notre cas, il contiendra l’identifiant de l'utilisateur "connecté".
 - une signature qui nous permettra de vérifier que le jeton a bien été chiffré par notre application et donc qu'il est valide.
 
 Ces trois parties sont chacune encodées en base64 puis concaténées en utilisant des points (`.`). Ce qui nous donne quelque chose comme ça:
@@ -126,7 +126,7 @@ end
 
 "Hé, ça fait beaucoup plus de code que dans ton exemple!", je sais, mais nous allons le revoir ensemble.
 
-- la méthode `JsonWebToken.encode` va s'occuper d'encoder le _payload_ en rajoutant une expiration à 24 heures par défaut. Nous utilisaons aussi la même clé de chiffrement que celle configurée avec Rails
+- la méthode `JsonWebToken.encode` va s'occuper d'encoder le _payload_ en rajoutant une expiration à 24 heures par défaut. Nous utilisons aussi la même clé de chiffrement que celle configurée avec Rails
 - la méthode `JsonWebToken.decode` va décoder le jeton JWT et récupérer le _payload_. Nous utilisons ensuite la classe https://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html[`HashWithIndifferentAccess`] fournie par Rails qui permet de récupérer une valeur d'un `Hash` avec un `Symbol` ou un `String`.
 
 
@@ -154,13 +154,9 @@ $ git add . && git commit -m "Setup JWT gem"
 
 === Le contrôleur de jeton
 
-Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui générer un jeton JWT.
+Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui générer ce jeton. Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create`.
 
-Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create`.
-
-// et la déconnexion par une demande `DELETE` à l’action `destroy`.
-
-Pour commencer, nous allons commencer par créer le contrôleur de et la méthode `create` dans le _namespace_ `/api/v1`. Avec Rails, une comande suffit:
+Pour commencer, nous allons commencer par créer le contrôleur de et la méthode `create` dans le _namespace_ `/api/v1`. Avec Rails, une commande suffit:
 
 [source,bash]
 ----
@@ -182,7 +178,12 @@ Rails.application.routes.draw do
 end
 ----
 
-Avant d'aller plus loin, nous allons mettre les tests fonctionnel. Les tests sont: si j'envoie un couple courriel / mot de passe valide, je reçois un jeton, sinon j'ai une réponse de type `forbidden`. Le test se matérialise donc comme ceci:
+Avant d'aller plus loin, nous allons mettre les tests fonctionnels. Les tests sont:
+
+- si j'envoie un couple courriel / mot de passe valide, je reçois un jeton
+- dans le cas contraire, j'ai une réponse de type `forbidden`.
+
+Les tests se matérialisent donc comme ceci:
 
 .test/controllers/api/v1/tokens_controller_test.rb
 [source,ruby]
@@ -209,7 +210,7 @@ class Api::V1::TokensControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Vous vous demandez sûrmenent: "mais comment peux tu connaitre le mot de passe de l'utilisateur?". Il suffit tout simplement d'utiliser la méthode `BCrypt::Password.create` dans les _fixtures_ des utilisateurs:
+Vous vous demandez sûrement: "mais comment peux tu connaître le mot de passe de l'utilisateur?". Il suffit tout simplement d'utiliser la méthode `BCrypt::Password.create` dans les _fixtures_ des utilisateurs:
 
 .test/fixtures/users.yml
 [source,yaml]
@@ -238,6 +239,8 @@ Expected response to be a <401: unauthorized>, but was a <204: No Content>
 
 C'est normal. Il est maintenant temps d'implémenter la logique pour créer le jeton JWT. Elle est très simple.
 
+
+// RELECTURE
 
 .config/routes.rb
 [source,ruby]

@@ -10,9 +10,9 @@ Vous pouvez cloner le projet jusqu’à ce point avec:
 $ git checkout tags/checkpoint_chapter03
 ----
 
-Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Nous ne les utiliserons pas afin de mieux appréhender le mécanisme d'authentification.
+Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. cEs solutions sont des librairies clé en main, c'est à dire qu'elles permettent de gérer tout un tas de choses comme l'authentification, la fonctionnalité d'oublie de mot de passe, la validation, etc..
 
-Néanmoins nous allons mettre en place la gemme https://github.com/codahale/bcrypt-ruby[bcrypt] afin de hasher le mots de passe de l'utilisateur.
+Nous ne les utiliserons pas afin de mieux appréhender le mécanisme d'authentification. Néanmoins nous allons utiliser la gemme https://github.com/codahale/bcrypt-ruby[bcrypt] afin de hasher le mots de passe de l'utilisateur.
 
 Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d’aborder autant de sujets que possible. N’hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validation et la gestion des erreurs.
 
@@ -26,6 +26,7 @@ $ git checkout -b chapter03
 NOTE: Assurez-vous simplement d’être sur la branche `master` avant.
 
 == Modèle d’utilisateur
+
 
 === Génération du modèle `User`
 
@@ -47,14 +48,14 @@ invoke  active_record
       create      test/fixtures/users.yml
 ----
 
+NOTE: Dans le _design patern_ MVC, le modèle est l'élément qui contient les données ainsi que de la logique en rapport avec les données: validation, lecture et enregistrement. Nous allons donc dans un premier temps créer cette partie.
+
 
 ==== La migration
 
 Cette commande génère beaucoup de fichiers! Ne vous inquiétez pas, nous allons les passer en revue les un après les autres.
 
-Le fichier de migration contenu dans le dossier _db/migrate_ contient la *migration* qui décrie les modifications qui seront effectués sur la base de données.
-
-Elle devrait ressembler à ceci
+Le fichier de migration contenu dans le dossier _db/migrate_ contient la *migration* qui décrie les modifications qui seront effectuées sur la base de données. Ce fichier devrait devrait ressembler à ceci
 
 .db/migrate/20190603195146_create_users.rb
 [source,ruby]
@@ -71,19 +72,24 @@ class CreateUsers < ActiveRecord::Migration[6.0]
 end
 ----
 
-Nous allons la modifier un petit peut afin de la faire correspondre à nos attentes:
+NOTE: la date insérée au debut du nom du fichier de la migration devrait être différente chez vous puisque elle correspond à la date de création de la migration.
 
+Nous allons modifier un petit cette migration afin d'ajouter quelques validations côté base de données. Avec Rails il est d'usage de faire ces vérfications directement dans le modèle Ruby mais c'est une bonne pratique de le faire aussi dans le schéma de la base de données.
+
+Nous allons donc rajouter deux contraintes:
+
+- l'email est présent: on utilise la propriété `null: false`
 - l'email est unique: on utilise la propriété `unique: true`
 - le mot de passe est obligatoire: on utilise la propriété `null: false`
 
-La migration deviens donc:
+La migration devient donc:
 
 .db/migrate/20190603195146_create_users.rb
 [source,ruby]
 ----
 # ...
 create_table :users do |t|
-  t.string :email, unique: true
+  t.string :email, unique: true, null: false
   t.string :password_digest, null: false
   # ...
 end
@@ -134,16 +140,15 @@ Vous remarquerez peut être que la validation du courriel utilise une validation
 C'est normal.
 
 Une infinité d'exceptions existent en la matière d'adresse mail si bien https://davidcel.is/posts/stop-validating-email-addresses-with-regex/[que même `"Look at all these spaces!"@example.com` est une adresse valide]. Il vaut mieux donc privilégier une approche simple et confirmer le mail par un mail de validation.
-
-Par soucis de brièveté, j'ai choisi une approche simpliste.
 ****
 
 ==== Les tests unitaires
 
-Nous terminons par les tests unitaires. Nous utilisons ici le framework par
+Nous terminons par les tests unitaires. Nous utilisons ici le framework de test Minitest qui est fourni par défaut avec Rails.
 
+Minitest s'appuie sur des _Fixtures_ qui permettent de remplir votre base de données avec des données *prédéfinies*. Les _Fixtures_ sont définies dans des fichiers YAML dans le dossier `tests/fixtures`. Il y a un fichier par modèle.
 
-Nous devons donc commencer par mettre à jour nos données de tests contenue dans le dossier `tests/fixtures`.Les  _Fixtures_ permettent donc de remplir votre base de données de tests avec des données *prédéfinies* avant l'exécution de vos tests. Il y a un fichier par modèle.
+Nous devons donc commencer par mettre à jour nos `tests/fixtures`.
 
 NOTE: Les _fixtures_ ne sont pas conçus pour créer tous les données dont vos tests ont besoin. Elle permettent juste de définir les données basiques dont votre application à besoins.
 
@@ -157,9 +162,9 @@ one:
   password_digest: hashed_password
 ----
 
-Nous pouvons donc maintenant créer les tests. Il y en a trois:
+Nous pouvons donc maintenant créer les tests. Il y en aura trois:
 
-- on vérifie que un utilisateur avec des données valide est valide:
+- on vérifie qu'un utilisateur avec des données valide est valide:
 
 .test/models/user_test.rb
 [source,ruby]
@@ -171,7 +176,7 @@ test 'user with a valid email should be valid' do
 end
 ----
 
-- on vérifie que un utilisateur avec un courriel invalide n'est pas valide:
+- on vérifie qu'un utilisateur avec un courriel invalide n'est pas valide:
 
 .test/models/user_test.rb
 [source,ruby]
@@ -183,7 +188,7 @@ test 'user with unvalid email should be unvalid' do
 end
 ----
 
-- on vérifie que un utilisateur avec un courriel déjà utilisé n'est pas valide. on utilise donc le même courriel que la _fixture_ que nous venons de créer.
+- on vérifie qu'un utilisateur avec un courriel déjà utilisé n'est pas valide. on utilise donc le même courriel que la _fixture_ que nous venons de créer.
 
 .test/models/user_test.rb
 [source,ruby]
@@ -236,7 +241,7 @@ Lancez donc la commande suivante:
 $ bundle add bcrypt
 ----
 
-Une fois la commande exécuté, la ligne suivante est ajoutée à la fin du _Gemfile_:
+Une fois la commande exécutée, la ligne suivante est ajoutée à la fin du _Gemfile_:
 
 [source,ruby]
 .Gemfile
@@ -276,7 +281,7 @@ Essayons cela tout de suite dans la console de Rails. Ouvre une console avec `ra
  =>#<User id: 1, email: "toto@toto.org", password_digest: [FILTERED], created_at: "2019-06-04 10:51:44", updated_at: "2019-06-04 10:51:44">
 ----
 
-Nous pouvons aussi d'envoyer un attribut `password_confirmation` qui ne correspond pas à `password`:
+Vous pouvez ainsi constater que lorsqu'on appelle la méthode `User#create!`, l'attribut `password` est haché et stocké dans `password_digest`. Nous pouvons aussi d'envoyer un attribut `password_confirmation` que ActiveRecord va comparer à `password`:
 
 [source,ruby]
 ----
@@ -365,7 +370,8 @@ end
 
 Si vous exécutez les tests avec `rails test` vous obtenez l’erreur suivante:
 
-....
+[source,bash]
+----
 $ rails test
 
 ...E
@@ -374,7 +380,7 @@ Error:
 UsersControllerTest#test_should_show_user:
 DRb::DRbRemoteError: undefined method `api_v1_user_url' for #<UsersControllerTest:0x000055ce32f00bd0> (NoMethodError)
     test/controllers/users_controller_test.rb:9:in `block in <class:UsersControllerTest>'
-....
+----
 
 Ce type d’erreur est très courant lorsque vous générez vos ressources à la main! En effet, nous avons totalement oublié *les routes*. Alors ajoutons-les:
 
@@ -398,7 +404,7 @@ $ rails test
 4 runs, 5 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Comme d’habitude, après avoir ajouté une des fonctionnalités dont nous sommes satisfaits, nous faisons un `commit`:
+Comme d’habitude, après avoir ajouté une des fonctionnalités dont nous sommes satisfaits, nous faisons un _commit_:
 
 [source,bash]
 ----
@@ -408,7 +414,6 @@ $ git add . && git commit -m "Adds show action the users controller"
 === Tester notre ressource avec cURL
 
 Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions pour la tester. La première qui me vient à l’esprit est l’utilisation de cURL qui est intégré dans presque toutes les distributions Linux. Alors, essayons:
-
 
 [source,bash]
 ----
@@ -593,7 +598,6 @@ class Api::V1::UsersController < ApplicationController
   end
 
   private
-
   # ...
 
   def set_user

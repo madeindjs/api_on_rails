@@ -26,7 +26,7 @@ Nous n’allons pas construire d’interface pour l’interaction avec l’API a
 
 > D’accord, mais j’ai besoin d’explorer et de visualiser l’API que je vais construire, non?
 
-C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outils en ligne de commande disponible presque partout.
+C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outil en ligne de commande disponible presque partout.
 
 == Mettre en place l’API
 
@@ -123,8 +123,6 @@ Rails supporte jusqu’à 35 types de médias différents! Vous pouvez les liste
 [source,bash]
 ----
 $ rails c
-Running via Spring preloader in process 19990
-Loading development environment (Rails 6.0.0.rc1)
 2.6.3 :001 > Mime::SET.collect(&:to_s)
  => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip"]
 ----
@@ -145,7 +143,7 @@ end
 
 Jusqu'à présent, nous n'avons rien fait de fou. Nous voulons maintenant générer un _base_uri_ qui inclut la version de l'API comme ceci: http://localhost:3000/api/v1.
 
-NOTE: Régler l'API sous un sous-domaine est une bonne pratique car cela permet d'adapter l'application à un niveau DNS. Mais dans votre cas, nous allons simplifier les choses pour l'instant.
+NOTE: Régler l'API sous un sous-domaine est une bonne pratique car cela permet d'adapter l'application à un niveau DNS. Mais dans notre cas, nous allons simplifier les choses pour l'instant.
 
 Vous devriez vous soucier de versionner votre application dès le début car cela donnera une *meilleure structure* à votre API. Lorsque des changements interviendront sur votre API, vous pouvez ainsi proposer aux développeurs de s’adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées.
 
@@ -206,4 +204,4 @@ $ git merge chapter02
 * https://github.com/Sutto/rocket_pants[RocketPants]
 * https://github.com/bploetz/versionist[Versionist]
 
-Je n’en parle pas ici puisque nous essayons d’apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu’ici est disponible https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd[ici].
+Je n’en parle pas ici puisque nous essayons d’apprendre comment mettre en œuvre ce genre de fonctionnalité.

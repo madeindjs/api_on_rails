@@ -85,7 +85,7 @@ Il existe de nombreuses façons d’installer et de gérer Ruby. Vous devriez pr
 $ ruby -v
 ----
 
-Rails 5.2 nécessite l’installation de la version 2.2.2 ou supérieure. Pour l’installer, je vous recommande d’utiliser http://rvm.io/[Ruby Version Manager (RVM)] ou http://rbenv.org/[rbenv]. Ces outils vous permettront d’installer plusieurs versions de `ruby`. Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
+Rails 6.0 nécessite l’installation de la version 2.5 ou supérieure. Pour l’installer, je vous recommande d’utiliser http://rvm.io/[Ruby Version Manager (RVM)] ou http://rbenv.org/[rbenv]. Ces outils vous permettront d’installer plusieurs versions de `ruby`. Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
 
 Pour installer RVM, rendez vous sur https://rvm.io/ et installez la clé GPG footnote:[La clé GPG vous permet de vérifier l’identité de l’auteur des sources que vous téléchargez.]. Une fois cela fait:
 
@@ -215,7 +215,6 @@ L’étape suivante est d’ignorer certains fichiers que nous ne voulons pas su
 /config/master.key
 ----
 
-// CURRENT
 
 Une fois Git mis en place, , il suffit d’ajouter les fichiers et de valider les modifications. Les commandes nécessaires sont les suivantes:
 
@@ -231,7 +230,7 @@ Enfin, et c’est une étape optionnelle, nous déployons le projet sur *GitHub*
 
 [source,bash]
 ----
-$ git remote add origin git@github.com:madeindjs/market_place_api.git
+$ git remote add origin git@github.com:madeindjs/market_place_api_6.git
 ----
 
 Ensuite on pousse le code:
