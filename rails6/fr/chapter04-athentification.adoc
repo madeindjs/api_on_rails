@@ -16,7 +16,7 @@ $ git checkout tags/checkpoint_chapter04
 
 Dans ce chapitre, les choses vont devenir plus intéressantes. Nous allons mettre en place notre mécanisme d’authentification. À mon avis, ce sera l’un des chapitres les plus intéressants car nous allons introduire beaucoup de nouveaux concepts. A la fin, vous aurez un système d’authentification simple mais puissante. Ne paniquez pas, nous y arriverons.
 
-Commençons par le commencement. Comme d’habitude quand nous démarrons un nouveau chapitre, nous allons créer une nouvelle branche:
+Commençons par le commencement. Comme d’habitude lorsque nous démarrons un nouveau chapitre, nous allons créer une nouvelle branche:
 
 [source,bash]
 ----
@@ -25,7 +25,7 @@ $ git checkout -b chapter04
 
 == Session sans état
 
-Avant d’aller plus loin, quelque chose doit être clair: *une API ne gère pas les sessions*. Si vous n’avez pas d’expérience dans la création de ce genre d’applications, cela peut paraître un peu fou. Une API doit être sans état. Ce qui signifie par définition qu’il s’agit d’une API qui fournit une réponse après votre demande et qui ne nécessite aucune autre attention. Cela à pour conséquence qu’aucun état antérieur ou futur n’est nécessaire pour que le système fonctionne.
+Avant d’aller plus loin, quelque chose doit être clair: *une API ne gère pas les sessions*. Cela peut paraître un peu fou si vous n’avez pas d’expérience dans la création de ce genre d’applications. Une API doit être sans état. Ce qui signifie, par définition, qu’une API qui fournit une réponse après votre demande ne nécessite aucune autre attention. Cela à pour conséquence qu’aucun état antérieur ou futur n’est nécessaire pour que le système fonctionne.
 
 Le processus d’authentification de l’utilisateur via une API est très simple:
 
@@ -44,9 +44,9 @@ Lorsqu'on parle de jeton d'authentification, un standard existe: le JSON Web Tok
 
 Globalement, un jeton JWT est composé de trois parties:
 
-- un en-tête structuré en JSON qui contiendra par exemple la date de validité du jeton.
-- un _payload_ structuré en JSON qui peut contenir n'importe quelle donnée. Dans notre cas, il contiendra l’identifiant de l'utilisateur "connecté".
-- une signature qui nous permettra de vérifier que le jeton a bien été chiffré par notre application et donc qu'il est valide.
+- un *en-tête* structuré en JSON qui contiendra par exemple la date de validité du jeton.
+- un _payload_ structuré en JSON qui peut contenir *n'importe quelle donnée*. Dans notre cas, il contiendra l’identifiant de l'utilisateur "connecté".
+- une *signature* qui nous permettra de vérifier que le jeton a bien été chiffré par notre application et donc qu'il est valide.
 
 Ces trois parties sont chacune encodées en base64 puis concaténées en utilisant des points (`.`). Ce qui nous donne quelque chose comme ça:
 
@@ -69,9 +69,9 @@ Une fois décodé, ce jeton nous donne les informations suivantes:
 { "sub": "1234567890", "name": "John Doe", "iat": 1516239022 }
 ----
 
-
 NOTE: Pour plus d'information à propos des jetons JWT je vous invite à consulter https://jwt.io[jwt.io]
 
+Cela possède beaucoup d'avantages comme par exemple envoyer des informations au consomateur de l'API direction dans le token. On pourra par exemple choisir d'intégrer les informations de l'utilisateur dans le _payload_.
 
 === Mise en place du jeton d’authentification
 
@@ -84,14 +84,14 @@ Commençons donc par l'installer:
 $ bundle add jwt
 ----
 
-Une fois effectué, il ligne est ajoutée dans votre _Gemfile_:
+Une fois effectué, la ligne suivante est ajoutée dans votre _Gemfile_:
 
 [source,ruby]
 ----
 gem "jwt", "~> 2.2"
 ----
 
-La libraire s'utilise très facilement avec `JWT.encode` et `JWT.decode`. Ouvrons un terminal avec `rails console`.
+La libraire s'utilise très facilement avec les méthodes `JWT.encode` et `JWT.decode`. Ouvrons un terminal avec `rails console`.
 
 [source,ruby]
 ----
@@ -100,11 +100,9 @@ La libraire s'utilise très facilement avec `JWT.encode` et `JWT.decode`. Ouvron
  => [{"message"=>"Hello World"}, {"alg"=>"HS256"}]
 ----
 
-Lors de la première ligne nous avons encodé un _payload_ avec la clé secrète _my_secret_key_. Nous obtenons donc un jeton que nous pouvons décoder, tout simplement.
-
+Lors de la première ligne nous avons encodé un _payload_ avec la clé secrète _my_secret_key_. Nous obtenons donc un jeton que nous pouvons décoder, tout simplement. La deuxième ligne s'occupe de décoder le jeton et nous voyons que nous retrouvons biens notre _payload_.
 
 Nous allons maintenant englober toute cette logique dans une classe `JsonWebToken` qui nous permettra d'éviter créer une classe `lib/json_web_token.rb` qui s'occupera d'encoder et de décoder les jeton JWT. Voici donc l'implémentation.
-
 
 .lib/json_web_token.rb
 [source,ruby]
