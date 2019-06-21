@@ -1,4 +1,4 @@
-[#chapter09-improve_orders]
+[#chapter08-improve_orders]
 = Améliorer les commandes
 
 Précédemment nous avons amélioré notre API pour passer des commandes et envoyer un e-mail de confirmation à l’utilisateur (juste pour améliorer l’expérience utilisateur). Ce chapitre va s’occuper de quelques validations sur le modèle de commande afin de s’assurer qu’elle est valide. C’est-à-dire:

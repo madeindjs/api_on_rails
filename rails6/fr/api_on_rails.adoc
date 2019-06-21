@@ -48,7 +48,7 @@ include::chapter07-placing-orders.adoc[]
 
 <<<
 
-include::chapter09-improve-orders.adoc[]
+include::chapter08-improve-orders.adoc[]
 
 <<<
 
