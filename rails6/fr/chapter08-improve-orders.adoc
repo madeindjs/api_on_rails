@@ -339,9 +339,9 @@ $ git commit -am "Decreases the product quantity by the placement quantity"
 
 Depuis le début du chapitre, nous avons ajouté l’attribut `quantity` au modèle de produit. il est maintenant temps de valider que la quantité de produit est suffisante pour que la commande soit passée. Afin de rendre les choses plus intéressantes, nous allons le faire à l’aide d’un validateur personnalisé.
 
-NOTE: vous pouvez consulter la https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation]].
+NOTE: vous pouvez consulter la https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation].
 
-Tout d’abord, nous devons créer un répertoire de `validators` dans le répertoire `app` (Rails le charge par défaut) et ensuite créons un fichier dedans:
+Tout d’abord, nous devons créer un répertoire de `validators` dans le répertoire `app` (Rails le charge par défaut) et ensuite créons un fichier dedans:60
 
 [source,bash]
 ----
@@ -349,32 +349,20 @@ $ mkdir app/validators
 $ touch app/validators/enough_products_validator.rb
 ----
 
-// CURRENT
 
 Avant de commencer à implémenter la classe, nous devons nous assurer d’ajouter un test au modèle de commande pour vérifier si la commande peut être passée.
 
 [source,ruby]
-.spec/models/order_spec.rb
+.test/models/order_test.rb
 ----
 # ...
-RSpec.describe Order, type: :model do
+class OrderTest < ActiveSupport::TestCase
   # ...
-  describe "#valid?" do
-    before do
-      product_1 = FactoryBot.create :product, price: 100, quantity: 5
-      product_2 = FactoryBot.create :product, price: 85, quantity: 10
 
-      placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
-      placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
+  test "an order should command not too much product than available" do
+    @order.placements << Placement.new(product_id: @product1.id, quantity: (1 + @product1.quantity))
 
-      @order = FactoryBot.build :order
-      @order.placements << placement_1
-      @order.placements << placement_2
-    end
-
-    it "becomes invalid due to insufficient products" do
-      expect(@order).to_not be_valid
-    end
+    assert_not @order.valid?
   end
 end
 ----
@@ -404,6 +392,7 @@ J’ajoute simplement un message pour chacun des produits en rupture de stock, m
 .app/models/order.rb
 ----
 class Order < ApplicationRecord
+  include ActiveModel::Validations
   # ...
   validates_with EnoughProductsValidator
   # ...
@@ -414,11 +403,9 @@ Et maintenant, si vous lancer vos tests, tout devrait être beau et vert:
 
 [source,bash]
 ----
-$ rspec spec/models/order_spec.rb
-.........
-
-Finished in 0.19136 seconds (files took 0.74912 seconds to load)
-9 examples, 0 failures
+$ rake test
+..........................................
+42 runs, 63 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 _Commitons_ nos changements:
@@ -447,33 +434,27 @@ class Order < ApplicationRecord
 end
 ----
 
+// CURRENT
+
 Maintenant, au lieu de calculer le total en additionnant simplement les prix des produits, nous devons le multiplier par la quantité. Alors mettons d’abord à jour les tests:
 
 [source,ruby]
-.spec/models/order_spec.rb
+.test/models/order_test.rb
 ----
 # ...
-RSpec.describe Order, type: :model do
+class OrderTest < ActiveSupport::TestCase
   # ...
-  describe '#set_total!' do
-    before(:each) do
-      product_1 = FactoryBot.create :product, price: 100
-      product_2 = FactoryBot.create :product, price: 85
 
-      placement_1 = FactoryBot.build :placement, product: product_1, quantity: 3
-      placement_2 = FactoryBot.build :placement, product: product_2, quantity: 15
+  test "Should set total" do
+    @order.placements = [
+      Placement.new(product_id: @product1.id, quantity: 2),
+      Placement.new(product_id: @product2.id, quantity: 2)
+    ]
+    @order.set_total!
+    expected_total = (@product1.price * 2) + (@product2.price * 2)
 
-      @order = FactoryBot.build :order
-
-      @order.placements << placement_1
-      @order.placements << placement_2
-    end
-
-    it 'returns the total amount to pay for the products' do
-      expect { @order.set_total! }.to change { @order.total.to_f }.from(0).to(1575)
-    end
+    assert_equal expected_total, @order.total
   end
-  # ...
 end
 ----
 
@@ -485,10 +466,9 @@ L’implémentation est assez simple:
 class Order < ApplicationRecord
   # ...
   def set_total!
-    self.total = 0.0
-    placements.each do |placement|
-      self.total += placement.product.price.to_f * placement.quantity
-    end
+    self.total = self.placements
+                     .map{ |placement| placement.product.price * placement.quantity }
+                     .sum
   end
   # ...
 end
@@ -498,11 +478,9 @@ Et maintenant, les tests devraient passer:
 
 [source,bash]
 ----
-$ rspec spec/models/order_spec.rb
-.........
-
-Finished in 0.20537 seconds (files took 0.74555 seconds to load)
-9 examples, 0 failures
+$ rake test
+..........................................
+42 runs, 63 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 _Commitons_ nos changements et récapitulons tout ce que nous venons de faire:
@@ -510,6 +488,14 @@ _Commitons_ nos changements et récapitulons tout ce que nous venons de faire:
 [source,bash]
 ----
 $ git commit -am "Updates the total calculation for order"
+----
+
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter08
 ----
 
 == Conclusion
