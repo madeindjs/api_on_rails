@@ -357,9 +357,9 @@ Finished in 1.35 seconds (files took 1.1 seconds to load)
 103 examples, 3 failures
 ----
 
-Arf… Tous nos tests passent mais on voit que l’utilisateur associé au produit n’est pas intégré dans la réponse. Ceci est en fait tout à fait normal. https://jsonapi.org/format/#fetching-includes[La documentation de JSON:API] préconise l’utilsation d’une clé `include` plutôt que d’imbriquer les modèles entre eux.
+Arf… Tous nos tests passent mais on voit que l’utilisateur associé au produit n’est pas intégré dans la réponse. Ceci est en fait tout à fait normal. https://jsonapi.org/format/#fetching-includes[La documentation de JSON:API] préconise l’utilisation d’une clé `include` plutôt que d’imbriquer les modèles entre eux.
 
-Metons donc à jour notre test:
+Mettons donc à jour notre test:
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -395,7 +395,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-Là aussi, l’implémentation est très facile. Il nous suffit d’ajouter l’otpion `ìnclude` directement dans l’action du controlleur.
+Là aussi, l’implémentation est très facile. Il nous suffit d’ajouter l’option `ìnclude` directement dans l’action du controller.
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -713,7 +713,7 @@ $ git commit -am "Adds pagination for orders index action"
 
 === Factorisation de la pagination
 
-Si vous avez suivi ce tutoriel ou si vous êtes un développeur Rails expérimenté, vous aimez probablement garder les choses DRY. Vous avez sûrement remarqué que le code que nous venons d’écrire est dupliqué. Je pense que c’est une bonne habitde de nettoyer un peu le code une fois la fonctionnalité implémentée.
+Si vous avez suivi ce tutoriel ou si vous êtes un développeur Rails expérimenté, vous aimez probablement garder les choses DRY. Vous avez sûrement remarqué que le code que nous venons d’écrire est dupliqué. Je pense que c’est une bonne habitude de nettoyer un peu le code une fois la fonctionnalité implémentée.
 
 Nous allons d’abord commencer par nettoyer ces tests qu’on a dupliqué dans le fichier `orders_controller_spec.rb` et `products_controller_spec.rb`:
 
@@ -813,7 +813,7 @@ class ApplicationController < ActionController::API
 end
 ----
 
-Il suffit ensuite d’utiliser cette méthode dans nos deux contrôlleurs:
+Il suffit ensuite d’utiliser cette méthode dans nos deux contrôleurs:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
@@ -870,7 +870,7 @@ $ git add .
 
 Il y a actuellement une implémentation pour faire de la mise en cache avec la gemme `active_model_serializers` qui est vraiment facile à manipuler. Bien que dans les anciennes versions de la gemme, cette implémentation peut changer, elle fait le travail.
 
-Si nous effectuons une demande à la liste des produits, nous remarquerons que le temps de réponse prend environ 174 milisecondes en utilisant cURL
+Si nous effectuons une demande à la liste des produits, nous remarquerons que le temps de réponse prend environ 174 millisecondes en utilisant cURL
 
 [source,bash]
 ----
