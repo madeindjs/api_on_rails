@@ -429,7 +429,6 @@ Ce serait un bon moment pour _commiter_ les changements et passer à la prochain
 $ git commit -am "Factorize pagination"
 ----
 
-// CURRENT
 
 == Mise en cache
 
@@ -493,111 +492,200 @@ $ git commit -am "Adds caching for the serializers"
 
 == Requêtes N+1
 
-Les *requêtes N+1* sont une plaie qui peuvent avoir un impact énorme sur les performances d'une application. Ce phénomène se produit souvent lorsqu'on utilise un **ORM**.
+Les *requêtes N+1* sont une plaie qui peuvent avoir un impact énorme sur les performances d'une application. Ce phénomène se produit souvent lorsqu'on utilise un **ORM** car il génère **automatiquement** les requêtes SQL pour nous. Cet outil bien pratique est à double tranchant car il peut générer un **grand nombre** de requêtes SQL.
 
-> T'inquiètes pas, je m'occupe de tout.
->
-> *Active Record* de Ruby on Rails
+Quelque chose à savoir avec les requêtes SQL est qu'il vaut mieux faire en sorte de limiter le nombre. En d'autres termes, une grosse requête est souvent plus performante que cent petites.
 
-L'ORM génère **automatiquement** les requêtes SQL et nous évite ainsi de les taper à la main. Cet outil bien pratique est à **double tranchant** car il peut générer un **grand nombre** de requête SQL.
+Voici un exemple où l'on veut récupérer tous les utilisateurs qui ont déjà créé un produit. Ouvrez la console Rails avec `rails console` et exécutez le code Ruby suivant:
 
-## Exemple
+[source,ruby]
+----
+Product.all.map { |product| product.user }
+----
 
-Voici un exemple où l'on veut récupérer tous les utilisateurs qui ont déjà créé une recette. Sans réfléchir, on serait tenté de faire plus ou moins comme ça:
+La console interactive de Rails nous montre les requêtes SQL qui sont générées. Voyez par vous même:
 
-~~~ruby
-User.all.map{ |user| user.orders }
-User Load (0.3ms)  SELECT "users".* FROM "users"
-Order Load (0.7ms)  SELECT "orders".* FROM "orders" WHERE "orders"."user_id" = ? LIMIT ?  [["user_id", 28], ["LIMIT", 11]]
-Order Load (0.2ms)  SELECT "orders".* FROM "orders" WHERE "orders"."user_id" = ? LIMIT ?  [["user_id", 29], ["LIMIT", 11]]
-Order Load (0.2ms)  SELECT "orders".* FROM "orders" WHERE "orders"."user_id" = ? LIMIT ?  [["user_id", 30], ["LIMIT", 11]]
-~~~
+[source,sql]
+----
+Product Load (0.5ms)  SELECT "products".* FROM "products"
+User Load (0.2ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 28], ["LIMIT", 1]]
+User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 28], ["LIMIT", 1]]
+User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 29], ["LIMIT", 1]]
+User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 29], ["LIMIT", 1]]
+User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 30], ["LIMIT", 1]]
+User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 30], ["LIMIT", 1]]
+----
 
-On voit ici qu'on génère trois requêtes.
+On voit ici qu'on génère une grande quantité de requêtes:
 
-- `Recipe.all` = 1 requête pour récupérer les recettes
-- `recipe.user` = 1 requête `SELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT 1  [["id", 1]]` par recette
+- `Product.all` = 1 requête pour récupérer les recettes
+- `product.user` = 1 requête `SELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT 1  [["id", 1]]` par produit récupéré
+
+D'ou le nom de "requête N+1" puisque l'on effectue une requête par liaison enfant.
+
+Nous pouvons corriger cela simplement en utilisant `includes`. `includes` va **pré-charger** les objets enfants dans une seule requête. Son utilisation est très facile. Si on reprend l'exemple précédent, voici le résultat:
+
+[source,ruby]
+----
+Product.includes(:user).all.map { |product| product.user }
+----
+
+La console interactive de Rails nous montre les requêtes SQL qui sont générées. Voyez par vous même:
+
+[source,sql]
+----
+Product Load (0.3ms)  SELECT "products".* FROM "products"
+User Load (0.8ms)  SELECT "users".* FROM "users" WHERE "users"."id" IN (?, ?, ?)  [["id", 28], ["id", 29], ["id", 30]]
+----
+
+Rails effectue une deuxième requête qui va récupérer *tous* les utilisateurs d'un coup.
 
 
-Donc, si nous avons **1000 recettes** en base, nous générons **1001 requêtes SQL**.
+=== Prevention des requêtes N+1
 
-## Comment corriger?
 
-C'est là qu'intervient `includes`. `includes` va **pré-charger** les objets enfants dans une seule requête. Son utilisation est très facile. Si on reprend l'exemple précédent
 
-~~~ruby
-users = Recipe.includes(:user).all.map{|recipe| recipe.user}
-# SELECT "recipes".* FROM "recipes"
-# SELECT "users".* FROM "users" WHERE "users"."id" IN (?, ?) [["id", 1],["id", 2]]
-~~~
+Imaginons que nous voulons ajouter les propriétaires des produits pour la routes `/products`. Nous avons déjà vu que avec la librairie `fast_jsonapi` il est très facile de le faire:
 
-Et voilà:
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    # ...
+    options = get_links_serializer_options('api_v1_products_path', @products)
+    options[:include] = [:user]
 
-* `Recipe.all` = 1 requête `SELECT "recipes".* FROM "recipes"`
-* `recipe.user` = 1 requête `SELECT "users".* FROM "users" WHERE "users"."id" IN (1, 2)`
+    render json: ProductSerializer.new(@products, options).serializable_hash
+  end
+  # ...
+end
+----
 
-`includes` ne s'arrête pas là et nous permet même de précharger les sous-liaisons très facilement:
+Maintenant effectuons une requête avec cURL. Je vous rappelle que nous devons obtenir un jeton d'authentification avant d'accéder à la page.
 
-~~~ruby
-Recipe.includes(comments: :user)
-~~~
+[source,bash]
+----
+$ curl -X POST --data "user[email]=ockymarvin@jacobi.co" --data "user[password]=locadex1234"  http://localhost:3000/api/v1/tokens
+----
 
-Active Record est **magique**!
+NOTE: "ockymarvin@jacobi.co" correspond à un utilisateur crée dans mon application avec le _seed_. Dans votre cas, il sera sûrement différent du mien puisqu'on a utilisé la librairie Faker.
 
-## Comment prévenir?
+A l'aide du token obtenu, nous pouvons maintenant effectuer une requête pour acceder aux produits
 
-Nous avons vu qu'il est malheureusement **très facile** de créer une requête N+1. Heureusement, il existe une _gem_ qui permet de nous **alerter** lorsque ce genre de situation arrive: [Bullet][bullet]. [Bullet][bullet] va nous prévenir (par mail, [notification growl](http://growl.info/), console, etc..) lorsqu’il trouve une requête N+1.
+[source,bash]
+----
+$ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
+----
+
+Vous voyez très certainement passer plusieurs requête dans la console Rails executant le serveur web.
+
+[source,sql]
+----
+Started GET "/api/v1/products" for 127.0.0.1 at 2019-06-26 13:36:19 +0200
+Processing by Api::V1::ProductsController#index as JSON
+   (0.1ms)  SELECT COUNT(*) FROM "products"
+  ↳ app/controllers/concerns/paginable.rb:9:in `get_links_serializer_options'
+  Product Load (0.2ms)  SELECT "products".* FROM "products" LIMIT ? OFFSET ?  [["LIMIT", 20], ["OFFSET", 0]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+   (0.5ms)  SELECT "products"."id" FROM "products" WHERE "products"."user_id" = ?  [["user_id", 36]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+----
+
+
+Il est donc malheureusement **très facile** de créer une requête N+1. Heureusement, il existe une gemme qui permet de nous **alerter** lorsque ce genre de situation arrive: https://github.com/flyerhzm/bullet[Bullet]. Bullet va nous prévenir (par mail, http://growl.info/[notification growl], https://slack.com[Slack], console, etc..) lorsqu'il trouve une requête N+1.
 
 Pour l'installer, on ajoute la _gem_ au _GemFile_
-
-~~~ruby
-# Gemfile
-
-group :development do
-  gem 'bullet'
-end
-~~~
-
-On n'oublie pas de lancer un `bundle install` pour installer la dépendance et on crée un _initializer_ pour configurer [Bullet][bullet].
-
-~~~ruby
-# config/initializers/bullet.rb
-
-Rails.application.config.after_initialize do
-  Bullet.enable = true
-  Bullet.alert = true
-end
-~~~
-
-> Changer la configuration nécessite le redémarrage du serveur
-
-Ici j'ai seulement activé une [`window.alert`](https://developer.mozilla.org/fr/docs/Web/API/Window/alert) JavaScript. Il suffit ensuite d'utiliser l'application normalement et lorsque l'on rencontrera une requête N+1:
-
-![Affichage de test.fr/load.php sans mise en cache](/img/blog/bullet_notification.png)
 
 [source,bash]
 ----
 $ bundle add bullet --group development
 ----
 
+Et il suffit de mettre à jour la configuration de notre application pour l'environnement de développement. Dans notre cas nous allons uniquement activer le mode `rails_logger` qui va s'afficher
+
 [source,ruby]
+.config/environments/development.rb
 ----
 Rails.application.configure do
   # ...
   config.after_initialize do
     Bullet.enable = true
-    Bullet.console = true
+    Bullet.rails_logger = true
   end
 end
 ----
 
+Redémarrez le serveur web et relancez la dernière requête avec cURL:
 
+[source,bash]
+----
+$ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
+----
 
-// TODO
+Et regardez la console Rails. Bullet nous indique qu'il vient de détécter une requête N+1.
+
+----
+GET /api/v1/products
+USE eager loading detected
+  Product => [:user]
+  Add to your finder: :includes => [:user]
+----
+
+Il nous indique même comment la corriger:
+
+> Add to your finder: :includes => [:user]
+
+Corrigeons donc notre erreur donc le contrôleur:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    @products = Product.includes(:user)
+                       .page(current_page)
+                       .per(per_page)
+                       .search(params)
+
+    options = get_links_serializer_options('api_v1_products_path', @products)
+    options[:include] = [:user]
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
+  end
+  # ...
+end
+----
+
+Et voilà! Il est maintenant temps de faire notre _commit_.
+
+[source,bash]
+----
+$ git commit -am "Add bullet to avoid N+1 query"
+----
+
 
 == Activation des CORS
 
 // TODO
+Et voilà! Il est maintenant temps de faire notre dernier commit et de merger nos modifications sur la branche master.
+
+
+[source,bash]
+----
+$ git commit -am "Add bullet to avoid N+1 query"
+$ git checkout master
+$ git merge chapter09
+----
 
 == Conclusion
 
