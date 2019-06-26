@@ -676,13 +676,73 @@ $ git commit -am "Add bullet to avoid N+1 query"
 
 == Activation des CORS
 
-// TODO
+Dans cette dernière section, je vais vous parler d'un dernier problème que vous allez sûrement rencontrer si vous êtes amené à travailler avec votre API.
+
+Lors de la première requête d'un site externe (via une requête AJAX par exemple), vous aller rencontrer une erreur de ce genre:
+
+> Failed to load https://example.com/: No ‘Access-Control-Allow-Origin’ header is present on the requested resource. Origin ‘https://anfo.pl' is therefore not allowed access. If an opaque response serves your needs, set the request’s mode to ‘no-cors’ to fetch the resource with CORS disabled.
+
+"Mais qu'est ce que signifie _Access-Control-Allow-Origin_??". Le comportement que vous observez est l'effet de l'implémentation CORS des navigateurs. Avant la standardisation de CORS, il n'y avait aucun moyen d'appeler un terminal API sous un autre domaine pour des raisons de sécurité. Ceci a été (et est encore dans une certaine mesure) bloqué par la politique de la même origine.
+
+CORS est un mécanisme qui a pour but de permettre les requêtes faites en votre nom et en même temps de bloquer certaines requêtes faites par des scripts malhonnêtes et est déclenché lorsque vous faites une requête HTTP à:
+
+- un domaine différent
+- un sous-domaine différent
+- un port différent
+- un protocole différent
+
+Nous devons manuellement activer cette fonctionnalité afin que n'importe quel client puissent effectuer des requêtes sur notre API.
+
+
+
+Rails nous permet de faire ça très facilement. Jetez un coup d'œil au fichier `cors.rb` situé dans le dossier `initializers`.
+
+[source,ruby]
+.config/initializers/cors.rb
+----
+# ...
+
+# Rails.application.config.middleware.insert_before 0, Rack::Cors do
+#   allow do
+#     origins 'example.com'
+#
+#     resource '*',
+#       headers: :any,
+#       methods: [:get, :post, :put, :patch, :delete, :options, :head]
+#   end
+# end
+----
+
+Vous voyez. Il suffit de dé-commenter le code et de le modifier un peut pour limiter l'accès à certaines actions ou bien certains verbes HTTP. Dans notre cas, cette configuration nous convient très bien pour le moment.
+
+[source,ruby]
+.config/initializers/cors.rb
+----
+# ...
+
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins 'example.com'
+    resource '*',
+      headers: :any,
+      methods: [:get, :post, :put, :patch, :delete, :options, :head]
+  end
+end
+----
+
+Nous devons aussi installer la gemme `rack-cors` qui est commentée dans le `Gemfile`:
+
+[source,bash]
+----
+$ bundle add rack-cors
+----
+
 Et voilà! Il est maintenant temps de faire notre dernier commit et de merger nos modifications sur la branche master.
 
 
 [source,bash]
 ----
-$ git commit -am "Add bullet to avoid N+1 query"
+$ git commit -am "Activate CORS"
 $ git checkout master
 $ git merge chapter09
 ----
