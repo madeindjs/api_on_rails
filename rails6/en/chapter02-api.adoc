@@ -7,10 +7,11 @@ You can clone the project until this point with:
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_1
+$ git checkout tags/checkpoint_chapter02
 ----
 
-And as a quick recap, we really just update the `Gemfile` to add the https://github.com/Netflix/fast_jsonapi[fast_jsonapi] gem.
+To summarize, we simply generated our Rails application and made our first commit.
+
 
 == Planning the application
 
@@ -22,9 +23,14 @@ In short terms we have the `user` who will be able to place many `orders`, uploa
 
 We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there, from javascript frameworks(https://angularjs.org/[Angular], http://emberjs.com/[EmberJS], http://backbonejs.org/[Backbone]) to mobile consumption (https://github.com/AFNetworking/AFNetworking[AFNetworking]).
 
-By this point you must be asking yourself, all right but I need to explore or visualize the api we are going to be building, and that’s fair. Probably if you google something related to api exploring, an application called https://www.getpostman.com/[Postman] will pop. It is a great software but we won’t be using that anyway because we'll use cURL who allow anybody to reproduce request on any computer.
+By this point you must be asking yourself:
+
+> all right but I need to explore or visualize the api we are going to be building?
+
+That’s fair. Probably if you google something related to api exploring, an application called https://www.getpostman.com/[Postman] will pop. It is a great software but we won’t be using that anyway because we'll use *cURL* who allow anybody to reproduce request on any computer.
 
 == Setting the API
+// TRANSLATE ----------------
 
 An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 

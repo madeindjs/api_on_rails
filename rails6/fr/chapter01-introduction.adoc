@@ -1,27 +1,28 @@
 [#chapter01-introduction]
 = Introduction
 
-Bienvenue sur API on Rails 6, un tutoriel sous stéroïdes pour apprendre la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques existantes. Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou votre une application mobile. Le code généré est construit avec Ruby on Rails 6.0 qui est la version actuelle.
+Bienvenue sur API on Rails 6, un tutoriel sous stéroïdes pour apprendre la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques.
 
-// La version la plus récente de APIs on Rails 6 se trouve sur https://github.com/madeindjs/api_on_rails/[GitHub]. N'oubliez pas de mettre à jour votre version hors ligne si c’est le cas.
+Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou une application mobile. Le code généré est construit avec Ruby on Rails 6.0 qui est la version actuelle.
 
-L’intention de ce livre n’est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API évolutive et maintenable avec Rails. C’est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendrez à:
+L’intention de ce livre n’est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API *évolutive* et *maintenable* avec Rails. C’est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendrez à:
 
-* Construire des réponses JSON
-* Utiliser Git pour le contrôle de version
-* Test de vos points finaux
-* Mettre en place une authentification avec des JSON Web Tokens (JWT)
-* Optimiser et mettre en cache l’API
+- Utiliser Git pour le contrôle de version
+- Construire des réponses JSON
+- Tester vos points d'entrée avec des tests unitaires et fonctionnels
+- Mettre en place une authentification avec des JSON Web Tokens (JWT)
+- Optimiser et mettre en cache l’API
 
-Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vais vous donner des conseils et des astuces pour vous améliorer tout au long du livre. Vous pouvez vous considérer comme le personnage principal d’un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
+Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vais vous proposer des conseils et des astuces pour vous améliorer tout au long du livre. Vous pouvez vous considérer comme le personnage principal d’un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
 
-Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l’auriez pas déjà). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j’ai pu apprendre au cours de mon expérience. Cela signifie qu’après avoir initialisé le projet, nous commencerons à utiliser *Git* .
+Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l’auriez pas déjà). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j’ai pu apprendre au cours de mon expérience. Cela signifie qu’après avoir initialisé le projet, nous commencerons à utiliser *Git*.
 
 Dans les prochains chapitres, nous allons construire l’application en suivant une méthode de travail simple que j’utilise quotidiennement. Nous développerons toute l’application en utilisant le *développement piloté par les tests* (TDD). Je vous expliquerai aussi l’intérêt d’utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l’application en construisant toutes les routes nécessaires. Nous sécuriserons aussi l’accès à l’API en construisant une authentification par échange d’en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d’optimisation pour améliorer la structure et les temps de réponse du serveur.
 
-L’application finale sera une application de place de marché footnote:[Une application de type de marché permet à des vendeurs de mettre en place leur propre boutique en ligne.] où les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme http://shopify.com/[Shopify], http://spreecommerce.com/[Spree] ou http://magento.com/[Magento].
+L’application finale sera une application de place de marché qui permettra à des vendeurs de mettre en place leur propre boutique en ligne. Les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme http://shopify.com/[Shopify], http://spreecommerce.com/[Spree] ou http://magento.com/[Magento].
 
 Tout au long de ce voyage (cela dépend de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J’ai aussi pris certaines des pratiques que j’ai trouvées sur http://railscasts.com/[Railscasts], http://codeschool.com/[CodeSchool] et http://jsonapi.org/format/[JSON API].
+
 
 == Conventions sur ce livre
 
@@ -38,7 +39,7 @@ A command-line command
 J’utiliserai quelques principes spécifiques à Ruby. C’est-à-dire:
 
 * _"Éviter"_ signifie que vous n’êtes pas censé le faire.
-* _"Préférer"_ indique que parmi les 2 options, la première est la plus appropriée.
+* _"Préférer"_ indique que parmi les deux options, la première est la plus appropriée.
 * _"Utiliser"_ signifie que vous êtes en mesure d’utiliser la ressource.
 
 Si vous rencontrez une erreur quelconque lors de l’exécution d’une commande, je vous recommande d’utiliser votre moteur de recherche pour trouver votre solution. Malheureusement, je ne peux pas couvrir toutes les erreurs possibles. Si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours mailto:contact@rousseau-alexandre.fr[m’envoyer un email].
@@ -84,8 +85,15 @@ Il existe de nombreuses façons d’installer et de gérer Ruby. Vous devriez pr
 ----
 $ ruby -v
 ----
+// TRAD----------------------------------------------------
 
-Rails 6.0 nécessite l’installation de la version 2.5 ou supérieure. Pour l’installer, je vous recommande d’utiliser http://rvm.io/[Ruby Version Manager (RVM)] ou http://rbenv.org/[rbenv]. Ces outils vous permettront d’installer plusieurs versions de `ruby`. Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
+Rails 6.0 nécessite l’installation de la version 2.5 ou supérieure.
+
+Pour l’installer, je vous recommande d’utiliser http://rvm.io/[Ruby Version Manager (RVM)] ou http://rbenv.org/[rbenv].
+
+Le principe de ces outils est de permettre d’installer plusieurs versions de Ruby sur une même machine, dans un environnement hermétique à une éventuelle version installée sur votre système d'exploitation et de pouvoir basculer de l’une à l’autre facilement.
+
+Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
 
 Pour installer RVM, rendez vous sur https://rvm.io/ et installez la clé GPG footnote:[La clé GPG vous permet de vérifier l’identité de l’auteur des sources que vous téléchargez.]. Une fois cela fait:
 
@@ -187,8 +195,7 @@ $ git config user.name "Type in your name"
 $ git config user.email "Type in your email"
 ----
 
-
-L’étape suivante est d’ignorer certains fichiers que nous ne voulons pas suivre. Rails l'a fait pour nous en générant un fichier `.gitignore` qui devrait ressembler à celui montré ci-dessous:
+Rails fournit également un fichier _.gitignore_ pour ignorer certains fichiers que nous ne voulons pas suivre. Le fichier _.gitignore_ par défaut devrait ressembler à celui illustré ci-dessous :
 
 [source,console]
 ..gitignore
@@ -215,8 +222,7 @@ L’étape suivante est d’ignorer certains fichiers que nous ne voulons pas su
 /config/master.key
 ----
 
-
-Une fois Git mis en place, , il suffit d’ajouter les fichiers et de valider les modifications. Les commandes nécessaires sont les suivantes:
+Une fois Git mis en place, il suffit d’ajouter les fichiers et de valider les modifications. Les commandes nécessaires sont les suivantes:
 
 [source,bash]
 ----
@@ -224,7 +230,7 @@ $ git add .
 $ git commit -m "Initial commit"
 ----
 
-TIP: J’ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu’il a fait. De cette façon il est plus facile de lire et de comprendre l’historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu’à la fin du tutoriel.
+NOTE: J’ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu’il a fait. De cette façon il est plus facile de lire et de comprendre l’historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu’à la fin du tutoriel.
 
 Enfin, et c’est une étape optionnelle, nous déployons le projet sur *GitHub* (je ne vais pas l’expliquer ici) et poussons notre code vers le serveur distant. On commence donc par ajouter un serveur distant:
 

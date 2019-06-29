@@ -1,28 +1,26 @@
 [#chapter01-introduction]
 = Introduction
 
-Welcome to https://github.com/madeindjs/api_on_rails[APIs on Rails] a tutorial on steroids on how to build your next API with Rails. The goal of this book is to provide an answer on how to develop a RESTful API following the best practices out there, along with my own experience. By the time you are done with _API’s on Rails_ you should be able to build your own `API` and integrate it with any clients such as a web browser or your next mobile app. The code generated is built on top of Rails 4 which is the current version, for more information about this check out http://rubyonrails.org/. The most up-to-date version of the _API’s on Rails_ can be found on https://github.com/madeindjs/api_on_rails[APIs on Rails]; don’t forget to update your offline version if that is the case.
+Welcome to API on Rails 6, a tutorial on steroid to learn the best way to build your next API with Rails. The purpose of this book is to provide a comprehensive methodology to develop a RESTful API following best practices.
 
-The intention with this book it’s not only to teach you how to build an API with Rails. The purpose is also to teach you how to build scalable and maintainable API with Rails which means improve your current Rails knowledge. In this journey we are going to take, you will learn to:
+As soon as you finish book, you will be able to create your own API and integrate it with any client such as a web browser or mobile application. The generated code is built with Ruby on Rails 6.0 which is the current version.
 
-* Build JSON responses
-* Use Git for version controlling
-* Testing your endpoints
-* Optimize and cache the API
+The purpose of this book is not only to teach you how to build an API with Rails but rather to teach you how to build an *evolutive* and *maintainable* API with Rails. That is, improve your current knowledge with Rails. On this journey, you will learn to:
 
-I highly recommend you go step by step on this book, try not to skip chapters, as I mention tips and interesting facts for improving your skills on each on them. You can think yourself as the main character of a video game and with each chapter you’ll get a higher level.
+- Use Git for version control
+- Building JSON responses
+- Test your end-points with unit and functional tests
+- Set up authentication with JSON Web Tokens (JWT)
+- Optimize and cache the API
 
-In this first chapter I will walk you through on how to setup your environment in case you don’t have it already. We’ll then create the application called `market_place_api`. I’ll emphasize all my effort into teaching you all the best practices I’ve learned along the years, so this means right after initializing the project we will start tracking it with Git.
+I strongly recommend that you follow all the steps in this book. Try not to skip chapters because I will give you some tips and tricks to improve your skills throughout the book. You can consider yourself the main character of a video game who gain a level in each chapter.
 
-In the next chapters we will be building the application to demonstrate a simple workflow I use on my daily basis. We’ll develop the whole application using *test driven development* (TDD), getting started by explaining why you want to build an API’s for your next project and deciding whether to use JSON or XML as the response format. We’ll get our hands dirty then and complete the foundation for the application by building all the necessary endpoints, securing the API access and handling authentication through headers exchange. Finally on the last chapter we’ll add some optimization techniques for improving the server responses.
+In this first chapter I will explain how to configure your environment (in case you don't already have it). Then We will create an application called `market_place_api`. I will ensure that I teach you the best practices I have learned during my experience. This means that we will start using *Git* just after initializing the project.
+
+We will build the application following a simple working method that I use daily in the next chapters. We will develop the entire application using Test Driven Development (TDD). I will also explain the interest of using an API for your next project and choosing a suitable response format such as JSON or XML. Further on, we will get our hands on the code and complete the basics of the application by building all the necessary roads. We will also secure access to the API by building authentication by exchanging HTTP headers. Finally, in the last chapter, we will add some optimization techniques to improve the structure and response times of the server.
 
 The final application will scratch the surface of being a market place where users will be able to place orders, upload products and more. There are plenty of options out there to set up an online store, such as http://shopify.com[Shopify], http://spreecommerce.com/[Spree] or http://magento.com[Magento].
 
-By the end or during the process (it really depends on your expertise), you will get better and be able to better understand some of the bests Rails resources out there. I also took some of the practices from these guys and brought them to you:
-
-* http://railscasts.com/[Railscasts]
-* http://codeschool.com/[CodeSchool]
-* http://jsonapi.org/format/[JSON API]
 
 == Conventions on this book
 
@@ -86,9 +84,16 @@ There are many ways in which you can install and manage ruby, and by now you sho
 $ ruby -v
 ----
 
-Rails 6 requires you to install version 2.5 or higher. I recommend you to start using http://rvm.io/[Ruby Version Manager (RVM)] or http://rbenv.org/[rbenv], any of these will allow you to install multiple versions of `ruby`. We will use RVM in this tutorial any of these two options you choose is fine.
+// TRAD----------------------------------------------------
+Rails 6.0 requires the installation of version 2.5 or higher.
 
-To install RVM go on https://rvm.io/ and get GPG keyfootnote:[The GPG allow you to verify author identity of the software you download.]. Then:
+I recommend using http://rvm.io/[Ruby Version Manager (RVM)] or http://rbenv.org/[rbenv] to install it.
+
+The principle of these tools is to allow you to install several versions of Ruby on the same machine, in an environment that is airtight to a possible version installed on your operating system and to be able to switch from one to the other easily.
+
+In this tutorial, we will use RVM but it doesn't matter which of these two options you use.
+
+To install RVM, go to https://rvm.io/ and install the GPG footnote key:[The GPG key allows you to verify the identity of the author of the sources you download.]. Once that's done:
 
 [source,bash]
 ----
@@ -174,77 +179,20 @@ NOTE: The `--api` option appeared in version 5 of Rails. It allows to limit the 
 
 As you may guess, the commands above will generate the bare bones of your Rails application. The next step is to add some `gems` we’ll be using to build the api.
 
-== Gemfile and Bundler
-
-Once the Rails application is created, the next step is adding a simple but very powerful gem to serialize the resources we are going to expose on the api. The gem is called https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. It's an excellent choice to building this kind of application and it is well maintained by https://www.netflix.com[Netflix].
-
-You can add this gem simple using this command:
-
-[source,bash]
-.Gemfile
-----
-$ bundle add fast_jsonapi
-----
-
-So your `Gemfile` should look like this after adding the `fast_jsonapi` gem:
-
-[source,ruby]
-.Gemfile
-----
-source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
-
-ruby '2.6.3'
-
-gem 'rails', '~> 6.0.0.rc1'
-gem 'sqlite3', '~> 1.4'
-gem 'puma', '~> 3.11'
-gem 'bootsnap', '>= 1.4.2', require: false
-
-group :development, :test do
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
-end
-
-group :development do
-  gem 'listen', '>= 3.0.5', '< 3.2'
-  gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
-end
-
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-gem "fast_jsonapi", "~> 1.5"
-----
-
-It is a good practice also to include the ruby version used on the whole project, this prevents dependencies to break if the code is shared among different developers, whether if is a private or public project.
-
-It is also important that you update the `Gemfile` to group the different gems into the correct environment
-
-[source,ruby]
-.Gemfile
-----
-# ...
-group :development do
-  gem 'sqlite3'
-end
-# ...
-----
-
-This as you may recall will prevent `sqlite` from being installed or required when you deploy your application to a server provider like http://heroku.com/[Heroku].
-
-After the command finish its execution, it is time to start tracking the project with Git.
-
 == Versioning
 
-Remember that Git helps you track and maintain history of your code. Keep in mind source code of the application is published on GitHub. You can follow the repository at https://github.com/madeindjs/api_on_rails[GitHub]. I’ll assume you have Git already configured and ready to use to start tracking the project. If that is not your case, follow these first-time setup steps:
+Remember that Git helps you track and maintain your code history. Keep in mind that the source code of the application is published on GitHub. You can follow the project on https://github.com/madeindjs/api_on_rails_6[GitHub]
+
+When you used the `rails new` command, Ruby on Rails initialized the Git directory for you. This means that you do not need to execute the `git init` command.
+
+However, it is necessary to configure the information of the author of _commits_. If you have not already done so, go to the directory and run the following commands:
 
 [source,bash]
 ----
 $ git config --global user.name "Type in your name"
 $ git config --global user.email "Type in your email"
-$ git config --global core.editor "vim"
 ----
 
-NOTE: Replace the last command editor(`"mvim -f"`) with the one you installed `"subl -w"` for SublimeText ,`"mate -w"` for TextMate, or `"gvim -f"` for gVim.
 
 Rails already initialize the new project as a brand new Git repository. If you encounter some problem you can initialize project like this:
 
@@ -257,12 +205,6 @@ Rails also provide a _.gitignore_ file to ignore some files that we don’t want
 
 ..gitignore
 ----
-# See https://help.github.com/articles/ignoring-files for more about ignoring files.
-#
-# If you find yourself ignoring temporary files generated by your text editor
-# or operating system, you probably want to add a global ignore instead:
-#   git config --global core.excludesfile '~/.gitignore_global'
-
 # Ignore bundler config.
 /.bundle
 
@@ -299,10 +241,10 @@ Lastly and as an optional step we setup the GitHub (I’m not going through that
 
 [source,bash]
 ----
-$ git remote add origin git@github.com:madeindjs/market_place_api.git
+$ git remote add origin git@github.com:madeindjs/market_place_api_6.git
 ----
 
-Then:
+Then we push the code:
 
 [source,bash]
 ----
