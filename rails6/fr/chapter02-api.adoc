@@ -30,13 +30,12 @@ Nous n’allons pas construire d’interface pour l’interaction avec l’API a
 C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outil en ligne de commande disponible presque partout.
 
 == Mettre en place l’API
-// TRANSLATE ----------------
 
 Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme _une interface de programmation d’application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d’autres logiciels_. En d’autres termes, il s’agit d’une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON). Il existe d’autres types de protocoles de communication comme SOAP, mais nous n’en parlons pas ici.
 
 JSON est devenu incontournable en tant que média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l’utilisent comme protocole par défaut comme https://angularjs.org/[Angular] ou http://emberjs.com/[EmberJS]. D’autres grandes bibliothèques en Objective-C l’utilisent comme https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Il existe probablement de bonnes solutions pour Android mais en raison de mon manque d’expérience sur cette plate-forme de développement je ne peux pas vous recommander quelque chose.
 
-Nous allons donc l’utiliser pour construire notre API. La première chose qui pourrait vous venir à l’esprit serait de commencer à créer des routes en vrac. Le problème est qu’elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner quelle ressource est renvoyée par une route.
+Nous allons donc utiliser le format JSON pour construire notre API. La première chose qui pourrait vous venir à l’esprit serait de commencer à créer des routes en vrac. Le problème est qu’elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner quelle ressource est renvoyée par une route.
 
 C’est pourquoi une norme existe: *REST* _(Representational State Transfer)_. REST impose une norme pour les routes qui créent, lisent, mettent à jour ou suppriment des informations sur un serveur en utilisant de simples appels HTTP. C’est une alternative aux mécanismes plus complexes comme SOAP, CORBA et RPC. Un appel REST est simplement une requête GET HTTP vers le serveur.
 
@@ -170,7 +169,13 @@ Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d’un
 * `example.com/api/v1`: Cela semble être une bonne idée. Définir la version de l’API par l’URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version à l’URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
 ****
 
+Il est temps de faire un _commit_:
 
+[source,bash]
+----
+$ git add config/routes.rb
+$ git commit -m "Set the routes constraints for the api"
+----
 
 Afin de définir la version de l’API, nous devons d’abord ajouter un autre répertoire sous le dossier `api/` que nous avons créé:
 
@@ -179,7 +184,7 @@ Afin de définir la version de l’API, nous devons d’abord ajouter un autre r
 $ mkdir app/controllers/api/v1
 ----
 
-L’API est désormais _scopée_ via l’URL. Par exemple, avec la configuration actuelle, la récupération d’un produit via l’API se ferait avec cette url: http://api.marketplace.dev/v1/products/1.
+L’API est désormais _scopée_ via l’URL. Par exemple, avec la configuration actuelle, la récupération d’un produit via l’API se ferait avec cette url: http://localhost:3000/v1/products/1.
 
 Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnement plus tard. Il est temps de _commiter_:
 
