@@ -1,57 +1,117 @@
 [#chapter03-presenting-users]
 = Presenting the users
 
-In the last chapter we manage to set up the bare bones for our application endpoints configuration. We even added versioning through headers. In a next chapter we will handle users authentication through authentication tokens as well as setting permissions to limit access for let’s say signed in users. In coming chapters we will relate `products` to users and give them the ability to place orders.
+In the last chapter we manage to set up the bare bones for our application endpoints configuration.
+
+In a next chapter we will handle users authentication through authentication tokens as well as setting permissions to limit access for let’s say signed in users. In coming chapters we will relate `products` to users and give them the ability to place orders.
 
 You can clone the project until this point with:
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api/tree/chapitre_2
+$ git checkout tags/checkpoint_chapter03
 ----
 
-As you can already imagine there are a lot of authentication solutions for Rails, https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] and https://github.com/plataformatec/devise[Devise]. 
 
-We will not using 
-
+As you can already imagine there are a lot of authentication solutions for Rails, https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] and https://github.com/plataformatec/devise[Devise].
 
 
+These solutions are turnkey libraries, i.e. they allow you to manage a whole bunch of things like authentication, password forgetfulness, validation, etc... Nevertheless we will use https://github.com/codahale/bcrypt-ruby[bcrypt] gem to hash the user's password.
 
+This chapter will be complete. It may be a long one, but I will try to cover as many topics as possible. Feel free to have a coffee and let's go. At the end of this chapter, you will have built all the user logic as well as the validation and error management.
 
-
-
-We will be using the last one, which offers a great way to integrate not just basic authentication, but many other modules for further use.
-
-// .Devise
-// ****
-// Devise comes with up to 10 modules for handling authentication::
-
-// * Database Authenticable
-// * Omniauthable
-// * Confirmable
-// * Recoverable
-// * Registerable
-// * Rememberable
-// * Trackable
-// * Timeoutable
-// * Validatable
-// * Lockable
-
-// If you have not work with devise before, I recommend you visit the https://github.com/plataformatec/devise[reposity page] and read the documentation, there are a lot of good examples out there too.
-// ****
-
-This is going to be a full-packed chapter. It may be long but I’m trying to cover as many topics along with best practices on the way, so feel free to grab a cup of coffee and let’s get going. By the end of the chapter you will have full user endpoints, along with validations and error server responses.
-
-We want to track this chapter, so it would be a good time to create a new branch for this:
+We want to follow this chapter, so it is a good time to create a new branch:
 
 [source,bash]
 ----
-$ git checkout -b chapter3
+$ git checkout -b chapter03
 ----
 
-Just make sure you are on the `master` branch before checking out.
+NOTE: Just make sure you are on the `master` branch before checking out.
 
 == User model
+
+=== Generation of the `User` model
+
+We will start by generating our `User` model. This model will be really basic and will contain only two fields:
+
+- `email` which will be unique and will allow it to connect to the application
+- `password_digest` which will contain the *hashed* version of the password (we will discuss this later in this chapter)
+
+In order to generate our `User` model, we will use the _generate model_ method provided by Ruby on Rails. It is very easy to use:
+
+[source,bash]
+----
+$ rails generate model User email:string password_digest:string
+invoke  active_record
+      create    db/migrate/20190603195146_create_users.rb
+      create    app/models/user.rb
+      invoke    test_unit
+      create      test/models/user_test.rb
+      create      test/fixtures/users.yml
+----
+
+NOTE: In the MVC design patern, the model is the element that contains the data as well as the logic related to the data: validation, reading and recording. So first we will create this part.
+
+This command generates a lot of files! Don't worry, we'll review them one by one.
+
+The migration file contained in the _db/migrate_ folder contains the *migration* that describes the changes that will be made to the database. This file should look like this:
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+class CreateUsers < ActiveRecord::Migration[6.0]
+  def change
+    create_table :users do |t|
+      t.string :email
+      t.string :password_digest
+
+      t.timestamps
+    end
+  end
+end
+----
+
+NOTE: inserted date at the beginning of the migration file name should be different for you since it corresponds to the migration creation date.
+
+We will modify a small this migration in order to add some database validations. With Rails it is common practice to make these verifications directly in the Ruby model but it is good practice to do so also in the database schema.
+
+We will therefore add two additional constraints:
+
+- email is mandatory: we use the property `null: false`.
+- email must be unique: we use the `unique: true` property
+- password is mandatory: we use the property `null: false`.
+
+The migration thus becomes:
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+# ...
+create_table :users do |t|
+  t.string :email, unique: true, null: false
+  t.string :password_digest, null: false
+  # ...
+end
+----
+
+Once the migration is complete, we can make the changes with the following command:
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+$ rake db:migrate
+== 20190603195146 CreateUsers: migrating ======================================
+-- create_table(:users)
+   -> 0.0027s
+== 20190603195146 CreateUsers: migrated (0.0028s) =============================
+----
+
+NOTE: This command will convert our migration into a SQL query that will update the SQlite3 database contained in the _db_ folder.
+
+==== Model
+
+// TRANSLATE
 
 We need to first add the `devise` gem into the `Gemfile`
 

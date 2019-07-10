@@ -1,7 +1,10 @@
 [#chapter03-presenting-users]
 = Présentation des utilisateurs
 
-Dans le chapitre précédent, nous avons réussi à mettre en place les bases de la configuration de notre application. Nous avons même ajouté le _versioning_ par le biais des *en-têtes HTTP*. Dans les prochains chapitres, nous traiterons l’authentification des utilisateurs à l’aide de jetons d’authentification ainsi que la définition de permissions pour limiter l’accès aux utilisateurs connectés. Nous relierons ensuite les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
+
+Dans le chapitre précédent, nous avons réussi à mettre en place les bases de la configuration de notre application.
+
+Dans les prochains chapitres, nous traiterons l’authentification des utilisateurs à l’aide de jetons d’authentification ainsi que la définition de permissions pour limiter l’accès aux utilisateurs connectés. Nous relierons ensuite les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
 
 Vous pouvez cloner le projet jusqu’à ce point avec:
 
@@ -10,7 +13,7 @@ Vous pouvez cloner le projet jusqu’à ce point avec:
 $ git checkout tags/checkpoint_chapter03
 ----
 
-Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. cEs solutions sont des librairies clé en main, c'est à dire qu'elles permettent de gérer tout un tas de choses comme l'authentification, la fonctionnalité d'oublie de mot de passe, la validation, etc..
+Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Ces solutions sont des librairies clé en main, c'est à dire qu'elles permettent de gérer tout un tas de choses comme l'authentification, la fonctionnalité d'oublie de mot de passe, la validation, etc..
 
 Nous ne les utiliserons pas afin de mieux appréhender le mécanisme d'authentification. Néanmoins nous allons utiliser la gemme https://github.com/codahale/bcrypt-ruby[bcrypt] afin de hasher le mots de passe de l'utilisateur.
 
@@ -48,10 +51,8 @@ invoke  active_record
       create      test/fixtures/users.yml
 ----
 
+
 NOTE: Dans le _design patern_ MVC, le modèle est l'élément qui contient les données ainsi que de la logique en rapport avec les données: validation, lecture et enregistrement. Nous allons donc dans un premier temps créer cette partie.
-
-
-==== La migration
 
 Cette commande génère beaucoup de fichiers! Ne vous inquiétez pas, nous allons les passer en revue les un après les autres.
 
@@ -72,9 +73,10 @@ class CreateUsers < ActiveRecord::Migration[6.0]
 end
 ----
 
+
 NOTE: la date insérée au debut du nom du fichier de la migration devrait être différente chez vous puisque elle correspond à la date de création de la migration.
 
-Nous allons modifier un petit cette migration afin d'ajouter quelques validations côté base de données. Avec Rails il est d'usage de faire ces vérfications directement dans le modèle Ruby mais c'est une bonne pratique de le faire aussi dans le schéma de la base de données.
+Nous allons modifier un petit cette migration afin d'ajouter quelques validations côté base de données. Avec Rails il est d'usage de faire ces verifications directement dans le modèle Ruby mais c'est une bonne pratique de le faire aussi dans le schéma de la base de données.
 
 Nous allons donc rajouter deux contraintes:
 
@@ -108,6 +110,7 @@ $ rake db:migrate
 ----
 
 NOTE: La commande va convertir notre migration en requête SQL qui va mettre à jour la base de données SQlite3 contenue dans le dossier _db_.
+// TRANSLATE
 
 ==== Le modèle
 
