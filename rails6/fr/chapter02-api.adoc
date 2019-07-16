@@ -33,9 +33,9 @@ C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une A
 
 Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme _une interface de programmation d’application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d’autres logiciels_. En d’autres termes, il s’agit d’une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON). Il existe d’autres types de protocoles de communication comme SOAP, mais nous n’en parlons pas ici.
 
-JSON est devenu incontournable en tant que média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l’utilisent comme protocole par défaut comme https://angularjs.org/[Angular] ou http://emberjs.com/[EmberJS]. D’autres grandes bibliothèques en Objective-C l’utilisent comme https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Il existe probablement de bonnes solutions pour Android mais en raison de mon manque d’expérience sur cette plate-forme de développement je ne peux pas vous recommander quelque chose.
+JSON est devenu incontournable en tant que média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre //. Beaucoup de frameworks JavaScript l’utilisent comme protocole par défaut comme https://angularjs.org/[Angular] ou http://emberjs.com/[EmberJS]. D’autres grandes bibliothèques en Objective-C l’utilisent comme https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Il existe probablement de bonnes solutions pour Android mais en raison de mon manque d’expérience sur cette plate-forme de développement je ne peux pas vous recommander quelque chose.
 
-Nous allons donc utiliser le format JSON pour construire notre API. La première chose qui pourrait vous venir à l’esprit serait de commencer à créer des routes en vrac. Le problème est qu’elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner quelle ressource est renvoyée par une route.
+Nous allons donc utiliser le format JSON pour construire notre API. La première idée qui pourrait vous venir à l’esprit serait de commencer à créer des routes en vrac. Le problème est qu’elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner quelle ressource est renvoyée par une route.
 
 C’est pourquoi une norme existe: *REST* _(Representational State Transfer)_. REST impose une norme pour les routes qui créent, lisent, mettent à jour ou suppriment des informations sur un serveur en utilisant de simples appels HTTP. C’est une alternative aux mécanismes plus complexes comme SOAP, CORBA et RPC. Un appel REST est simplement une requête GET HTTP vers le serveur.
 
@@ -57,7 +57,7 @@ Les API _RESTful_ doivent suivre au minimum trois règles:
 * Suivez les méthodes https://fr.wikipedia.org/wiki/Hypertext_Transfer_Protocol[HTTP] standard telles que GET, POST, PUT, PUT, DELETE.
 ** *GET*: Lit la ou les ressources définies par le modèle URI
 ** *POST*: Crée une nouvelle entrée dans la collection de ressources
-** *PUT*: Mise à jour d’une collection ou d’un membre des ressources
+** *PUT*: Met à jour une collection ou un membre des ressources
 ** *DELETE*: Détruit une collection ou un membre des ressources
 
 Cela peut sembler compliqué mais au fur et à mesure que nous avancerons dans le tutoriel cela deviendra beaucoup plus facile à comprendre.
@@ -88,7 +88,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Effacez tout le code commenté qui se trouve dans le fichier. Nous n’en aurons pas besoin. Ensuite, faites un _commit_, juste pour s’échauffer:
+Effacez tout le code commenté qui se trouve dans le fichier. Nous n’en aurons pas besoin. Ensuite, faites un _commit_, juste pour vous échauffer:
 
 [source,bash]
 ----
@@ -117,7 +117,7 @@ end
 
 En définissant un _Namespace_ dans le fichier `routes.rb`, Rails mappera automatiquement ce _Namespace_ à un répertoire correspondant au nom sous le dossier contrôleur (dans notre cas le répertoire `api/`).
 
-.Les types de media supportés par Rails
+.Les types de medias supportés par Rails
 ****
 Rails supporte jusqu’à 35 types de médias différents! Vous pouvez les lister en accédant à la classe `SET` sous le module de `Mime`:
 
@@ -166,7 +166,7 @@ Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d’un
 
 * `api.example.com/`: Je suis d’avis que c’est la voie à suivre, elle vous donne une meilleure interface et l’isolement, et à long terme peut vous aider à http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[mettre rapidement à l’échelle]
 * `example.com/api/`: Ce modèle est très commun. C’est un bon moyen de commencer quand vous ne voulez pas de _Namespace_ de votre API avec sous un sous-domaine
-* `example.com/api/v1`: Cela semble être une bonne idée. Définir la version de l’API par l’URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version à l’URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
+* `example.com/api/v1`: Cela semble être une bonne idée. Définir la version de l’API par l’URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version à l’URL sur chaque demande. Cela devient un problème si vous décidez de changer ce modèle
 ****
 
 Il est temps de faire un _commit_:
@@ -193,7 +193,7 @@ Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnem
 $ git commit -am "Set the routes namespaces for the api"
 ----
 
-NOTE: Il existe certaines pratiques dans la construction d'API qui recommande de ne pas versionner l'API via l’URL. C'est vrai. Le développeur ne devrait pas être au courant de la version qu’il utilise. Dans un soucis de simplicité, j'ai choisi de mettre de côté cette convention que nous pourrons appliquer dans un second temps.
+NOTE: Il existe certaines pratiques dans la construction d'API qui recommandent de ne pas versionner l'API via l’URL. C'est vrai. Le développeur ne devrait pas être au courant de la version qu’il utilise. Dans un souci de simplicité, j'ai choisi de mettre de côté cette convention que nous pourrons appliquer dans un second temps.
 
 Nous arrivons à la fin de notre chapitre. Il est donc temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`. Pour cela, on se place sur la branche `master` et on _merge_ `chapter02`:
 
@@ -206,7 +206,7 @@ $ git merge chapter02
 
 == Conclusion
 
-Ça a été un long, je sais, mais vous avez réussi! N’abandonnez pas, c’est juste notre petite fondation pour quelque chose de grand, alors continuez comme ça. Sachez qu’il y a des gemmes qui gèrent ce genre de configuration pour nous:
+Ça a été un peu long, je sais, mais vous avez réussi! N’abandonnez pas, c’est juste notre petite fondation pour quelque chose de grand, alors continuez comme ça. Sachez qu’il y a des gemmes qui gèrent ce genre de configuration pour nous:
 
 * https://github.com/Sutto/rocket_pants[RocketPants]
 * https://github.com/bploetz/versionist[Versionist]
