@@ -5,8 +5,6 @@ Cela fait longtemps que vous avez commencé. J’espère que vous appréciez ce 
 
 Dans le chapitre précédent nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n’avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c’est une introduction aux réponses JSON.
 
-// Au chapitre 4, nous avons factorisé notre suite de tests et, comme nous n’avons pas ajouté beaucoup de code, cela n’a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.
-
 Vous pouvez cloner le projet jusqu’ici:
 
 [source,bash]
@@ -71,7 +69,7 @@ Une fois décodé, ce jeton nous donne les informations suivantes:
 
 NOTE: Pour plus d'information à propos des jetons JWT je vous invite à consulter https://jwt.io[jwt.io]
 
-Cela possède beaucoup d'avantages comme par exemple envoyer des informations au consomateur de l'API direction dans le token. On pourra par exemple choisir d'intégrer les informations de l'utilisateur dans le _payload_.
+Cela possède beaucoup d'avantages comme par exemple envoyer des informations au consommateur de l'API directement dans le token. On pourra par exemple choisir d'intégrer les informations de l'utilisateur dans le _payload_.
 
 === Mise en place du jeton d’authentification
 
@@ -102,7 +100,8 @@ La libraire s'utilise très facilement avec les méthodes `JWT.encode` et `JWT.d
 
 Lors de la première ligne nous avons encodé un _payload_ avec la clé secrète _my_secret_key_. Nous obtenons donc un jeton que nous pouvons décoder, tout simplement. La deuxième ligne s'occupe de décoder le jeton et nous voyons que nous retrouvons biens notre _payload_.
 
-Nous allons maintenant englober toute cette logique dans une classe `JsonWebToken` qui nous permettra d'éviter créer une classe `lib/json_web_token.rb` qui s'occupera d'encoder et de décoder les jeton JWT. Voici donc l'implémentation.
+
+Nous allons maintenant englober toute cette logique dans une classe `JsonWebToken` dans un nouveau fichier situé dans `lib/`. Cela nous permettra d'éviter de dupliquer le code.  Cette classe s'occupera juste d'encoder et de décoder les jeton JWT. Voici donc l'implémentation.
 
 .lib/json_web_token.rb
 [source,ruby]
@@ -122,14 +121,13 @@ class JsonWebToken
 end
 ----
 
-"Hé, ça fait beaucoup plus de code que dans ton exemple!", je sais, mais nous allons le revoir ensemble.
+
+Ca fait beaucoup de code, je sais, mais nous allons le revoir ensemble.
 
 - la méthode `JsonWebToken.encode` va s'occuper d'encoder le _payload_ en rajoutant une expiration à 24 heures par défaut. Nous utilisons aussi la même clé de chiffrement que celle configurée avec Rails
 - la méthode `JsonWebToken.decode` va décoder le jeton JWT et récupérer le _payload_. Nous utilisons ensuite la classe https://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html[`HashWithIndifferentAccess`] fournie par Rails qui permet de récupérer une valeur d'un `Hash` avec un `Symbol` ou un `String`.
 
-
 Et voilà. Afin de charger le fichier dans notre application, il faut spécifier le dossier `lib` dans la liste des _autoload_ de Ruby on Rails. Pour cela, rajoutez la configuration suivante dans le fichier `application.rb`:
-
 
 .lib/json_web_token.rb
 [source,ruby]
@@ -176,6 +174,7 @@ Rails.application.routes.draw do
 end
 ----
 
+
 Avant d'aller plus loin, nous allons mettre les tests fonctionnels. Les tests sont:
 
 - si j'envoie un couple courriel / mot de passe valide, je reçois un jeton
@@ -218,6 +217,8 @@ one:
   password_digest: <%= BCrypt::Password.create('g00d_pa$$') %>
 ----
 
+
+
 A ce moment précis, si vous lancez les test vous obtenez deux erreurs:
 
 [source,bash]
@@ -237,8 +238,6 @@ Expected response to be a <401: unauthorized>, but was a <204: No Content>
 
 C'est normal. Il est maintenant temps d'implémenter la logique pour créer le jeton JWT. Elle est très simple.
 
-
-// RELECTURE
 
 .config/routes.rb
 [source,ruby]
@@ -291,11 +290,12 @@ Il est temps de faire un commit qui va contenir toutes nos modifications:
 $ git add . && git commit -m "Setup tokens controller"
 ----
 
+
 == Utilisateur connecté
 
-Nous avons donc mis en place la logique suivante: une fois que le client se connecte, l’API lui retourne son jeton d’authentification.
+Nous avons donc mis en place la logique suivante: l’API retourne un jeton d’authentification si les paramètres passés d'authentification sont corrects.
 
-Nous allons maintenant implémenter la logique suivante: A chaque fois que ce client demandera une page protégée, nous devrons retrouver l’utilisateur à partir de ce jeton d’authentification que l’utilisateur aura passé en paramètre ou dans l’en-tête HTTP.
+Nous allons maintenant implémenter la logique suivante: A chaque fois que ce client demandera une page protégée, nous devrons retrouver l’utilisateur à partir de ce jeton d’authentification que l’utilisateur aura passé dans l’en-tête HTTP.
 
 Dans notre cas, nous utiliserons l’en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je le trouve que c’est la meilleure manière parce que cela donne un contexte à la requête sans polluer l’URL avec des paramètres supplémentaires.
 
@@ -312,6 +312,7 @@ module Authenticable
   end
 end
 ----
+
 
 Ensuite, créons un répertoire `concerns` sous `tests/controllers/` et un fichier `authenticable_test.rb` pour nos tests d’authentification:
 
@@ -345,7 +346,7 @@ class AuthenticableTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Vous vous demandez sûrment "mais d'ou provient `MockController`??". En fait il s'agit d'un _Mock_, c'est à dire une classe qui imite le comportement d'une autre dans le but de tester un comportement.
+Vous vous demandez sûrement "mais d'ou provient `MockController`??". En fait il s'agit d'un _Mock_, c'est à dire une classe qui imite le comportement d'une autre dans le but de tester un comportement.
 
 Nous pouvons définir la classe `MockController` juste au dessus de notre test:
 
@@ -393,7 +394,8 @@ class AuthenticableTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Notre test doivent échouer. Implémentons donc le code pour qu’il passe:
+
+Nos tests doivent échouer. Implémentons donc le code pour qu’il passe:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -447,7 +449,7 @@ L’autorisation joue un rôle important dans la construction des applications c
 
 Nous avons une route pour mettre à jour l’utilisateur mais il y a un problème: n’importe qui peut mettre à jour n’importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l’utilisateur soit connecté afin d’empêcher tout accès non autorisé.
 
-== Autoriser les actions
+=== Autoriser les actions
 
 Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l’accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l’action `update` et `destroy` afin de s’assurer que l’utilisateur qui est connecté ne sera capable de mettre à jour que ses données et qu’il ne pourra supprimer que (et uniquement) son compte.
 
@@ -476,10 +478,10 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-VOus voyez que maintenant nous devons ajouter une en-tête _Authorization_ pour que le modification de l'utilisateur soit acceptée. Si nous le faisons pas, nous voulons recevoir une réponse de type _forbidden_.
+
+Vous voyez que maintenant nous devons ajouter une en-tête _Authorization_ pour que le modification de l'utilisateur soit acceptée. Si nous le faisons pas, nous voulons recevoir une réponse de type _forbidden_.
 
 Nous pouvons imaginer à peu près la même chose pour le test _should forbid destroy user_:
-
 
 .test/controllers/api/v1/users_controller_test.rb
 [source,ruby]
@@ -502,6 +504,7 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
   end
 end
 ----
+// CURRENT
 
 Et comme vous pouvez vous y attendre, si nous exécutons les tests de notre _controller_ utilisateurs, ils devraient échouer:
 

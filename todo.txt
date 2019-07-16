@@ -12,7 +12,7 @@ x chapter 0 +fr @proofreading1
 x chapter 1 +fr @proofreading1
 x chapter 2 +fr @proofreading1
 x chapter 3 +fr @proofreading1
-. chapter 4 +fr @proofreading1
+x chapter 4 +fr @proofreading1
 chapter 5 +fr @proofreading1
 chapter 6 +fr @proofreading1
 chapter 7 +fr @proofreading1
@@ -33,7 +33,7 @@ x chapter 0 +en @write1
 x chapter 1 +en @write1
 x chapter 2 +en @write1
 . chapter 3 +en @write1
-chapter 4 +en @write1
+x chapter 4 +en @write1
 chapter 5 +en @write1
 chapter 6 +en @write1
 chapter 7 +en @write1
