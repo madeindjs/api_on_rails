@@ -5,17 +5,17 @@ Bienvenue sur API on Rails 6, un tutoriel sous stéroïdes pour apprendre la mei
 
 Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou une application mobile. Le code généré est construit avec Ruby on Rails 6.0 qui est la version actuelle.
 
-L’intention de ce livre n’est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API *évolutive* et *maintenable* avec Rails. C’est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendrez à:
+L’intention de ce livre n’est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API *évolutive* et *maintenable* avec Rails. C’est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendre à:
 
 - Utiliser Git pour le contrôle de version
 - Construire des réponses JSON
-- Tester vos points d'entrée avec des tests unitaires et fonctionnels
+- Tester vos points d'entrées avec des tests unitaires et fonctionnels
 - Mettre en place une authentification avec des JSON Web Tokens (JWT)
 - Optimiser et mettre en cache l’API
 
 Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vais vous proposer des conseils et des astuces pour vous améliorer tout au long du livre. Vous pouvez vous considérer comme le personnage principal d’un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
 
-Dans ce premier chapitre, je vous expliquerai comment configurer votre environnement (au cas où vous ne l’auriez pas déjà). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j’ai pu apprendre au cours de mon expérience. Cela signifie qu’après avoir initialisé le projet, nous commencerons à utiliser *Git*.
+Dans ce premier chapitre je vous expliquerai comment configurer votre environnement (au cas où vous ne l’auriez pas déjà fait). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j’ai pu apprendre au cours de mon expérience. Cela signifie qu’après avoir initialisé le projet, nous commencerons à utiliser *Git*.
 
 Dans les prochains chapitres, nous allons construire l’application en suivant une méthode de travail simple que j’utilise quotidiennement. Nous développerons toute l’application en utilisant le *développement piloté par les tests* (TDD). Je vous expliquerai aussi l’intérêt d’utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l’application en construisant toutes les routes nécessaires. Nous sécuriserons aussi l’accès à l’API en construisant une authentification par échange d’en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d’optimisation pour améliorer la structure et les temps de réponse du serveur.
 
@@ -57,7 +57,7 @@ Les environnements de développement diffèrent d’un ordinateur à l’autre. 
 
 === Navigateur web
 
-Quand il s’agit de navigateurs, je conseillerai directement http://www.mozilla.org/en-US/firefox/new/[Firefox]. Mais d’autres développeurs utilisent https://www.google.com/intl/en/chrome/browser/[Chrome] ou même https://www.apple.com/safari/[Safari]. N’importe lequel d’entre eux vous aidera à construire l’application que vous voulez. Ils proposent tous un bon inspecteur pour le DOM, un analyseur de réseau et de nombreuses autres fonctionnalités que vous connaissez peut-être déjà.
+Quand au navigateur, je conseillerai directement http://www.mozilla.org/en-US/firefox/new/[Firefox]. Mais d’autres développeurs utilisent https://www.google.com/intl/en/chrome/browser/[Chrome] ou même https://www.apple.com/safari/[Safari]. N’importe lequel d’entre eux vous aidera à construire l’application que vous voulez. Ils proposent tous un bon inspecteur pour le DOM, un analyseur de réseau et de nombreuses autres fonctionnalités que vous connaissez peut-être déjà.
 
 === Gestionnaire de paquets
 
@@ -93,7 +93,7 @@ Pour l’installer, je vous recommande d’utiliser http://rvm.io/[Ruby Version 
 
 Le principe de ces outils est de permettre d’installer plusieurs versions de Ruby sur une même machine, dans un environnement hermétique à une éventuelle version installée sur votre système d'exploitation et de pouvoir basculer de l’une à l’autre facilement.
 
-Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options que vous utiliserez.
+Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options vous utiliserez.
 
 Pour installer RVM, rendez vous sur https://rvm.io/ et installez la clé GPG footnote:[La clé GPG vous permet de vérifier l’identité de l’auteur des sources que vous téléchargez.]. Une fois cela fait:
 
@@ -187,7 +187,7 @@ Rappelez-vous que Git vous aide à suivre et à maintenir l’historique de votr
 
 Lorsque vous avez utilisé la commande `rails new`, Ruby on Rails a initialisé le répertoire Git pour vous. Cela signifie que vous n'avez pas besoin d’exécuter la commande `git init`.
 
-Il faut néanmoins configurer les informations de l'auteur des _commits_. Si ce n'est pas déjà fait, placez vous dans le répertoire et lancez commandes suivantes:
+Il faut néanmoins configurer les informations de l'auteur des _commits_. Si ce n'est pas déjà fait, placez vous dans le répertoire et lancez les commandes suivantes:
 
 [source,console]
 ----
@@ -239,7 +239,7 @@ Enfin, et c’est une étape optionnelle, nous déployons le projet sur *GitHub*
 $ git remote add origin git@github.com:madeindjs/market_place_api_6.git
 ----
 
-Ensuite on pousse le code:
+Ensuite nous poussons le code:
 
 [source,bash]
 ----
