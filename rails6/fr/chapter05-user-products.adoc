@@ -3,7 +3,7 @@
 
 Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application.
 
-Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu. Nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits de l’utilisateur. Ce sont les éléments que l’utilisateur vendra dans l’application et par conséquent seront directement lié.
+Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu. Nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits de l’utilisateur. Ce sont les éléments que l’utilisateur vendra dans l’application et par conséquent seront directement liés //.
 
 Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de _Active Record_.
 
@@ -16,7 +16,7 @@ Vous pouvez cloner le projet jusqu’à ce point:
 $ git checkout tags/checkpoint_chapter05
 ----
 
-Avant de commencer,et comme d’habitude quand nous commençons de nouvelles fonctionnalités, nous créons une nouvelle branche:
+Avant de début, et comme d’habitude quand nous commençons de nouvelles fonctionnalités, nous créons une nouvelle branche:
 
 [source,bash]
 ----
@@ -25,7 +25,7 @@ $ git checkout -b chapter05
 
 == Le modèle du produit
 
-Nous commencerons d’abord par créer un modèle de `Product` puis nous y ajouterons quelques validations et enfin nous l’associons au modèle `User`. Comme le modèle `User`, le `Product` sera entièrement testé et sera automatiquement supprimé si l’utilisateur est supprimé.
+Nous commencerons d’abord par créer un modèle de `Product` puis nous y ajouterons quelques validations et enfin nous l’associerons au modèle `User`. Comme le modèle `User`, le `Product` sera entièrement testé et sera automatiquement supprimé si l’utilisateur est supprimé.
 
 === Les fondements du produit
 
@@ -45,7 +45,7 @@ Running via Spring preloader in process 1476
 
 Comme vous pouvez le remarquer, nous avons utilisé le type `belongs_to` pour l’attribut. Ceci est un raccourci qui va créer une colonne `user_id` de type `int` et aussi ajouter une clé étrangère sur le champ `users.id`.
 
-De plus, `user_id` sera aussi définit comme un `index`. C’est une bonne pratique pour les clés d’association car cela optimise les requêtes de la base de données. Ce n’est pas obligatoire, mais je vous le recommande vivement.
+De plus, `user_id` sera aussi défini comme un `index`. C’est une bonne pratique pour les clés d’associations car cela optimise les requêtes de la base de données. Ce n’est pas obligatoire, mais je vous le recommande vivement.
 
 Le fichier de migration devrait ressembler à ceci:
 
@@ -89,7 +89,7 @@ rails test test/controllers/api/v1/users_controller_test.rb:43
 
 "Quoi?! Mais je n'ai pas touché aux utilisateurs!" dites-vous très certainement. Ce que j’ai vu dans le code d’autres développeurs, lorsqu’ils travaillent avec des associations, c’est qu’ils oublient la destruction des dépendances entre les modèles. Ce que je veux dire par là, c’est que si un utilisateur est supprimé, les produits de l’utilisateur devraient l’être aussi.
 
-Donc pour tester cette interaction entre les modèles, nous avons besoin d’un utilisateur avec un des produits. Puis, nous supprimerons cet utilisateur en espérant que les produits disparaissent avec lui. Rails à déjà générer cela pour nous. Jetez un coup d'œil à la _fixture_ des produits:
+Donc pour tester cette interaction entre les modèles, nous avons besoin d’un utilisateur avec un des produits. Puis, nous supprimerons cet utilisateur en espérant que les produits disparaissent avec lui. Rails à déjà généré cela pour nous. Jetez un coup d'œil à la _fixture_ des produits:
 
 .test/fixtures/products.yml
 [source,yaml]
@@ -255,7 +255,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Maintenant, on s’assure que les tests passent:
+Maintenant, nous nous assurons que les tests passent:
 
 [source,bash]
 ----
@@ -267,7 +267,7 @@ Comme vous pouvez déjà le constater, les tests et l’implémentation sont tr�
 
 === Liste des produits
 
-Il est maintenant temps de créer une entrée pour une liste de produits, qui pourrait permettre d’afficher le catalogue de produits d’un marché par exemple. Pour ce point d’accès, nous n’exigeons pas que l’utilisateur soit connecté. Comme d’habitude, nous allons commencer à écrire quelques tests:
+Il est maintenant temps de créer une entrée pour une liste de produits qui pourrait permettre d’afficher le catalogue de produits d’un marché par exemple. Pour ce point d’accès, nous n’exigeons pas que l’utilisateur soit connecté. Comme d’habitude, nous allons commencer à écrire quelques tests:
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -330,7 +330,7 @@ $ git add . && git commit -m "Finishes modeling the product model along with use
 
 === Création des produits
 
-Créer des produits est un peu plus délicat parce que nous aurons besoin d’une configuration supplémentaire. La stratégie que nous suivrons est d’attribuer le produit crée à l'utilisateur propriétatire du jeton JWT fourni d'en l'en-tête HTTP `Authorization`.
+Créer des produits est un peu plus délicat parce que nous aurons besoin d’une configuration supplémentaire. La stratégie que nous suivrons est d’attribuer le produit créé à l'utilisateur propriétatire du jeton JWT fourni d'en l'en-tête HTTP `Authorization`.
 
 Notre premier arrêt sera donc le fichier `products_controller_test.rb`.
 
@@ -390,7 +390,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Comme vous pouvez le voir, nous protégeons l’action de création avec la méthode `check_login`, et sur l’action `create` nous construisons le produit en associant l’utilisateur courant. J'ai ajoutée cette méthode très simpliste au _concern_ `authenticable.rb`:
+Comme vous pouvez le voir, nous protégeons l’action de création avec la méthode `check_login`, et sur l’action `create` nous construisons le produit en associant l’utilisateur courant. J'ai ajouté cette méthode très simpliste au _concern_ `authenticable.rb`:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -527,7 +527,7 @@ end
 
 Comme vous pouvez le constater, l’implémentation est assez simple. Nous allons simplement récupérer le produit auprès de l’utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au `before_action`, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
 
-Si on lance les tests, ils devraient passer:
+Si nous lançons les tests, ils devraient passer:
 
 [source,bash]
 ----
@@ -632,7 +632,7 @@ user = User.create! email: 'toto@toto.fr', password: 'toto123'
 puts "Created a new user: #{user.email}"
 ----
 
-Et maintenant vous pouvez créer l'utilsateur en éxecutant simplment la commande suivante:
+Et maintenant vous pouvez créer l'utilsateur en éxecutant simplement la commande suivante:
 
 [source,bash]
 ----
@@ -640,7 +640,7 @@ $ rake db:seed
 Created a new user: toto@toto.fr
 ----
 
-Ca fonctionne. Mais je ne sais pas vous, mais moi j'aime bien avoir des données factices qui remplisse correctement ma base de données de test. Seulement je n'ai pas toujours l'inspiration pour donner du sens à mes _seed_ alors j'utilise la gemme https://github.com/stympy/faker[`faker`]. Installons là:
+Ca fonctionne. Je ne sais pas vous, mais moi j'aime bien avoir des données factices qui remplissent correctement ma base de données de test. Seulement je n'ai pas toujours l'inspiration pour donner du sens à mes _seed_ alors j'utilise la gemme https://github.com/stympy/faker[`faker`]. Installons là:
 
 [source,bash]
 ----
@@ -696,7 +696,7 @@ User.delete_all
 end
 ----
 
-Et voilà. Le résultat est bluffant. En une commande nous pouvons créer trois utilisateurs et six produits:
+Et voilà. Le résultat est bluffant. En une commande nous pouvons créer trois// utilisateurs et six produits:
 
 [source,bash]
 ----
