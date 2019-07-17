@@ -43,6 +43,7 @@ Running via Spring preloader in process 1476
       create      test/fixtures/products.yml
 ----
 
+
 Comme vous pouvez le remarquer, nous avons utilisé le type `belongs_to` pour l’attribut. Ceci est un raccourci qui va créer une colonne `user_id` de type `int` et aussi ajouter une clé étrangère sur le champ `users.id`.
 
 De plus, `user_id` sera aussi défini comme un `index`. C’est une bonne pratique pour les clés d’associations car cela optimise les requêtes de la base de données. Ce n’est pas obligatoire, mais je vous le recommande vivement.
@@ -106,6 +107,7 @@ Vous pouvez voir que cette _fixture_ n'utilise pas l'attribut `user_id` mais `us
 
 Il faut donc spécifier une suppression en cascade afin de supprimer le produit `one` lorsque l'utilisateur `one` est supprimé. Commençons par le test unitaire:
 
+
 .test/models/user_test.rb
 [source,ruby]
 ----
@@ -168,7 +170,6 @@ class Product < ApplicationRecord
   validates :price, numericality: { greater_than_or_equal_to: 0 }, presence: true
   belongs_to :user
 end
-
 ----
 
 Les tests passent désormais:
@@ -185,6 +186,7 @@ _Commitons_ ces changements et continuons d’avancer:
 ----
 $ git commit -am "Adds some validations to products"
 ----
+
 
 == Point d’entrée pour nos produits
 
@@ -293,6 +295,7 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
+
 Passons maintenant à la mise en œuvre, qui, pour l’instant, va être une petite méthode:
 
 [source,ruby]
@@ -330,7 +333,7 @@ $ git add . && git commit -m "Finishes modeling the product model along with use
 
 === Création des produits
 
-Créer des produits est un peu plus délicat parce que nous aurons besoin d’une configuration supplémentaire. La stratégie que nous suivrons est d’attribuer le produit créé à l'utilisateur propriétatire du jeton JWT fourni d'en l'en-tête HTTP `Authorization`.
+Créer des produits est un peu plus délicat parce que nous aurons besoin d’une configuration supplémentaire. La stratégie que nous suivrons est d’attribuer le produit créé à l'utilisateur propriétaire du jeton JWT fourni d'en l'en-tête HTTP `Authorization`.
 
 Notre premier arrêt sera donc le fichier `products_controller_test.rb`.
 
@@ -403,7 +406,6 @@ module Authenticable
     head :forbidden unless self.current_user
   end
 end
-
 ----
 
 Une dernière chose avant de faire vos tests: la route nécessaire:
@@ -446,7 +448,6 @@ Rails.application.routes.draw do
     end
   end
 end
-
 ----
 
 Avant de commencer à coder certains tests je veux juste préciser que, de la même manière que pour l’action `create`, nous allons délimiter le produit à l’utilisateur courant. Nous voulons nous assurer que le produit que nous mettons à jour appartient bien à l’utilisateur. Nous allons donc chercher ce produit dans l’association `user.products` fournie par _Active Record_.
@@ -632,7 +633,7 @@ user = User.create! email: 'toto@toto.fr', password: 'toto123'
 puts "Created a new user: #{user.email}"
 ----
 
-Et maintenant vous pouvez créer l'utilsateur en éxecutant simplement la commande suivante:
+Et maintenant vous pouvez créer l'utilisateur en éxecutant simplement la commande suivante:
 
 [source,bash]
 ----
@@ -647,7 +648,7 @@ Ca fonctionne. Je ne sais pas vous, mais moi j'aime bien avoir des données fact
 $ bundle add faker
 ----
 
-Maintenant nous pouvons l'utiliser pour créer cinq utilisateurs d'un coup.
+Maintenant nous pouvons l'utiliser pour créer cinq utilisateurs d'un coup avec des email différent.
 
 .db/seeds.rb
 [source,ruby]
@@ -696,7 +697,7 @@ User.delete_all
 end
 ----
 
-Et voilà. Le résultat est bluffant. En une commande nous pouvons créer trois// utilisateurs et six produits:
+Et voilà. Le résultat est bluffant. En une commande nous pouvons créer trois utilisateurs et six produits:
 
 [source,bash]
 ----
@@ -719,7 +720,7 @@ _commitons_ les changements:
 $ git commit -am "Create a seed to populate database"
 ----
 
-Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un _merge_:
 
 [source,bash]
 ----
@@ -728,5 +729,7 @@ $ git merge chapter05
 ----
 
 == Conclusion
+
+J'espère que vous avez apprécié ce chapitre. C'est un long travail, mais le code que nous avons créé est une excellente base pour l'application principale.
 
 Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produits à l’aide de la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.

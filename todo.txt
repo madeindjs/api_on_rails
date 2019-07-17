@@ -32,9 +32,9 @@ chapter 9 +fr @proofreading2
 x chapter 0 +en @write1
 x chapter 1 +en @write1
 x chapter 2 +en @write1
-. chapter 3 +en @write1
+x chapter 3 +en @write1
 x chapter 4 +en @write1
-chapter 5 +en @write1
+x chapter 5 +en @write1
 chapter 6 +en @write1
 chapter 7 +en @write1
 chapter 8 +en @write1
