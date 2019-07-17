@@ -3,7 +3,7 @@
 
 Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application.
 
-Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu. Nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits de l’utilisateur. Ce sont les éléments que l’utilisateur vendra dans l’application et par conséquent seront directement liés //.
+Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu. Nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits de l’utilisateur. Ce sont les éléments que l’utilisateur vendra dans l’application.
 
 Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de _Active Record_.
 

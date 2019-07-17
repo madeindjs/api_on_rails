@@ -178,7 +178,7 @@ test 'user with a valid email should be valid' do
 end
 ----
 
-- nous vérifion qu'un utilisateur avec un courriel invalide n'est pas valide:
+- nous vérifions qu'un utilisateur avec un courriel invalide n'est pas valide:
 
 .test/models/user_test.rb
 [source,ruby]
@@ -190,7 +190,7 @@ test 'user with unvalid email should be unvalid' do
 end
 ----
 
-- nous vérifion qu'un utilisateur avec un courriel déjà utilisé n'est pas valide. Nous utilisons donc le même courriel que la _fixture_ que nous venons de créer.
+- nous vérifions qu'un utilisateur avec un courriel déjà utilisé n'est pas valide. Nous utilisons donc le même courriel que la _fixture_ que nous venons de créer.
 
 .test/models/user_test.rb
 [source,ruby]
@@ -203,7 +203,7 @@ test 'user with taken email should be unvalid' do
 end
 ----
 
-Et voilà. Nous pouvons vérifier que notre // est juste en lançant simplement les tests unitaires que nous venons de créer:
+Et voilà. Nous pouvons vérifier que notre implémentation est correcte juste en lançant simplement les tests unitaires que nous venons de créer:
 
 [source,bash]
 ----
