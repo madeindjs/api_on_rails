@@ -27,7 +27,7 @@ $ git checkout -b chapter05
 
 We will first create a `Product` model first, then add some validations and finally associate it with the `User` model. Like the `User` model, the `Product` will be fully tested and will be automatically deleted if the user is deleted.
 
-==== The foundations of the product
+=== The foundations of the product
 
 The `Product` template will need several fields: a `price` attribute for the product price, a `published` Boolean to know if the product is ready to be sold or not, a `title` to define a sexy product title, and last but not least a `user_id` to associate this particular product to a user. As you may already know, we generate it with the command `rails generate`:
 

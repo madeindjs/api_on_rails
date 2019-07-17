@@ -713,7 +713,7 @@ We will therefore filter the products according to the following criteria:
 
 It may seem short and easy, but believe me, it will give you a headache if you don't plan it.
 
-==== The keyword by
+=== The keyword by
 
 We will create a _scope_ to find records that match a particular character pattern. Let's call it `filter_by_title`.
 

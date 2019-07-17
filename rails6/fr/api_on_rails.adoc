@@ -52,4 +52,4 @@ include::chapter08-improve-orders.adoc[]
 
 <<<
 
-include::chapter10-optimization.adoc[]
+include::chapter09-optimization.adoc[]

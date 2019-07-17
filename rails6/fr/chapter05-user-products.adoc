@@ -23,9 +23,11 @@ Avant de début, et comme d’habitude quand nous commençons de nouvelles fonct
 $ git checkout -b chapter05
 ----
 
+
 == Le modèle du produit
 
 Nous commencerons d’abord par créer un modèle de `Product` puis nous y ajouterons quelques validations et enfin nous l’associerons au modèle `User`. Comme le modèle `User`, le `Product` sera entièrement testé et sera automatiquement supprimé si l’utilisateur est supprimé.
+
 
 === Les fondements du produit
 
