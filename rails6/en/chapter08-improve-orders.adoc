@@ -1,4 +1,4 @@
-[#chapter09-improve_orders]
+[#chapter08-improve_orders]
 = Improving orders
 
 Back in previous chapter we extended our API to place orders and send a confirmation email to the user (just to improve the user experience). This chapter will take care of some validations on the order model, just to make sure it is placeable, just like:

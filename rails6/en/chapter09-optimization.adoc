@@ -1,4 +1,4 @@
-[#chapter10-optimization]
+[#chapter09-optimization]
 = Optimizations
 
 Welcome to the last chapter of the book. It’s been a long way and you are only one step away from the end. Back in previous chapter we finish modeling the `Order` model and we could say that the project is done by now, but I want to cover some important details about optimization. The topics I’m going to cover in here will be:

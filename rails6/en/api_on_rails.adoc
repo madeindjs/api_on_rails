@@ -32,28 +32,24 @@ include::chapter03-presenting-users.adoc[]
 
 <<<
 
-include::chapter04-refactoring-tests.adoc[]
+include::chapter04-athentification.adoc[]
 
 <<<
 
-include::chapter05-athentification.adoc[]
+include::chapter05-user-products.adoc[]
 
 <<<
 
-include::chapter06-user-products.adoc[]
+include::chapter06-improve-json.adoc[]
 
 <<<
 
-include::chapter07-improve-json.adoc[]
+include::chapter07-placing-orders.adoc[]
 
 <<<
 
-include::chapter08-placing-orders.adoc[]
+include::chapter08-improve-orders.adoc[]
 
 <<<
 
-include::chapter09-improve-orders.adoc[]
-
-<<<
-
-include::chapter10-optimization.adoc[]
+include::chapter09-optimization.adoc[]

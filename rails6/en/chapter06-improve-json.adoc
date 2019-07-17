@@ -1,4 +1,4 @@
-[#chapter07-improve-json]
+[#chapter06-improve-json]
 = JSON with Active Model Serializers
 
 In previous chapter we added a `products` resource to the application and built all the necessary endpoints up to this point. We also associated the product model with the user and protected some of the `products_controller` actions on the way. By now you should feel really happy with all the work but we still have to do some heavy lifting. Currently we have something which look like this:
