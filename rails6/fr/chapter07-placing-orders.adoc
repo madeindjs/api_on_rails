@@ -681,4 +681,4 @@ Sur les chapitres à venir, nous continuerons à travailler sur le modèle de co
 * Que se passe-t-il lorsque les produits ne sont pas disponibles?
 * Diminuer la quantité du produit en cours lors de la passation d’une commande
 
-Le prochain chapitre sera court, mais il est très important pour la santé l’application. Alors ne le sautez pas.
+Le prochain chapitre sera court, mais il est très important pour la santé de l'application. Alors ne le sautez pas.
