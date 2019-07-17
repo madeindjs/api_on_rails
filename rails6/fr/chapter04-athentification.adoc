@@ -504,7 +504,6 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
   end
 end
 ----
-// CURRENT
 
 Et comme vous pouvez vous y attendre, si nous exécutons les tests de notre _controller_ utilisateurs, ils devraient échouer:
 

@@ -84,7 +84,6 @@ There are many ways in which you can install and manage ruby, and by now you sho
 $ ruby -v
 ----
 
-// TRAD----------------------------------------------------
 Rails 6.0 requires the installation of version 2.5 or higher.
 
 I recommend using http://rvm.io/[Ruby Version Manager (RVM)] or http://rbenv.org/[rbenv] to install it.

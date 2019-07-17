@@ -110,7 +110,6 @@ $ rake db:migrate
 ----
 
 NOTE: La commande va convertir notre migration en requête SQL qui va mettre à jour la base de données SQlite3 contenue dans le dossier _db_.
-// TRANSLATE
 
 ==== Le modèle
 
@@ -175,7 +174,7 @@ Nous pouvons donc maintenant créer les tests. Il y en aura trois:
 # ...
 test 'user with a valid email should be valid' do
   user = User.new(email: 'test@test.org', password_digest: 'test')
-  assert user.valid?    
+  assert user.valid?
 end
 ----
 
@@ -190,7 +189,7 @@ test 'user with unvalid email should be unvalid' do
   assert_not user.valid?
 end
 ----
- 
+
 - nous vérifion qu'un utilisateur avec un courriel déjà utilisé n'est pas valide. Nous utilisons donc le même courriel que la _fixture_ que nous venons de créer.
 
 .test/models/user_test.rb
@@ -212,8 +211,6 @@ $ rake test
 ...
 3 runs, 3 assertions, 0 failures, 0 errors, 0 skips
 ----
-
-// NOTE: La liste complète des _assertions_ disponibles sont listées dans la https://guides.rubyonrails.org/testing.html#available-assertions[documentation officielle]
 
 Je pense qu'il est temps de faire un petit _commit_ afin de valider notre avancement:
 
@@ -267,7 +264,6 @@ class User < ApplicationRecord
 end
 ----
 
-// `has_secure_password` ajoute des méthodes et des validation pour authentifier un mot de passe BCrypt. Ce mécanisme nécessite que vous ayez un attribut `password_digest`.
 `has_secure_password` ajoute les validations suivantes:
 
 * Le mot de passe doit être présent lors de la création.

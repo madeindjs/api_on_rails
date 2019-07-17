@@ -111,8 +111,6 @@ NOTE: This command will convert our migration into a SQL query that will update 
 
 ==== Model
 
-// TRANSLATE
-
 We need to first add the `devise` gem into the `Gemfile`
 
 [source,ruby]

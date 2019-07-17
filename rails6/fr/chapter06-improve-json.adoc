@@ -320,7 +320,6 @@ Cela peut nécessiter une configuration supplémentaire sur le terminal de l’u
 
 Une autre solution, est d’incorporer l’objet `user` dans l’objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n’a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
 
-// CURRENT
 [source,json]
 ----
 {

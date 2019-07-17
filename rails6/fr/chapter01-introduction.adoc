@@ -85,7 +85,6 @@ Il existe de nombreuses façons d’installer et de gérer Ruby. Vous devriez pr
 ----
 $ ruby -v
 ----
-// TRAD----------------------------------------------------
 
 Rails 6.0 nécessite l’installation de la version 2.5 ou supérieure.
 

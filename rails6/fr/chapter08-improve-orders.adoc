@@ -434,8 +434,6 @@ class Order < ApplicationRecord
 end
 ----
 
-// CURRENT
-
 Maintenant, au lieu de calculer le total en additionnant simplement les prix des produits, nous devons le multiplier par la quantité. Alors mettons d’abord à jour les tests:
 
 [source,ruby]
