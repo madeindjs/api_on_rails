@@ -1,7 +1,7 @@
 [#chapter07-placing-orders]
 = Création des commandes
 
-Dans les chapitres précédents nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir _scaler_ footnote:[_Scale_ signifie mettre son application à l’échelle afin de pouvoir répondre à une forte demande.] rapidement et facilement. Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre les trois modèles. Nous devons être assez malin pour gérer la sortie JSON que nous fournissons.
+Dans les chapitres précédents nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir _scaler_, (c'est-à-dire s'adapter facilement à une forte demande sur notre application). Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre les trois modèles. Nous devons être assez malin pour gérer la sortie JSON que nous fournissons.
 
 Dans ce chapitre, nous allons faire plusieurs choses:
 
@@ -23,7 +23,7 @@ Créons une nouvelle branche afin de commencer à travailler:
 $ git checkout -b chapter07
 ----
 
-== Modélisation de l’ordre
+== Modélisation de la commande
 
 Si vous vous souvenez des associations entre les modèles, vous devez vous souvenir que le modèle `Order` est associé aux modèles `User` et `Product`. C’est en fait très simple de gérer cela avec Rails. La partie délicate est quand vient la sérialisation de ces objets. J’en parlerai plus en détail plus tard.
 
@@ -165,13 +165,9 @@ $ git add . && git commit -m "Associates products and orders with a placements m
 
 == Exposer le modèle d’utilisateur
 
-Il est maintenant temps de préparer le contrôleur de commandes à exposer la bonne commande. Si vous vous souvenez des chapitres précédents ou l’on avait utilisé https://github.com/Netflix/fast_jsonapi[fast_jsonapi] vous devez vous rappeler que c’était vraiment facile.
+Il est maintenant temps de préparer le contrôleur des commandes à exposer les bonnes commandes. Si vous vous souvenez des chapitres précédents ou l’on avait utilisé https://github.com/Netflix/fast_jsonapi[fast_jsonapi] vous devez vous rappeler que c’était vraiment facile.
 
-Vous devez vous demander:
-
-> Mais attendez, que sommes-nous censés exposer?
-
-Vous avez raison! Définissons d’abord quelles actions nous allons mettre en place:
+Définissons d’abord quelles actions nous allons mettre en place:
 
 . Une action d’indexation pour récupérer les commandes des utilisateurs en cours
 . Une action show pour récupérer une commande particulière de l’utilisateur courant
@@ -235,10 +231,9 @@ end
 
 Nous allons donc générer un nouveau _serializer_ pour les commandes:
 
-
 [source,bash]
 ----
-$ rails generate controller api::v1::orders
+$ rails generate serializer order
 ----
 
 Et ajoutons les relations:
@@ -286,7 +281,7 @@ $ git add . && git commit -m "Adds the index action for order"
 
 === Afficher une seule commande
 
-Comme vous pouvez déjà l’imaginer, cette route est très facile. Nous n’avons qu’à mettre en place quelques configurations (routes, action du contrôleur) et ce sera tout pour cette section. Nous allons aussi inclure les produits liés à cette commande dans le JSOn de sortie.
+Comme vous pouvez déjà l’imaginer, cette route est très facile. Nous n’avons qu’à mettre en place quelques configurations (routes, action du contrôleur) et ce sera tout pour cette section. Nous allons aussi inclure les produits liés à cette commande dans le JSON de sortie.
 
 Commençons par ajouter quelques tests:
 
@@ -502,7 +497,9 @@ end
 Juste avant que vous ne lanciez vos tests, nous avons besoin de mettre à jour l’usine de commande:
 
 
-Nous pouvons maintenant _hooker_ footnote:[Le _hook_ est une méthode qui se déclenchera automatiquement lors de l'execution] la méthode `set_total!` à un rappel `before_validation` pour s’assurer qu’il a le bon total avant la validation.
+Nous pouvons maintenant _hooker_ la méthode `set_total!` à un rappel `before_validation` pour s’assurer qu’il a le bon total avant la validation.
+
+NOTE: Le _hook_ est une méthode qui se déclenchera automatiquement lors de l'execution
 
 [source,ruby]
 .app/models/order.rb
@@ -541,7 +538,6 @@ Nos tests doivent continuer à passer. _Commitons_ nos changements:
 ----
 $ git commit -am "Adds the create method for the orders controller"
 ----
-
 
 == Envoyer un email de confirmation
 
@@ -668,7 +664,7 @@ $ git add . && git commit -m "Adds order confirmation mailer"
 ----
 
 
-Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un _merge_:
 
 [source,bash]
 ----
