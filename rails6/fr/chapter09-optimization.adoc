@@ -751,4 +751,8 @@ $ git merge chapter09
 
 Si vous arrivez à ce point, cela signifie que vous en avez fini avec le livre. Bon travail! Vous venez de devenir un grand développeur API Rails, c’est sûr.
 
-Merci d’avoir traversé cette grande aventure avec moi, j’espère que vous avez apprécié le voyage autant que moi. On devrait prendre une bière un de ces jours.
+Nous avons donc construit ensemble une API solide et complète. Celle-ci possède toutes les qualité pour détrôner https://www.amazon.com/[Amazon], soyez en sûr. Merci d’avoir traversé cette grande aventure avec moi, j’espère que vous avez apprécié le voyage autant que moi.
+
+Je tiens à vous rappeler que tout le code source de ce livre est disponible au format https://asciidoctor.org[Asciidoctor] sur https://github.com/madeindjs/api_on_rails[GitHub]. Ainsi n’hésitez pas à https://github.com/madeindjs/api_on_rails/fork[forker] le projet si vous voulez l’améliorer ou corriger une faute qui m’aurait échappée.
+
+Si vous avez aimez ce livre, n'hésitez pas à me le faire savoir par mail mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. Je suis ouvert à toute critique, bonne ou mauvaise, autour d'un bonne bière :) .
