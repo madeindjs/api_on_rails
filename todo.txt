@@ -14,7 +14,7 @@ x chapter 2 +fr @proofreading1
 x chapter 3 +fr @proofreading1
 x chapter 4 +fr @proofreading1
 x chapter 5 +fr @proofreading1
-chapter 6 +fr @proofreading1
+x chapter 6 +fr @proofreading1
 chapter 7 +fr @proofreading1
 chapter 8 +fr @proofreading1
 chapter 9 +fr @proofreading1
@@ -35,7 +35,7 @@ x chapter 2 +en @write1
 x chapter 3 +en @write1
 x chapter 4 +en @write1
 x chapter 5 +en @write1
-chapter 6 +en @write1
+x chapter 6 +en @write1
 chapter 7 +en @write1
 chapter 8 +en @write1
 chapter 9 +en @write1

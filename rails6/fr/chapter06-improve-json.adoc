@@ -26,6 +26,7 @@ Or nous voulons un sortie qui ne contient pas les champs `user_id`, `created_at`
 
 Aussi, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions que vous allez découvrir dans ce chapitre.
 
+
 Vous pouvez cloner le projet jusqu’à ce point avec:
 
 [source,bash]
@@ -39,7 +40,6 @@ Commençons une nouvelle branche pour ce chapitre:
 ----
 $ git checkout -b chapter06
 ----
-
 
 == Présentation de https://jsonapi.org/[JSON:API]
 
@@ -59,10 +59,7 @@ Le contenu de la clé `data` est lui aussi assez stricte:
 * les propriétés de l’objets doivent être placées dans une clé `attributes` et les _undescore_ (`_`) sont remplacés par des tirets (`-`)
 * les liaisons de l’objets doivent être placées dans une clé `relationships`
 
-Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi] de Netflix.
-
-
-== Mise en place de la gemme
+Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi] de Netflix qui respecte toutes les normes https://jsonapi.org/[JSON:API].
 
 Installons donc la gemme `fast_jsonapi`:
 
@@ -75,7 +72,9 @@ Vous devriez être prêts à continuer avec ce tutoriel.
 
 == Sérialiser l’utilisateur
 
-Nous devons d’abord ajouter un fichier `user_serializer`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
+FastJSON API utilise des *sérialiseurs*. Les sérialiseurs représentes des classes Ruby qui seront responsables de convertir un modèle en un `Hash` ou un JSON.
+
+Nous devons d’abord ajouter un fichier `user_serializer.rb`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
 [source,bash]
 ----
@@ -256,9 +255,7 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons.
-
-_Commitons_ ces petits changements:
+Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons. _Commitons_ ces petits changements:
 
 [source,bash]
 ----
@@ -292,7 +289,7 @@ class Product < ApplicationRecord
 end
 ----
 
-C’est une bonne idée d’intégrer des modèles dans d’autres modèles dans d’autres modèles car cela évite au client de l’API d’exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d’étranglement.
+C’est une bonne idée d’intégrer les utilisateurs dans les sortie JSON des produits. Cela rendra la sortie plus lourde mais ça évitera au client de l'API d'éxecuter d'autres requêtes pour récupérer les informations des utilisateurs liés aux produits. Cette méthode peut vraiment vous éviter un énorme goulet d'étranglement.
 
 == Théorie de l'injection des relations
 
@@ -305,6 +302,8 @@ Face à ce problème, il y a plusieurs alternatives possibles.
 === Intégrer dans un attribut meta
 
 La première solution  Une bonne solution à mon avis est d’intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
+
+
 [source,json]
 ----
 {
@@ -314,36 +313,38 @@ La première solution  Une bonne solution à mon avis est d’intégrer les iden
   ]
 }
 ----
+
 Cela peut nécessiter une configuration supplémentaire sur le terminal de l’utilisateur, afin que le client puisse récupérer ces utilisateurs à partir de ces `user_ids`.
 
 === Incorporer l'objet dans l'attribut
 
 Une autre solution, est d’incorporer l’objet `user` dans l’objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n’a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
 
+// CURRENT
 [source,json]
 ----
 {
   "data":
   [
-      {
-         "id": 1,
-         "type": "product",
-         "attributes": {
-           "title": "First product",
-           "price": "25.02",
-           "published": false,
-           "user": {
-             "id": 2,
-             "attributes": {
-               "email": "stephany@lind.co.uk",
-               "created_at": "2014-07-29T03:52:07.432Z",
-               "updated_at": "2014-07-29T03:52:07.432Z",
-               "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-             }
-           }
-         }
-      }
-   ]
+    {
+        "id": 1,
+        "type": "product",
+        "attributes": {
+          "title": "First product",
+          "price": "25.02",
+          "published": false,
+          "user": {
+            "id": 2,
+            "attributes": {
+              "email": "stephany@lind.co.uk",
+              "created_at": "2014-07-29T03:52:07.432Z",
+              "updated_at": "2014-07-29T03:52:07.432Z",
+              "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+            }
+          }
+        }
+    }
+  ]
 }
 ----
 
@@ -354,45 +355,45 @@ Le problème de cette approche est que nous devons dupliquer les objets `User` p
 {
   "data":
   [
-      {
-         "id": 1,
-         "type": "product",
-         "attributes": {
-           "title": "First product",
-           "price": "25.02",
-           "published": false,
-           "user": {
-             "id": 2,
-             "type": "user",
-             "attributes": {
-               "email": "stephany@lind.co.uk",
-               "created_at": "2014-07-29T03:52:07.432Z",
-               "updated_at": "2014-07-29T03:52:07.432Z",
-               "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-             }
-           }
-         }
-      },
-      {
-         "id": 2,
-         "type": "product",
-         "attributes": {
-           "title": "Second product",
-           "price": "25.02",
-           "published": false,
-           "user": {
-             "id": 2,
-             "type": "user",
-             "attributes": {
-               "email": "stephany@lind.co.uk",
-               "created_at": "2014-07-29T03:52:07.432Z",
-               "updated_at": "2014-07-29T03:52:07.432Z",
-               "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-             }
-           }
-         }
-      }
-   ]
+    {
+        "id": 1,
+        "type": "product",
+        "attributes": {
+          "title": "First product",
+          "price": "25.02",
+          "published": false,
+          "user": {
+            "id": 2,
+            "type": "user",
+            "attributes": {
+              "email": "stephany@lind.co.uk",
+              "created_at": "2014-07-29T03:52:07.432Z",
+              "updated_at": "2014-07-29T03:52:07.432Z",
+              "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+            }
+          }
+        }
+    },
+    {
+        "id": 2,
+        "type": "product",
+        "attributes": {
+          "title": "Second product",
+          "price": "25.02",
+          "published": false,
+          "user": {
+            "id": 2,
+            "type": "user",
+            "attributes": {
+              "email": "stephany@lind.co.uk",
+              "created_at": "2014-07-29T03:52:07.432Z",
+              "updated_at": "2014-07-29T03:52:07.432Z",
+              "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
+            }
+          }
+        }
+    }
+  ]
 }
 ----
 
@@ -409,49 +410,49 @@ Un JSON vaux mile mots:
 {
   "data":
   [
-      {
-         "id": 1,
-         "type": "product",
-         "attributes": {
-           "title": "First product",
-           "price": "25.02",
-           "published": false
-         },
-         "relationships": {
-           "user": {
-             "id": 1,
-             "type": "user"
-           }
-         }
-      },
-      {
-         "id": 2,
-         "type": "product",
-         "attributes": {
-           "title": "Second product",
-           "price": "25.02",
-           "published": false
-         },
-         "relationships": {
-           "user": {
-             "id": 1,
-             "type": "user"
-           }
-         }
+    {
+        "id": 1,
+        "type": "product",
+        "attributes": {
+          "title": "First product",
+          "price": "25.02",
+          "published": false
+        },
+        "relationships": {
+          "user": {
+            "id": 1,
+            "type": "user"
+          }
+        }
+    },
+    {
+        "id": 2,
+        "type": "product",
+        "attributes": {
+          "title": "Second product",
+          "price": "25.02",
+          "published": false
+        },
+        "relationships": {
+          "user": {
+            "id": 1,
+            "type": "user"
+          }
+        }
+    }
+  ],
+  "include": [
+    {
+      "id": 2,
+      "type": "user",
+      "attributes": {
+        "email": "stephany@lind.co.uk",
+        "created_at": "2014-07-29T03:52:07.432Z",
+        "updated_at": "2014-07-29T03:52:07.432Z",
+        "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
       }
-   ],
-   "include": [
-     {
-       "id": 2,
-       "type": "user",
-       "attributes": {
-         "email": "stephany@lind.co.uk",
-         "created_at": "2014-07-29T03:52:07.432Z",
-         "updated_at": "2014-07-29T03:52:07.432Z",
-         "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-       }
-     }
-   ]
+    }
+  ]
 }
 ----
 
@@ -509,23 +510,23 @@ Cette ajout aura pour effet de rajouter un clé `relatioship` contenant l’iden
 [source,json]
 ----
 {
-    "data": {
-        "id": "1",
-        "type": "product",
-        "attributes": {
-            "title": "Durable Marble Lamp",
-            "price": "11.55",
-            "published": true
-        },
-        "relationships": {
-            "user": {
-                "data": {
-                    "id": "1",
-                    "type": "user"
-                }
-            }
-        }
-    }
+  "data": {
+      "id": "1",
+      "type": "product",
+      "attributes": {
+          "title": "Durable Marble Lamp",
+          "price": "11.55",
+          "published": true
+      },
+      "relationships": {
+          "user": {
+              "data": {
+                  "id": "1",
+                  "type": "user"
+              }
+          }
+      }
+  }
 }
 ----
 
@@ -549,18 +550,18 @@ Et voilà. Maintenant voilà à quoi le JSON devrait ressemble:
 [source,json]
 ----
 {
-    "data": {
-        ...
-    },
-    "included": [
-        {
-            "id": "1",
-            "type": "user",
-            "attributes": {
-                "email": "staceeschultz@hahn.info"
-            }
-        }
-    ]
+  "data": {
+    ...
+  },
+  "included": [
+    {
+      "id": "1",
+      "type": "user",
+      "attributes": {
+        "email": "staceeschultz@hahn.info"
+      }
+    }
+  ]
 }
 ----
 
@@ -593,9 +594,6 @@ Faisons un _commit_ pour fêter ça:
 $ git commit -am "Add user relationship to product"
 ----
 
-
-
-
 === Récupérer les produits pour des utilisateurs
 
 Vous avez compris le principe? Nous avons inclus les informations de l'utilisateur dans le JSON des produits. Nous pouvons faire la même choses en incluant les informations des produits liés à un utilisateur pour la page `/api/v1/users/1`.
@@ -624,7 +622,7 @@ end
 Ensuite le _serializer_:
 
 [source,ruby]
-.app/controllers/api/v1/users_controller.rb
+.app/serializers/user_serializer.rb
 ----
 class UserSerializer
   include FastJsonapi::ObjectSerializer
@@ -653,43 +651,43 @@ Et voilà. Nous obtenons un JSON de cette forme:
 [source,json]
 ----
 {
-    "data": {
-        "id": "1",
-        "type": "user",
-        "attributes": {
-            "email": "staceeschultz@hahn.info"
-        },
-        "relationships": {
-            "products": {
-                "data": [
-                    { "id": "1", "type": "product" },
-                    { "id": "2", "type": "product" }
-                ]
-            }
-        }
+  "data": {
+    "id": "1",
+    "type": "user",
+    "attributes": {
+      "email": "staceeschultz@hahn.info"
     },
-    "included": [
-        {
+    "relationships": {
+      "products": {
+        "data": [
+          { "id": "1", "type": "product" },
+          { "id": "2", "type": "product" }
+        ]
+      }
+    }
+  },
+  "included": [
+    {
+      "id": "1",
+      "type": "product",
+      "attributes": {
+        "title": "Durable Marble Lamp",
+        "price": "11.5537474980286",
+        "published": true
+      },
+      "relationships": {
+        "user": {
+          "data": {
             "id": "1",
-            "type": "product",
-            "attributes": {
-                "title": "Durable Marble Lamp",
-                "price": "11.5537474980286",
-                "published": true
-            },
-            "relationships": {
-                "user": {
-                    "data": {
-                        "id": "1",
-                        "type": "user"
-                    }
-                }
-            }
-        },
-        {
-            ...
+            "type": "user"
+          }
         }
-    ]
+      }
+    },
+    {
+        ...
+    }
+  ]
 }
 ----
 
@@ -699,7 +697,6 @@ C'était vraiment facile. Faisons un _commit_:
 ----
 $ git commit -am "Add products relationship to user#show"
 ----
-
 
 == Rechercher les produits
 
@@ -743,8 +740,7 @@ another_tv:
   user: two
 ----
 
-Et maintenant quelques
-
+Et maintenant nous pouvons construire les tests:
 
 [source,ruby]
 .test/models/product_test.rb
@@ -753,16 +749,18 @@ Et maintenant quelques
 class ProductTest < ActiveSupport::TestCase
   # ...
   test "should filter products by name" do
-    assert_equal 2, Product.filter_by_title('TV').count
+    assert_equal 2, Product.filter_by_title('tv').count
   end
 
   test 'should filter products by name and sort them' do
-    assert_equal [products(:another_tv), products(:one)], Product.filter_by_title('TV').sort
+    assert_equal [products(:another_tv), products(:one)], Product.filter_by_title('tv').sort
   end
 end
 ----
 
-Le test ici est de s’assurer que quel que soit le cas du titre envoyé, nous devons l’aseptiser afin de faire la comparaison appropriée. Dans notre cas nous utiliserons l’approche en minuscules. Implémentons le code nécessaire:
+Les tests suivants s'assurent que la méthode `Product.filter_by_title` va rechercher correctement les produits en fonction de leurs titre. Nous utilisons le terme `tv` en minuscule afin de s'assurer que notre recherche ne sera pas sensible à la casse.
+
+L'implémentation est très simple en utilisant un *scope*.
 
 [source,ruby]
 .app/models/product.rb
@@ -774,6 +772,8 @@ class Product < ApplicationRecord
   }
 end
 ----
+
+NOTE: Le _scoping_ vous permet de spécifier des requêtes couramment utilisées qui peuvent être référencées comme des appels de méthode sur les modèles. Avec ces __scopes__ vous pouvez aussi chaîner avec les méthodes d'Active Record comme `where`, `joins` et `includes` car un _scope_ retourne toujours un  objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`]. Je vous invite à jeter un œil à la https://guides.rubyonrails.org/active_record_querying.html#scopes[documentation de Rails]
 
 L’implémentation est suffisante pour que nos tests passent:
 
@@ -835,6 +835,7 @@ class ProductTest < ActiveSupport::TestCase
   end
 end
 ----
+
 Et l’implémentation:
 
 [source,ruby]
@@ -962,7 +963,7 @@ end
 ----
 
 
-Il est important de noter que nous retournons les produits en tant qu’objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html:[`ActiveRelation`] afin de pouvoir enchaîner d’autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l’action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
+Il est important de noter que nous retournons les produits en tant qu’objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`] afin de pouvoir enchaîner d’autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l’action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
