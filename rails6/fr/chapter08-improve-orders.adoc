@@ -6,7 +6,7 @@ Précédemment nous avons amélioré notre API pour passer des commandes et envo
 * Diminuer la quantité du produit en cours lors de la passation d’une commande
 * Que se passe-t-il lorsque les produits ne sont pas disponibles?
 
-Nous aurons aussi besoin de mettre à jour un peu la sortie JSON pour les commandes. Mais ne _spoilons_ pas la suite.
+Nous aurons aussi besoin de mettre à jour un peu la sortie JSON pour les commandes. Mais ne divulgâchons pas la suite.
 
 Maintenant que tout est clair, on peut mettre les mains dans le cambouis. Vous pouvez cloner le projet jusqu’à ce point avec:
 
@@ -55,7 +55,7 @@ $ rake db:migrate
 Et n'oublions pas de mettre à jour les _fixtures_ en ajoutant le champs *quantity* (j'ai choisi la valeur `5` totalement par hasard).
 
 [source,yml]
-.db/migrate/20190621105101_add_quantity_to_products.rb
+.test/fixtures/products.yml
 ----
 one:
   # ...
@@ -200,7 +200,6 @@ Notez que j’ai aussi modifié la méthode `OrdersController#order_params`.
 
 Enfin et surtout, nous devons mettre à jour le fichier d’usine des produits afin d’attribuer une valeur de quantité élevée pour avoir au moins quelques produits en stock.
 
-
 _Commitons_ nos changements avant d’aller plus loin:
 
 [source,bash]
@@ -219,7 +218,7 @@ $ rails generate migration add_quantity_to_placements quantity:integer
 Comme pour la migration des attributs de quantité de produit, nous devrions ajouter une valeur par défaut égale à 0. N’oubliez pas que c’est facultatif mais c’est mieux. Le fichier de migration devrait ressembler à cela:
 
 [source,ruby]
-.db/migrate/20181227104830_add_quantity_to_placements.rb
+.db/migrate/20190621114614_add_quantity_to_placements.rb
 ----
 class AddQuantityToPlacements < ActiveRecord::Migration[5.2]
   def change
@@ -341,7 +340,7 @@ Depuis le début du chapitre, nous avons ajouté l’attribut `quantity` au mod�
 
 NOTE: vous pouvez consulter la https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation].
 
-Tout d’abord, nous devons créer un répertoire de `validators` dans le répertoire `app` (Rails le charge par défaut) et ensuite créons un fichier dedans:60
+Tout d’abord, nous devons créer un répertoire de `validators` dans le répertoire `app` (Rails le charge par défaut) et ensuite créons un fichier dedans:
 
 [source,bash]
 ----
