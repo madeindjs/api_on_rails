@@ -994,7 +994,7 @@ _Commitons_ ces changements:
 $ git commit -am "Adds search class method to filter products"
 ----
 
-Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un _merge_:
 
 [source,bash]
 ----

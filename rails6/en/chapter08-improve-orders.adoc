@@ -504,7 +504,7 @@ Let’s commit the changes and wrap up.
 $ git commit -am "Updates the total calculation for order"
 ----
 
-And as we get to the end of our chapter, it is time to apply all our modifications to the master branch by making a `merge`:
+And as we get to the end of our chapter, it is time to apply all our modifications to the master branch by making a _merge_:
 
 [source,bash]
 ----

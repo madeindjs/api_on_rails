@@ -550,7 +550,7 @@ Et voilà! L'implémentation est vraiment simple. Il est donc temps de _commiter
 $ git commit -am "Adds authorization for the users controller"
 ----
 
-Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`:
+Et comme nous arrivons à la fin de notre chapitre, il est temps d'appliquer toutes nos modifications sur la branche master en faisant un _merge_:
 
 [source,bash]
 ----

@@ -195,7 +195,7 @@ $ git commit -am "Set the routes namespaces for the api"
 
 NOTE: Il existe certaines pratiques dans la construction d'API qui recommandent de ne pas versionner l'API via l’URL. C'est vrai. Le développeur ne devrait pas être au courant de la version qu’il utilise. Dans un souci de simplicité, j'ai choisi de mettre de côté cette convention que nous pourrons appliquer dans un second temps.
 
-Nous arrivons à la fin de notre chapitre. Il est donc temps d'appliquer toutes nos modifications sur la branche master en faisant un `merge`. Pour cela, on se place sur la branche `master` et on _merge_ `chapter02`:
+Nous arrivons à la fin de notre chapitre. Il est donc temps d'appliquer toutes nos modifications sur la branche master en faisant un _merge_. Pour cela, on se place sur la branche `master` et on _merge_ `chapter02`:
 
 [source,bash]
 ----
