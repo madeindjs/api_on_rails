@@ -1,15 +1,16 @@
 [#chapter09-optimization]
 = Optimizations
 
-Welcome to the last chapter of the book. It’s been a long way and you are only one step away from the end. Back in previous chapter we finish modeling the `Order` model and we could say that the project is done by now, but I want to cover some important details about optimization. The topics I’m going to cover in here will be:
+Welcome to the last chapter of the book. It has been a long way, but you are only a step away from the end. In the previous chapter, we completed the modeling of the order model. We could say that the project is now finished but I want to cover some important details about optimization. The topics I will discuss here will be:
 
-* Setup more https://jsonapi.org/[JSON:API] specifications
-* Pagination
-* Caching
+* pagination
+* caching
+* optimization of SQL queries
+* the activation of CORS
 
-I will try to go as deep as I can trying to cover some common scenarios on this, and hopefully by the end of the chapter you’ll have enough knowledge to apply into some other scenarios.
+I will try to go as far as I can by trying to cover some common scenarios. I hope that these scenarios will be useful for some of your projects.
 
-If you start reading at this point, you’ll probably want the code to work on, you can clone it like so:
+If you start reading at this point, you'll probably want the code to work, you can clone it like that:
 
 [source,bash]
 ----
@@ -20,419 +21,9 @@ Let’s now create a branch to start working:
 
 [source,bash]
 ----
-$ git checkout -b chapter10
+$ git checkout -b chapter09
 ----
 
-== Setup more https://jsonapi.org/[JSON:API] specifications
-
-As I have been telling you since the beginning of this book, an important and difficult part of creating your API is deciding the output format. Fortunately, some organizations have already faced this type of problem and have established certain conventions.
-
-One of the most applied conventions is most certainly https://jsonapi.org/[JSON:API]. This convention will allow us to approach pagination more serenely in the next section.
-
-So https://jsonapi.org/format/#document-structure[documentation JSON:API] gives us some rules to follow concerning JSON presentation.
-
-So our *document* must follow theses rules:
-
-* `data`: which must contains the data we send back
-* `errors` which must contains a table of errors that have occurred
-* `meta` which contains https://jsonapi.org/format/#document-meta[object meta]
-
-NOTE: The `data` and `errors` keys must not be present at the same time and this makes sense since if an error occurs we should not be able to make data correct.
-
-The content of the `data` key is also quite strict:
-
-* it must have a `type` key that describes the type of the JSON model (if it is an article, a user, etc.)
-* the properties of the objects must be placed in an `attributes` key and the underscore (`_`) are replaced by dashes (`-`)
-* the links of the objects must be placed in a `relationships` key
-
-This may cause us a lot of change since we have not implemented any of its rules. Don’t worry, we have set up unit tests to ensure that there will be no regression. Let’s start with doc updating them
-
-=== Users
-
-So let’s start with users controller. Take a look at `show` action:
-
-[source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::UsersController, type: :controller do
-  describe 'GET #show' do
-    # ...
-    it 'returns the information about a reporter on a hash' do
-      expect(json_response[:email]).to eql @user.email
-    end
-
-    it 'has the product ids as an embedded object' do
-      expect(json_response[:product_ids]).to eql []
-    end
-  end
-  # ...
-end
-----
-
-We just need to update emplacement of data. So the complete update file look like this:
-
-[source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::UsersController, type: :controller do
-  describe 'GET #show' do
-    # ...
-    it 'returns the information about a reporter on a hash' do
-      expect(json_response[:data][:attributes][:email]).to eql @user.email
-    end
-
-    it 'has the product ids as an embedded object' do
-      expect(json_response[:data][:attributes][:'product-ids']).to eql []
-    end
-  end
-
-  describe 'POST #create' do
-    context 'when is successfully created' do
-      # ...
-      it 'renders the json representation for the user record just created' do
-        expect(json_response[:data][:attributes][:email]).to eql @user_attributes[:email]
-      end
-    end
-    # ...
-  end
-
-  describe 'PUT/PATCH #update' do
-    context 'when is successfully updated' do
-      # ...
-      it 'renders the json representation for the updated user' do
-        expect(json_response[:data][:attributes][:email]).to eql 'newmail@example.com'
-      end
-    end
-    # ...
-  end
-  # ...
-end
-----
-
-And that’s it. It display a lot of code but there are few changes.
-
-=== User’s sessions
-
-Only one test should be updated for user’s sessions: the one who get `auth_token`.
-
-[source,ruby]
-.spec/controllers/api/v1/sessions_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::SessionsController, type: :controller do
-  describe 'POST #create' do
-    # ...
-    context 'when the credentials are correct' do
-      # ...
-      it 'returns the user record corresponding to the given credentials' do
-        @user.reload
-        expect(json_response[:data][:attributes][:'auth-token']).to eql @user.auth_token
-      end
-      # ...
-    end
-  # ...
-  end
-end
-----
-
-NOTE: Remember that JSON:API specifications use dashes (`-`) instead of underscore (`_`)
-
-=== Orders
-
-There are one specificity for orders controller: we also get linked user. So to do so we need to use the `:relationships`. Apart from that, the principle remains the same:
-
-[source,ruby]
-.spec/controllers/api/v1/products_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::ProductsController, type: :controller do
-  describe 'GET #show' do
-    # ...
-    it 'returns the information about a reporter on a hash' do
-      expect(json_response[:data][:attributes][:title]).to eql @product.title
-    end
-
-    it 'has the user as a embedded object' do
-      puts json_response.inspect
-      expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
-    end
-    # ...
-  end
-
-  describe 'GET #index' do
-    # ...
-    context 'when is not receiving any product_ids parameter' do
-      # ...
-      it 'returns 4 records from the database' do
-        expect(json_response[:data]).to have(4).items
-      end
-      it 'returns the user object into each product' do
-        json_response.each do |product_response|
-          expect(product_response[:data][:relationships][:user]).to be_present
-        end
-      end
-      # ...
-    end
-
-    context 'when product_ids parameter is sent' do
-      # ...
-      it 'returns just the products that belong to the user' do
-        json_response.each do |product_response|
-          expect(product_response[:data][:relationships][:user][:attributes][:email]).to eql @user.email
-        end
-      end
-    end
-  end
-
-  describe 'POST #create' do
-    context 'when is successfully created' do
-      # ...
-      it 'renders the json representation for the product record just created' do
-        expect(json_response[:data][:attributes][:title]).to eql @product_attributes[:title]
-      end
-      # ...
-    end
-    # ...
-  end
-
-  describe 'PUT/PATCH #update' do
-    # ...
-    context 'when is successfully updated' do
-      # ...
-      it 'renders the json representation for the updated user' do
-        expect(json_response[:data][:attributes][:title]).to eql 'An expensive TV'
-      end
-      # ...
-    end
-    # ...
-  end
-  # ...
-end
-----
-
-==== Product
-
-Again, that’s a lot of code, but in reality there’s very little change.
-
-[source,ruby]
-.spec/controllers/api/v1/products_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::ProductsController, type: :controller do
-  describe 'GET #show' do
-    # ...
-
-    it 'returns the information about a reporter on a hash' do
-      expect(json_response[:data][:attributes][:title]).to eql @product.title
-    end
-
-    it 'has the user as a embedded object' do
-      expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
-    end
-  end
-
-  describe 'GET #index' do
-    # ...
-    context 'when is not receiving any product_ids parameter' do
-      # ...
-      it 'returns 4 records from the database' do
-        expect(json_response[:data]).to have(4).items
-      end
-
-      it 'returns the user object into each product' do
-        json_response.each do |product_response|
-          expect(product_response[:data][:relationships][:user]).to be_present
-        end
-      end
-    end
-
-    context 'when product_ids parameter is sent' do
-      # ...
-      it 'returns just the products that belong to the user' do
-        json_response.each do |product_response|
-          expect(product_response[:data][:relationships][:user][:attributes][:email]).to eql @user.email
-        end
-      end
-    end
-  end
-
-  describe 'POST #create' do
-    context 'when is successfully created' do
-      # ...
-      it 'renders the json representation for the product record just created' do
-        product_response = json_response
-        expect(product_response[:data][:attributes][:title]).to eql @product_attributes[:title]
-      end
-      # ...
-    end
-
-    context 'when is not created' do
-      # ...
-      it 'renders the json errors on why the user could not be created' do
-        product_response = json_response
-        expect(product_response[:errors][:price]).to include 'is not a number'
-      end
-      # ...
-    end
-  end
-
-  describe 'PUT/PATCH #update' do
-    # ...
-    context 'when is successfully updated' do
-      # ...
-      it 'renders the json representation for the updated user' do
-        expect(json_response[:data][:attributes][:title]).to eql 'An expensive TV'
-      end
-      # ...
-    end
-    # ...
-  end
-  # ...
-end
-----
-
-=== Implementation
-
-From the beginning, in order to serialize our models, we used _Active Model Serializer_. Fortunately for us this library offers several *adapters*. The adapters are in a way JSON models to be applied to all our serializers. It’s perfect.
-
-The https://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/general/adapters.md[documentation of _Active Model Serializer_] shows us a list of existing adapters. And if you see where I’m going with this there’s one ready for the JSON:API model! To set it up, simply activate the adapt it by creating the following file:
-
-[source,ruby]
-.config/initializers/activemodel_serializer.rb
-----
-ActiveModelSerializers.config.adapter = :json_api
-----
-
-We must also indicate the type of the serializer object. _Active Model Serializer_ offers an all fate method for this: `type`. Implementation is therefore very easy:
-
-
-[source,ruby]
-.app/serializers/order_serializer.rb
-----
-class OrderSerializer < ActiveModel::Serializer
-  type :order
-  # ...
-end
-----
-
-[source,ruby]
-.app/serializers/product_serializer.rb
-----
-class ProductSerializer < ActiveModel::Serializer
-  type :product
-  # ...
-end
-----
-
-[source,ruby]
-.app/serializers/user_serializer.rb
-----
-class UserSerializer < ActiveModel::Serializer
-  type :user
-  # ...
-end
-----
-
-And that’s all! Now let’s run *all* our tests to see if they pass:
-
-[source,bash]
-----
-$ rspec spec
-...........F.F.F.......................................................................................
-
-Failures:
-
-  1) Api::V1::ProductsController GET #show has the user as a embedded object
-     Failure/Error: expect(json_response[:data][:relationships][:user][:attributes][:email]).to eql @product.user.email
-     ...
-
-  2) Api::V1::ProductsController GET #index when is not receiving any product_ids parameter returns the user object into each product
-     Failure/Error: expect(product_response[:data][:relationships][:user]).to be_present
-     ...
-
-  3) Api::V1::ProductsController GET #index when product_ids parameter is sent returns just the products that belong to the user
-     Failure/Error: expect(product_response[:data][:relationships][:user][:attributes][:email]).to eql @user.email
-     ...
-
-Finished in 1.35 seconds (files took 1.1 seconds to load)
-103 examples, 3 failures
-----
-
-Argh…. All our tests pass but we see that the user associated with the product is not integrated in the answer. This is actually quite normal. The JSON:API https://jsonapi.org/format/#fetching-includes[documentation] recommends using an `include` key rather than nesting models together.
-
-So let’s update our test:
-
-[source,ruby]
-.spec/controllers/api/v1/products_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::ProductsController, type: :controller do
-  describe 'GET #show' do
-    # ...
-    it 'has the user as a embedded object' do
-      expect(json_response[:included].first[:attributes][:email]).to eql @product.user.email
-    end
-  end
-
-  describe 'GET #index' do
-    # ...
-    context 'when is not receiving any product_ids parameter' do
-      # ...
-      it 'returns the user object into each product' do
-        expect(json_response[:included]).to be_present
-      end
-      # ...
-    end
-
-    context 'when product_ids parameter is sent' do
-      # ...
-      it 'returns just the products that belong to the user' do
-        expect(json_response[:included].first[:id].to_i).to eql @user.id
-      end
-    end
-  end
-  # ...
-end
-----
-
-Here too implementation is very easy. We just need to add the `include` option directly into the controller’s action.
-
-[source,ruby]
-.app/controllers/api/v1/products_controller.rb
-----
-class Api::V1::ProductsController < ApplicationController
-  #...
-  def index
-    render json: Product.search(params), include: [:user]
-  end
-
-  def show
-    render json: Product.find(params[:id]), include: [:user]
-  end
-  #...
-end
-----
-
-Let’s run all the tests again to make sure that our final implementation is correct:
-
-[source,bash]
-----
-$ rspec spec
-.......................................................................................................
-
-Finished in 2.12 seconds (files took 1.4 seconds to load)
-103 examples, 0 failures
-----
-
-And that’s the job. Since we are happy with our work, let’s do a commit:
-
-[source,bash]
-----
-$ git add .
-$ git commit -m "Respect JSON:API response format"
-----
 
 == Pagination
 
@@ -467,7 +58,11 @@ Now we can go to the `index` action on the `products_controller` and add the pag
 class Api::V1::ProductsController < ApplicationController
   # ...
   def index
-    render json: Product.page(params[:page]).per(params[:per_page]).search(params)
+    @products = Product.page(params[:page])
+                       .per(params[:per_page])
+                       .search(params)
+
+    render json: ProductSerializer.new(@products).serializable_hash
   end
   # ...
 end
@@ -479,38 +74,36 @@ We need to provide the pagination information on the `meta` tag in the following
 
 [source,json]
 ----
-"meta": {
-    "pagination": {
-        "per_page": 25,
-        "total_page": 6,
-        "total_objects": 11
-    }
+{
+  "data": [
+    ...
+  ],
+  "links": {
+    "first": "/api/v1/products?page=1",
+    "last": "/api/v1/products?page=30",
+    "prev": "/api/v1/products",
+    "next": "/api/v1/products?page=2"
+  }
 }
 ----
 
 Now that we have the final structure for the `meta` tag we just need to output it on the JSON response. Let’s first add some specs:
 
 [source,ruby]
-.spec/controllers/api/v1/products_controller_spec.rb
+.test/controllers/api/v1/products_controller_test.rb
 ----
 # ...
-RSpec.describe Api::V1::ProductsController, type: :controller do
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
   # ...
-  describe 'GET #index' do
-    before(:each) do
-      4.times { FactoryBot.create :product }
-      get :index
-    end
-    # ...
-    it 'Have a meta pagination tag' do
-      expect(json_response).to have_key(:meta)
-      expect(json_response[:meta]).to have_key(:pagination)
-      expect(json_response[:meta][:pagination]).to have_key(:'per-page')
-      expect(json_response[:meta][:pagination]).to have_key(:'total-pages')
-      expect(json_response[:meta][:pagination]).to have_key(:'total-objects')
-    end
+  test 'should show products' do
+    get api_v1_products_url, as: :json
+    assert_response :success
 
-    it { expect(response.response_code).to eq(200) }
+    json_response = JSON.parse(response.body, symbolize_names: true)
+    assert_not_nil json_response.dig(:links, :first)
+    assert_not_nil json_response.dig(:links, :last)
+    assert_not_nil json_response.dig(:links, :prev)
+    assert_not_nil json_response.dig(:links, :next)
   end
   # ...
 end
@@ -520,98 +113,73 @@ The test we have just added should fail or, if we run the tests, two tests fail.
 
 [source,bash]
 ----
-$ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb
-...F....F...........
+$ rake test
+......................F
 
-Failures:
-
-  1) Api::V1::ProductsController GET #index Have a meta pagination tag
-     ...
-
-  2) Api::V1::ProductsController GET #index when product_ids parameter is sent returns just the products that belong to the user
-     Failure/Error: total_pages: products.total_pages,
-
-     NoMethodError:
-       undefined method 'total_pages' for #<Array:0x0000556f1ef85c68>
-     # ./app/controllers/api/v1/products_controller.rb:12:in 'index'
-     ...
-
-Finished in 0.40801 seconds (files took 0.62979 seconds to load)
-20 examples, 2 failures
+Failure:
+Api::V1::ProductsControllerTest#test_should_show_products [test/controllers/api/v1/products_controller_test.rb:13]:
+Expected nil to not be nil.
 ----
 
-The error is actually on the `Product.search` method. In fact Kaminari is waiting for a registration relationship instead of a table. It’s very easy to repair:
+Let's add the pagination information. We will make a part of it in a separate _concerns_ in order to better decouple our code:
 
 [source,ruby]
-.app/models/product.rb
+.app/controllers/concerns/paginable.rb
 ----
-class Product < ApplicationRecord
-  # ...
-  def self.search(params = {})
-    products = params[:product_ids].present? ? Product.where(id: params[:product_ids]) : Product.all
-    # ...
+# app/controllers/concerns/paginable.rb
+module Paginable
+  protected
+
+  def current_page
+    (params[:page] || 1).to_i
+  end
+
+  def per_page
+    (params[:per_page] || 20).to_i
   end
 end
 ----
 
-Have you noticed the change? Let me explain it to you. We simply replaced the `Product.find` method with `Product.where` using the `product_ids` parameters. The difference is that the `where` method returns an `ActiveRecord::Relation` and that’s exactly what we need.
-
-Now, if we restart the tests, the test we broke should now pass:
-
-[source,bash]
-----
-$ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb
-...F................
-
-Failures:
-
-  1) Api::V1::ProductsController GET #index Have a meta pagination tag
-     ...
-
-Finished in 0.41533 seconds (files took 0.5997 seconds to load)
-20 examples, 1 failure
-----
-
-Now that we fixed that, let’s add the pagination information, we need to do it on the `products_controller.rb` file:
+And now we can use it in the controller.
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
 ----
 class Api::V1::ProductsController < ApplicationController
-  before_action :authenticate_with_token!, only: %i[create update destroy]
+  include Paginable
+  # ...
 
   def index
-    products = Product.search(params).page(params[:page]).per(params[:per_page])
-    render(
-      json: products,
-      include: [:user],
-      meta: {
-        pagination: {
-          per_page: params[:per_page],
-          total_pages: products.total_pages,
-          total_objects: products.total_count
-        }
+    @products = Product.page(current_page)
+                       .per(per_page)
+                       .search(params)
+
+    options = {
+      links: {
+        first: api_v1_products_path(page: 1),
+        last: api_v1_products_path(page: @products.total_pages),
+        prev: api_v1_products_path(page: @products.prev_page),
+        next: api_v1_products_path(page: @products.next_page),
       }
-    )
+    }
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
   end
-  # ...
 end
 ----
 
-Now if we run the specs, they should be all passing:
+Now, if we check the specifications, they should all pass:
 
 [source,bash]
 ----
-$ bundle exec rspec spec/controllers/api/v1/products_controller_spec.rb
-....................
-
-Finished in 0.66813 seconds (files took 2.72 seconds to load)
-20 examples, 0 failures
+$ rake test
+..........................................
+42 runs, 65 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Now we have make a really amazing optimization for the products list endpoint. Now it is the client job to fetch the correct `page` with the correct `per_page` param for the records.
+Now that we have made a superb optimization for the product list route, it is up to the customer to retrieve the `page` with the right `per_page` parameter for registrations.
 
-Let’s commit this changes and proceed with the orders list.
+Let's make these changes and continue with the list of commands.
 
 [source,bash]
 ----
@@ -619,79 +187,70 @@ $ git add .
 $ git commit -m "Adds pagination for the products index action to optimize response"
 ----
 
+
 === Orders list
 
 Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first, let’s add some specs to the `orders_controller_spec.rb` file:
 
 [source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
+.test/controllers/api/v1/orders_controller_test.rb
 ----
 # ...
-RSpec.describe Api::V1::OrdersController, type: :controller do
-  describe 'GET #index' do
-    before(:each) do
-      current_user = FactoryBot.create :user
-      api_authorization_header current_user.auth_token
-      4.times { FactoryBot.create :order, user: current_user }
-      get :index, params: { user_id: current_user.id }
-    end
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show orders' do
+    get api_v1_orders_url, headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) }, as: :json
+    assert_response :success
 
-    it 'returns 4 order records from the user' do
-      expect(json_response[:data]).to have(4).items
-    end
-
-    it 'Have a meta pagination tag' do
-      expect(json_response).to have_key(:meta)
-      expect(json_response[:meta]).to have_key(:pagination)
-      expect(json_response[:meta][:pagination]).to have_key(:'per-page')
-      expect(json_response[:meta][:pagination]).to have_key(:'total-pages')
-      expect(json_response[:meta][:pagination]).to have_key(:'total-objects')
-    end
-
-    it { expect(response.response_code).to eq(200) }
+    json_response = JSON.parse(response.body)
+    assert_equal @order.user.orders.count, json_response['data'].count
+    assert_not_nil json_response.dig(:links, :first)
+    assert_not_nil json_response.dig(:links, :last)
+    assert_not_nil json_response.dig(:links, :prev)
+    assert_not_nil json_response.dig(:links, :next)
   end
   # ...
 end
 ----
 
+
 As you may already know, our tests are no longer passing:
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/orders_controller_spec.rb
-.F........
+$ rake test
+......................................F
 
-Failures:
-
-  1) Api::V1::OrdersController GET #index Have a meta pagination tag
-     Failure/Error: expect(json_response).to have_key(:meta)
-       expected #has_key?(:meta) to return true, got false
-     # ./spec/controllers/api/v1/orders_controller_spec.rb:18:in `block (3 levels) in <top (required)>'
-
-Finished in 0.66262 seconds (files took 2.74 seconds to load)
-10 examples, 1 failure
+Failure:
+Api::V1::OrdersControllerTest#test_should_show_orders [test/controllers/api/v1/orders_controller_test.rb:28]:
+Expected nil to not be nil.
 ----
 
 Let’s turn the red into green:
+
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
 ----
 class Api::V1::OrdersController < ApplicationController
-  before_action :authenticate_with_token!
+  include Paginable
+  # ...
 
   def index
-    orders = current_user.orders.page(params[:page]).per(params[:per_page])
-    render(
-      json: orders,
-      meta: {
-        pagination: {
-          per_page: params[:per_page],
-          total_pages: orders.total_pages,
-          total_objects: orders.total_count
-        }
+    @orders = current_user.orders
+                          .page(current_page)
+                          .per(per_page)
+
+    options = {
+      links: {
+        first: api_v1_orders_path(page: 1),
+        last: api_v1_orders_path(page: @orders.total_pages),
+        prev: api_v1_orders_path(page: @orders.prev_page),
+        next: api_v1_orders_path(page: @orders.next_page),
       }
-    )
+    }
+
+    render json: OrderSerializer.new(@orders, options).serializable_hash
   end
   # ...
 end
@@ -701,12 +260,11 @@ Now all the tests should be nice and green:
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/orders_controller_spec.rb
-..........
-
-Finished in 0.35201 seconds (files took 0.9404 seconds to load)
-10 examples, 0 failures
+$ rake test
+..........................................
+42 runs, 67 assertions, 0 failures, 0 errors, 0 skips
 ----
+
 
 Let’s place and commit, because a refactor is coming:
 
@@ -714,6 +272,7 @@ Let’s place and commit, because a refactor is coming:
 ----
 $ git commit -am "Adds pagination for orders index action"
 ----
+
 
 === Refactoring pagination
 
@@ -723,63 +282,56 @@ We will first clean up these tests that we duplicated in the file `orders_contro
 
 [source,ruby]
 ----
-it 'Have a meta pagination tag' do
-  expect(json_response).to have_key(:meta)
-  expect(json_response[:meta]).to have_key(:pagination)
-  expect(json_response[:meta][:pagination]).to have_key(:'per-page')
-  expect(json_response[:meta][:pagination]).to have_key(:'total-pages')
-  expect(json_response[:meta][:pagination]).to have_key(:'total-objects')
-end
+assert_not_nil json_response.dig(:links, :first)
+assert_not_nil json_response.dig(:links, :last)
+assert_not_nil json_response.dig(:links, :next)
+assert_not_nil json_response.dig(:links, :prev)
 ----
 
 Let’s add a `shared_examples` folder under the `spec/support/` directory:
 
-[source,bash]
-----
-$ mkdir spec/support/shared_examples
-----
-
-And on the `pagination.rb` file you can just add the following lines:
-
 [source,ruby]
-.spec/support/shared_examples/pagination.rb
-----
-shared_examples 'paginated list' do
-  it 'Have a meta pagination tag' do
-    expect(json_response).to have_key(:meta)
-    expect(json_response[:meta]).to have_key(:pagination)
-    expect(json_response[:meta][:pagination]).to have_key(:'per-page')
-    expect(json_response[:meta][:pagination]).to have_key(:'total-pages')
-    expect(json_response[:meta][:pagination]).to have_key(:'total-objects')
-  end
-end
-----
-
-This shared example can now be use as a substitute for the five tests on the `orders_controller_spec.rb` and `products_controller_spec.rb` files like so:
-
-[source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
+.test/test_helper.rb
 ----
 # ...
-RSpec.describe Api::V1::OrdersController, type: :controller do
-  describe 'GET #index' do
-    # ...
-    it_behaves_like 'paginated list'
-    # ...
-  end
-end
-----
-
-[source,ruby]
-.spec/controllers/api/v1/products_controller_spec.rb
-----
-# ...
-RSpec.describe Api::V1::ProductsController, type: :controller do
+class ActiveSupport::TestCase
   # ...
-  describe 'GET #index' do
+  def assert_json_response_is_paginated json_response
+    assert_not_nil json_response.dig(:links, :first)
+    assert_not_nil json_response.dig(:links, :last)
+    assert_not_nil json_response.dig(:links, :next)
+    assert_not_nil json_response.dig(:links, :prev)
+  end
+end
+----
+
+In order to factor it, we will move these assertions into the `test_helper.rb` file in a method we will use:
+
+This shared example can now be used to replace the five tests in the `orders_controller_test.rb` and `products_controller_test.rb` files:
+
+[source,ruby]
+.test/controllers/api/v1/orders_controller_test.rb
+----
+# ...
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show orders' do
     # ...
-    it_behaves_like 'paginated list'
+    assert_json_response_is_paginated json_response
+  end
+  # ...
+end
+----
+
+[source,ruby]
+.test/controllers/api/v1/products_controller_test.rb
+----
+# ...
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show products' do
     # ...
+    assert_json_response_is_paginated json_response
   end
   # ...
 end
@@ -789,31 +341,32 @@ And both specs should be passing.
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/
-.................................................
-
-Finished in 0.96778 seconds (files took 1.59 seconds to load)
-49 examples, 0 failures
+$ rake test
+..........................................
+42 runs, 71 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Now that we made this simple refactor we can jump into the pagination implementation for the controllers and clean things up. If you recall the index action for both the products and orders controller they both have the same pagination format. So let’s move this logic into a method called `pagination` under the `application_controller.rb` file. This way we can access it on any controller which needs pagination in the future.
+
+Now that we have done this simple factorization for testing, we can move on to the implementation of pagination for controllers and clean things up. If you remember the indexing action for both product and order controllers, they both have the same pagination format. So let's move this logic into a method called `get_links_serializer_options` under the file `paginable.rb`, so we can access it on any controller that would need paging.
+
 
 [source,ruby]
-.app/controllers/application_controller.rb
+.app/controllers/concerns/paginable.rb
 ----
-class ApplicationController < ActionController::API
-  include Authenticable
+module Paginable
+  protected
 
-  # @return [Hash]
-  def pagination(paginated_array)
+  def get_links_serializer_options links_paths, collection
     {
-      pagination: {
-        per_page: params[:per_page],
-        total_pages: paginated_array.total_pages,
-        total_objects: paginated_array.total_count
+      links: {
+        first: send(links_paths, page: 1),
+        last: send(links_paths, page: collection.total_pages),
+        prev: send(links_paths, page: collection.prev_page),
+        next: send(links_paths, page: collection.next_page),
       }
     }
   end
+  # ...
 end
 ----
 
@@ -823,13 +376,17 @@ And now we can substitute the pagination hash on both controllers for the method
 .app/controllers/api/v1/orders_controller.rb
 ----
 class Api::V1::OrdersController < ApplicationController
+  include Paginable
   # ...
+
   def index
-    orders = current_user.orders.page(params[:page]).per(params[:per_page])
-    render(
-      json: orders,
-      meta: pagination(orders)
-    )
+    @orders = current_user.orders
+                          .page(current_page)
+                          .per(per_page)
+
+    options = get_links_serializer_options('api_v1_orders_path', @orders)
+
+    render json: OrderSerializer.new(@orders, options).serializable_hash
   end
   # ...
 end
@@ -839,14 +396,17 @@ end
 .app/controllers/api/v1/products_controller.rb
 ----
 class Api::V1::ProductsController < ApplicationController
+  include Paginable
   # ...
+
   def index
-    products = Product.search(params).page(params[:page]).per(params[:per_page])
-    render(
-      json: products,
-      include: [:user],
-      meta: pagination(products)
-    )
+    @products = Product.page(current_page)
+                       .per(per_page)
+                       .search(params)
+
+    options = get_links_serializer_options('api_v1_products_path', @products)
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
   end
   # ...
 end
@@ -856,30 +416,28 @@ If you run the specs for each file they should be all nice and green:
 
 [source,bash]
 ----
-$ rspec spec/controllers/api/v1/
-.................................................
-
-Finished in 0.92996 seconds (files took 0.95615 seconds to load)
-49 examples, 0 failures
+$ rake test
+..........................................
+42 runs, 71 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 This would be a good time to _commit_ the changes and move on to the next section on caching.
 
 [source,bash]
 ----
-$ git add .
+$ git commit -am "Factorize pagination"
 ----
 
 == API Caching
 
-There is currently an implementation to do caching with the gem `active_model_serializers` which is really easy to handle. Although in older versions of the gem, this implementation can change, it does the job.
+There is currently an implementation to do caching with the gem `fast_jsonapi` which is really easy to handle. Although in older versions of the gem, this implementation can change, it does the job.
 
-If we make a request to the product list, we will notice that the response time takes about 174 milliseconds using cURL
+If we make a request to the product list, we will notice that the response time takes about 174 milliseconds using cURL:
 
 [source,bash]
 ----
-$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/products
-Total: 0,174111
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000
+Total: 0,137088
 ----
 
 NOTE: The `-w` option allows us to retrieve the time of the request, `-o` redirects the response to a file and `-s` hides the cURL display
@@ -887,29 +445,29 @@ NOTE: The `-w` option allows us to retrieve the time of the request, `-o` redire
 By adding only one line to the `ProductSerializer` class, we will see a significant improvement in response time!
 
 [source,ruby]
-.app/serializers/product_serializer.rb
+.app/serializers/order_serializer.rb
 ----
-class ProductSerializer < ActiveModel::Serializer
+class OrderSerializer
   # ...
-  cache key: 'product', expires_in: 3.hours
+  cache_options enabled: true, cache_length: 12.hours
 end
 ----
 
 [source,ruby]
-.app/serializers/order_serializer.rb
+.app/serializers/product_serializer.rb
 ----
-class OrderSerializer < ActiveModel::Serializer
+class ProductSerializer
   # ...
-  cache key: 'order', expires_in: 3.hours
+  cache_options enabled: true, cache_length: 12.hours
 end
 ----
 
 [source,ruby]
 .app/serializers/user_serializer.rb
 ----
-class UserSerializer < ActiveModel::Serializer
+class UserSerializer
   # ...
-  cache key: 'user', expires_in: 3.hours
+  cache_options enabled: true, cache_length: 12.hours
 end
 ----
 
@@ -917,10 +475,10 @@ And that’s all! Let’s check for improvement:
 
 [source,bash]
 ----
-$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/products
-Total: 0,021599
-$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/products
-Total: 0,021979
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/products
+Total: 0,054786
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/products/
+Total: 0,032341
 ----
 
 So we went from 174 ms to 21 ms. The improvement is therefore enormous! Let’s commit our change a last time:
@@ -930,8 +488,253 @@ So we went from 174 ms to 21 ms. The improvement is therefore enormous! Let’s 
 $ git commit -am "Adds caching for the serializers"
 ----
 
+== N+1 Queries
+
+N+1* requests are a wound that can have a huge impact on the performance of an application. This phenomenon often occurs when using a **ORM** because it generates **automatically** SQL queries for us. This handy tool is double-edged because it can generate a **large number** of SQL queries.
+
+Something to know about SQL queries is that it is better to limit the number. In other words, a large request is often more efficient than a hundred small ones.
+
+Here is an example where we want to recover all users who have already created a product. Open the Rails console with `Console Rails` and execute the following Ruby code:
+
+[source,ruby]
+----
+Product.all.map { |product| product.user }
+----
+
+The interactive console of Rails shows us the SQL queries that are generated. See for yourself:
+
+We see here that a large number of requests are generated:
+
+- `Product.all` = 1 request to recover the recipes
+- `product.user` = 1 request `SELECT "users".* FROM "users" WHERE "users". "id" =? LIMIT 1 [[[["id", 1]]]` per product recovered
+
+Hence the name "N+1 request" since a request is made via a child link.
+
+We can fix this simply by using `includes`. `Includes` will **pre-load** the child objects in a single request. It is very easy to use. If we repeat the previous example. Here is the result:
+
+[source,ruby]
+----
+Product.includes(:user).all.map { |product| product.user }
+----
+
+The interactive console of Rails shows us the SQL queries that are generated. See for yourself:
+
+[source,sql]
+----
+Product Load (0.3ms)  SELECT "products".* FROM "products"
+User Load (0.8ms)  SELECT "users".* FROM "users" WHERE "users"."id" IN (?, ?, ?)  [["id", 28], ["id", 29], ["id", 30]]
+----
+
+Rails makes a second request that will retrieve *all* users at once.
+
+=== Prevention des requêtes N+1
+
+Imagine that we want to add the owners of the products for the road `/products`. We have already seen that with the `fast_jsonapi` library it is very easy to do this:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    # ...
+    options = get_links_serializer_options('api_v1_products_path', @products)
+    options[:include] = [:user]
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
+  end
+  # ...
+end
+----
+
+Now let's make a request with cURL. I remind you that we must obtain an authentication token before accessing the page.
+
+[source,bash]
+----
+$ curl -X POST --data "user[email]=ockymarvin@jacobi.co" --data "user[password]=locadex1234"  http://localhost:3000/api/v1/tokens
+----
+
+NOTE: "ockymarvin@jacobi.co" corresponds to a user created in my application with the _seed_. In your case, it will probably be different from mine since we used the Faker library.
+
+With the help of the token obtained, we can now make a request to access the products
+
+[source,bash]
+----
+$ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
+----
+
+You will most likely see several requests in the Rails console running the web server.
+
+[source,sql]
+----
+Started GET "/api/v1/products" for 127.0.0.1 at 2019-06-26 13:36:19 +0200
+Processing by Api::V1::ProductsController#index as JSON
+   (0.1ms)  SELECT COUNT(*) FROM "products"
+  ↳ app/controllers/concerns/paginable.rb:9:in `get_links_serializer_options'
+  Product Load (0.2ms)  SELECT "products".* FROM "products" LIMIT ? OFFSET ?  [["LIMIT", 20], ["OFFSET", 0]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+   (0.5ms)  SELECT "products"."id" FROM "products" WHERE "products"."user_id" = ?  [["user_id", 36]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+----
+
+It is therefore unfortunately **very easy** to create an N+1 query. Fortunately, there is a gem that allows us to **alert** when this kind of situation occurs: https://github.com/flyerhzm/bullet[Bullet]. Bullet will notify us (by email, http://growl.info/[growl notification], https://slack.com[Slack], console, etc...) when it finds an N+1 request.
+
+To install it, we add the _gem_ to the _GemFile_
+
+[source,bash]
+----
+$ bundle add bullet --group development
+----
+
+
+And it is enough to update the configuration of our application for the development environment. In our case we will only activate the `rails_logger` mode which will be displayed:
+
+[source,ruby]
+.config/environments/development.rb
+----
+Rails.application.configure do
+  # ...
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.rails_logger = true
+  end
+end
+----
+
+Restart the web server and restart the last request with cURL:
+
+[source,bash]
+----
+$ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
+----
+
+And look at the Rails console. Bullet tells us that it has just detected an N+1 request.
+
+----
+GET /api/v1/products
+USE eager loading detected
+  Product => [:user]
+  Add to your finder: :includes => [:user]
+----
+
+Il nous indique même comment la corriger :
+
+> Ajouter à votre moteur de recherche : :includes => [:user]
+
+Corrigeons donc notre erreur donc le contrôleur:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    @products = Product.includes(:user)
+                       .page(current_page)
+                       .per(per_page)
+                       .search(params)
+
+    options = get_links_serializer_options('api_v1_products_path', @products)
+    options[:include] = [:user]
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
+  end
+  # ...
+end
+----
+
+Et voilà! Il est maintenant temps de faire notre _commit_.
+
+[source,bash]
+----
+$ git commit -am "Add bullet to avoid N+1 query"
+----
+
+== Activation of CORS
+
+In this last section, I will talk to you about one last problem that you will probably encounter if you have to work with your API.
+
+When you first request an external site (via an AJAX request for example), you will encounter an error of this kind:
+
+> Failed to load https://example.com/ No'Access-Control-Allow-Origin' header is present on the requested resource. Origin "https://anfo.pl" is therefore not allowed access. If an opaque response serves your needs, set the request's mode to "no-cors" to fetch the resource with CORS disabled.
+
+"But what does _Access-Control-Allow-Origin_ mean?". The behavior you observe is the effect of the CORS implementation of browsers. Before the standardization of CORS, there was no way to call an API terminal under another domain for security reasons. This has been (and still is to some extent) blocked by the policy of the same origin.
+
+CORS is a mechanism that aims to allow requests made on your behalf and at the same time block some requests made by dishonest scripts and is triggered when you make an HTTP request to:
+
+- a different field
+- a different sub-domain
+- a different port
+- a different protocol
+
+We must manually enable this feature so that any client can make requests on our API.
+
+Rails allows us to do this very easily. Take a look at the `cors.rb` file located in the `initializers` folder.
+
+
+[source,ruby]
+.config/initializers/cors.rb
+----
+# ...
+
+# Rails.application.config.middleware.insert_before 0, Rack::Cors do
+#   allow do
+#     origins 'example.com'
+#
+#     resource '*',
+#       headers: :any,
+#       methods: [:get, :post, :put, :patch, :delete, :options, :head]
+#   end
+# end
+----
+
+You see. It is enough to uncomment the code and modify it a little bit to limit access to some actions or some HTTP verbs. In our case, this configuration is very convenient for us at the moment.
+
+[source,ruby]
+.config/initializers/cors.rb
+----
+# ...
+
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins 'example.com'
+    resource '*',
+      headers: :any,
+      methods: [:get, :post, :put, :patch, :delete, :options, :head]
+  end
+end
+----
+
+We must also install the gem `rack-cors` which is commented in the `Gemfile`:
+
+[source,bash]
+----
+$ bundle add rack-cors
+----
+
+There you go! It is now time to make our last commit and merge our changes on the master branch.
+
+
+[source,bash]
+----
+$ git commit -am "Activate CORS"
+$ git checkout master
+$ git merge chapter09
+----
+
 == Conclusion
 
-If you get to that point, it means you’re done with the book. Good work! You have just become a great API Rails developer, that’s for sure.
+If you get to that point, it means you're done with the book. Good work! You have just become a great API Rails developer, that's for sure.
 
-Thank you for bringing this great adventure with me, I hope you enjoyed the trip as much as I did. We should have a beer sometime.
+So together we have built a solid and complete API. This one has all the qualities to dethrone https://www.amazon.com/[Amazon], rest assured. Thank you for going through this great adventure with me, I hope you enjoyed the trip as much as I did.
+
+I would like to remind you that all the source code for this book is available in the format https://asciidoctor.org[Asciidoctor] on https://asciidoctor.org_on_rails[GitHub]. So do not hesitate to https://github.com/madeindjs/api_on_rails/fork_on_rails/fork[forker] the project if you want to improve it or correct a mistake that I missed.
+
+If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer:).
