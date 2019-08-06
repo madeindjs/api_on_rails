@@ -23,7 +23,7 @@ $ git checkout -b chapter04
 
 == Session sans état
 
-Avant d’aller plus loin, quelque chose doit être clair: *une API ne gère pas les sessions*. Cela peut paraître un peu fou si vous n’avez pas d’expérience dans la création de ce genre d’applications. Une API doit être sans état. Ce qui signifie, par définition, qu’une API qui fournit une réponse après votre demande ne nécessite aucune autre attention. Cela à pour conséquence qu’aucun état antérieur ou futur n’est nécessaire pour que le système fonctionne.
+Avant d’aller plus loin, quelque chose doit être clair: *une API ne gère pas les sessions*. Cela peut paraître un peu fou si vous n’avez pas d’expérience dans la création de ce genre d’applications. Une API doit être sans état. Ce qui signifie, par définition, qu’une API qui fournit une réponse après votre demande ne nécessite aucune autre attention. Cela a pour conséquence qu’aucun état antérieur ou futur n’est nécessaire pour que le système fonctionne.
 
 Le processus d’authentification de l’utilisateur via une API est très simple:
 
@@ -69,7 +69,7 @@ Une fois décodé, ce jeton nous donne les informations suivantes:
 
 NOTE: Pour plus d'information à propos des jetons JWT je vous invite à consulter https://jwt.io[jwt.io]
 
-Cela possède beaucoup d'avantages comme par exemple envoyer des informations au consommateur de l'API directement dans le token. On pourra par exemple choisir d'intégrer les informations de l'utilisateur dans le _payload_.
+Cela possède beaucoup d'avantages comme par exemple le fait d'envoyer des informations au consommateur de l'API directement dans le token. On pourra par exemple choisir d'intégrer les informations de l'utilisateur dans le _payload_.
 
 === Mise en place du jeton d’authentification
 
@@ -98,10 +98,10 @@ La libraire s'utilise très facilement avec les méthodes `JWT.encode` et `JWT.d
  => [{"message"=>"Hello World"}, {"alg"=>"HS256"}]
 ----
 
-Lors de la première ligne nous avons encodé un _payload_ avec la clé secrète _my_secret_key_. Nous obtenons donc un jeton que nous pouvons décoder, tout simplement. La deuxième ligne s'occupe de décoder le jeton et nous voyons que nous retrouvons biens notre _payload_.
+Lors de la première ligne nous avons encodé un _payload_ avec la clé secrète _my_secret_key_. Nous obtenons donc un jeton que nous pouvons décoder, tout simplement. La deuxième ligne s'occupe de décoder le jeton et nous voyons que nous retrouvons bien notre _payload_.
 
 
-Nous allons maintenant englober toute cette logique dans une classe `JsonWebToken` dans un nouveau fichier situé dans `lib/`. Cela nous permettra d'éviter de dupliquer le code.  Cette classe s'occupera juste d'encoder et de décoder les jeton JWT. Voici donc l'implémentation.
+Nous allons maintenant englober toute cette logique dans une classe `JsonWebToken` dans un nouveau fichier situé dans `lib/`. Cela nous permettra d'éviter de dupliquer le code.  Cette classe s'occupera juste d'encoder et de décoder les jetons JWT. Voici donc l'implémentation.
 
 .lib/json_web_token.rb
 [source,ruby]
@@ -122,7 +122,7 @@ end
 ----
 
 
-Ca fait beaucoup de code, je sais, mais nous allons le revoir ensemble.
+Cela fait beaucoup de code, je sais, mais nous allons le revoir ensemble.
 
 - la méthode `JsonWebToken.encode` va s'occuper d'encoder le _payload_ en rajoutant une expiration à 24 heures par défaut. Nous utilisons aussi la même clé de chiffrement que celle configurée avec Rails
 - la méthode `JsonWebToken.decode` va décoder le jeton JWT et récupérer le _payload_. Nous utilisons ensuite la classe https://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html[`HashWithIndifferentAccess`] fournie par Rails qui permet de récupérer une valeur d'un `Hash` avec un `Symbol` ou un `String`.
@@ -150,9 +150,9 @@ $ git add . && git commit -m "Setup JWT gem"
 
 === Le contrôleur de jeton
 
-Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui générer ce jeton. Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create`.
+Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui va générer ce jeton. Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create`.
 
-Pour commencer, nous allons commencer par créer le contrôleur de et la méthode `create` dans le _namespace_ `/api/v1`. Avec Rails, une commande suffit:
+Pour commencer, nous allons commencer par créer le contrôleur de //quoi? et la méthode `create` dans le _namespace_ `/api/v1`. Avec Rails, une commande suffit:
 
 [source,bash]
 ----
@@ -219,7 +219,7 @@ one:
 
 
 
-A ce moment précis, si vous lancez les test vous obtenez deux erreurs:
+A ce moment précis, si vous lancez les tests vous obtenez deux erreurs:
 
 [source,bash]
 ----
@@ -269,7 +269,7 @@ Cela fait beaucoup de code mais c'est très simple:
 . On filtre toujours les paramètres avec la méthode `user_params`
 . On récupère l'utilisateur avec la méthode `User.find_by_email` (qui est une méthode "magique" de _Active Record_ puisque le champ `email` est présent en base) et on récupère l'utilisateur
 . On utilise la méthode `User#authenticate` (qui existe grâce à la gemme `bcrypt`) avec le mot de passe en paramètre. Bcrypt va _hasher_ le mot de passe et vérifier s'il correspond à l'attribut `password_digest`. La fonction renvoie `true` si tout s'est bien passé, `false` dans le cas contraire.
-. Dans le cas ou le mot de passe correspond au _hash_, on renvoie un JSON contenant le _token_ généré avec la classe `JsonWebToken`. Dans le cas contraire, on renvoie une réponse vide avec un en-tête `unauthorized`
+. Dans le cas où le mot de passe correspond au _hash_, nous renvoyons un JSON contenant le _token_ généré avec la classe `JsonWebToken`. Dans le cas contraire, nous renvoyons une réponse vide avec un en-tête `unauthorized`
 
 Toujours là? Ne vous inquiétez pas, c'est fini! Maintenant vos tests doivent passer.
 
@@ -297,7 +297,7 @@ Nous avons donc mis en place la logique suivante: l’API retourne un jeton d’
 
 Nous allons maintenant implémenter la logique suivante: A chaque fois que ce client demandera une page protégée, nous devrons retrouver l’utilisateur à partir de ce jeton d’authentification que l’utilisateur aura passé dans l’en-tête HTTP.
 
-Dans notre cas, nous utiliserons l’en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je le trouve que c’est la meilleure manière parce que cela donne un contexte à la requête sans polluer l’URL avec des paramètres supplémentaires.
+Dans notre cas, nous utiliserons l’en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je trouve que c’est la meilleure manière parce que cela donne un contexte à la requête sans polluer l’URL avec des paramètres supplémentaires.
 
 Nous allons donc créer une méthode `current_user` pour répondre à nos besoins. C’est-à-dire retrouver l’utilisateur grâce à son jeton d’authentification qui est envoyé sur chaque requête.
 
@@ -369,7 +369,7 @@ end
 La classe `MockController` inclue simplement notre module `Authenticable` que nous allons tester. Elle contient un attribut `request` qui contient une simple https://ruby-doc.org/core-2.6.3/Struct.html[`Struct`] qui imite le comportement d'une requête Rails en contenant un attribut `headers` de type `Hash`.
 
 
-Ensuite nous pouvons implémenter nos deux tests justes après
+Ensuite nous pouvons implémenter nos deux tests juste après
 
 [source,ruby]
 .test/controllers/concerns/authenticable_test.rb
@@ -395,7 +395,7 @@ end
 ----
 
 
-Nos tests doivent échouer. Implémentons donc le code pour qu’il passe:
+Nos tests doivent échouer. Implémentons donc le code pour qu’ils passent:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -414,7 +414,7 @@ module Authenticable
 end
 ----
 
-Et voilà! On récupère le jeton dans l'en-tête `Authorization` et nous cherchons l’utilisateur correspondant. Rien de bien sorcier.
+Et voilà! Nous récupérons le jeton dans l'en-tête `Authorization` et nous cherchons l’utilisateur correspondant. Rien de bien sorcier.
 
 Maintenant nos test doivent passer:
 
@@ -479,7 +479,7 @@ end
 ----
 
 
-Vous voyez que maintenant nous devons ajouter une en-tête _Authorization_ pour que le modification de l'utilisateur soit acceptée. Si nous le faisons pas, nous voulons recevoir une réponse de type _forbidden_.
+Vous voyez que maintenant nous devons ajouter une en-tête _Authorization_ pour que le modification de l'utilisateur soit acceptée. Si nous ne le faisons pas, nous voulons recevoir une réponse de type _forbidden_.
 
 Nous pouvons imaginer à peu près la même chose pour le test _should forbid destroy user_:
 
@@ -523,7 +523,7 @@ Expected: 0
   Actual: 1
 ----
 
-La solution est assez simple. Nous allons ajouter un `before_action` qui appellera la méthode `check_owner` pour les action `update` et `destroy`. Ainsi nous vérifierons que l’utilisateur correspondant au jeton JWT est le même que l'utilisateur qui doit être mis à jour.
+La solution est assez simple. Nous allons ajouter un `before_action` qui appellera la méthode `check_owner` pour les actions `update` et `destroy`. Ainsi nous vérifierons que l’utilisateur correspondant au jeton JWT est le même que l'utilisateur qui doit être mis à jour.
 
 Voici l'implémentation:
 
@@ -560,6 +560,6 @@ $ git merge chapter04
 
 == Conclusion
 
-Vous l’avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c’est un grand pas en avant sur la mise en place d’un mécanisme solide pour gérer l’authentification utilisateur et nous grattons même la surface pour de simples règles d’autorisation.
+Vous l’avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c’est un grand pas en avant sur la mise en place d’un mécanisme solide pour gérer l’authentification utilisateur et nous commençons même à gratter la surface pour de simples règles d’autorisation.
 
 Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l’utilisateur avec https://github.com/Netflix/fast_jsonapi[`fast_jsonapi`] et l’ajout d’un modèle de produit en donnant à l’utilisateur la possibilité de créer un produit et le publier pour la vente.
