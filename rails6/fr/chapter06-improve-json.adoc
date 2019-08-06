@@ -1,7 +1,7 @@
 [#chapter06-improve-json]
 = Modélisation du JSON
 
-Dans le chapitre précédent, nous avons ajouté les produits à l’application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
+Dans le chapitre précédent, nous avons ajouté les produits à l’application et construit toutes les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
 
 Maintenant, vous devriez être satisfaits de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n’est pas parfaite. La sortie JSON ressemble à celle-ci:
 
@@ -22,12 +22,12 @@ Maintenant, vous devriez être satisfaits de tout ce travail. Mais nous avons en
 }
 ----
 
-Or nous voulons un sortie qui ne contient pas les champs `user_id`, `created_at` et `updated_at`.
+Or nous voulons une sortie qui ne contienne pas les champs `user_id`, `created_at` et `updated_at`.
 
-Aussi, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions que vous allez découvrir dans ce chapitre.
+De plus, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions que vous allez découvrir dans ce chapitre.
 
 
-Vous pouvez cloner le projet jusqu’à ce point avec:
+Vous pouvez clôner le projet jusqu’à ce point avec:
 
 [source,bash]
 ----
@@ -43,7 +43,7 @@ $ git checkout -b chapter06
 
 == Présentation de https://jsonapi.org/[JSON:API]
 
-Une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines conventions existes déjà.
+Une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines conventions existent déjà.
 
 L'une d'elles, certainement la plus utilisée est https://jsonapi.org/[JSON:API]. La https://jsonapi.org/format/#document-structure[documentation de JSON:API] nous donne quelques règles à suivre concernant le formatage du document JSON.
 
@@ -53,10 +53,10 @@ Ainsi, notre document *doit* contenir ces clefs:
 * `errors` qui doit contenir un tableau des erreurs qui sont survenues.
 * `meta` qui contient un https://jsonapi.org/format/#document-meta[objet meta]
 
-Le contenu de la clé `data` est lui aussi assez stricte:
+Le contenu de la clé `data` est lui aussi assez strict:
 
 * il doit posséder une clé `type`qui décrit le type du modèle JSON (si c’est un article, un utilisateur, etc..)
-* les propriétés de l’objets doivent être placées dans une clé `attributes` et les _undescore_ (`_`) sont remplacés par des tirets (`-`)
+* les propriétés de l’objet doivent être placées dans une clé `attributes` et les _undescore_ (`_`) sont remplacés par des tirets (`-`)
 * les liaisons de l’objets doivent être placées dans une clé `relationships`
 
 Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi] de Netflix qui respecte toutes les normes https://jsonapi.org/[JSON:API].
@@ -72,7 +72,7 @@ Vous devriez être prêts à continuer avec ce tutoriel.
 
 == Sérialiser l’utilisateur
 
-FastJSON API utilise des *sérialiseurs*. Les sérialiseurs représentes des classes Ruby qui seront responsables de convertir un modèle en un `Hash` ou un JSON.
+FastJSON API utilise des *sérialiseurs*. Les sérialiseurs représentent des classes Ruby qui seront responsables de convertir un modèle en un `Hash` ou un JSON.
 
 Nous devons d’abord ajouter un fichier `user_serializer.rb`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
@@ -95,7 +95,7 @@ end
 
 Ce _serializer_ va nous permettre de convertir notre objet `User` en JSON qui implémente correctement la norme JSON:API. Nous avons spécifié l'attribut `email` afin qu'il soit présent dans le tableau `data`.
 
-Essayons tout ça dans la console Rails avec `rails console`:
+Essayons tout cela dans la console Rails avec `rails console`:
 
 [source,ruby]
 ----
@@ -147,7 +147,7 @@ Expected: "one@one.org"
 ----
 
 
-Vous pouvez voir que pour une raison quelconque, la réponse n’est pas tout à fait ce que nous attendons. C’est parce que la gemme modifie la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit de mettre à jour notre test:
+Vous pouvez voir que pour une raison quelconque, la réponse n’est pas tout à fait ce que nous attendions. C’est parce que la gemme modifie la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit de mettre à jour notre test:
 
 [source,ruby]
 .test/controllers/api/v1/users_controller_test.rb
@@ -203,7 +203,7 @@ class ProductSerializer
 end
 ----
 
-Et voilà. Ce n’est pas plus compliqué que ça. Modifions un petit peu notre contrôleur.
+Et voilà. Ce n’est pas plus compliqué que cela. Modifions un petit peu notre contrôleur.
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -239,7 +239,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Et on met à jour notre test fonctionnel:
+Et nous mettons à jour notre test fonctionnel:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -289,7 +289,7 @@ class Product < ApplicationRecord
 end
 ----
 
-C’est une bonne idée d’intégrer les utilisateurs dans les sortie JSON des produits. Cela rendra la sortie plus lourde mais ça évitera au client de l'API d'éxecuter d'autres requêtes pour récupérer les informations des utilisateurs liés aux produits. Cette méthode peut vraiment vous éviter un énorme goulet d'étranglement.
+C’est une bonne idée d’intégrer les utilisateurs dans les sortie JSON des produits. Cela rendra la sortie plus lourde mais ça évitera au client de l'API d'éxecuter d'autres requêtes pour récupérer les informations des utilisateurs liées aux produits. Cette méthode peut vraiment vous éviter un énorme goulet d'étranglement.
 
 == Théorie de l'injection des relations
 
@@ -301,7 +301,7 @@ Face à ce problème, il y a plusieurs alternatives possibles.
 
 === Intégrer dans un attribut meta
 
-La première solution  Une bonne solution à mon avis est d’intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
+Une bonne solution à mon avis est d’intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
 
 
 [source,json]
@@ -314,7 +314,7 @@ La première solution  Une bonne solution à mon avis est d’intégrer les iden
 }
 ----
 
-Cela peut nécessiter une configuration supplémentaire sur le terminal de l’utilisateur, afin que le client puisse récupérer ces utilisateurs à partir de ces `user_ids`.
+Cela peut nécessiter une configuration supplémentaire sur le terminal de l’utilisateur, afin que le client puisse récupérer ses utilisateurs à partir de ces `user_ids`.
 
 === Incorporer l'objet dans l'attribut
 
@@ -347,7 +347,7 @@ Une autre solution, est d’incorporer l’objet `user` dans l’objet `product`
 }
 ----
 
-Le problème de cette approche est que nous devons dupliquer les objets `User` pour chaque produits qui appartiennent au même utilisateur:
+Le problème de cette approche est que nous devons dupliquer les objets `User` pour tous les produits qui appartiennent au même utilisateur:
 
 [source,json]
 ----
@@ -400,9 +400,9 @@ Le problème de cette approche est que nous devons dupliquer les objets `User` p
 
 La troisième solution, choisie par la norme JSON:API, est un mélange des deux premières.
 
-Nous allons inclure tous les relations dans une clé `include` qui contiendra tous les relations des objets précédemment cité. Aussi, chaque objet inclura une clé `relationships` définissant la relation et qu'il faudra retrouver dans la clé `include`.
+Nous allons inclure toutes les relations dans une clé `include` qui contiendra tous les relations des objets précédemment cités. Aussi, chaque objet inclura une clé `relationships` définissant la relation et qu'il faudra retrouver dans la clé `include`.
 
-Un JSON vaux mile mots:
+Un JSON vaut mille mots:
 
 [source,json]
 ----
@@ -459,8 +459,7 @@ Vous voyez la différence? Cette solution réduit drastiquement la taille du JSO
 
 == Application de l'injection des relations
 
-
-Donc, nous allons incorporer l’objet utilisateur dans le produit. Commençons par ajouter quelques tests.
+Nous allons donc incorporer l’objet utilisateur dans le produit. Commençons par ajouter quelques tests.
 
 Nous allons simplement modifier le test `Products#show` afin de vérifier que nous récupérons:
 
@@ -488,7 +487,7 @@ Nous vérifions maintenant trois choses sur le JSON qui est retourné:
 
 . il contient le titre du produit
 . il contient l’identifiant de l’utilisateur lié au produit
-. les données de l'utilisateur sont inclus dans la clé `include`
+. les données de l'utilisateur sont incluses dans la clé `include`
 
 NOTE: Vous avez sûrement remarqué que j'ai choisi d'utiliser la méthode https://ruby-doc.org/core-2.6.3/Hash.html#method-i-dig[`Hash#dig`]. C'est une méthode Ruby qui permet de récupérer des éléments dans un _Hash_ imbriqué en évitant les erreurs si un élément n'est pas présent.
 
@@ -504,7 +503,7 @@ class ProductSerializer
 end
 ----
 
-Cette ajout aura pour effet de rajouter un clé `relatioship` contenant l’identifiant de l'utilisateur:
+Cet ajout aura pour effet de rajouter une clé `relatioship` contenant l’identifiant de l'utilisateur:
 
 [source,json]
 ----
@@ -544,7 +543,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Et voilà. Maintenant voilà à quoi le JSON devrait ressemble:
+Et voilà. Maintenant voilà à quoi le JSON devrait ressembler:
 
 [source,json]
 ----
@@ -757,7 +756,7 @@ class ProductTest < ActiveSupport::TestCase
 end
 ----
 
-Les tests suivants s'assurent que la méthode `Product.filter_by_title` va rechercher correctement les produits en fonction de leurs titre. Nous utilisons le terme `tv` en minuscule afin de s'assurer que notre recherche ne sera pas sensible à la casse.
+Les tests suivants s'assurent que la méthode `Product.filter_by_title` va rechercher correctement les produits en fonction de leurs titres. Nous utilisons le terme `tv` en minuscule afin de s'assurer que notre recherche ne sera pas sensible à la casse.
 
 L'implémentation est très simple en utilisant un *scope*.
 
