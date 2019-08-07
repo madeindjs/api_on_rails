@@ -8,7 +8,7 @@ Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n�
 * l'optimisation des requêtes SQL
 * l'activation de CORS
 
-J’essaierai d’aller aussi loin que possible en essayant de couvrir certains scénarios courants. J’espère que ces scenarii vous serons utiles pour certains de vos projets.
+J’essaierai d’aller aussi loin que possible en essayant de couvrir certains scénarios courants. J’espère que ces scenarii vous seront utiles pour certains de vos projets.
 
 Si vous commencez à lire à ce stade, vous voudrez probablement que le code fonctionne, vous pouvez le cloner comme ça:
 
@@ -27,7 +27,7 @@ $ git checkout -b chapter09
 
 == Pagination
 
-Une stratégie très commune pour optimiser la récupération d’enregistrements dans une base de données est de charger seulement une quantité limitée en les paginant. Si vous êtes familiers avec cette technique, vous savez qu’avec Rails c’est vraiment très facile à mettre en place avec des gemmes telles que https://github.com/mislav/will_paginate[will_paginate] ou https://github.com/kaminari/kaminari[kaminari].
+Une stratégie très commune pour optimiser la récupération d’enregistrements dans une base de données est de charger seulement une quantité limitée en les paginant. Si vous êtes familier avec cette technique, vous savez qu’avec Rails c’est vraiment très facile à mettre en place avec des gemmes telles que https://github.com/mislav/will_paginate[will_paginate] ou https://github.com/kaminari/kaminari[kaminari].
 
 La seule partie délicate ici est de savoir comment gérer la sortie JSON pour donner assez d’informations au client sur la façon dont le tableau est paginé. Dans la section précédente, j’ai partagé quelques ressources sur les pratiques que j’allais suivre ici. L’une d’entre elles était http://jsonapi.org/ qui est une page incontournable des signets.
 
@@ -167,7 +167,7 @@ end
 ----
 
 
-Maintenant, si on vérifie les spécifications, elles devraient toutes passer:
+Maintenant, si nous vérifions les spécifications, elles devraient toutes passer:
 
 [source,bash]
 ----
@@ -273,7 +273,7 @@ $ git commit -am "Adds pagination for orders index action"
 
 Si vous avez suivi ce tutoriel ou si vous êtes un développeur Rails expérimenté, vous aimez probablement garder les choses DRY. Vous avez sûrement remarqué que le code que nous venons d’écrire est dupliqué. Je pense que c’est une bonne habitude de nettoyer un peu le code une fois la fonctionnalité implémentée.
 
-Nous allons d’abord commencer par nettoyer ces tests qu’on a dupliqué dans le fichier `orders_controller_test.rb` et `products_controller_test.rb`:
+Nous allons d’abord commencer par nettoyer ces tests que nous avons dupliqués dans le fichier `orders_controller_test.rb` et `products_controller_test.rb`:
 
 [source,ruby]
 ----
@@ -494,7 +494,7 @@ $ git commit -am "Adds caching for the serializers"
 
 Les *requêtes N+1* sont une plaie qui peuvent avoir un impact énorme sur les performances d'une application. Ce phénomène se produit souvent lorsqu'on utilise un **ORM** car il génère **automatiquement** les requêtes SQL pour nous. Cet outil bien pratique est à double tranchant car il peut générer un **grand nombre** de requêtes SQL.
 
-Quelque chose à savoir avec les requêtes SQL est qu'il vaut mieux faire en sorte de limiter le nombre. En d'autres termes, une grosse requête est souvent plus performante que cent petites.
+Quelque chose à savoir avec les requêtes SQL est qu'il vaut mieux faire en sorte de limiter leur nombre. En d'autres termes, une grosse requête est souvent plus performante que cent petites.
 
 Voici un exemple où l'on veut récupérer tous les utilisateurs qui ont déjà créé un produit. Ouvrez la console Rails avec `rails console` et exécutez le code Ruby suivant:
 
@@ -516,14 +516,14 @@ User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ? 
 User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 30], ["LIMIT", 1]]
 ----
 
-On voit ici qu'on génère une grande quantité de requêtes:
+On voit ici que nous générons une grande quantité de requêtes:
 
 - `Product.all` = 1 requête pour récupérer les recettes
 - `product.user` = 1 requête `SELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT 1  [["id", 1]]` par produit récupéré
 
-D'ou le nom de "requête N+1" puisque l'on effectue une requête par liaison enfant.
+D'où le nom de "requête N+1" puisque nous effectuons une requête par liaison enfant.
 
-Nous pouvons corriger cela simplement en utilisant `includes`. `includes` va **pré-charger** les objets enfants dans une seule requête. Son utilisation est très facile. Si on reprend l'exemple précédent, voici le résultat:
+Nous pouvons corriger cela simplement en utilisant `includes`. `includes` va **pré-charger** les objets enfants dans une seule requête. Son utilisation est très facile. Si nous reprenons l'exemple précédent, voici le résultat:
 
 [source,ruby]
 ----
@@ -545,7 +545,7 @@ Rails effectue une deuxième requête qui va récupérer *tous* les utilisateurs
 
 
 
-Imaginons que nous voulons ajouter les propriétaires des produits pour la routes `/products`. Nous avons déjà vu que avec la librairie `fast_jsonapi` il est très facile de le faire:
+Imaginons que nous voulons ajouter les propriétaires des produits pour la route `/products`. Nous avons déjà vu que avec la librairie `fast_jsonapi` il est très facile de le faire:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -570,16 +570,16 @@ Maintenant effectuons une requête avec cURL. Je vous rappelle que nous devons o
 $ curl -X POST --data "user[email]=ockymarvin@jacobi.co" --data "user[password]=locadex1234"  http://localhost:3000/api/v1/tokens
 ----
 
-NOTE: "ockymarvin@jacobi.co" correspond à un utilisateur crée dans mon application avec le _seed_. Dans votre cas, il sera sûrement différent du mien puisqu'on a utilisé la librairie Faker.
+NOTE: "ockymarvin@jacobi.co" correspond à un utilisateur créé dans mon application avec le _seed_. Dans votre cas, il sera sûrement différent du mien puisque nous avons utilisé la librairie Faker.
 
-A l'aide du token obtenu, nous pouvons maintenant effectuer une requête pour acceder aux produits
+A l'aide du token obtenu, nous pouvons maintenant effectuer une requête pour accéder aux produits
 
 [source,bash]
 ----
 $ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
 ----
 
-Vous voyez très certainement passer plusieurs requête dans la console Rails executant le serveur web.
+Vous voyez très certainement passer plusieurs requêtes dans la console Rails exécutant le serveur web.
 
 [source,sql]
 ----
@@ -603,7 +603,7 @@ Processing by Api::V1::ProductsController#index as JSON
 
 Il est donc malheureusement **très facile** de créer une requête N+1. Heureusement, il existe une gemme qui permet de nous **alerter** lorsque ce genre de situation arrive: https://github.com/flyerhzm/bullet[Bullet]. Bullet va nous prévenir (par mail, http://growl.info/[notification growl], https://slack.com[Slack], console, etc..) lorsqu'il trouve une requête N+1.
 
-Pour l'installer, on ajoute la _gem_ au _GemFile_
+Pour l'installer, nous ajoutons la _gem_ au _GemFile_
 
 [source,bash]
 ----
@@ -631,7 +631,7 @@ Redémarrez le serveur web et relancez la dernière requête avec cURL:
 $ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
 ----
 
-Et regardez la console Rails. Bullet nous indique qu'il vient de détécter une requête N+1.
+Et regardez la console Rails. Bullet nous indique qu'il vient de détecter une requête N+1.
 
 ----
 GET /api/v1/products
@@ -676,7 +676,7 @@ $ git commit -am "Add bullet to avoid N+1 query"
 
 == Activation des CORS
 
-Dans cette dernière section, je vais vous parler d'un dernier problème que vous allez sûrement rencontrer si vous êtes amené à travailler avec votre API.
+Dans cette dernière section, je vais vous parler d'un dernier problème que vous allez sûrement rencontrer si vous êtes amenés à travailler avec votre API.
 
 Lors de la première requête d'un site externe (via une requête AJAX par exemple), vous aller rencontrer une erreur de ce genre:
 
@@ -691,7 +691,7 @@ CORS est un mécanisme qui a pour but de permettre les requêtes faites en votre
 - un port différent
 - un protocole différent
 
-Nous devons manuellement activer cette fonctionnalité afin que n'importe quel client puissent effectuer des requêtes sur notre API.
+Nous devons manuellement activer cette fonctionnalité afin que n'importe quel client puisse effectuer des requêtes sur notre API.
 
 
 
@@ -755,4 +755,4 @@ Nous avons donc construit ensemble une API solide et complète. Celle-ci possèd
 
 Je tiens à vous rappeler que tout le code source de ce livre est disponible au format https://asciidoctor.org[Asciidoctor] sur https://github.com/madeindjs/api_on_rails[GitHub]. Ainsi n’hésitez pas à https://github.com/madeindjs/api_on_rails/fork[forker] le projet si vous voulez l’améliorer ou corriger une faute qui m’aurait échappée.
 
-Si vous avez aimez ce livre, n'hésitez pas à me le faire savoir par mail mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. Je suis ouvert à toute critique, bonne ou mauvaise, autour d'un bonne bière :) .
+Si vous avez aimé ce livre, n'hésitez pas à me le faire savoir par mail mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. Je suis ouvert à toutes critiques, bonne ou mauvaise, autour d'un bonne bière :) .
