@@ -22,12 +22,12 @@ x chapter 0 +fr @proofreading2
 x chapter 1 +fr @proofreading2
 x chapter 2 +fr @proofreading2
 x chapter 3 +fr @proofreading2
-chapter 4 +fr @proofreading2
+x chapter 4 +fr @proofreading2
 x chapter 5 +fr @proofreading2
-chapter 6 +fr @proofreading2
-chapter 7 +fr @proofreading2
-chapter 8 +fr @proofreading2
-chapter 9 +fr @proofreading2
+x chapter 6 +fr @proofreading2
+x chapter 7 +fr @proofreading2
+x chapter 8 +fr @proofreading2
+x chapter 9 +fr @proofreading2
 
 x chapter 0 +en @write1
 x chapter 1 +en @write1
@@ -39,8 +39,8 @@ x chapter 6 +en @write1
 x chapter 7 +en @write1
 x chapter 8 +en @write1
 x chapter 9 +en @write1
-chapter 0 +en @proofreading1
-chapter 1 +en @proofreading1
+x chapter 0 +en @proofreading1
+x chapter 1 +en @proofreading1
 chapter 2 +en @proofreading1
 chapter 3 +en @proofreading1
 chapter 4 +en @proofreading1
