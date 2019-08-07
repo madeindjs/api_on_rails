@@ -99,7 +99,7 @@ $ git add . && git commit -m "Generate orders"
 
 === Les commandes et les produits
 
-Nous devons établir l’association entre la commande et le produit. Cela se fait avec une association de plusieurs à plusieurs car de nombreux produits seront placés sur plusieurs commandes et les commandes auront plusieurs produits. Dans ce cas, nous avons donc besoin d’un modèle supplémentaire qui joindra ces deux autres objets et mappera l’association appropriée. Générons ce modèle: //pas très clair
+Nous devons établir la liaison entre la commande et le produit. Cela se fait avec une association _many-to-many_ car de nombreux produits seront placés sur plusieurs commandes et les commandes auront plusieurs produits. Dans ce cas, nous avons donc besoin d’un modèle supplémentaire qui joindra ces deux autres objets et mappera l’association appropriée. Générons ce modèle:
 
 [source,bash]
 ----

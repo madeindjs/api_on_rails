@@ -152,7 +152,7 @@ $ git add . && git commit -m "Setup JWT gem"
 
 Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui va générer ce jeton. Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create`.
 
-Pour commencer, nous allons commencer par créer le contrôleur de //quoi? et la méthode `create` dans le _namespace_ `/api/v1`. Avec Rails, une commande suffit:
+Pour débuter, nous allons commencer par créer le contrôleur du jeton d'authentification et la méthode `create` dans le _namespace_ `/api/v1`. Avec Rails, une commande suffit:
 
 [source,bash]
 ----
