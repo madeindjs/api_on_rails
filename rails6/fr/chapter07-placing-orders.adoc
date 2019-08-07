@@ -1,7 +1,7 @@
 [#chapter07-placing-orders]
 = Création des commandes
 
-Dans les chapitres précédents nous avons traité les associations entre les produit et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en optimisant afin de pouvoir _scaler_, (c'est-à-dire s'adapter facilement à une forte demande sur notre application). Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre les trois modèles. Nous devons être assez malin pour gérer la sortie JSON que nous fournissons.
+Dans les chapitres précédents nous avons traité les associations entre les produits et les modèles utilisateurs. Nous avons aussi vu comment bien les sérialiser en les optimisant afin de pouvoir _scaler_, (c'est-à-dire s'adapter facilement à une forte demande sur notre application). Maintenant, il est temps de commencer à passer des commandes. Cela va être une situation plus complexe parce que nous allons gérer les associations entre les trois modèles. Nous devons être assez malins pour gérer la sortie JSON que nous fournissons.
 
 Dans ce chapitre, nous allons faire plusieurs choses:
 
@@ -9,7 +9,7 @@ Dans ce chapitre, nous allons faire plusieurs choses:
 * Gérer l’association de sortie JSON entre l’utilisateur de la commande et les modèles de produits
 * Envoyer un courriel de confirmation avec le récapitulatif de la commande
 
-Maintenant que tout est clair, on peut commencer à travailler. Vous pouvez cloner le projet jusqu’à ce point avec:
+Maintenant que tout est clair, nous pouvons commencer à travailler. Vous pouvez cloner le projet jusqu’à ce point avec:
 
 [source,bash]
 ----
@@ -25,7 +25,7 @@ $ git checkout -b chapter07
 
 == Modélisation de la commande
 
-Si vous vous souvenez des associations entre les modèles, vous devez vous souvenir que le modèle `Order` est associé aux modèles `User` et `Product`. C’est en fait très simple de gérer cela avec Rails. La partie délicate est quand vient la sérialisation de ces objets. J’en parlerai plus en détail plus tard.
+Si vous vous souvenez des associations entre les modèles, vous devez vous souvenir que le modèle `Order` est associé aux modèles `User` et `Product`. C’est en fait très simple de gérer cela avec Rails. La partie délicate est lors de la sérialisation de ces objets. J’en parlerai plus en détail plus tard.
 
 Commençons par créer le modèle de la commande:
 
@@ -90,7 +90,7 @@ $ rake test
 34 runs, 50 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Et _commitons_ tout ça:
+Et _commitons_ tout cela:
 
 [source,bash]
 ----
@@ -99,7 +99,7 @@ $ git add . && git commit -m "Generate orders"
 
 === Les commandes et les produits
 
-Nous devons établir l’association entre la commande et le produit. Cela se fait avec une association de plusieurs à plusieurs car de nombreux produits seront placés sur plusieurs commandes et les commandes auront plusieurs produits. Dans ce cas, nous avons donc besoin d’un modèle supplémentaire qui joindra ces deux autres objets et mappera l’association appropriée. Générons ce modèle:
+Nous devons établir l’association entre la commande et le produit. Cela se fait avec une association de plusieurs à plusieurs car de nombreux produits seront placés sur plusieurs commandes et les commandes auront plusieurs produits. Dans ce cas, nous avons donc besoin d’un modèle supplémentaire qui joindra ces deux autres objets et mappera l’association appropriée. Générons ce modèle: //pas très clair
 
 [source,bash]
 ----
@@ -165,7 +165,7 @@ $ git add . && git commit -m "Associates products and orders with a placements m
 
 == Exposer le modèle d’utilisateur
 
-Il est maintenant temps de préparer le contrôleur des commandes à exposer les bonnes commandes. Si vous vous souvenez des chapitres précédents ou l’on avait utilisé https://github.com/Netflix/fast_jsonapi[fast_jsonapi] vous devez vous rappeler que c’était vraiment facile.
+Il est maintenant temps de préparer le contrôleur des commandes à exposer les bonnes commandes. Si vous vous souvenez des chapitres précédents où l’on avait utilisé https://github.com/Netflix/fast_jsonapi[fast_jsonapi] vous devez vous rappeler que c’était vraiment facile.
 
 Définissons d’abord quelles actions nous allons mettre en place:
 
@@ -182,7 +182,7 @@ $ rails generate controller api::v1::orders
 
 Jusqu’ici, et avant de commencer à taper du code, nous devons nous demander:
 
-> Est-ce que je dois laisser les routes de ma commande imbriqués dans le `UsersController` ou bien je dois les isoler?
+> Est-ce que je dois laisser les routes de ma commande imbriqués dans le `UsersController` ou bien dois je les isoler?
 
 La réponse est vraiment simple: cela dépend de la quantité d’informations que vous voulez exposer au développeur.
 
@@ -301,7 +301,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Comme vous pouvez le voir, la deuxième partie du test vérifie que le produit est inclue dans le JSON.
+Comme vous pouvez le voir, la deuxième partie du test vérifie que le produit est inclus dans le JSON.
 
 Ajoutons l’implémentation pour faire passer nos tests. Sur le fichier `routes.rb` ajoutez l’action `show` aux routes des commandes:
 
@@ -499,7 +499,7 @@ Juste avant que vous ne lanciez vos tests, nous avons besoin de mettre à jour l
 
 Nous pouvons maintenant _hooker_ la méthode `set_total!` à un rappel `before_validation` pour s’assurer qu’il a le bon total avant la validation.
 
-NOTE: Le _hook_ est une méthode qui se déclenchera automatiquement lors de l'execution
+NOTE: Le _hook_ est une méthode qui se déclenchera automatiquement lors de l'exécution
 
 [source,ruby]
 .app/models/order.rb
@@ -530,7 +530,7 @@ rails test test/models/order_test.rb:11
 Finished in 0.542600s, 73.7191 runs/s, 110.5786 assertions/s.
 ----
 
-Oups! Nous obtenons une _failure_ sur notre précédent test _Should have a positive total_. C'est logique puisque le total de a commande se calcule dynamiquement. Nous pouvons donc tout simplement supprimer ce test qui est devenu obsolète.
+Oups! Nous obtenons une _failure_ sur notre précédent test _Should have a positive total_. C'est logique puisque le total de la commande se calcule dynamiquement. Nous pouvons donc tout simplement supprimer ce test qui est devenu obsolète.
 
 Nos tests doivent continuer à passer. _Commitons_ nos changements:
 
