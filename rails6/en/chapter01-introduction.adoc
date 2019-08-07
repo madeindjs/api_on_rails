@@ -3,7 +3,7 @@
 
 Welcome to API on Rails 6, a tutorial on steroid to learn the best way to build your next API with Rails. The purpose of this book is to provide a comprehensive methodology to develop a RESTful API following best practices.
 
-As soon as you finish book, you will be able to create your own API and integrate it with any client such as a web browser or mobile application. The generated code is built with Ruby on Rails 6.0 which is the current version.
+As soon as you finish this book, you will be able to create your own API and integrate it with any client such as a web browser or mobile application. The generated code is built with Ruby on Rails 6.0 which is the current version.
 
 The purpose of this book is not only to teach you how to build an API with Rails but rather to teach you how to build an *evolutive* and *maintainable* API with Rails. That is, improve your current knowledge with Rails. On this journey, you will learn to:
 
@@ -13,11 +13,11 @@ The purpose of this book is not only to teach you how to build an API with Rails
 - Set up authentication with JSON Web Tokens (JWT)
 - Optimize and cache the API
 
-I strongly recommend that you follow all the steps in this book. Try not to skip chapters because I will give you some tips and tricks to improve your skills throughout the book. You can consider yourself the main character of a video game who gain a level in each chapter.
+I strongly recommend you follow all the steps in this book. Try not to skip chapters because I will give you some tips and tricks to improve your skills throughout the book. You can consider yourself the main character of a video game who gain a level in each chapter.
 
-In this first chapter I will explain how to configure your environment (in case you don't already have it). Then We will create an application called `market_place_api`. I will ensure that I teach you the best practices I have learned during my experience. This means that we will start using *Git* just after initializing the project.
+In this first chapter I will explain how to configure your environment (in case you don't already have it). Then we will create an application called `market_place_api`. I will ensure that I teach you the best practices I have learned during my experience. This means that we'll start using *Git* just after initializing the project.
 
-We will build the application following a simple working method that I use daily in the next chapters. We will develop the entire application using Test Driven Development (TDD). I will also explain the interest of using an API for your next project and choosing a suitable response format such as JSON or XML. Further on, we will get our hands on the code and complete the basics of the application by building all the necessary roads. We will also secure access to the API by building authentication by exchanging HTTP headers. Finally, in the last chapter, we will add some optimization techniques to improve the structure and response times of the server.
+We'll build the application following a simple working method that I use daily in the next chapters. We will develop the entire application using Test Driven Development (TDD). I will also explain the interest of using an API for your next project and choosing a suitable response format such as JSON or XML. Further on, we will get our hands on the code and complete the basics of the application by building all the necessary roads. We will also secure access to the API by building authentication by exchanging HTTP headers. Finally, in the last chapter, we will add some optimization techniques to improve the structure and response times of the server.
 
 The final application will scratch the surface of being a market place where users will be able to place orders, upload products and more. There are plenty of options out there to set up an online store, such as http://shopify.com[Shopify], http://spreecommerce.com/[Spree] or http://magento.com[Magento].
 
@@ -48,9 +48,9 @@ One of the most painful parts for almost every developer is setting everything u
 
 === Text editors and Terminal
 
-There are many cases in which development environments may differ from computer to computer. That is not the case with text editors or IDE’s. I think for Rails development an IDE is way to much, but some other might find that the best way to go, so if that it’s your case I recommend you go with http://www.aptana.com/products/radrails[RadRails] or http://www.jetbrains.com/ruby/index.html[RubyMine], both are well supported and comes with many integrations out of the box.
+There are many cases in which development environments may differ from computer to computer. That is not the case with text editors or IDE’s. I think for Rails development an IDE is way to much, but some other might find that the best way to go, so if that it’s your case I recommend you go with http://www.aptana.com/products/radrails[RadRails] or http://www.jetbrains.com/ruby/index.html[RubyMine], both are well supported and come with many integrations out of the box.
 
-* *Text editor*: I personally use http://www.vim.org/[vim] as my default editor with https://github.com/carlhuda/janus[janus] which will add and handle many of the plugins you are probably going to use. In case you are not a _vim_ fan like me, there are a lot of other solutions such as http://www.sublimetext.com/[Sublime Text] which is a cross-platform easy to learn and customize (this is probably your best option), it is highly inspired by http://macromates.com/[TextMate] (only available for Mac OS). A third option is to use a more recent text editor from the guys at http://gitub.com[GitHub] called https://atom.io/[Atom], it’s a promising text editor made with JavaScript, it is easy to extend and customize to meet your needs, give it a try. Any of the editors I present will do the job, so I’ll let you decide which one fits your eye.
+* *Text editor*: I personally use http://www.vim.org/[vim] as my default editor with https://github.com/carlhuda/janus[janus] which will add and handle many of the plugins you are probably going to use. In case you are not a _vim_ fan like me, there are a lot of other solutions such as http://www.sublimetext.com/[Sublime Text] which is a cross-platform easy to learn and customize (this is probably your best option), it is highly inspired by http://macromates.com/[TextMate] (only available for Mac OS). A third option is using a more recent text editor from the guys at http://gitub.com[GitHub] called https://atom.io/[Atom], it’s a promising text editor made with JavaScript, it is easy to extend and customize to meet your needs, give it a try. Any of the editors I present will do the job, so I’ll let you decide which one fits your eye.
 * *Terminal*: If you decided to go with http://icalialabs.github.io/kaishi/[kaishi] for setting the environment you will notice that it sets the default shell to `zsh`, which I highly recommend. For the terminal, I’m not a fan of the _Terminal_ app that comes out of the box if you are on Mac OS, so check out http://www.iterm2.com/#/section/home[iTerm2], which is a terminal replacement for Mac OS. If you are on Linux you probable have a nice terminal already, but the default should work just fine.
 
 === Browsers
@@ -59,7 +59,7 @@ When it comes to browsers I would say http://www.mozilla.org/en-US/firefox/new/[
 
 === Package manager
 
-* *Mac OS*: There are many options to manage how you install packages on your Mac, such as https://www.macports.org/[Mac Ports] or http://brew.sh/[Homebrew], both are good options but I would choose the last one, I’ve encountered less troubles when installing software and managing it. To install `brew` just run the command below:
+* *Mac OS*: There are many options to manage how you install packages on your Mac, such as https://www.macports.org/[Mac Ports] or http://brew.sh/[Homebrew], both are good options but I would choose the last one, I’ve encountered less troubles when I install software and I manage it. To install `brew` just run the command below:
 
 [source,bash]
 ----
@@ -88,7 +88,7 @@ Rails 6.0 requires the installation of version 2.5 or higher.
 
 I recommend using http://rvm.io/[Ruby Version Manager (RVM)] or http://rbenv.org/[rbenv] to install it.
 
-The principle of these tools is to allow you to install several versions of Ruby on the same machine, in an environment that is airtight to a possible version installed on your operating system and to be able to switch from one to the other easily.
+The principle of these tools is allowing you to install several versions of Ruby on the same machine, in an environment that is airtight to a possible version installed on your operating system and to be able to switch from one to the other easily.
 
 In this tutorial, we will use RVM but it doesn't matter which of these two options you use.
 
@@ -147,7 +147,7 @@ Rails 6.0.0.rc1
 
 ==== Database
 
-I highly recommend you install http://www.postgresql.org/[Postgresql] to manage your databases, but for simplicity we’ll be using http://www.sqlite.org/[SQlite]. If you are using Mac OS you should be ready to go, in case you are on Linux, don’t worry we have you covered:
+I highly recommend you installing http://www.postgresql.org/[Postgresql] to manage your databases, but for simplicity we’ll be using http://www.sqlite.org/[SQlite]. If you are using Mac OS you should be ready to go, in case you are on Linux, don’t worry we have you covered:
 
 [source,bash]
 ----
@@ -200,7 +200,7 @@ Rails already initialize the new project as a brand new Git repository. If you e
 $ git init
 ----
 
-Rails also provide a _.gitignore_ file to ignore some files that we don’t want to track. The default _.gitignore_ file should look like the one shown below:
+Rails also provide a _.gitignore_ file to ignore some files that we don’t want to track. The default _.gitignore_ file should looks like the one shown below:
 
 ..gitignore
 ----
@@ -226,7 +226,7 @@ Rails also provide a _.gitignore_ file to ignore some files that we don’t want
 /config/master.key
 ----
 
-After modifying the _.gitignore_ file we just need to add the files and commit the changes, the commands necessary are shown below:
+After modifying the _.gitignore_ file we just need adding the files and commiting the changes, commands necessary are shown below:
 
 [source,bash]
 ----
