@@ -8,7 +8,7 @@ Précédemment nous avons amélioré notre API pour passer des commandes et envo
 
 Nous aurons aussi besoin de mettre à jour un peu la sortie JSON pour les commandes. Mais ne divulgâchons pas la suite.
 
-Maintenant que tout est clair, on peut mettre les mains dans le cambouis. Vous pouvez cloner le projet jusqu’à ce point avec:
+Maintenant que tout est clair, nous pouvons mettre les mains dans le cambouis. Vous pouvez cloner le projet jusqu’à ce point avec:
 
 [source,bash]
 ----
@@ -398,7 +398,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Et maintenant, si vous lancer vos tests, tout devrait être beau et vert:
+Et maintenant, si vous lancez vos tests, tout devrait être beau et vert:
 
 [source,bash]
 ----
