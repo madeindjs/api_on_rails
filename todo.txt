@@ -49,9 +49,9 @@ chapter 6 +en @proofreading1
 chapter 7 +en @proofreading1
 chapter 8 +en @proofreading1
 chapter 9 +en @proofreading1
-chapter 0 +en @proofreading2
-chapter 1 +en @proofreading2
-chapter 2 +en @proofreading2
+x chapter 0 +en @proofreading2
+x chapter 1 +en @proofreading2
+x chapter 2 +en @proofreading2
 chapter 3 +en @proofreading2
 chapter 4 +en @proofreading2
 chapter 5 +en @proofreading2

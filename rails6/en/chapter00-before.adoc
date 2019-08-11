@@ -13,7 +13,7 @@ NOTE: This book is also available in the Molière language (It means french).
 
 My name is http://rousseau-alexandre.fr[Alexandre Rousseau] and I am a Rails developer with more than 4 years of experience (at the time of writing). I am currently a partner in a company (https://isignif.fr[iSignif]) where I build and maintain a SAAS product using Rails. I also contribute to the Ruby community by producing and maintaining some gems that you can consult on https://rubygems.org/profiles/madeindjs[my Rubygems.org profile]. Most of my projects are on GitHub so don’t http://github.com/madeindjs/[hesitate to follow me].
 
-All the source code of this book is available in https://asciidoctor.org/[Asciidoctor] format on https://github.com/madeindjs/api_on_rails[GitHub]. So don’t hesitate to https://github.com/madeindjs/api_on_rails/fork[forke] the project if you want to improve it or fix a mistake that I didn’t notice.
+All the source code of this book is available in https://asciidoctor.org/[Asciidoctor] format on https://github.com/madeindjs/api_on_rails[GitHub]. So feel free to https://github.com/madeindjs/api_on_rails/fork[forke] the project if you want to improve it or fix a mistake that I didn’t notice.
 
 == Copyright and license
 

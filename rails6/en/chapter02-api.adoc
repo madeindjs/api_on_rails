@@ -15,13 +15,13 @@ To summarize, we simply generated our Rails application and made our first commi
 
 == Planning the application
 
-As we want to go simple with the application, it consists on five models. Don’t worry if you don’t fully understand what is going on, we will review and build each of these resources as we move on with the tutorial.
+As we want to go simple with the application it consists on five models. Don’t worry if you don’t fully understand what is going on. We will review and build each of these resources as we move on with the tutorial.
 
 image:data_model.png[Schema of links betweens models]
 
 In short terms we have the `user` who will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
 
-We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there, from javascript frameworks(https://angularjs.org/[Angular], http://emberjs.com/[EmberJS], http://backbonejs.org/[Backbone]) to mobile consumption (https://github.com/AFNetworking/AFNetworking[AFNetworking]).
+We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there like javascript frameworks (https://angularjs.org/[Angular], https://vuejs.org/[Vue.js], https://reactjs.org/[React.js]).
 
 By this point you must be asking yourself:
 
@@ -33,9 +33,9 @@ That’s fair. Probably if you google something related to api exploring, an app
 
 An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 
-JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement in fact many of the current frameworks consume JSON api’s by default, in JavaScript there is https://angularjs.org/[Angular] or http://emberjs.com/[EmberJS], but there are great libraries for objective-c too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android, but because of my lack of experience on that development platform I might not be the right person to recommend you something.
+JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement. Many of the current frameworks consume JSON API’s by default (https://angularjs.org/[Angular] or https://vuejs.org/[Vue.js] for example). There are also great libraries for Objective-C too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android but because of my lack of experience on that development platform I might not be the right person to recommend you something.
 
-All right, so we are building our API with JSON, but there are many ways to achieve this, the first thing that could come to your mind would be just to start dropping some routes defining the end points but they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
+All right. So we are building our API with JSON. There are many ways to achieve this. The first thing that could come to your mind would be just to start dropping some routes defining the end points. This may be bad because they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
 
 [source,soap]
 ----
@@ -84,7 +84,7 @@ $ git add config/routes.rb
 $ git commit -m "Removes comments from the routes file"
 ----
 
-We are going to isolate the api controllers under a namespace, in Rails this is fairly simple, just create a folder under the _app/controllers_ named _api_, the name is important as it is the namespace we’ll use for managing the controllers for the api endpoints.
+We are going to isolate the api controllers under a namespace. With Rails this is fairly simple: you just have to create a folder under the `app/controllers` named `api`. The name is important as it is the namespace we’ll use for managing the controllers for the api endpoints.
 
 [source,bash]
 ----
@@ -133,9 +133,9 @@ end
 
 Up to this point we have not made anything crazy. What we want to to generate a _base_uri_ wich include the API version like this: http://localhost:3000/api/v1.
 
-NOTE: Setting the API under a subdomain is a good practice because it allows the application to be adapted to a DNS level. But in our case, we will simplify things for now.
+NOTE: Setting the API under a subdomain is a good practice because it allows the application to be adapted to a DNS level. But we will simplify things for now in our case.
 
-You should be concerned about versioning your application from the beginning as this will give your API a *better structure*. When changes occur on your API, you can thus propose to developers to adapt to the new features while the old ones are depreciated.
+You should be concerned about versioning your application from the beginning as this will give your API a *better structure*. So when changes occur on your API you can thus propose to developers to adapt to the new features while the old ones are depreciated.
 
 [source,ruby]
 .config/routes.rb
@@ -175,7 +175,7 @@ $ mkdir app/controllers/api/v1
 
 The API is now _scoped_ via the URL. For example, with the current configuration, the recovery of a product via the API would be done with this url: http://localhost:3000/v1/products/1.
 
-Don't worry, we'll get more details about the versioning later. It is time to _commit_:
+Don't worry we'll get more details about the versioning later. It is time to _commit_:
 
 [source,bash]
 ----
@@ -195,7 +195,7 @@ $ git merge chapter02
 
 == Api versioning
 
-At this point we should have a nice routes mapping using a subdomain for name spacing the requests, your _routes.rb_ file should look like this:
+At this point we should have a nice routes mapping using a subdomain for name spacing the requests. Your _routes.rb_ file should look like this:
 
 [source,ruby]
 .config/routes.rb
@@ -232,11 +232,11 @@ Rails.application.routes.draw do
 end
 ----
 
-By this point the API is now scoped via de URL. For example with the current configuration an end point for retrieving a product would be like: http://api.marketplace.dev/v1/products/1.
+By this point the API is now scoped via de URL. For example with the current configuration an end point for retrieving a product would be like: http://localhost:3000/v1/products/1.
 
 === Improving the versioning
 
-So far we have the API versioned scoped via the URL, but something doesn’t feel quite right, isn’t it?. What I mean by this is that from my point of view the developer should not be aware of the version using it, as by default they should be using the last version of your endpoints, but how do we accomplish this?.
+So far we have the API versioned scoped via the URL, but something doesn’t feel quite right, isn’t it? What I mean by this is that from my point of view the developer should not be aware of the version using it, as by default they should be using the last version of your endpoints, but how do we accomplish this?.
 
 Well first of all, we need to improve the API version access through http://en.wikipedia.org/wiki/List_of_HTTP_header_fields[HTTP Headers]. This has two benefits:
 
@@ -257,143 +257,143 @@ It is important that you feel comfortable with this ones and understand them.
 
 ****
 
-In Rails is very easy to add this type versioning through an _Accept_ header. We will create a class under the `lib` directory of your rails app, and remember we are doing http://en.wikipedia.org/wiki/Test-driven_development[TDD] so first things first.
+// In Rails is very easy to add this type versioning through an _Accept_ header. We will create a class under the `lib` directory of your rails app, and remember we are doing http://en.wikipedia.org/wiki/Test-driven_development[TDD] so first things first.
 
-First we need to add our testing suite, which in our case is going to be http://rspec.info/[Rspe]:
+// First we need to add our testing suite, which in our case is going to be http://rspec.info/[Rspe]:
 
-[source,ruby]
-.Gemfile
-----
-group :test do
-  gem 'rspec-rails', '~> 3.8'
-  gem 'factory_bot_rails', '~> 4.9'
-  gem 'ffaker', '~> 2.10'
-end
-----
+// [source,ruby]
+// .Gemfile
+// ----
+// group :test do
+//   gem 'rspec-rails', '~> 3.8'
+//   gem 'factory_bot_rails', '~> 4.9'
+//   gem 'ffaker', '~> 2.10'
+// end
+// ----
 
-Then we run the bundle command to install the gems
+// Then we run the bundle command to install the gems
 
-[source,bash]
-----
-$ bundle install
-----
+// [source,bash]
+// ----
+// $ bundle install
+// ----
 
-Finally we install the `rspec` and add some configuration to prevent views and helpers tests from being generated:
+// Finally we install the `rspec` and add some configuration to prevent views and helpers tests from being generated:
 
-[source,bash]
-----
-$ rails generate rspec:install
-----
+// [source,bash]
+// ----
+// $ rails generate rspec:install
+// ----
 
-[source,ruby]
-.config/application.rb
-----
-# ...
-module MarketPlaceApi
-  class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.2
+// [source,ruby]
+// .config/application.rb
+// ----
+// # ...
+// module MarketPlaceApi
+//   class Application < Rails::Application
+//     # Initialize configuration defaults for originally generated Rails version.
+//     config.load_defaults 5.2
 
-    config.generators do |g|
-      g.test_framework :rspec, fixture: true
-      g.fixture_replacement :factory_bot, dir: 'spec/factories'
-      g.view_specs false
-      g.helper_specs false
-      g.stylesheets = false
-      g.javascripts = false
-      g.helper = false
-    end
+//     config.generators do |g|
+//       g.test_framework :rspec, fixture: true
+//       g.fixture_replacement :factory_bot, dir: 'spec/factories'
+//       g.view_specs false
+//       g.helper_specs false
+//       g.stylesheets = false
+//       g.javascripts = false
+//       g.helper = false
+//     end
 
-    config.autoload_paths += %W(\#{config.root}/lib)
+//     config.autoload_paths += %W(\#{config.root}/lib)
 
-    # Don't generate system test files.
-    config.generators.system_tests = nil
-  end
-end
-----
+//     # Don't generate system test files.
+//     config.generators.system_tests = nil
+//   end
+// end
+// ----
 
-If everything went well it is now time to add a `spec` directory under `lib` and add the `api_constraints_spec.rb`:
+// If everything went well it is now time to add a `spec` directory under `lib` and add the `api_constraints_spec.rb`:
 
-[source,bash]
-----
-$ mkdir lib/spec
-$ touch lib/spec/api_constraints_spec.rb
-----
+// [source,bash]
+// ----
+// $ mkdir lib/spec
+// $ touch lib/spec/api_constraints_spec.rb
+// ----
 
-We then add a bunch of specs describing our class:
+// We then add a bunch of specs describing our class:
 
-[source,ruby]
-.lib/spec/api_constraints_spec.rb
-----
-require 'spec_helper'
-require './lib/api_constraints'
+// [source,ruby]
+// .lib/spec/api_constraints_spec.rb
+// ----
+// require 'spec_helper'
+// require './lib/api_constraints'
 
-describe ApiConstraints do
-  let(:api_constraints_v1) { ApiConstraints.new(version: 1) }
-  let(:api_constraints_v2) { ApiConstraints.new(version: 2, default: true) }
+// describe ApiConstraints do
+//   let(:api_constraints_v1) { ApiConstraints.new(version: 1) }
+//   let(:api_constraints_v2) { ApiConstraints.new(version: 2, default: true) }
 
-  describe 'matches?' do
-    it "returns true when the version matches the 'Accept' header" do
-      request = double(host: 'api.marketplace.dev',
-                       headers: { 'Accept' => 'application/vnd.marketplace.v1' })
-      expect(api_constraints_v1.matches?(request)).to be_truthy
-    end
+//   describe 'matches?' do
+//     it "returns true when the version matches the 'Accept' header" do
+//       request = double(host: 'api.marketplace.dev',
+//                        headers: { 'Accept' => 'application/vnd.marketplace.v1' })
+//       expect(api_constraints_v1.matches?(request)).to be_truthy
+//     end
 
-    it "returns the default version when 'default' option is specified" do
-      request = double(host: 'api.marketplace.dev')
-      expect(api_constraints_v2.matches?(request)).to be_truthy
-    end
-  end
-end
-----
+//     it "returns the default version when 'default' option is specified" do
+//       request = double(host: 'api.marketplace.dev')
+//       expect(api_constraints_v2.matches?(request)).to be_truthy
+//     end
+//   end
+// end
+// ----
 
-Let me walk you through the code. We are initializing the class with an https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] option. https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] option will contain the version of the API and a default value for handling the default version. We provide a `matches?` method which the router will trigger for the constraint to see if the default version is required or the `Accept` header matches the given string.
+// Let me walk you through the code. We are initializing the class with an https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] option. https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] option will contain the version of the API and a default value for handling the default version. We provide a `matches?` method which the router will trigger for the constraint to see if the default version is required or the `Accept` header matches the given string.
 
-The implementation looks likes this
+// The implementation looks likes this
 
-[source,ruby]
-.lib/api_constraints.rb
-----
-class ApiConstraints
-  def initialize(options)
-    @version = options[:version]
-    @default = options[:default]
-  end
+// [source,ruby]
+// .lib/api_constraints.rb
+// ----
+// class ApiConstraints
+//   def initialize(options)
+//     @version = options[:version]
+//     @default = options[:default]
+//   end
 
-  def matches?(req)
-    @default || req.headers['Accept'].include?("application/vnd.marketplace.v#{@version}")
-  end
-end
-----
+//   def matches?(req)
+//     @default || req.headers['Accept'].include?("application/vnd.marketplace.v#{@version}")
+//   end
+// end
+// ----
 
-As you imagine we need to add the class to our `routes.rb` file and set it as a constraint scope option.
+// As you imagine we need to add the class to our `routes.rb` file and set it as a constraint scope option.
 
-[source,ruby]
-.config/routes.rb
-----
-# ...
-Rails.application.routes.draw do
-  # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-    scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-      # We are going to list our resources here
-    end
-  end
-end
-----
+// [source,ruby]
+// .config/routes.rb
+// ----
+// # ...
+// Rails.application.routes.draw do
+//   # Api definition
+//   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+//     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
+//       # We are going to list our resources here
+//     end
+//   end
+// end
+// ----
 
-The configuration above now handles versioning through headers, and for now the version 1 is the default one, so every request will be redirected to that version, no matter if the header with the version is present or not.
+// The configuration above now handles versioning through headers, and for now the version 1 is the default one, so every request will be redirected to that version, no matter if the header with the version is present or not.
 
-Before we say goodbye, let’s run our first tests and make sure everything is nice and green:
+// Before we say goodbye, let’s run our first tests and make sure everything is nice and green:
 
-[source,bash]
-----
-$ bundle exec rspec lib/spec/api_constraints_spec.rb
-..
+// [source,bash]
+// ----
+// $ bundle exec rspec lib/spec/api_constraints_spec.rb
+// ..
 
-Finished in 0.00294 seconds (files took 0.06292 seconds to load)
-2 examples, 0 failures
-----
+// Finished in 0.00294 seconds (files took 0.06292 seconds to load)
+// 2 examples, 0 failures
+// ----
 
 == Conclusion
 
