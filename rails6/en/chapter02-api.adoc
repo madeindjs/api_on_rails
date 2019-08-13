@@ -1,7 +1,7 @@
 [#chapter02-api]
 = The API
 
-In this section I’ll outline the application. By now you should have the bare bones of the application. If you did not read it I recommend you to do it.
+In this section I’ll outline the application. By now you should have read the previous chapter. If you did not read it I recommend you to do it.
 
 You can clone the project until this point with:
 
@@ -19,7 +19,7 @@ As we want to go simple with the application it consists on five models. Don’t
 
 image:data_model.png[Schema of links betweens models]
 
-In short terms we have the `user` who will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
+In short terms the `user` will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
 
 We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there like javascript frameworks (https://angularjs.org/[Angular], https://vuejs.org/[Vue.js], https://reactjs.org/[React.js]).
 
@@ -42,7 +42,7 @@ All right. So we are building our API with JSON. There are many ways to achieve 
 aService.getUser("1")
 ----
 
-And in REST you may call a URL with an e specific HTTP request, in this case with a GET request: <http://domain.com/resources_name/uri_pattern>
+And in REST you may call a URL with an specific HTTP request, in this case with a GET request: <http://domain.com/resources_name/uri_pattern>
 
 RESTful APIs must follow at least three simple guidelines:
 
@@ -84,14 +84,14 @@ $ git add config/routes.rb
 $ git commit -m "Removes comments from the routes file"
 ----
 
-We are going to isolate the api controllers under a namespace. With Rails this is fairly simple: you just have to create a folder under the `app/controllers` named `api`. The name is important as it is the namespace we’ll use for managing the controllers for the api endpoints.
+We are going to isolate the api controllers under a namespace. With Rails this is fairly simple: you just have to create a folder under the `app/controllers` named `api`. The name is important because that's the namespace we’ll use for managing the controllers for the api endpoints.
 
 [source,bash]
 ----
 $ mkdir app/controllers/api
 ----
 
-We then add that namespace into our _routes.rb_ file:
+Then we add that namespace into our _routes.rb_ file:
 
 [source,ruby]
 .config/routes.rb
@@ -131,11 +131,13 @@ Rails.application.routes.draw do
 end
 ----
 
-Up to this point we have not made anything crazy. What we want to to generate a _base_uri_ wich include the API version like this: http://localhost:3000/api/v1.
+Up to this point we have not made anything crazy. What we want to generate is a _base_uri_ wich include the API version like this: http://localhost:3000/api/v1.
 
 NOTE: Setting the API under a subdomain is a good practice because it allows the application to be adapted to a DNS level. But we will simplify things for now in our case.
 
-You should be concerned about versioning your application from the beginning as this will give your API a *better structure*. So when changes occur on your API you can thus propose to developers to adapt to the new features while the old ones are depreciated.
+You should be concerned about versioning your application from the beginning as this will give your API a *better structure*. So when changes occur on your API you can thus propose to developers to adapt to the new features while the old ones are depreciated. 
+
+//thus ?
 
 [source,ruby]
 .config/routes.rb
@@ -153,7 +155,7 @@ end
 ****
 You can find many approaches to set up the _base_uri_ when building an api following different patterns, assuming we are versioning our api:
 
-* `api.example.com/`: I my opinion this is the way to go, gives you a better interface and isolation, and in the long term can help you to http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[quickly scalate]
+* `api.example.com/`: In my opinion this is the way to go, gives you a better interface and isolation, and in the long term can help you to http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[quickly scalate]
 * `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don’t want to namespace your api under a subdomain
 * `example.com/api/v1`: it seems like a good idea, by setting the version of the api through the URL seems like a more descriptive pattern, but this way you enforce the version to be included on URL on each request, so if you ever decide to change this pattern, this becomes a problem of maintenance in the long-term
 ****
@@ -182,7 +184,7 @@ Don't worry we'll get more details about the versioning later. It is time to _co
 $ git commit -am "Set the routes namespaces for the api"
 ----
 
-NOTE: There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he is using. For the sake of simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
+NOTE: There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he'ss using. For the sake of simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
 
 We are at the end of our chapter. It is therefore time to apply all our modifications to the master branch by making a _merge_. To do this, we place ourselves on the `master` branch and we _merge_ `chapter02`:
 
@@ -232,11 +234,11 @@ Rails.application.routes.draw do
 end
 ----
 
-By this point the API is now scoped via de URL. For example with the current configuration an end point for retrieving a product would be like: http://localhost:3000/v1/products/1.
+By this point the API is now scoped via the URL. For example with the current configuration an end point for retrieving a product would be like: http://localhost:3000/v1/products/1.
 
 === Improving the versioning
 
-So far we have the API versioned scoped via the URL, but something doesn’t feel quite right, isn’t it? What I mean by this is that from my point of view the developer should not be aware of the version using it, as by default they should be using the last version of your endpoints, but how do we accomplish this?.
+So far we have the API versioned scoped via the URL, but something doesn’t feel quite right, isn’t it? From my point of view the developer should not be aware of the version using it, by default they should be using the last version of your endpoints, but how do we accomplish this?.
 
 Well first of all, we need to improve the API version access through http://en.wikipedia.org/wiki/List_of_HTTP_header_fields[HTTP Headers]. This has two benefits:
 
@@ -247,17 +249,17 @@ Well first of all, we need to improve the API version access through http://en.w
 ****
 HTTP header fields are components of the message header of requests and responses in the Hypertext Transfer Protocol (HTTP). They define an operating parameters of an HTTP transaction. A common list of used headers is presented below:
 
-* *Accept*: Content-Types that are acceptable for the response. Example: `Accept: text/plain`
+* *Accept*: Content-Types acceptables for the response. Example: `Accept: text/plain`
 * *Authorization*: Authentication credentials for HTTP authentication. Example: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
 * *Content-Type*: The MIME type of the body of the request (used with POST and PUT requests). Example: `Content-Type: application/x-www-form-urlencoded`
 * *Origin*: Initiates a request for cross-origin resource sharing (asks server for an `Access-Control-Allow-Origin' response header). Example: `Origin: http://www.example-social-network.com`
 * *User-Agent*: The user agent string of the user agent. Example: `User-Agent: Mozilla/5.0`
 
-It is important that you feel comfortable with this ones and understand them.
+It is important you feel comfortable with this ones and understand them.
 
 ****
 
-// In Rails is very easy to add this type versioning through an _Accept_ header. We will create a class under the `lib` directory of your rails app, and remember we are doing http://en.wikipedia.org/wiki/Test-driven_development[TDD] so first things first.
+// In Rails it's very easy to add this type versioning through an _Accept_ header. We will create a class under the `lib` directory of your rails app, and remember we are doing http://en.wikipedia.org/wiki/Test-driven_development[TDD] so first things first.
 
 // First we need to add our testing suite, which in our case is going to be http://rspec.info/[Rspe]:
 
@@ -320,7 +322,7 @@ It is important that you feel comfortable with this ones and understand them.
 // $ touch lib/spec/api_constraints_spec.rb
 // ----
 
-// We then add a bunch of specs describing our class:
+//Then we add a bunch of specs describing our class:
 
 // [source,ruby]
 // .lib/spec/api_constraints_spec.rb
@@ -397,9 +399,9 @@ It is important that you feel comfortable with this ones and understand them.
 
 == Conclusion
 
-It’s been a long way, I know, but you made it, don’t give up this is just our small scaffolding for something big, so keep it up. In the meantime and I you feel curious there are some gems that handle this kind of configuration:
+It’s been a long way, I know, but you made it, don’t give up this is just our small scaffolding for something big, so keep it up. In the meantime and if you feel curious there are some gems that handle this kind of configuration:
 
 * https://github.com/Sutto/rocket_pants[RocketPants]
 * https://github.com/bploetz/versionist[Versionist]
 
-I’m not covering those in here, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way the code up to this point is https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd[here].
+I’m not covering those in this book, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way the code up to this point is https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd[here].
