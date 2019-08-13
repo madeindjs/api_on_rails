@@ -51,7 +51,7 @@ invoke  active_record
       create      test/fixtures/users.yml
 ----
 
-NOTE: In the MVC design patern, the model is the element that contains the data as well as the logic related to the data: validation, reading and recording. So first we will create this part.
+NOTE: In the MVC design patern, the model is the element containing the data as well as the logic related to the data: validation, reading and recording. So first we will create this part.
 
 This command generates a lot of files! Don't worry, we'll review them one by one.
 
@@ -74,7 +74,7 @@ end
 
 NOTE: inserted date at the beginning of the migration file name should be different for you since it corresponds to the migration creation date.
 
-We will modify a small this migration in order to add some database validations. With Rails it is common practice to make these verifications directly in the Ruby model but it is good practice to do so also in the database schema.
+We will modify a little bit this migration in order to add some database validations. With Rails it is common practice to make these verifications directly in the Ruby model but it is good practice to do so also in the database schema.
 
 We will therefore add two additional constraints:
 
@@ -111,7 +111,7 @@ NOTE: This command will convert our migration into a SQL query that will update 
 
 ==== Model
 
-We need to first add the `devise` gem into the `Gemfile`
+First we need to add the `devise` gem into the `Gemfile`
 
 [source,ruby]
 .Gemfile
@@ -164,7 +164,7 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'devise'
 ----
 
-Then run the `bundle install` command to install it. Once the bundle command finishes, we need to run the devise install generator:
+Then run the `bundle install` command to install it. Once the bundle command finishes, we need runing the devise install generator:
 
 [source,bash]
 ----
@@ -262,7 +262,7 @@ RSpec.describe User, type: :model do
 end
 ----
 
-Because we previously prepare the test database, with `rake db:test:prepare`, we just simply run the tests:
+Because we previously prepare the test database, with `rake db:test:prepare`, we just simply run tests:
 
 [source,bash]
 ----
@@ -299,20 +299,20 @@ This command will create a `users_controller_spec.rb`. Before we get into that, 
 
 .Most common http codes
 ****
-The first digit of the status code specifies one of five classes of response; the bare minimum for an HTTP client is that it recognize these five classes. A common list of used http codes is presented below:
+The first digit of the status code specifies one of five classes of responss. The bare minimum for an HTTP client is that it recognize these five classes. A common list of used http codes is presented below:
 
 * `200`: Standard response for successful HTTP requests (It is commonly on GET requests)
 * `201`: The request has been fulfilled and resulted in a new resource being created (After POST requests)
 * `204`: The server successfully processed the request, but is not returning any content (It is usually a successful DELETE request)
 * `400`: The request cannot be fulfilled due to bad syntax.
-* `401`: Similar to 403 Forbidden, but specifically for use when authentication is required and has failed or has not yet been provided
+* `401`: Similar to 403 Forbidden, but specifically used when authentication is required and has failed or has not yet been provided
 * `404`: The requested resource could not be found but may be available again in the future (Usually GET requests)
 * `500`: A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
 
 For a full list of HTTP method check out the article on http://en.wikipedia.org/wiki/List_of_HTTP_status_codes[Wikipedia] talking about it
 ****
 
-To keep our code nicely organized, we will create some directories under the controller specs directory in order to be consistent with our current setup. There is also another set up out there which uses instead of the `controllers` directory a `request` or `integration` directory, I this case I like to be consistent with the `app/controllers` directory.
+To keep our code nicely organized, we will create some directories under the controller specs directory in order to be consistent with our current setup. There is also another set up out there which uses instead of the `controllers` directory a `request` or `integration` directory, In this case I like being consistent with the `app/controllers` directory.
 
 [source,bash]
 ----
@@ -355,7 +355,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ----
 
-So far, the tests look good, we just need to add the implementation. It is extremely simple:
+So far, tests look good, we just need to add the implementation. It is extremely simple:
 
 [source,ruby]
 .app/controllers/api/v1/users_controller.rb
@@ -444,7 +444,7 @@ $ git commit -m "Adds show action the users controller"
 
 === Testing endpoints with CURL
 
-So we finally have an endpoint to test. There are plenty of options to start playing with. The first that come to my mind is using http://curl.haxx.se/[cURL] because is built-in on almost any Linux distribution and of course on your Mac OSX. So let’s try it out:
+So we finally have an endpoint to test. There are plenty of options to start playing with. The first coming to my mind is using http://curl.haxx.se/[cURL] because is built-in on almost any Linux distribution and of course on your Mac OSX. So let’s try it out:
 
 NOTE: Remember our base URI is `api.market_place_api.dev`.
 
@@ -453,7 +453,7 @@ NOTE: Remember our base URI is `api.market_place_api.dev`.
 $ curl -H 'Accept: application/vnd.marketplace.v1' http://api.market_place_api.dev/users/1
 ----
 
-This will throw us an error. Well you might expect that already because we don’t have a user with `id` equals to 1. Let’s create it first through the terminal:
+This will throw us an error. Well you might expect that because we don’t have an user with `id` equals to 1. Let’s create it first through the terminal:
 
 [source,bash]
 ----
@@ -493,9 +493,9 @@ $ git commit -m "Updates application controller to prevent CSRF exception from b
 
 === Creating users
 
-Now that we have a better understanding on how to build endpoints and how they work, it’s time to add more abilities to the API. One of the most important is letting the users actually create a profile on our application. As usual we will write tests before implementing our code extending our testing suite.
+Now that we have a better understanding on how to build endpoints and how they work, it’s time to add more abilities to the API. One of the most important is letting the users create a profile on our application. As usual we will write tests before implementing our code extending our testing suite.
 
-Creating records in Rails as you may know is really easy, the trick when building an api is which is the best fit for the HTTP codes to send on the response, as well as the actual `json response`. If you don’t totally get this it will probably be more easy on the code:
+Creating records in Rails as you may know is really easy, the trick when building an api is the best fit for the HTTP codes to send on the response, as well as the actual `json response`. If you don’t totally get this it will probably be more easy on the code:
 
 *Make sure your repository is clean and that you don’t have any commits left, if so place them so we can start fresh.*
 
@@ -548,7 +548,7 @@ end
 
 There is a lot of code up there but don’t worry I’ll walk you through it:
 
-* We need to validate to states on which the record can be, valid or invalid. In this case we are using the `context` clause to achieve this scenarios.
+* We need to validate states on which the record can be, valid or invalid. In this case we are using the `context` clause to achieve this scenarios.
 * In case everything goes smooth, we should return a `201` HTTP code which means a record just got `created`, as well as the JSON representation of that object.
 * In case of any errors, we have to return a `422` HTTP code which stands for `Unprocessable Entity` meaning the server could save the record. We also return a JSON representation of why the resource could not be saved.
 
@@ -620,7 +620,7 @@ $ git commit -m "Adds the user create endpoint"
 The pattern for *updating* users is very similar as *creating* new ones. If you are an experienced Rails developer you may already know the differences between these two actions:
 
 * The `update` action responds to a PUT/PATCH request.
-* Only the `current_user` should be able to update their information, meaning we have to enforce a user to be authenticated. We will cover that on next chapters
+* Only the `current_user` should be able to update their information, meaning we have to enforce an user to be authenticated. We will cover that on next chapters
 
 As usual we start by writing our tests:
 
@@ -673,9 +673,9 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ----
 
-Getting the tests to pass requires us to build the `update` action on the `users_controller.rb` file as well as adding it to the `routes.rb`. As you can see we have to much code duplicated, we’ll refactor our tests in next chapter.
+Getting the tests pass requires us to build the `update` action on the `users_controller.rb` file as well as adding it to the `routes.rb`. As you can see we have too much code duplicated, we’ll refactor our tests in next chapter.
 
-First we add the action the `routes.rb` file
+First we add the action in the `routes.rb` file
 
 [source,ruby]
 .config/routes.rb
