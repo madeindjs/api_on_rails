@@ -1,13 +1,13 @@
 [#chapter05-user-products]
 = User products
 
-In the previous chapter, we implemented the authentication mechanism that we will use throughout the application.
+In the previous chapter, we implemented the authentication mechanism we will use throughout the application.
 
 For the moment we have a very simple implementation of the `User` model but the moment of truth has come. We will customize the JSON output and add a second resource: the user's products. These are the elements that the user will sell in the application and therefore will be directly linked //.
 
 If you are familiar with Rails, you may already know what I am talking about. But for those who don't know, we will associate the `User` model with the `Product` model using the `has_many` and `belongs_to` methods of _Active Record_.
 
-In this chapter, we will build the `Product` model from scratch, associate it with the user and create the necessary entries so that any customer can access the information.
+In this chapter, we will build the `Product` model from scratch, associate it with the user and create the necessary entries so any customer can access the information.
 
 You can clone the project up to this point:
 
@@ -44,7 +44,7 @@ Running via Spring preloader in process 1476
 ----
 
 
-As you can see, we used the `belongs_to` type for the attribute. This is a shortcut that will create a `user_id` column of type `int` and also add a foreign key to the `users.id` field.
+As you can see, we used the `belongs_to` type for the attribute. This is a shortcut that will create an `user_id` column of type `int` and also add a foreign key to the `users.id` field.
 
 In addition, `user_id` will also be defined as an `index`. This is a good practice for association keys because it optimizes database queries. It is not mandatory, but I highly recommend it.
 
@@ -88,7 +88,7 @@ ActiveRecord::InvalidForeignKey: SQLite3::ConstraintException: FOREIGN KEY const
 rails test test/controllers/api/v1/users_controller_test.rb:43
 ----
 
-You certainly said "What?! But I didn't touch the users!". What I have seen in the code of other developers, when they work with associations, is that they forget about destroying dependencies between models. What I mean by that is that if a user is deleted, so should the user's products.
+You certainly said "What?! But I didn't touch the users!". What I have seen in the code of other developers, when they work with associations, is that they forget about destroying dependencies between models. What I mean by that is if a user is deleted, so should the user's products.
 
 So to test this interaction between the models, we need a user with one of the products. Then, we will delete this user in the hope that the products will disappear with him. Rails has already generated this for us. Take a look at the _fixture_ of the products:
 
@@ -104,7 +104,7 @@ one:
 # ...
 ----
 
-You can see that this _fixture_ does not use the attribute `user_id` but `user`. This means that the `one` product will have an `user_id` attribute corresponding to the `one` user ID.
+You can see this _fixture_ does not use the attribute `user_id` but `user`. This means that the `one` product will have an `user_id` attribute corresponding to the `one` user ID.
 
 It is therefore necessary to specify a cascading deletion in order to delete the `one` product when the `one` user is deleted. Let's start with the unit test:
 
@@ -159,6 +159,8 @@ $ git add . && git commit -m "Generate product model"
 As we saw with the user, validations are an important part when building any kind of application. This will prevent any junk data from being saved onto the database. In the product we have to make sure for example the price is a `number` and that is not negative.
 
 Also an important thing about validation when working with associations, is in this case to validate that every product has a user, so in this case we need to validate the presence of the `user_id`. You can see what I’m talking about in next code snippet.
+
+//pas compris !
 
 [source,ruby]
 .test/models/product_test.rb
@@ -244,7 +246,7 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-We then add the code to make the test pass:
+Then we add the code to make the test pass:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -339,7 +341,7 @@ Rails.application.routes.draw do
 end
 ----
 
-We are done for now with the public product endpoints. In the sections to come we will focus on building the actions that require a user to be logged in to access them. Said that we are committing this changes and continue.
+We are done for now with the public product endpoints. In the next sections we will focus on building the actions requiring a user to be logged in to access them. Said that we are committing this changes and continue.
 
 [source,bash]
 ----
@@ -452,7 +454,7 @@ $ rake test
 
 Hopefully by now you understand the logic to build the upcoming actions, in this section we will focus on the `update` action, which will work similarly to the `create` one, we just need to fetch the product from the database and the update it.
 
-We are first add the action to the routes, so we don’t forget later:
+We are first adding the action to the routes, so we don’t forget later:
 
 [source,ruby]
 .config/routes.rb
@@ -499,10 +501,6 @@ end
 
 
 NOTE: I have added a _fixture_ corresponding to a second user in order to verify that the second user cannot modify the first user's product.
-
-The tests may seem complex, but if you look at them, they are almost identical to those of the users.
-
-Now let's implement the code to pass our tests successfully:
 
 The tests may look complex but take a second peek. They are almost the same we built for users. The only difference here is the nested routes as we saw on previous section, which in this case we need to send the `user_id` as a parameter.
 
@@ -605,7 +603,7 @@ end
 ----
 
 
-Now we simply add the necessary code to make the tests pass:
+Now we simply add the necessary code to make tests pass:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -626,7 +624,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-As you can see the three-line implementation does the job. We can run the tests to make sure everything is good and after that we will commit the changes as we added a bunch of new code. Also make sure you hook this action to the `before_action` callback as with the `update` action.
+As you can see the three-line implementation does the job. We can run tests to make sure everything is good and then we will commit the changes as we added a bunch of new code. Also make sure you hook this action to the `before_action` callback as with the `update` action.
 
 [source,bash]
 ----
@@ -747,9 +745,9 @@ Let's _commit_ changes:
 $ git commit -am "Create a seed to populate database"
 ----
 
-And as we get to the end of our chapter, it is time to apply all our modifications to the master branch by making a _merge_:
+And as we get to the end of our chapter, it's time to apply all our modifications to the master branch by making a _merge_:
 
-We then create a bunch of product objects with the `FactoryBot` gem:
+Then we create a bunch of product objects with the `FactoryBot` gem:
 [source,bash]
 ----
 $ git checkout master
@@ -758,7 +756,7 @@ $ git merge chapter05
 
 == Conclusion
 
-I hope you have enjoyed this chapter. It is a long one but the code we put together is an excellent base for the core app.
+I hope you have enjoyed this chapter. It's a long one but the code we put together is an excellent base for the core app.
 
 In the next chapter, we will focus on customizing the output of user and product models using the gem https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi]. It will allow us to easily filter the attributes to display and manage associations such as embedded objects for example.
 
