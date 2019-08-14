@@ -1,7 +1,7 @@
 [#chapter06-improve-json]
 = JSON with Active Model Serializers
 
-In the previous chapter, we added the products to the application and built all the necessary roads. We have also associated a product with a user and restricted some of the actions of `products_controller`.
+In the previous chapter, we added products to the application and built all the necessary roads. We have also associated a product with an user and restricted some of the actions of `products_controller`.
 
 Now, you should be satisfied with all this work. But we still have a lot of work to do. Currently, we have a JSON output that is not perfect. The JSON output looks like this:
 
@@ -54,9 +54,9 @@ Thus, our document *must* contain these keys:
 
 The content of the `data` key is also quite strict:
 
-* it must have a `type' key that describes the type of the JSON model (if it is an article, a user, etc...)
-* the properties of the objects must be placed in an `attributes` key and the _undescore_ (`_`) are replaced by dashes (`-`)
-* the links of the objects must be placed in a `relationships` key
+* it must have a `type' key describing the type of the JSON model (if it is an article, a user, etc...)
+* properties of the objects must be placed in an `attributes` key and the _undescore_ (`_`) are replaced by dashes (`-`)
+* links of the objects must be placed in a `relationships` key
 
 In this chapter, we will customize the JSON output using the Netflix gem https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi] who implements all https://jsonapi.org/[JSON:API] normes.
 
@@ -93,7 +93,7 @@ class UserSerializer
 end
 ----
 
-This _serializer_ will allow us to convert our `User` object to JSON which correctly implements the JSON:API standard. We have specified the `email` attribute so that it is present in the `data` array.
+This _serializer_ will allow us to convert our `User` object to JSON which correctly implements the JSON:API standard. We have specified the `email` attribute so it is present in the `data` array.
 
 Let's try all this in the Rails with `rails console` console:
 
@@ -147,7 +147,7 @@ Expected: "one@one.org"
   Actual: nil
 ----
 
-For some reason the answer is not quite what we expect. This is because the gem modifies the response we had previously defined. So to pass the tests, you just have to update our test:
+For some reason the answer is not quite what we expect. This is because the gem modifies the response we had previously defined. So to pass these tests, you just have to update our test:
 
 [source,ruby]
 .test/controllers/api/v1/users_controller_test.rb
@@ -266,7 +266,7 @@ $ git commit -m "Adds product serializer for custom json output"
 
 === Serialize associations
 
-We have worked with serializers and you may notice that it is very simple. In some cases, the difficult decision is how to name your routes or how to structure the JSON output so that your solution is sustainable. When working with associations between models on an API, there are many approaches you can take.
+We have worked with serializers and you may notice that it is very simple. In some cases, the difficult decision is naming your routes or structuring the JSON output so that your solution is sustainable. When working with associations between models on an API, there are many approaches you can take.
 
 We don't have to worry about this problem in our case, the JSON:API standard did it for us!
 
@@ -296,13 +296,13 @@ It is a good idea to integrate users into the JSON outputs of products. This wil
 
 Imagine a scenario where you go to the API to get the products, but in this case you have to display some of the user information.
 
-One possible solution would be to add the attribute `user_id` to the `product_serializer` so that we can get the corresponding user later. This may sound like a good idea, but if you are concerned about performance, or if your database transactions are not fast enough, you should reconsider this approach. You must understand that for each product you retrieve, you will have to retrieve its corresponding user.
+One possible solution would be adding the attribute `user_id` to the `product_serializer` so that we can get the corresponding user later. This may sound like a good idea, but if you are concerned about performance, or if your database transactions are not fast enough, you should reconsider this approach. You must understand that for each product you retrieve, you will have to retrieve its corresponding user.
 
-Faced with this problem, there are several possible alternatives.
+Faced with this problem, there are several alternatives.
 
 === Integrate into a meta attribute
 
-The first solution A good solution in my opinion is to integrate the identifiers of users linked to products in a meta attribute, so we have a JSON output like:
+The first solution, a good solution in my opinion, is to integrate the identifiers of users linked to products in a meta attribute, so we have a JSON output like:
 
 [source,json]
 ----
@@ -347,7 +347,7 @@ Another solution is to incorporate the `user` object into the `product` object. 
 }
 ----
 
-The problem with this approach is that we have to duplicate the `User' objects for each product that belong to the same user:
+The problem with this approach is we have to duplicate the `User' objects for each product that belong to the same user:
 
 [source,json]
 ----
@@ -490,7 +490,7 @@ We are now checking three things on the JSON that has been returned:
 . it contains the user ID of the user linked to the product
 . the user data is included in the `include` key
 
-NOTE: You may have noticed that I have chosen to use the method https://ruby-doc.org/core-2.6.3/Hash.html#method-i-dig[`Hash#dig`]. It is a Ruby method that allows you to retrieve elements in an nested _Hash_ by avoiding errors if an element is not present.
+NOTE: You may have noticed that I have chosen to use the method https://ruby-doc.org/core-2.6.3/Hash.html#method-i-dig[`Hash#dig`]. It is a Ruby method allowing you to retrieve elements in an nested _Hash_ by avoiding errors if an element is not present.
 
 To pass this test we will start by including the relationship in the _serializer_:
 
@@ -504,7 +504,7 @@ class ProductSerializer
 end
 ----
 
-Cette ajout aura pour effet de rajouter un clé `relatioship` contenant l’identifiant de l'utilisateur:
+This addition will add a `relatioship` key containing the user's identifier:
 
 [source,json]
 ----
@@ -529,7 +529,7 @@ Cette ajout aura pour effet de rajouter un clé `relatioship` contenant l’iden
 }
 ----
 
-This allows us to correct our first two assertions. We now want to include the attributes of the user who owns the product. To do this, we simply need to pass an option `:include` to the _serializer_ instantiated in the _controller_. Then let's do it:
+This allows us correcting our first two assertions. We now want to include attributes of the user who owns the product. To do this, we simply need to pass an option `:include` to the _serializer_ instantiated in the _controller_. Then let's do it:
 
 [source,ruby]
 .app/serializers/product_serializer.rb
@@ -620,7 +620,7 @@ end
 ----
 
 
-The the _serializer_:
+The _serializer_:
 
 [source,ruby]
 .app/serializers/user_serializer.rb
@@ -701,9 +701,9 @@ $ git commit -am "Add products relationship to user#show"
 
 == Search for products
 
-In this last section, we will continue to strengthen the `Products#index` action by setting up a very simple search mechanism to allow any customer to filter the results. This section is optional as it will have no impact on the application modules. But if you want to practice more with the TDD, I recommend that you complete this last step.
+In this last section, we will continue to strengthen the `Products#index` action by setting up a very simple search mechanism allowing any customer to filter the results. This section is optional as it will have no impact on the application modules. But if you want to practice more with the TDD, I recommend that you complete this last step.
 
-I use https://github.com/activerecord-hackery/ransack[Ransack] or https://github.com/casecommons/pg_search_search[pg_search] to build advanced search forms extremely quickly. But here, since the goal is to learn and the search we are going to do is very simple, I think we can build a search engine from scratch. We simply have to consider the criteria by which we will filter the attributes. Hang on to your seats, it's going to be a tough trip.
+I use https://github.com/activerecord-hackery/ransack[Ransack] or https://github.com/casecommons/pg_search_search[pg_search] to build advanced search forms extremely quickly. But here, since the goal is learning and searching we are going to do is very simple, I think we can build a search engine from scratch. We simply have to consider the criteria by which we will filter the attributes. Hang on to your seats, it's going to be a tough trip.
 
 We will therefore filter the products according to the following criteria:
 
@@ -772,7 +772,7 @@ class Product < ApplicationRecord
 end
 ----
 
-NOTE: _scoping_ allows you to specify commonly used queries that can be referenced as method calls on models. With these __scopes__ you can also link with Active Record methods like `where`, `joins` and `includes` because a _scope_ always returns an object https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`]. I invite you to take a look at https://guides.rubyonrails.org/active_record_querying.html#scopes_record_querying.html#scopes[Rails documentation]
+NOTE: _scoping_ allows you to specify commonly used queries that can be referenced as method calls on models. With these __scopes__ you can also link with Active Record methods like `where`, `joins` and `includes` because a _scope_ always returns an object https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`]. I invite you taking a look at https://guides.rubyonrails.org/active_record_querying.html#scopes_record_querying.html#scopes[Rails documentation]
 
 Implementation is sufficient for our tests to pass:
 
@@ -909,7 +909,7 @@ $ git commit -am "Adds search scopes on the product model"
 
 ==== Search engine
 
-Now that we have the basis for the search engine we will use in the application, it is time to implement a simple but powerful search method. She will manage all the logic to retrieve the product records.
+Now that we have the basis for the search engine we will use in the application, it is time to implement a simple but powerful search method. It will manage all the logic to retrieve the product records.
 
 The method will consist in linking all the `scope` that we have previously built and returning the result. Let's start by adding some tests:
 
