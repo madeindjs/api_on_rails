@@ -8,7 +8,7 @@ Welcome to the last chapter of the book. It has been a long way, but you are onl
 * optimization of SQL queries
 * the activation of CORS
 
-I will try to go as far as I can by trying to cover some common scenarios. I hope that these scenarios will be useful for some of your projects.
+I will try to go as far as I can by trying to cover some common scenarios. I hope these scenarios will be useful for some of your projects.
 
 If you start reading at this point, you'll probably want the code to work, you can clone it like that:
 
@@ -27,7 +27,7 @@ $ git checkout -b chapter09
 
 == Pagination
 
-A very common strategy to optimize an array of records from the database, is to load just a few by paginating them and if you are familiar with this technique you know that in Rails is really easy to achieve it whether if you are using https://github.com/mislav/will_paginate[will_paginate] or https://github.com/amatsuda/kaminari[kaminari].
+A very common strategy to optimize an array of records from the database, is to load just a few by paginating them and if you are familiar with this technique you know that in Rails that's really easy to achieve it whether if you are using https://github.com/mislav/will_paginate[will_paginate] or https://github.com/amatsuda/kaminari[kaminari].
 
 Then only tricky part in here is how are we suppose to handle the JSON output now, to give enough information to the client on how the array is paginated. If you recall first chapter I shared some resources on the practices I was going to be following in here. One of them was http://jsonapi.org/ which is a must-bookmark page.
 
@@ -87,7 +87,7 @@ We need to provide the pagination information on the `meta` tag in the following
 }
 ----
 
-Now that we have the final structure for the `meta` tag we just need to output it on the JSON response. Let’s first add some specs:
+Now we have the final structure for the `meta` tag we just need to output it on the JSON response. Let’s first add some specs:
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -177,7 +177,7 @@ $ rake test
 42 runs, 65 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Now that we have made a superb optimization for the product list route, it is up to the customer to retrieve the `page` with the right `per_page` parameter for registrations.
+Now we have made a superb optimization for the product list route, it is up to the customer to retrieve the `page` with the right `per_page` parameter for registrations.
 
 Let's make these changes and continue with the list of commands.
 
@@ -347,7 +347,7 @@ $ rake test
 ----
 
 
-Now that we have done this simple factorization for testing, we can move on to the implementation of pagination for controllers and clean things up. If you remember the indexing action for both product and order controllers, they both have the same pagination format. So let's move this logic into a method called `get_links_serializer_options` under the file `paginable.rb`, so we can access it on any controller that would need paging.
+Now we have done this simple factorization for testing, we can move on to the implementation of pagination for controllers and clean things up. If you remember the indexing action for both product and order controllers, they both have the same pagination format. So let's move this logic into a method called `get_links_serializer_options` under the file `paginable.rb`, so we can access it on any controller that would need paging.
 
 
 [source,ruby]
@@ -492,7 +492,7 @@ $ git commit -am "Adds caching for the serializers"
 
 N+1* requests are a wound that can have a huge impact on the performance of an application. This phenomenon often occurs when using a **ORM** because it generates **automatically** SQL queries for us. This handy tool is double-edged because it can generate a **large number** of SQL queries.
 
-Something to know about SQL queries is that it is better to limit the number. In other words, a large request is often more efficient than a hundred small ones.
+Something to know about SQL queries is that it's better limiting the number. In other words, a large request is often more efficient than a hundred small ones.
 
 Here is an example where we want to recover all users who have already created a product. Open the Rails console with `Console Rails` and execute the following Ruby code:
 
@@ -527,9 +527,9 @@ User Load (0.8ms)  SELECT "users".* FROM "users" WHERE "users"."id" IN (?, ?, ?)
 
 Rails makes a second request that will retrieve *all* users at once.
 
-=== Prevention des requêtes N+1
+=== Prevention of N + 1 requests
 
-Imagine that we want to add the owners of the products for the road `/products`. We have already seen that with the `fast_jsonapi` library it is very easy to do this:
+Imagine we want adding owners of the products for the road `/products`. We have already seen that with the `fast_jsonapi` library it is very easy to do this:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -547,14 +547,14 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Now let's make a request with cURL. I remind you that we must obtain an authentication token before accessing the page.
+Now let's make a request with cURL. I remind you we must obtain an authentication token before accessing the page.
 
 [source,bash]
 ----
 $ curl -X POST --data "user[email]=ockymarvin@jacobi.co" --data "user[password]=locadex1234"  http://localhost:3000/api/v1/tokens
 ----
 
-NOTE: "ockymarvin@jacobi.co" corresponds to a user created in my application with the _seed_. In your case, it will probably be different from mine since we used the Faker library.
+NOTE: "ockymarvin@jacobi.co" corresponds to an user created in my application with the _seed_. In your case, it will probably be different from mine since we used the Faker library.
 
 With the help of the token obtained, we can now make a request to access the products
 
@@ -624,11 +624,12 @@ USE eager loading detected
   Add to your finder: :includes => [:user]
 ----
 
-Il nous indique même comment la corriger :
+He even tells us how to correct it:
 
-> Ajouter à votre moteur de recherche : :includes => [:user]
+> Add to your search engine:: includes => [: user]
 
-Corrigeons donc notre erreur donc le contrôleur:
+So correct our error so the controller:
+
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -650,7 +651,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Et voilà! Il est maintenant temps de faire notre _commit_.
+There you go! It is now time to do our _commit_.
 
 [source,bash]
 ----
