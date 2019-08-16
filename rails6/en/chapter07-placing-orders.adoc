@@ -1,7 +1,7 @@
 [#chapter07-placing-orders]
 = Placing Orders
 
-Back in previous chapter we handle associations between the product and user models, and how to serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between three models and we have to be smart enough to handle the JSON output we are delivering.
+In previous chapter we handle associations between product and user models, and how to serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between three models and we have to be smart enough to handle the JSON output we are delivering.
 
 In this chapter we will make several things which I list below:
 
@@ -9,7 +9,7 @@ In this chapter we will make several things which I list below:
 * Handle JSON output association between the order user and product models
 * Send a confirmation email with the order summary
 
-So now that we have everything clear, we can get our hands dirty. You can clone the project up to this point with:
+So now everything is clear, we can get our hands dirty. You can clone the project up to this point with:
 
 [source,bash]
 ----
@@ -24,7 +24,7 @@ $ git checkout -b chapter07
 
 == Modeling order
 
-If you remember associations model, the `Order` model is associated with users and products at the same time. It is actually really simply to achieve this in Rails. The tricky part is whens comes to serializing this objects. I talk about more about this in a next section.
+If you remember associations model, the `Order` model is associated with users and products at the same time. It is actually really simply to achieve this in Rails. The tricky part is when comes to serializing this objects. I'll talk more about this in a next section.
 
 Let’s start by creating the order model, with a special form:
 
@@ -79,8 +79,7 @@ class User < ApplicationRecord
   # ...
 end
 ----
-
-Les tests devraient passer:
+Tests should pass:
 
 [source,bash]
 ----
@@ -218,7 +217,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-If we run the test suite now, as you may expect, both tests will fail, because have not even set the correct routes, nor the action. So let’s start by adding the routes:
+If we run the test suite now, as you may expect, both tests will fail, because they have not even set the correct routes, nor the action. So let’s start by adding the routes:
 
 [source,ruby]
 .config/routes.rb
@@ -287,7 +286,7 @@ $ git add . && git commit -m "Adds the show action for order"
 
 === Render a single order
 
-As you can already imagine, this route is very easy. We only have to set up a few configurations (routes, controller action) and that will be all for this section. We will also include the products related to this order in the output JSON.
+As you can already imagine, this route is very easy. We only have to set up a few configurations (routes, controller action) and  this section will be over. We will also include products related to this order in the output JSON.
 
 Let's start by adding some tests:
 
@@ -307,7 +306,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-As you can see, the second part of the test verifies that the product is included in the JSON.
+As you can see, the second part of the test verifies the product is included in the JSON.
 
 Let's add the implementation to run our tests. On the `routes.rb` file add the `show` action to the command routes:
 
@@ -324,7 +323,7 @@ Rails.application.routes.draw do
 end
 ----
 
-And the the implementation should look like this:
+And the implementation should look like this:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
@@ -374,7 +373,7 @@ Before launching this feature, let's take the time to think about the implicatio
 
 It seems like there's still a lot to do, but believe me: you're closer than you think and it's not as hard as it looks. For now, let's keep it simple and assume that we still have enough products to place any number of orders. We're just concerned about the server's response at the moment.
 
-If you remember order model, we need three things: a total for the order, the user who places the order and the products for the order. Based on this information, we can start adding some tests:
+If you remember order model, we need three things: a total for the order, user who places the order and products for the order. Based on this information, we can start adding some tests:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -462,9 +461,9 @@ $ rake test
 ----
 
 
-Ok, so we have everything nice and green. We now should move on to the next chapter right? Let me stop you right there. We have some serious errors on the app, and they are not related to the code itself but on the business part.
+Ok, so we have everything nice and green. Now we should move on to the next chapter right? Let me stop you right there. We have some serious errors on the app, and they are not related to the code itself but on the business part.
 
-Not because the tests are green, it means the app is filling the business part of the app. I wanted to bring this up because in many cases is super easy to just receive params and build objects from those params thinking that we are always receiving the correct data. In this particular case we cannot rely on that, and the easiest way to see this, is that we are letting the client to set the order total, yeah crazy!
+Not because the tests are green, it means the app is filling the business part of the app. I wanted to bring this up because in many cases that's super easy just receiving params and building objects from those params thinking that we are always receiving the correct data. In this particular case we cannot rely on that, and the easiest way to see this, is that we are letting the client to set the order total, yeah crazy!
 
 We have to add some validations or a callback to calculate the order total an set it through the model. This way we don’t longer receive that total attribute and have complete control on this attribute. So let’s do that.
 
@@ -611,7 +610,7 @@ class OrderMailer < ApplicationMailer
 end
 ----
 
-After adding this code, we must now add the corresponding views. It is a good practice to include a text version in addition to the HTML version.
+After adding this code, we must now add the corresponding views. It is a good practice including a text version in addition to the HTML version.
 
 
 [source,erb]
@@ -692,9 +691,9 @@ $ git merge chapter07
 
 == Conclusion
 
-That's it! That's it! You did it! You did it! You can applaud yourself. I know it's been a long time, but it's almost over, believe me.
+That's it! You did it! You can applaud yourself. I know it's been a long time, but it's almost over, believe me.
 
-In future chapters, we will continue to work on the order template to add validations when placing an order. Some scenarios are:
+In next chapters, we will continue working on the order template to add validations when placing an order. Some scenarios are:
 
 * What happens when products are not available?
 * Decrease the quantity of the product in progress when placing an order
