@@ -1,10 +1,10 @@
 [#chapter08-improve_orders]
 = Improving orders
 
-Back in previous chapter we extended our API to place orders and send a confirmation email to the user (just to improve the user experience). This chapter will take care of some validations on the order model, just to make sure it is placeable, just like:
+In previous chapter we extended our API to place orders and send a confirmation email to the user (just to improve the user experience). This chapter will take care of some validations on the order model, just to make sure it is placeable, just like:
 
 - Decrement the current product quantity when an order is placed
-- What happens when the products are not available?
+- What happens when products are not available?
 
 We’ll probably need to update a little bit the JSON output for the orders but let’s not spoil things up.
 
@@ -31,7 +31,7 @@ On this first stop we will work on update the product quantity to make sure ever
 $ rails generate migration add_quantity_to_products quantity:integer
 ----
 
-Wait, don’t run the migrations just yet, we are making a small modification to it. As a good practice I like to add default values for the database just to make sure I don’t mess things up with `null` values. This is a perfect case!
+Wait, don’t run the migrations just yet, we are making a small modification to it. As a good practice I like adding default values for the database just making sure I don’t mess things up with `null` values. This is a perfect case!
 
 Your migration file should look like this:
 
@@ -71,7 +71,7 @@ another_tv:
 ----
 
 
-It is now time to reduce the quantity of the `Product` once the `Order` has been passed. The first thing that probably comes to mind is to do it in the `Order` model and it is a common mistake. When you work with _Many-to-Many_ associations, we completely forget the join model which in this case is `Placement`. The `Placement` is a better place to manage this because we have access to the order and the product. This way, we can easily reduce the stock of the product.
+It is now time to reduce the quantity of the `Product` once the `Order` has been passed. The first thing probably coming to mind is to do it in the `Order` model and it is a common mistake. When you work with _Many-to-Many_ associations, we completely forget the join model which in this case is `Placement`. The `Placement` is a better place to manage this because we have access to the order and the product. This way, we can easily reduce the stock of the product.
 
 Before we start implementing the code, we need to change the way we manage the creation of the order because we now have to accept a quantity for each product. If you remember, we are waiting for a table of product identifiers. I will try to keep things simple and send a Hash table with the keys `product_id` and `quantity`.
 
@@ -354,11 +354,11 @@ $ git commit -am "Decreases the product quantity by the placement quantity"
 
 == Validate quantity of products
 
-Since the beginning of the chapter, we have added the attribute `quantity` to the product model. It is now time to validate that the quantity of product is sufficient for the order to be placed. In order to make things more interesting, we will do this using a custom validator.
+Since the beginning of the chapter, we have added the attribute `quantity` to the product model. It is now time to validate the quantity of product is sufficient for the order to be placed. In order to make things more interesting, we will do this using a custom validator.
 
 NOTE: You can consult https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations_record_validations.html#performing-custom-validations[documentation].
 
-First we need to add a `validators` directory under the `app` directory (Rails will pick it up for so we do not need to load it).
+First we need adding a `validators` directory under the `app` directory (Rails will pick it up for so we do not need to load it).
 
 [source,bash]
 ----
@@ -516,5 +516,5 @@ $ git merge chapter08
 
 Oh, you're here! Allow me to congratulate you! That's a long way from the first chapter. But you're one step closer. In fact, the next chapter will be the last. So try to make the most of it.
 
-The last chapter will focus on how to optimize the API using paging, caching and background tasks. So buckle up, it's going to be a hectic ride.
+The last chapter will focus on the way to optimize the API using paging, caching and background tasks. So buckle up, it's going to be a hectic ride.
 
