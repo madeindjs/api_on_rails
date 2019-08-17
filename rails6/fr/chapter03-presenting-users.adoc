@@ -417,19 +417,10 @@ Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions po
 [source,bash]
 ----
 $ curl http://localhost:3000/api/v1/users/1
-----
-
-Après avoir créé l’utilisateur, notre appel cURL devrait fonctionner:
-
-[source,bash]
-----
-$ curl http://localhost:3000/api/v1/users/1
 {"id":1,"email":"toto@toto.org", ...
 ----
 
-NOTE: N'oubliez pas que nous avons crée l'utilisateur _toto@toto.org_ lors de la précédente section.
-
-Et voilà! Vous avez maintenant une entrée d’API d’enregistrement d’utilisateur.
+Nous retrouvons bien l'utilisateur que nous avons crée avec la console Rails dans la section précédente. Vous avez maintenant une entrée d’API d’enregistrement d’utilisateur.
 
 === Créer les utilisateurs
 
