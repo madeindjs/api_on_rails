@@ -192,7 +192,7 @@ $ git commit -am "Adds some validations to products"
 
 == Point d’entrée pour nos produits
 
-Il est maintenant temps de commencer à construire les points d’entrée des produits. Pour l’instant, nous allons juste construire cinq actions REST et certaines d’entre elles seront imbriquées dans la ressource utilisateur. Dans le prochain chapitre, nous allons personnaliser la sortie JSON en implémentant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi].
+Il est maintenant temps de commencer à construire les points d’entrée des produits. Pour l’instant, nous allons juste construire cinq actions REST. Dans le prochain chapitre, nous allons personnaliser la sortie JSON en implémentant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi].
 
 Nous devons d’abord créer le `products_controller`, et nous pouvons facilement y parvenir avec la commande ci-dessous:
 
@@ -540,7 +540,7 @@ $ rake test
 
 === Suppression des produits
 
-Notre dernier arrêt pour les route des produits, sera l’action `destroy`. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La stratégie ici sera assez similaire à l’action de `create` et `update`. Ce qui signifie que nous allons imbriquer la route dans les ressources des utilisateurs, puis récupérer le produit auprès de l’association `user.products` et enfin le supprimer en retournant un code 204.
+Notre dernier arrêt pour les route des produits, sera l’action `destroy`. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La stratégie ici sera assez similaire à l’action de `create` et `update`. Ce qui signifie que nous allons récupérer l'utilisateur connecté puis récupérer le produit auprès de l’association `user.products` et enfin le supprimer en retournant un code 204.
 
 Recommençons par ajouter la route:
 
@@ -616,7 +616,7 @@ Après cela, nous _commitons_ les changements.
 
 [source,bash]
 ----
-$ git commit -am "Adds the products create, update and destroy action nested on the user resources"
+$ git commit -am "Adds the products create, update and destroy action"
 ----
 
 == Remplir la base de données

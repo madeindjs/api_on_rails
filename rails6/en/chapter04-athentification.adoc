@@ -27,7 +27,7 @@ Before we go any further, something must be clear: *an API does not handle sessi
 
 The flow for authenticating the user through an API is very simple:
 
-. The client request for `sessions` resource with the corresponding credentials, usually email and password.
+. The client request for `sessions` resource with the corresponding credentials (usually email and password)
 . The server returns the `user` resource along with its corresponding authentication token
 . For every page that requires authentication the client has to send that `authentication token`
 
@@ -42,10 +42,10 @@ When it comes to authentication tokens, there is a standard: the JSON Web Token 
 
 > JWT is an open standard defined in RFC 75191. It allows the secure exchange of tokens between several parties. - https://wikipedia.org/wiki/JSON_Web_Token_Web_Token[Wikipedia]
 
-Overall, a JWT token is composed of three parts:
+Overall a JWT token is composed of three parts:
 
 - a *header* structured in JSON contains for example the validity date of the token.
-- a _payload_ structured in JSON can contain *any data*. In our case, it will contain the identifier of the "connected" user.
+- a *payload* structured in JSON can contain *any data*. In our case, it will contain the identifier of the "connected" user.
 - a *signature* allows us to verify that the token has been encrypted by our application and is therefore valid.
 
 These three parts are each encoded in base64 and then concatenated using points (`.`). Which gives us something like that:
@@ -100,7 +100,7 @@ The library is very simple. There are two methods: `JWT.encode` and `JWT.decode`
  => [{"message"=>"Hello World"}, {"alg"=>"HS256"}]
 ----
 
-In the first line we encoded a _payload_ with the secret key _my_secret_key_. So we get a token we can simply decode. The second line decodes the token and we see that we find our _payload_ well.
+In the first line we encoded a _payload_ with the secret key `my_secret_key`. So we get a token we can simply decode. The second line decodes the token and we see that we find our _payload_ well.
 
 We will now include all this logic in a `JsonWebToken` class in a new file located in `lib/`. This will allow us to avoide duplicating the code.  This class will just encode and decode the JWT tokens. So here is the implementation.
 
@@ -177,10 +177,10 @@ end
 ----
 
 
-Before going any further, we will build functional tests. The desired behavior is the following:
+We will build functional tests before going any further. The desired behavior is the following:
 
-- if I send a valid email/password pair, I receive a token
-- otherwise, I have a `forbidden` type response.
+- I receive a token if I send a valid email / password pair
+- otherwise server repond a `forbidden` response
 
 The tests therefore materialize as follows:
 
@@ -211,7 +211,6 @@ end
 
 You may be wondering: "but how can you know the user's password?". Simply use the `BCrypt::Password.create` method in the _fixtures_ of users:
 
-
 .test/fixtures/users.yml
 [source,yaml]
 ----
@@ -219,7 +218,6 @@ one:
   email: one@one.org
   password_digest: <%= BCrypt::Password.create('g00d_pa$$') %>
 ----
-
 
 At this precise moment, if you run the tests you get two errors:
 
@@ -294,13 +292,11 @@ $ git add . && git commit -m "Setup tokens controller"
 
 == Logged user
 
-So we implemented the following logic: API returns the authentication token to the client if credentials are correct .
+So we implemented the following logic: API returns the authentication token to the client if credentials are correct.
 
-We will now implement the following logic: Each time this client requests a protected page, we'll have to find the user from this authentication token that the user has passed in the HTTP header.
+We will now implement the following logic: we'll find corresponding user of authentication token given into the HTTP header. We'll need to do so each time this client requests a protected page.
 
-//pas compris
-
-In our case, we will use the HTTP header `Authorization` which is often used for this. Personally, I find it the best way because it gives context to the request without polluting the URL with additional parameters.
+We will use the HTTP header `Authorization` which is often used for this purpose. We may also use a GET parameter named `apiKey` but I prefer to use an HTTP header because it gives context to the request without polluting the URL with additional parameters.
 
 We will therefore create a `current_user` method to meet our needs. It will find the user thanks to his authentication token which is sent on each request.
 
@@ -555,4 +551,4 @@ $ git merge chapter04
 
 Yeah! you made it! you are half way done! Keep up the good work. This chapter was a long and hard one but it is a great step forward on setting a solid mechanism for handling user authentication. We even scratch the surface for simple authorization rules.
 
-In the next chapter we will be focusing on customizing the JSON output for the user with `active_model_serializers` gem and adding a `product` model to the equation by giving the user the ability to create a product and publish it for sale.
+In the next chapter we will be focusing on customizing the JSON output for the user with https://github.com/Netflix/fast_jsonapi[fast_jsonapi] gem and adding a `product` model to the equation by giving the user the ability to create a product and publish it for sale.

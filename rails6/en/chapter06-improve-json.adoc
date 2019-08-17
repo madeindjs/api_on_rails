@@ -1,9 +1,9 @@
 [#chapter06-improve-json]
 = JSON with Active Model Serializers
 
-In the previous chapter, we added products to the application and built all the necessary roads. We have also associated a product with an user and restricted some of the actions of `products_controller`.
+In the previous chapter we added products to the application and built all the necessary roads. We have also associated a product with an user and restricted some of the actions of `products_controller`.
 
-Now, you should be satisfied with all this work. But we still have a lot of work to do. Currently, we have a JSON output that is not perfect. The JSON output looks like this:
+Now you should be satisfied with all this work. But we still have a lot of work to do. Currently, we have a JSON output that is not perfect. The JSON output looks like this:
 
 [source,json]
 ----
