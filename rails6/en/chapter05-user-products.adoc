@@ -1,5 +1,5 @@
 [#chapter05-user-products]
-= User products
+= User's products
 
 In the previous chapter, we implemented the authentication mechanism we will use throughout the application.
 

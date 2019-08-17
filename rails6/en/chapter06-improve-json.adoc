@@ -1,5 +1,5 @@
 [#chapter06-improve-json]
-= JSON with Active Model Serializers
+= JSON with JSON:API
 
 In the previous chapter we added products to the application and built all the necessary roads. We have also associated a product with an user and restricted some of the actions of `products_controller`.
 

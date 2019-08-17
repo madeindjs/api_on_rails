@@ -11,6 +11,7 @@ The purpose of this book is not only to teach you how to build an API with Rails
 - Building JSON responses
 - Test your end-points with unit and functional tests
 - Set up authentication with JSON Web Tokens (JWT)
+- Use JSON:API specification
 - Optimize and cache the API
 
 I strongly recommend you follow all the steps in this book. Try not to skip chapters because I will give you some tips and tricks to improve your skills throughout the book. You can consider yourself the main character of a video game who gain a level in each chapter.

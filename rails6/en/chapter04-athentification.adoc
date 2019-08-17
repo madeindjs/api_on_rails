@@ -1,5 +1,5 @@
 [#chapter05-athentification]
-= Authenticating users
+= Authenticating user
 
 It's been a long time since you started. I hope you enjoy this trip as much as I do.
 

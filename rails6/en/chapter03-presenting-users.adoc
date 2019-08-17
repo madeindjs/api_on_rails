@@ -1,5 +1,5 @@
 [#chapter03-presenting-users]
-= Presenting the users
+= Presenting users
 
 In the last chapter we manage to set up the bare bones for our application endpoints configuration.
 
