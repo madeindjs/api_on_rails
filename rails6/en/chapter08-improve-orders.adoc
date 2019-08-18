@@ -8,7 +8,7 @@ In previous chapter we extended our API to place orders and send a confirmation 
 
 We’ll probably need to update a little bit the JSON output for the orders but let’s not spoil things up.
 
-So now that we have everything clear, we can get our hands dirty. You can clone the project up to this point with:
+So now that we have everything clear we can get our hands dirty. You can clone the project up to this point with:
 
 [source,ruby]
 ----
@@ -22,16 +22,16 @@ Let’s create a branch to start working:
 $ git checkout -b chapter08
 ----
 
-== Decrementing the product quantity
+== Decrementing product quantity
 
-On this first stop we will work on update the product quantity to make sure every order will deliver the actual product. Currently the `product` model doesn’t have a `quantity` attribute, so let’s do that:
+On this first stop we will work on update the product quantity to make sure every order will deliver the actual product. Currently the `product` model doesn’t have a `quantity` attribute. So let’s do that:
 
 [source,bash]
 ----
 $ rails generate migration add_quantity_to_products quantity:integer
 ----
 
-Wait, don’t run the migrations just yet, we are making a small modification to it. As a good practice I like adding default values for the database just making sure I don’t mess things up with `null` values. This is a perfect case!
+Wait, don’t run migrations now. We'll making a small modification to it. As a good practice I like adding default values for the database just making sure I don’t mess things up with `null` values. This is a perfect case!
 
 Your migration file should look like this:
 
@@ -52,7 +52,7 @@ Now we can migrate database:
 $ rake db:migrate
 ----
 
-And let's not forget to update the _fixtures_ by adding the *quantity* field (I chose the value `5` totally by chance).
+And let's not forget to update the _fixtures_ by adding the *quantity* field (I chose the value `5` totally randomly).
 
 [source,yml]
 .test/fixtures/products.yml
@@ -71,9 +71,11 @@ another_tv:
 ----
 
 
-It is now time to reduce the quantity of the `Product` once the `Order` has been passed. The first thing probably coming to mind is to do it in the `Order` model and it is a common mistake. When you work with _Many-to-Many_ associations, we completely forget the join model which in this case is `Placement`. The `Placement` is a better place to manage this because we have access to the order and the product. This way, we can easily reduce the stock of the product.
+It is now time to reduce the product's quantity once the `Order` has been passed. The first thing probably coming to mind is to do it in the `Order` model. This is a common mistake.
 
-Before we start implementing the code, we need to change the way we manage the creation of the order because we now have to accept a quantity for each product. If you remember, we are waiting for a table of product identifiers. I will try to keep things simple and send a Hash table with the keys `product_id` and `quantity`.
+When you work with _Many-to-Many_ associations, we completely forget the join model which in this case is `Placement`. The `Placement` is a better place to manage this because we have access to the order and the product. This way, we can easily reduce the stock of the product.
+
+Before we start implementing the code, we need to change the way we manage the creation of the order because we now have to accept a quantity for each product. If you remember we are waiting for a table of product identifiers. I will try to keep things simple and send a Hash table with the keys `product_id` and `quantity`.
 
 A quick example would be something like that:
 
@@ -211,14 +213,14 @@ $ git add .
 $ git commit -m "Allows the order to be placed along with product quantity"
 ----
 
-Did you notice we are not saving the quantity for each product anywhere? There is no way to keep track of that. This can be fix really easy, by just adding a quantity attribute to the `Placement` model, so this way for each product we save its corresponding quantity. Let’s start by creating the migration:
+Did you notice we are not saving the quantity for each product anywhere? There is no way to keep track of that. This can be fix really easy. Just adding a quantity attribute to the `Placement` model. So this way for each product we save its corresponding quantity. Let’s start by creating the migration:
 
 [source,bash]
 ----
 $ rails generate migration add_quantity_to_placements quantity:integer
 ----
 
-As with the product quantity attribute migration we should add a default value equal to 0, remember this is optional but I do like this approach. The migration file should look like:
+As with the product quantity attribute migration we should add a default value equal to 0. Remember this is optional but I do like this approach. Migration file should look like:
 
 [source,ruby]
 .db/migrate/20190621114614_add_quantity_to_placements.rb
@@ -230,7 +232,7 @@ class AddQuantityToPlacements < ActiveRecord::Migration[5.2]
 end
 ----
 
-Then run the migrations:
+Then run migrations:
 
 [source,bash]
 ----
@@ -286,29 +288,12 @@ Let’s commit the changes:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds quantity to placements"
+$ git add . && git commit -m "Adds quantity to placements"
 ----
 
 === Extending the Placement model
 
 It is time to update the product quantity once the order is saved, or more accurate once the placement is created. In order to achieve this we are going to add a method and then hook it up to an `after_create` callback.
-
-Let’s first update our `placement` factory to make more sense:
-
-[source,ruby]
-.spec/factories/placements.rb
-----
-FactoryBot.define do
-  factory :placement do
-    order
-    product
-    quantity { 1 }
-  end
-end
-----
-
-And then we can simply add some specs:
 
 [source,ruby]
 .test/models/placement_test.rb
@@ -329,7 +314,7 @@ class PlacementTest < ActiveSupport::TestCase
 end
 ----
 
-The implementation is fairly easy as shown bellow:
+Implementation is fairly easy as shown bellow:
 
 [source,ruby]
 .app/models/placement.rb
@@ -415,7 +400,7 @@ class Order < ApplicationRecord
 end
 ----
 
-And now if you run your tests, everything should be nice and green:
+And now everything should be nice and green:
 
 [source,bash]
 ----
@@ -424,12 +409,11 @@ $ rake test
 42 runs, 63 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Let’s commit the changes:
+Let’s commit changes:
 
 [source,bash]
 ----
-$ git add .
-$ git commit -m "Adds validator for order with not enough products on stock"
+$ git add . && git commit -m "Adds validator for order with not enough products on stock"
 ----
 
 == Updating the total
@@ -450,7 +434,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Now instead of calculating the `total` by just adding the product prices, we need to multiply it by the quantity, so let’s update the spec first:
+Now instead of calculating the `total` by just adding the product prices we need to multiply it by the quantity. So let’s update the spec first:
 
 [source,ruby]
 .test/models/order_test.rb

@@ -286,7 +286,7 @@ Comme vous pouvez déjà l’imaginer, cette route est très facile. Nous n’av
 Commençons par ajouter quelques tests:
 
 [source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
+.spec/controllers/api/v1/orders_controller_test.rb
 ----
 # ...
 class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest

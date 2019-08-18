@@ -14,7 +14,7 @@ Si vous commencez à lire à ce stade, vous voudrez probablement que le code fon
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api.git -b chapter9
+$ git checkout tags/checkpoint_chapter09
 ----
 
 Créons une nouvelle branche pour ce chapitre:
@@ -189,7 +189,7 @@ $ git commit -m "Adds pagination for the products index action to optimize respo
 
 === Liste des commandes
 
-Maintenant, il est temps de faire exactement la même chose pour la route de la liste des commandes. Cela devrait être très facile à mettre en œuvre. Mais d’abord, ajoutons quelques tests au fichier `orders_controller_spec.rb`:
+Maintenant, il est temps de faire exactement la même chose pour la route de la liste des commandes. Cela devrait être très facile à mettre en œuvre. Mais d’abord, ajoutons quelques tests au fichier `orders_controller_test.rb`:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb

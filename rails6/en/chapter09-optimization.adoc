@@ -14,7 +14,7 @@ If you start reading at this point, you'll probably want the code to work, you c
 
 [source,bash]
 ----
-$ git clone https://github.com/madeindjs/market_place_api.git -b chapter9
+$ git checkout tags/checkpoint_chapter09
 ----
 
 Let’s now create a branch to start working:
@@ -29,7 +29,7 @@ $ git checkout -b chapter09
 
 A very common strategy to optimize an array of records from the database, is to load just a few by paginating them and if you are familiar with this technique you know that in Rails that's really easy to achieve it whether if you are using https://github.com/mislav/will_paginate[will_paginate] or https://github.com/amatsuda/kaminari[kaminari].
 
-Then only tricky part in here is how are we suppose to handle the JSON output now, to give enough information to the client on how the array is paginated. If you recall first chapter I shared some resources on the practices I was going to be following in here. One of them was http://jsonapi.org/ which is a must-bookmark page.
+Then only tricky part in here is how are we suppose to handle the JSON output now to give enough information to the client on how the array is paginated. If you recall first chapter I shared some resources on the practices I was going to be following in here. One of them was http://jsonapi.org/ which is a must-bookmark page.
 
 If we read the format section we will reach a sub section called http://jsonapi.org/format/#document-structure-top-level[Top Level] and in very few words they mention something about pagination:
 
@@ -109,7 +109,7 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-The test we have just added should fail or, if we run the tests, two tests fail. It means we broke something else:
+The test we have just added should fail:
 
 [source,bash]
 ----
@@ -190,7 +190,7 @@ $ git commit -m "Adds pagination for the products index action to optimize respo
 
 === Orders list
 
-Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first, let’s add some specs to the `orders_controller_spec.rb` file:
+Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first let’s add some specs to the `orders_controller_test.rb` file:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -212,7 +212,6 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
   # ...
 end
 ----
-
 
 As you may already know, our tests are no longer passing:
 
@@ -278,7 +277,7 @@ $ git commit -am "Adds pagination for orders index action"
 
 If you have followed this tutorial or if you are an experienced Rails developer, you probably like to keep things DRY. You may have noticed that the code we just wrote is duplicated. I think it’s a good habit to clean up the code a little once the functionality is implemented.
 
-We will first clean up these tests that we duplicated in the file `orders_controller_spec.rb` and `products_controller_spec.rb`:
+We will first clean up these tests that we duplicated in the file `orders_controller_test.rb` and `products_controller_test.rb`:
 
 [source,ruby]
 ----
@@ -370,7 +369,7 @@ module Paginable
 end
 ----
 
-And now we can substitute the pagination hash on both controllers for the method, like so:
+And now we can substitute the pagination hash on both controllers for the method. Like so:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
@@ -738,4 +737,4 @@ So together we have built a solid and complete API. This one has all the qualiti
 
 I would like to remind you that all the source code for this book is available in the format https://asciidoctor.org[Asciidoctor] on https://asciidoctor.org_on_rails[GitHub]. So do not hesitate to https://github.com/madeindjs/api_on_rails/fork_on_rails/fork[forker] the project if you want to improve it or correct a mistake that I missed.
 
-If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer:).
+If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer :).

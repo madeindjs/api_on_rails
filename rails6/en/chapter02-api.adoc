@@ -314,18 +314,18 @@ It is important you feel comfortable with this ones and understand them.
 // end
 // ----
 
-// If everything went well it is now time to add a `spec` directory under `lib` and add the `api_constraints_spec.rb`:
+// If everything went well it is now time to add a `spec` directory under `lib` and add the `api_constraints_test.rb`:
 
 // [source,bash]
 // ----
 // $ mkdir lib/spec
-// $ touch lib/spec/api_constraints_spec.rb
+// $ touch lib/spec/api_constraints_test.rb
 // ----
 
 //Then we add a bunch of specs describing our class:
 
 // [source,ruby]
-// .lib/spec/api_constraints_spec.rb
+// .lib/spec/api_constraints_test.rb
 // ----
 // require 'spec_helper'
 // require './lib/api_constraints'
@@ -390,7 +390,7 @@ It is important you feel comfortable with this ones and understand them.
 
 // [source,bash]
 // ----
-// $ bundle exec rspec lib/spec/api_constraints_spec.rb
+// $ bundle exec rspec lib/spec/api_constraints_test.rb
 // ..
 
 // Finished in 0.00294 seconds (files took 0.06292 seconds to load)

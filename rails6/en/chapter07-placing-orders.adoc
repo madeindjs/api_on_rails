@@ -1,7 +1,7 @@
 [#chapter07-placing-orders]
 = Placing Orders
 
-In previous chapter we handle associations between product and user models, and how to serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between three models and we have to be smart enough to handle the JSON output we are delivering.
+In previous chapter we handle associations between products and users and how serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between thesesthree models. We have to be smart enough to handle the JSON output we are delivering.
 
 In this chapter we will make several things which I list below:
 
@@ -9,12 +9,13 @@ In this chapter we will make several things which I list below:
 * Handle JSON output association between the order user and product models
 * Send a confirmation email with the order summary
 
-So now everything is clear, we can get our hands dirty. You can clone the project up to this point with:
+So now everything is clear we can get our hands dirty. You can clone the project up to this point with:
 
 [source,bash]
 ----
 $ git checkout tags/checkpoint_chapter07
 ----
+
 Let’s create a branch to start working:
 
 [source,bash]
@@ -24,23 +25,23 @@ $ git checkout -b chapter07
 
 == Modeling order
 
-If you remember associations model, the `Order` model is associated with users and products at the same time. It is actually really simply to achieve this in Rails. The tricky part is when comes to serializing this objects. I'll talk more about this in a next section.
+If you remember associations model, `Order` model is associated with users and products at the same time. It is actually really simply to achieve this in Rails. The tricky part is when comes to serializing this objects. I'll talk more about this in a next section.
 
-Let’s start by creating the order model, with a special form:
+Let’s start by creating the order model with a special form:
 
 [source,bash]
 ----
 $ rails generate model order user:belongs_to total:decimal
 ----
 
-The command above will generate the order model, but I’m taking advantage of the `references` method to create the corresponding foreign key for the order to belong to a user, it also adds the `belongs_to` directive into the order model. Let’s migrate the database.
+The command above will generate the order model but I’m taking advantage of the `references` method to create the corresponding foreign key for the order to belong to a user. It also adds the `belongs_to` directive into the order model. Let’s migrate the database.
 
 [source,bash]
 ----
 $ rake db:migrate
 ----
 
-Now it is time to drop some tests into the `order_test.rb` file:
+Now it is time to write some tests into the `order_test.rb` file:
 
 [source,ruby]
 .test/models/order_test.rb
@@ -79,13 +80,13 @@ class User < ApplicationRecord
   # ...
 end
 ----
+
 Tests should pass:
 
 [source,bash]
 ----
 $ rake test
 ..................................
-34 runs, 50 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 And _commit_ all this:
@@ -98,7 +99,7 @@ $ git add . && git commit -m "Generate orders"
 
 === Orders and Products
 
-We need to setup the association between the `order` and the `product` and this is build with a `has-many-to-many` association. As many products will be placed on many orders and the orders will have multiple products. So in this case we need a model in the middle which will join these two other objects and map the appropriate association.
+We need to setup the association between the `order` and the `product` and this is build with a *has-many-to-many* association. As many products will be placed on many orders and the orders will have multiple products. So in this case we need a model in the middle which will join these two other objects and map the appropriate association.
 
 Let’s generate this model:
 
@@ -107,14 +108,14 @@ Let’s generate this model:
 $ rails generate model placement order:belongs_to product:belongs_to
 ----
 
-Let’s migrate the database:
+Let’s run migration on database:
 
 [source,bash]
 ----
 $ rake db:migrate
 ----
 
-The implementation is like so:
+Implementation is like so:
 
 [source,ruby]
 .app/models/product.rb
@@ -138,7 +139,7 @@ end
 ----
 
 
-If you have been following the tutorial so far the implementation is already there because of the `references` type we pass on the model command generator. We should add the inverse option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
+If you have been following the tutorial so far the implementation is already there because of the `references` type we pass on the model command generator. We should add `inverse_of` option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
 
 [source,ruby]
 .app/models/placement.rb
@@ -155,7 +156,6 @@ Let’s run the _models_ spec and make sure everything is green:
 ----
 $ rake test
 ..................................
-34 runs, 50 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 Now that everything is nice and green let’s commit the changes and continue.
@@ -185,7 +185,7 @@ $ rails generate controller api::v1::orders
 
 Up to this point and before start typing some code we have to ask ourselves:
 
-> Should I leave my order endpoints nested into the `UsersController`, or should I isolate them?
+> Should I leave my order endpoints nested into the `UsersController` or should I isolate them?
 
 The answer is really simple: it depends on the amount of information you want to expose to the developer.
 
@@ -217,7 +217,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-If we run the test suite now, as you may expect, both tests will fail, because they have not even set the correct routes, nor the action. So let’s start by adding the routes:
+If we run the test suite now both tests should fail as you may expect. This is because they have not even set the correct routes nor actions. So let’s start by adding the routes:
 
 [source,ruby]
 .config/routes.rb
@@ -231,7 +231,6 @@ Rails.application.routes.draw do
   end
 end
 ----
-
 
 Now it is time for the orders controller implementation:
 
@@ -266,8 +265,6 @@ class Api::V1::OrdersController < ApplicationController
 end
 ----
 
-
-
 And now all of our tests should pass:
 
 [source,bash]
@@ -286,12 +283,12 @@ $ git add . && git commit -m "Adds the show action for order"
 
 === Render a single order
 
-As you can already imagine, this route is very easy. We only have to set up a few configurations (routes, controller action) and  this section will be over. We will also include products related to this order in the output JSON.
+As you can already imagine this route is very easy. We only have to set up a few configurations (routes, controller action) and this section will be over. We will also include products related to this order in the output JSON.
 
 Let's start by adding some tests:
 
 [source,ruby]
-.spec/controllers/api/v1/orders_controller_spec.rb
+.spec/controllers/api/v1/orders_controller_test.rb
 ----
 # ...
 class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
@@ -310,8 +307,6 @@ As you can see, the second part of the test verifies the product is included in 
 
 Let's add the implementation to run our tests. On the `routes.rb` file add the `show` action to the command routes:
 
-
-
 [source,ruby]
 .config/routes.rb
 ----
@@ -323,7 +318,7 @@ Rails.application.routes.draw do
 end
 ----
 
-And the implementation should look like this:
+And implementation should look like this:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
@@ -343,7 +338,6 @@ class Api::V1::OrdersController < ApplicationController
   end
 end
 ----
-
 
 Our tests should be all green:
 
@@ -371,9 +365,15 @@ Before launching this feature, let's take the time to think about the implicatio
 * decrease in product inventory
 * add some validation for order placement to ensure that there are enough products at the time the order is placed
 
-It seems like there's still a lot to do, but believe me: you're closer than you think and it's not as hard as it looks. For now, let's keep it simple and assume that we still have enough products to place any number of orders. We're just concerned about the server's response at the moment.
+It seems like there's still a lot to do but believe me: you're closer than you think and it's not as hard as it looks. For now let's keep it simple and assume that we still have enough products to place any number of orders. We're just concerned about the server's response at the moment.
 
-If you remember order model, we need three things: a total for the order, user who places the order and products for the order. Based on this information, we can start adding some tests:
+If you remember order model we need three things:
+
+* a total for the order
+* user who places the order
+* products for the order
+
+Based on this information we can start adding some tests:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -409,7 +409,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-As you can see we are creating a `order_params` variable with the order data. Can you see the problem here? If not, I’ll explain it later. Let’s just add the necessary code to make this test pass.
+As you can see we are creating a `order_params` variable with the order data. Can you see the problem here? If not I’ll explain it later. Let’s just add the necessary code to make this test pass.
 
 First we need to add the action to the resources on the routes file:
 
@@ -503,19 +503,6 @@ class Order < ApplicationRecord
 end
 ----
 
-Just before you run your tests, we need to update the `order` factory, just to make it more useful:
-
-[source,ruby]
-.spec/factories/orders.rb
-----
-FactoryBot.define do
-  factory :order do
-    user { nil }
-    total { 0.0 }
-  end
-end
-----
-
 We can now hook the `set_total!` method to a `before_validation` callback to make sure it has the correct total before is validated.
 
 [source,ruby]
@@ -527,7 +514,7 @@ class Order < ApplicationRecord
 end
 ----
 
-At this point, we are making sure the total is always present and bigger or equal to zero, meaning we can remove those validations and remove the specs. I’ll wait. Our tests should be passing by now:
+At this point we are making sure the total is always present and bigger or equal to zero. This means we can remove those validations and remove the specs. I’ll wait. Our tests should be passing by now:
 
 [source,bash]
 ----
@@ -593,7 +580,7 @@ class OrderMailerTest < ActionMailer::TestCase
 end
 ----
 
-I simply copied/pasted the tests from the documentation and adapted them to our needs. We must now ensure that these tests pass.
+I simply copied/pasted tests from the documentation and adapted them to our needs. We must now ensure that these tests pass.
 
 First, we add the method `OrderMailer#send_confirmation`:
 
@@ -610,7 +597,7 @@ class OrderMailer < ApplicationMailer
 end
 ----
 
-After adding this code, we must now add the corresponding views. It is a good practice including a text version in addition to the HTML version.
+After adding this code we must add corresponding views. It is a good practice to include a text version in addition to the HTML version.
 
 
 [source,erb]
@@ -691,9 +678,9 @@ $ git merge chapter07
 
 == Conclusion
 
-That's it! You did it! You can applaud yourself. I know it's been a long time, but it's almost over, believe me.
+That's it! You did it! You can applaud yourself. I know it's been a long time but believe me it's almost over.
 
-In next chapters, we will continue working on the order template to add validations when placing an order. Some scenarios are:
+In next chapters we will continue working on the order template to add validations when placing an order. Some scenarios are:
 
 * What happens when products are not available?
 * Decrease the quantity of the product in progress when placing an order

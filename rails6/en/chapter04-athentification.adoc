@@ -524,7 +524,7 @@ The solution is quite simple. We will add a `before_action` which will call the 
 Here is the implementation:
 
 [source,ruby]
-.spec/controllers/api/v1/users_controller_spec.rb
+.spec/controllers/api/v1/users_controller_test.rb
 ----
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
