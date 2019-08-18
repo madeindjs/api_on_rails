@@ -11,6 +11,7 @@ L’intention de ce livre n’est pas seulement de vous apprendre à construire 
 - Construire des réponses JSON
 - Tester vos points d'entrées avec des tests unitaires et fonctionnels
 - Mettre en place une authentification avec des JSON Web Tokens (JWT)
+- Utiliser les spécifications JSON:API
 - Optimiser et mettre en cache l’API
 
 Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vais vous proposer des conseils et des astuces pour vous améliorer tout au long du livre. Vous pouvez vous considérer comme le personnage principal d’un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.

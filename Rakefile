@@ -88,6 +88,6 @@ namespace :build do
     input = in_filename args
     output = out_filename args, 'mobi'
     `asciidoctor-epub3 #{input} --destination-dir build -a ebook-format=kf8 --out-file #{output}`
-    puts "Book compiled on build/api_on_rails-#{lang}.mobi"
+    puts "Book compiled on build/#{output}"
   end
 end
