@@ -1,58 +1,93 @@
-LANGS = %w[en fr].freeze
+require 'asciidoctor'
+require 'asciidoctor-pdf'
 
-def parse_lang(args)
+LANGS = %w[en fr].freeze
+VERSIONS = %w[5 6].freeze
+OUTPUT_DIR = File.join __dir__, 'build'
+THEMES_DIR = File.join __dir__, 'themes'
+FONTS_DIR = File.join __dir__, 'fonts'
+
+def check_args(args)
   lang = args[:lang]
   unless LANGS.include?(lang)
     msg = format('Lang not availaible. Select on of theses langs: %s', LANGS.join(', '))
     raise ArgumentError, msg
   end
 
+  version = args[:version]
+  unless VERSIONS.include?(version)
+    msg = format('Version not availaible. Select on of theses versions: %s', VERSIONS.join(', '))
+    raise ArgumentError, msg
+  end
+
   lang
 end
 
-def out_filename(lang, extension)
-  "api_on_rails-#{lang}.#{extension}"
+def in_filename(args)
+  format('rails%s/%s/api_on_rails.adoc', args[:version], args[:lang])
+end
+
+def out_filename(args, extension)
+  format("api_on_rails_%s-%s.%s",args[:version], args[:lang], extension)
 end
 
 namespace :build do
   desc 'Build all versions'
-  task :all, [:lang] do |_task, args|
-    lang = parse_lang(args)
-    Rake::Task['build:pdf'].invoke(lang)
-    Rake::Task['build:epub'].invoke(lang)
-    Rake::Task['build:mobi'].invoke(lang)
+  task :all, [:version, :lang] do |_task, args|
+    check_args(args)
+    Rake::Task['build:pdf'].invoke(args[:version], args[:lang])
+    Rake::Task['build:epub'].invoke(args[:version], args[:lang])
+    Rake::Task['build:mobi'].invoke(args[:version], args[:lang])
   end
 
   desc 'Build a PDF version'
-  task :pdf, [:lang] do |_task, args|
-    lang = parse_lang(args)
-    filename = out_filename lang, 'pdf'
-    `asciidoctor-pdf #{lang}/api_on_rails.adoc --destination-dir build --out-file #{filename}`
-    puts "Book compiled on build/#{filename}"
+  task :pdf, [:version, :lang] do |_task, args|
+    check_args(args)
+
+    input = in_filename args
+    output = out_filename args, 'pdf'
+
+    Asciidoctor.convert_file input,
+                             safe: :unsafe,
+                             backend: 'pdf',
+                             to_dir: OUTPUT_DIR,
+                             mkdirs: true,
+                             to_file: output,
+                             attributes: {
+                               'pdf-stylesdir' => THEMES_DIR,
+                               'pdf-style' => 'my',
+                               'pdf-fontsdir' => FONTS_DIR,
+                             }
+
+
+    # `asciidoctor-pdf #{input} --destination-dir build --out-file #{output}`
+    puts "Book compiled on build/#{output}"
   end
 
   desc 'Build an HTML version'
-  task :html, [:lang] do |_task, args|
-    lang = parse_lang(args)
-    filename = out_filename lang, 'html'
-    `asciidoctor #{lang}/api_on_rails.adoc --destination-dir build --out-file #{filename}`
-    puts "Book compiled on build/#{filename}"
+  task :html, [:version, :lang] do |_task, args|
+    check_args(args)
+    input = in_filename args
+    output = out_filename args, 'html'
+    `asciidoctor #{input} --destination-dir build --out-file #{output}`
+    puts "Book compiled on build/#{output}"
   end
 
   desc 'Build an EPUB version'
-  task :epub, [:lang] do |_task, args|
-    lang = parse_lang(args)
-    filename = out_filename lang, 'epub'
-    `asciidoctor-epub3 #{lang}/api_on_rails.adoc --destination-dir build --out-file #{filename}`
-    puts "Book compiled on build/#{filename}"
+  task :epub, [:version, :lang] do |_task, args|
+    check_args(args)
+    input = in_filename args
+    output = out_filename args, 'epub'
+    `asciidoctor-epub3 #{input} --destination-dir build --out-file #{output}`
+    puts "Book compiled on build/#{output}"
   end
 
   desc 'Build a MOBI version'
-  task :mobi, [:lang] do |_task, args|
-    lang = parse_lang(args)
-    filename = out_filename lang, 'mobi'
-    `asciidoctor-epub3 #{lang}/api_on_rails.adoc --destination-dir build -a ebook-format=kf8 --out-file #{filename}`
-    `rm build/api_on_rails-#{lang}-kf8.epub`
-    puts "Book compiled on build/api_on_rails-#{lang}.mobi"
+  task :mobi, [:version, :lang] do |_task, args|
+    check_args(args)
+    input = in_filename args
+    output = out_filename args, 'mobi'
+    `asciidoctor-epub3 #{input} --destination-dir build -a ebook-format=kf8 --out-file #{output}`
+    puts "Book compiled on build/#{output}"
   end
 end

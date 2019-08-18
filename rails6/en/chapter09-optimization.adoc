@@ -1,0 +1,740 @@
+[#chapter09-optimization]
+= Optimizations
+
+Welcome to the last chapter of the book. It has been a long way, but you are only a step away from the end. In the previous chapter, we completed the modeling of the order model. We could say that the project is now finished but I want to cover some important details about optimization. The topics I will discuss here will be:
+
+* pagination
+* caching
+* optimization of SQL queries
+* the activation of CORS
+
+I will try to go as far as I can by trying to cover some common scenarios. I hope these scenarios will be useful for some of your projects.
+
+If you start reading at this point, you'll probably want the code to work, you can clone it like that:
+
+[source,bash]
+----
+$ git checkout tags/checkpoint_chapter09
+----
+
+Let’s now create a branch to start working:
+
+[source,bash]
+----
+$ git checkout -b chapter09
+----
+
+
+== Pagination
+
+A very common strategy to optimize an array of records from the database, is to load just a few by paginating them and if you are familiar with this technique you know that in Rails that's really easy to achieve it whether if you are using https://github.com/mislav/will_paginate[will_paginate] or https://github.com/amatsuda/kaminari[kaminari].
+
+Then only tricky part in here is how are we suppose to handle the JSON output now to give enough information to the client on how the array is paginated. If you recall first chapter I shared some resources on the practices I was going to be following in here. One of them was http://jsonapi.org/ which is a must-bookmark page.
+
+If we read the format section we will reach a sub section called http://jsonapi.org/format/#document-structure-top-level[Top Level] and in very few words they mention something about pagination:
+
+> "meta": meta-information about a resource, such as pagination.
+
+It is not very descriptive but at least we have a hint on what to look next about the pagination implementation, but don’t worry that is exactly what we are going to do in here.
+
+Let’s start with the `products` list.
+
+=== Products
+
+We are going to start nice and easy by paginating the products list as we don’t have any kind of access restriction which leads to easier testing.
+
+First we need to add the https://github.com/amatsuda/kaminari[kaminari] gem to our `Gemfile`:
+
+[source,bash]
+----
+$ bundle add kaminari
+----
+
+Now we can go to the `index` action on the `products_controller` and add the pagination methods as pointed on the documentation:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    @products = Product.page(params[:page])
+                       .per(params[:per_page])
+                       .search(params)
+
+    render json: ProductSerializer.new(@products).serializable_hash
+  end
+  # ...
+end
+----
+
+So far the only thing that changed is the query on the database to just limit the result by 25 per page which is the default. But we have not added any extra information to the JSON output.
+
+We need to provide the pagination information on the `meta` tag in the following form:
+
+[source,json]
+----
+{
+  "data": [
+    ...
+  ],
+  "links": {
+    "first": "/api/v1/products?page=1",
+    "last": "/api/v1/products?page=30",
+    "prev": "/api/v1/products",
+    "next": "/api/v1/products?page=2"
+  }
+}
+----
+
+Now we have the final structure for the `meta` tag we just need to output it on the JSON response. Let’s first add some specs:
+
+[source,ruby]
+.test/controllers/api/v1/products_controller_test.rb
+----
+# ...
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show products' do
+    get api_v1_products_url, as: :json
+    assert_response :success
+
+    json_response = JSON.parse(response.body, symbolize_names: true)
+    assert_not_nil json_response.dig(:links, :first)
+    assert_not_nil json_response.dig(:links, :last)
+    assert_not_nil json_response.dig(:links, :prev)
+    assert_not_nil json_response.dig(:links, :next)
+  end
+  # ...
+end
+----
+
+The test we have just added should fail:
+
+[source,bash]
+----
+$ rake test
+......................F
+
+Failure:
+Api::V1::ProductsControllerTest#test_should_show_products [test/controllers/api/v1/products_controller_test.rb:13]:
+Expected nil to not be nil.
+----
+
+Let's add the pagination information. We will make a part of it in a separate _concerns_ in order to better decouple our code:
+
+[source,ruby]
+.app/controllers/concerns/paginable.rb
+----
+# app/controllers/concerns/paginable.rb
+module Paginable
+  protected
+
+  def current_page
+    (params[:page] || 1).to_i
+  end
+
+  def per_page
+    (params[:per_page] || 20).to_i
+  end
+end
+----
+
+And now we can use it in the controller.
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  include Paginable
+  # ...
+
+  def index
+    @products = Product.page(current_page)
+                       .per(per_page)
+                       .search(params)
+
+    options = {
+      links: {
+        first: api_v1_products_path(page: 1),
+        last: api_v1_products_path(page: @products.total_pages),
+        prev: api_v1_products_path(page: @products.prev_page),
+        next: api_v1_products_path(page: @products.next_page),
+      }
+    }
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
+  end
+end
+----
+
+Now, if we check the specifications, they should all pass:
+
+[source,bash]
+----
+$ rake test
+..........................................
+42 runs, 65 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Now we have made a superb optimization for the product list route, it is up to the customer to retrieve the `page` with the right `per_page` parameter for registrations.
+
+Let's make these changes and continue with the list of commands.
+
+[source,bash]
+----
+$ git add .
+$ git commit -m "Adds pagination for the products index action to optimize response"
+----
+
+
+=== Orders list
+
+Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first let’s add some specs to the `orders_controller_test.rb` file:
+
+[source,ruby]
+.test/controllers/api/v1/orders_controller_test.rb
+----
+# ...
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show orders' do
+    get api_v1_orders_url, headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) }, as: :json
+    assert_response :success
+
+    json_response = JSON.parse(response.body)
+    assert_equal @order.user.orders.count, json_response['data'].count
+    assert_not_nil json_response.dig(:links, :first)
+    assert_not_nil json_response.dig(:links, :last)
+    assert_not_nil json_response.dig(:links, :prev)
+    assert_not_nil json_response.dig(:links, :next)
+  end
+  # ...
+end
+----
+
+As you may already know, our tests are no longer passing:
+
+[source,bash]
+----
+$ rake test
+......................................F
+
+Failure:
+Api::V1::OrdersControllerTest#test_should_show_orders [test/controllers/api/v1/orders_controller_test.rb:28]:
+Expected nil to not be nil.
+----
+
+Let’s turn the red into green:
+
+
+[source,ruby]
+.app/controllers/api/v1/orders_controller.rb
+----
+class Api::V1::OrdersController < ApplicationController
+  include Paginable
+  # ...
+
+  def index
+    @orders = current_user.orders
+                          .page(current_page)
+                          .per(per_page)
+
+    options = {
+      links: {
+        first: api_v1_orders_path(page: 1),
+        last: api_v1_orders_path(page: @orders.total_pages),
+        prev: api_v1_orders_path(page: @orders.prev_page),
+        next: api_v1_orders_path(page: @orders.next_page),
+      }
+    }
+
+    render json: OrderSerializer.new(@orders, options).serializable_hash
+  end
+  # ...
+end
+----
+
+Now all the tests should be nice and green:
+
+[source,bash]
+----
+$ rake test
+..........................................
+42 runs, 67 assertions, 0 failures, 0 errors, 0 skips
+----
+
+
+Let’s place and commit, because a refactor is coming:
+
+[source,bash]
+----
+$ git commit -am "Adds pagination for orders index action"
+----
+
+
+=== Refactoring pagination
+
+If you have followed this tutorial or if you are an experienced Rails developer, you probably like to keep things DRY. You may have noticed that the code we just wrote is duplicated. I think it’s a good habit to clean up the code a little once the functionality is implemented.
+
+We will first clean up these tests that we duplicated in the file `orders_controller_test.rb` and `products_controller_test.rb`:
+
+[source,ruby]
+----
+assert_not_nil json_response.dig(:links, :first)
+assert_not_nil json_response.dig(:links, :last)
+assert_not_nil json_response.dig(:links, :next)
+assert_not_nil json_response.dig(:links, :prev)
+----
+
+Let’s add a `shared_examples` folder under the `spec/support/` directory:
+
+[source,ruby]
+.test/test_helper.rb
+----
+# ...
+class ActiveSupport::TestCase
+  # ...
+  def assert_json_response_is_paginated json_response
+    assert_not_nil json_response.dig(:links, :first)
+    assert_not_nil json_response.dig(:links, :last)
+    assert_not_nil json_response.dig(:links, :next)
+    assert_not_nil json_response.dig(:links, :prev)
+  end
+end
+----
+
+In order to factor it, we will move these assertions into the `test_helper.rb` file in a method we will use:
+
+This shared example can now be used to replace the five tests in the `orders_controller_test.rb` and `products_controller_test.rb` files:
+
+[source,ruby]
+.test/controllers/api/v1/orders_controller_test.rb
+----
+# ...
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show orders' do
+    # ...
+    assert_json_response_is_paginated json_response
+  end
+  # ...
+end
+----
+
+[source,ruby]
+.test/controllers/api/v1/products_controller_test.rb
+----
+# ...
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show products' do
+    # ...
+    assert_json_response_is_paginated json_response
+  end
+  # ...
+end
+----
+
+And both specs should be passing.
+
+[source,bash]
+----
+$ rake test
+..........................................
+42 runs, 71 assertions, 0 failures, 0 errors, 0 skips
+----
+
+
+Now we have done this simple factorization for testing, we can move on to the implementation of pagination for controllers and clean things up. If you remember the indexing action for both product and order controllers, they both have the same pagination format. So let's move this logic into a method called `get_links_serializer_options` under the file `paginable.rb`, so we can access it on any controller that would need paging.
+
+
+[source,ruby]
+.app/controllers/concerns/paginable.rb
+----
+module Paginable
+  protected
+
+  def get_links_serializer_options links_paths, collection
+    {
+      links: {
+        first: send(links_paths, page: 1),
+        last: send(links_paths, page: collection.total_pages),
+        prev: send(links_paths, page: collection.prev_page),
+        next: send(links_paths, page: collection.next_page),
+      }
+    }
+  end
+  # ...
+end
+----
+
+And now we can substitute the pagination hash on both controllers for the method. Like so:
+
+[source,ruby]
+.app/controllers/api/v1/orders_controller.rb
+----
+class Api::V1::OrdersController < ApplicationController
+  include Paginable
+  # ...
+
+  def index
+    @orders = current_user.orders
+                          .page(current_page)
+                          .per(per_page)
+
+    options = get_links_serializer_options('api_v1_orders_path', @orders)
+
+    render json: OrderSerializer.new(@orders, options).serializable_hash
+  end
+  # ...
+end
+----
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  include Paginable
+  # ...
+
+  def index
+    @products = Product.page(current_page)
+                       .per(per_page)
+                       .search(params)
+
+    options = get_links_serializer_options('api_v1_products_path', @products)
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
+  end
+  # ...
+end
+----
+
+If you run the specs for each file they should be all nice and green:
+
+[source,bash]
+----
+$ rake test
+..........................................
+42 runs, 71 assertions, 0 failures, 0 errors, 0 skips
+----
+
+This would be a good time to _commit_ the changes and move on to the next section on caching.
+
+[source,bash]
+----
+$ git commit -am "Factorize pagination"
+----
+
+== API Caching
+
+There is currently an implementation to do caching with the gem `fast_jsonapi` which is really easy to handle. Although in older versions of the gem, this implementation can change, it does the job.
+
+If we make a request to the product list, we will notice that the response time takes about 174 milliseconds using cURL:
+
+[source,bash]
+----
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000
+Total: 0,137088
+----
+
+NOTE: The `-w` option allows us to retrieve the time of the request, `-o` redirects the response to a file and `-s` hides the cURL display
+
+By adding only one line to the `ProductSerializer` class, we will see a significant improvement in response time!
+
+[source,ruby]
+.app/serializers/order_serializer.rb
+----
+class OrderSerializer
+  # ...
+  cache_options enabled: true, cache_length: 12.hours
+end
+----
+
+[source,ruby]
+.app/serializers/product_serializer.rb
+----
+class ProductSerializer
+  # ...
+  cache_options enabled: true, cache_length: 12.hours
+end
+----
+
+[source,ruby]
+.app/serializers/user_serializer.rb
+----
+class UserSerializer
+  # ...
+  cache_options enabled: true, cache_length: 12.hours
+end
+----
+
+And that’s all! Let’s check for improvement:
+
+[source,bash]
+----
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/products
+Total: 0,054786
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/products/
+Total: 0,032341
+----
+
+So we went from 174 ms to 21 ms. The improvement is therefore enormous! Let’s commit our change a last time:
+
+[source,ruby]
+----
+$ git commit -am "Adds caching for the serializers"
+----
+
+== N+1 Queries
+
+N+1* requests are a wound that can have a huge impact on the performance of an application. This phenomenon often occurs when using a **ORM** because it generates **automatically** SQL queries for us. This handy tool is double-edged because it can generate a **large number** of SQL queries.
+
+Something to know about SQL queries is that it's better limiting the number. In other words, a large request is often more efficient than a hundred small ones.
+
+Here is an example where we want to recover all users who have already created a product. Open the Rails console with `Console Rails` and execute the following Ruby code:
+
+[source,ruby]
+----
+Product.all.map { |product| product.user }
+----
+
+The interactive console of Rails shows us the SQL queries that are generated. See for yourself:
+
+We see here that a large number of requests are generated:
+
+- `Product.all` = 1 request to recover the recipes
+- `product.user` = 1 request `SELECT "users".* FROM "users" WHERE "users". "id" =? LIMIT 1 [[[["id", 1]]]` per product recovered
+
+Hence the name "N+1 request" since a request is made via a child link.
+
+We can fix this simply by using `includes`. `Includes` will **pre-load** the child objects in a single request. It is very easy to use. If we repeat the previous example. Here is the result:
+
+[source,ruby]
+----
+Product.includes(:user).all.map { |product| product.user }
+----
+
+The interactive console of Rails shows us the SQL queries that are generated. See for yourself:
+
+[source,sql]
+----
+Product Load (0.3ms)  SELECT "products".* FROM "products"
+User Load (0.8ms)  SELECT "users".* FROM "users" WHERE "users"."id" IN (?, ?, ?)  [["id", 28], ["id", 29], ["id", 30]]
+----
+
+Rails makes a second request that will retrieve *all* users at once.
+
+=== Prevention of N + 1 requests
+
+Imagine we want adding owners of the products for the road `/products`. We have already seen that with the `fast_jsonapi` library it is very easy to do this:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    # ...
+    options = get_links_serializer_options('api_v1_products_path', @products)
+    options[:include] = [:user]
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
+  end
+  # ...
+end
+----
+
+Now let's make a request with cURL. I remind you we must obtain an authentication token before accessing the page.
+
+[source,bash]
+----
+$ curl -X POST --data "user[email]=ockymarvin@jacobi.co" --data "user[password]=locadex1234"  http://localhost:3000/api/v1/tokens
+----
+
+NOTE: "ockymarvin@jacobi.co" corresponds to an user created in my application with the _seed_. In your case, it will probably be different from mine since we used the Faker library.
+
+With the help of the token obtained, we can now make a request to access the products
+
+[source,bash]
+----
+$ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
+----
+
+You will most likely see several requests in the Rails console running the web server.
+
+[source,sql]
+----
+Started GET "/api/v1/products" for 127.0.0.1 at 2019-06-26 13:36:19 +0200
+Processing by Api::V1::ProductsController#index as JSON
+   (0.1ms)  SELECT COUNT(*) FROM "products"
+  ↳ app/controllers/concerns/paginable.rb:9:in `get_links_serializer_options'
+  Product Load (0.2ms)  SELECT "products".* FROM "products" LIMIT ? OFFSET ?  [["LIMIT", 20], ["OFFSET", 0]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+   (0.5ms)  SELECT "products"."id" FROM "products" WHERE "products"."user_id" = ?  [["user_id", 36]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+  ↳ app/controllers/api/v1/products_controller.rb:16:in `index'
+  CACHE User Load (0.0ms)  SELECT "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?  [["id", 36], ["LIMIT", 1]]
+----
+
+It is therefore unfortunately **very easy** to create an N+1 query. Fortunately, there is a gem that allows us to **alert** when this kind of situation occurs: https://github.com/flyerhzm/bullet[Bullet]. Bullet will notify us (by email, http://growl.info/[growl notification], https://slack.com[Slack], console, etc...) when it finds an N+1 request.
+
+To install it, we add the _gem_ to the _GemFile_
+
+[source,bash]
+----
+$ bundle add bullet --group development
+----
+
+
+And it is enough to update the configuration of our application for the development environment. In our case we will only activate the `rails_logger` mode which will be displayed:
+
+[source,ruby]
+.config/environments/development.rb
+----
+Rails.application.configure do
+  # ...
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.rails_logger = true
+  end
+end
+----
+
+Restart the web server and restart the last request with cURL:
+
+[source,bash]
+----
+$ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
+----
+
+And look at the Rails console. Bullet tells us that it has just detected an N+1 request.
+
+----
+GET /api/v1/products
+USE eager loading detected
+  Product => [:user]
+  Add to your finder: :includes => [:user]
+----
+
+He even tells us how to correct it:
+
+> Add to your search engine:: includes => [: user]
+
+So correct our error so the controller:
+
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  # ...
+  def index
+    @products = Product.includes(:user)
+                       .page(current_page)
+                       .per(per_page)
+                       .search(params)
+
+    options = get_links_serializer_options('api_v1_products_path', @products)
+    options[:include] = [:user]
+
+    render json: ProductSerializer.new(@products, options).serializable_hash
+  end
+  # ...
+end
+----
+
+There you go! It is now time to do our _commit_.
+
+[source,bash]
+----
+$ git commit -am "Add bullet to avoid N+1 query"
+----
+
+== Activation of CORS
+
+In this last section, I will talk to you about one last problem that you will probably encounter if you have to work with your API.
+
+When you first request an external site (via an AJAX request for example), you will encounter an error of this kind:
+
+> Failed to load https://example.com/ No'Access-Control-Allow-Origin' header is present on the requested resource. Origin "https://anfo.pl" is therefore not allowed access. If an opaque response serves your needs, set the request's mode to "no-cors" to fetch the resource with CORS disabled.
+
+"But what does _Access-Control-Allow-Origin_ mean?". The behavior you observe is the effect of the CORS implementation of browsers. Before the standardization of CORS, there was no way to call an API terminal under another domain for security reasons. This has been (and still is to some extent) blocked by the policy of the same origin.
+
+CORS is a mechanism that aims to allow requests made on your behalf and at the same time block some requests made by dishonest scripts and is triggered when you make an HTTP request to:
+
+- a different field
+- a different sub-domain
+- a different port
+- a different protocol
+
+We must manually enable this feature so that any client can make requests on our API.
+
+Rails allows us to do this very easily. Take a look at the `cors.rb` file located in the `initializers` folder.
+
+
+[source,ruby]
+.config/initializers/cors.rb
+----
+# ...
+
+# Rails.application.config.middleware.insert_before 0, Rack::Cors do
+#   allow do
+#     origins 'example.com'
+#
+#     resource '*',
+#       headers: :any,
+#       methods: [:get, :post, :put, :patch, :delete, :options, :head]
+#   end
+# end
+----
+
+You see. It is enough to uncomment the code and modify it a little bit to limit access to some actions or some HTTP verbs. In our case, this configuration is very convenient for us at the moment.
+
+[source,ruby]
+.config/initializers/cors.rb
+----
+# ...
+
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins 'example.com'
+    resource '*',
+      headers: :any,
+      methods: [:get, :post, :put, :patch, :delete, :options, :head]
+  end
+end
+----
+
+We must also install the gem `rack-cors` which is commented in the `Gemfile`:
+
+[source,bash]
+----
+$ bundle add rack-cors
+----
+
+There you go! It is now time to make our last commit and merge our changes on the master branch.
+
+
+[source,bash]
+----
+$ git commit -am "Activate CORS"
+$ git checkout master
+$ git merge chapter09
+----
+
+== Conclusion
+
+If you get to that point, it means you're done with the book. Good work! You have just become a great API Rails developer, that's for sure.
+
+So together we have built a solid and complete API. This one has all the qualities to dethrone https://www.amazon.com/[Amazon], rest assured. Thank you for going through this great adventure with me, I hope you enjoyed the trip as much as I did.
+
+I would like to remind you that all the source code for this book is available in the format https://asciidoctor.org[Asciidoctor] on https://asciidoctor.org_on_rails[GitHub]. So do not hesitate to https://github.com/madeindjs/api_on_rails/fork_on_rails/fork[forker] the project if you want to improve it or correct a mistake that I missed.
+
+If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer :).

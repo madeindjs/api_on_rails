@@ -1,0 +1,35 @@
+[#chapter00-before]
+= Before
+
+== Foreword
+
+"API on Rails 6" is based on http://apionrails.icalialabs.com/book/["APIs on Rails: Building REST APIs with Rails"]. It was initially published in 2014 by https://twitter.com/kurenn[Abraham Kuri] under the licenses http://opensource.org/licenses/MIT[MIT] and http://people.freebsd.org/~phk/[Beerware].
+
+This first version was not maintained and was initially planned for Ruby on Rails version 4 which does not https://guides.rubyonrails.org/maintenance_policy.html#security-issues[receives more than security updates]. I wanted to update this excellent book and adapting it to the new versions of Ruby on Rails. This book is therefore available for Ruby on Rail version 5.2 and version 6.0 (the one you are currently reading).
+
+NOTE: This book is also available in the Molière language (It means french).
+
+== About the author
+
+My name is http://rousseau-alexandre.fr[Alexandre Rousseau] and I am a Rails developer with more than 4 years of experience (at the time of writing). I am currently a partner in a company (https://isignif.fr[iSignif]) where I build and maintain a SAAS product using Rails. I also contribute to the Ruby community by producing and maintaining some gems that you can consult on https://rubygems.org/profiles/madeindjs[my Rubygems.org profile]. Most of my projects are on GitHub so don’t http://github.com/madeindjs/[hesitate to follow me].
+
+All the source code of this book is available in https://asciidoctor.org/[Asciidoctor] format on https://github.com/madeindjs/api_on_rails[GitHub]. So feel free to https://github.com/madeindjs/api_on_rails/fork[forke] the project if you want to improve it or fix a mistake that I didn’t notice.
+
+== Copyright and license
+
+This book is provided on http://opensource.org/licenses/MIT[MIT license]. All the book’s source code is available on https://fr.wikipedia.org/wiki/Markdown[Markdown] format on https://github.com/madeindjs/api_on_rails[GitHub]
+
+.MIT license
+****
+Copyright 2019 Alexandre Rousseau
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+****
+
+"API on Rails 6" by https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] is shared according to http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Attribution-ShareAlike 4.0 International]. Built upon this book http://apionrails.icalialabs.com/book/.
+
+Book's cover picture use a beautiful photo shot by https://unsplash.com/@siloine?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText[Yoann Siloine] who published it on https://unsplash.com[Unsplash].

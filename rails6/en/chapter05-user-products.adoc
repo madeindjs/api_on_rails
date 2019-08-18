@@ -1,0 +1,774 @@
+[#chapter05-user-products]
+= User's products
+
+In the previous chapter, we implemented the authentication mechanism we will use throughout the application.
+
+For the moment we have a very simple implementation of the `User` model but the moment of truth has come. We will customize the JSON output and add a second resource: the user's products. These are the elements that the user will sell in the application and therefore will be directly linked.
+
+If you are familiar with Rails, you may already know what I am talking about. But for those who don't know, we will associate the `User` model with the `Product` model using the `has_many` and `belongs_to` methods of _Active Record_.
+
+In this chapter we will:
+
+* build the `Product` model from scratch
+* associate it with the user
+* create the necessary entries so any customer can access the information.
+
+You can clone the project up to this point:
+
+[source,bash]
+----
+$ git checkout tags/checkpoint_chapter05
+----
+
+Before we start and as usual when starting new features we need to create a brand new branch:
+
+[source,bash]
+----
+$ git checkout -b chapter05
+----
+
+== The product model
+
+We will first create a `Product` model first. Then we'll add some validations and finally associate it with the `User` model. Like the `User` model, the `Product` will be fully tested and will be automatically deleted if the user is deleted.
+
+=== The foundations of the product
+
+The `Product` template will need several fields:
+
+* a `price` attribute for the product price
+* a `published` Boolean to know if the product is ready to be sold or not
+* a `title` to define a sexy product title
+* a `user_id` to associate this particular product to a user
+
+ As you may guess we generate it with the command `rails generate`:
+
+[source,bash]
+----
+$ rails generate model Product title:string price:decimal published:boolean user:belongs_to
+Running via Spring preloader in process 1476
+      invoke  active_record
+      create    db/migrate/20190608205942_create_products.rb
+      create    app/models/product.rb
+      invoke    test_unit
+      create      test/models/product_test.rb
+      create      test/fixtures/products.yml
+----
+
+NOTE: We used the `belongs_to` type for the attribute `user`. This is a shortcut that will create an `user_id` column of type `int` and also add a foreign key to the `users.id` field. In addition, `user_id` will also be defined as an `index`. This is a good practice for association keys because it optimizes database queries. It is not mandatory, but I highly recommend it.
+
+Migration file should look like bellow:
+
+[source,ruby]
+.db/migrate/20190608205942_create_products.rb
+----
+class CreateProducts < ActiveRecord::Migration[6.0]
+  def change
+    create_table :products do |t|
+      t.string :title
+      t.decimal :price
+      t.boolean :published
+      t.belongs_to :user, null: false, foreign_key: true
+
+      t.timestamps
+    end
+  end
+end
+----
+
+We now just have to initiate migration:
+
+[source,bash]
+----
+$ rake db:migrate
+----
+
+A test must fails at this point:
+
+[source,bash]
+----
+$ rake test
+....E
+
+Error:
+Api::V1::UsersControllerTest#test_should_destroy_user:
+ActiveRecord::InvalidForeignKey: SQLite3::ConstraintException: FOREIGN KEY constraint failed
+
+rails test test/controllers/api/v1/users_controller_test.rb:43
+----
+
+You certainly said:
+
+> What?! But I didn't touch the users!.
+
+What I have seen in the code of other developers, when they work with associations, is that they forget about destroying dependencies between models. What I mean by that is if a user is deleted, so should the user's products.
+
+We need a user with one of the products to test this interaction between the models. Then we will delete this user in the hope that the products will disappear with him. Rails has already generated this for us. Take a look at the _fixture_ of the products:
+
+
+.test/fixtures/products.yml
+[source,yaml]
+----
+one:
+  title: MyString
+  price: 9.99
+  published: false
+  user: one
+# ...
+----
+
+You can see this _fixture_ does not use the attribute `user_id` but `user`. This means that the `one` product will have an `user_id` attribute corresponding to the `one` user ID.
+
+It is therefore necessary to specify a cascading deletion in order to delete the `one` product when the `one` user is deleted. Let's start with the unit test:
+
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+class UserTest < ActiveSupport::TestCase
+  # ...
+  test 'destroy user should destroy linked product' do
+    assert_difference('Product.count', -1) do
+      users(:one).destroy
+    end
+  end
+end
+----
+
+You just have to modify the `User` model and specify the `has_many` relationship with the `depend: :destroy` option. We will see later what this method does in more detail.
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+class User < ApplicationRecord
+  # ...
+  has_many :products, dependent: :destroy
+end
+----
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+class User < ApplicationRecord
+  # ...
+  has_many :products, dependent: :destroy
+end
+----
+
+And that's it. Now make a _commit_:
+
+[source,bash]
+----
+$ git add . && git commit -m "Generate product model"
+----
+
+
+
+=== Product validations
+
+Validations are an important part when building any kind of application. This will prevent any junk data from being saved onto the database. In the product we have to make sure for example the price is a `number` and that is not negative.
+
+Also an important thing about validation is to validate that every product has a user. In this case we need to validate the presence of the `user_id`. You can see what I’m talking about in next code snippet.
+
+[source,ruby]
+.test/models/product_test.rb
+----
+# ...
+class ProductTest < ActiveSupport::TestCase
+  test "Should have a positive price" do
+    product = products(:one)
+    product.price = -1
+    assert_not product.valid?
+  end
+end
+----
+
+Now we need to add the implementation to make the tests pass:
+
+[source,ruby]
+.app/models/product.rb
+----
+class Product < ApplicationRecord
+  validates :title, :user_id, presence: true
+  validates :price, numericality: { greater_than_or_equal_to: 0 }, presence: true
+  belongs_to :user
+end
+----
+
+Tests are now green:
+
+[source,bash]
+----
+$ rake test
+................
+----
+
+We have a bunch of good quality code. Let’s commit it and keep moving:
+
+[source,bash]
+----
+$ git commit -am "Adds some validations to products"
+----
+
+
+== Products endpoints
+
+It is now time to start building the products endpoints. For now we will just build five REST actions. In the next Chapter we will customize the JSON output by implementing the https://github.com/Netflix/fast_jsonapi[fast_jsonapi].
+
+First we need to create the `products_controller`, and we can easily achieve this with the command below:
+
+[source,bash]
+----
+$ rails generate controller api::v1::products
+      create  app/controllers/api/v1/products_controller.rb
+      invoke  test_unit
+      create    test/controllers/api/v1/products_controller_test.rb
+----
+
+
+The above command will generate a lot of files that will allow us to start working quickly. What I mean by that is that it will generate the controller and test files already _scoped_ to version 1 of the API.
+
+
+As a warmup we will start nice and easy by building the `show` action for the product.
+
+=== Show action for products
+
+As usual we begin by adding some product `show` controller specs. The strategy here is very simple: we just need to create a single product and make sure the response from server is what we expect.
+
+[source,ruby]
+.test/controllers/api/v1/products_controller_test.rb
+----
+# ...
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @product = products(:one)
+  end
+
+  test "should show product" do
+    get api_v1_product_url(@product), as: :json
+    assert_response :success
+
+    json_response = JSON.parse(self.response.body)
+    assert_equal @product.title, json_response['title']
+  end
+end
+----
+
+Then we add the code to make the test pass:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  def show
+    render json: Product.find(params[:id])
+  end
+end
+----
+
+Wait! Don’t run the tests yet. Remember we need to add the resource to the `routes.rb` file:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: %i[show create update destroy]
+      resources :tokens, only: [:create]
+      resources :products, only: [:show]
+    end
+  end
+end
+----
+
+Now we make sure the tests are nice and green:
+
+[source,bash]
+----
+$ rake test
+.................
+----
+
+As you may notice already the specs and implementation are very simple. Actually they behave the same as the users.
+
+=== Products list
+
+Now it is time to output a list of products (which could be displayed as the market place product catalog). This endpoint should be accessible without credentials. That means we don’t require the user to be logged-in to access the data. As usual we will start writing some tests:
+
+[source,ruby]
+.test/controllers/api/v1/products_controller_test.rb
+----
+# ...
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @product = products(:one)
+  end
+
+  test "should show products" do
+    get api_v1_products_url(), as: :json
+    assert_response :success
+  end
+
+  test "should show product" do
+    get api_v1_product_url(@product), as: :json
+    assert_response :success
+
+    json_response = JSON.parse(self.response.body)
+    assert_equal @product.title, json_response['title']
+  end
+end
+----
+
+
+Let’s move into the implementation, which for now is going to be a simple `index` method:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  def index
+    render json: Product.all
+  end
+  #...
+end
+----
+
+Don't forget to add the corresponding route:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      # ....
+      resources :products, only: %i[show index]
+    end
+  end
+end
+----
+
+We are done for now with the public product endpoints. In the next sections we will focus on building the actions requiring a user to be logged in to access them. Said that we are committing this changes and continue.
+
+[source,bash]
+----
+$ git add . && git commit -m "Finishes modeling the product model along with user associations"
+----
+
+=== Creating products
+
+Creating products is a little more complex because we will need an additional configuration. The strategy we will follow is to assign the created product to the user who owns the JWT token provided in the HTTP header `Authorization`.
+
+So let's start by the `products_controller_test.rb` file:
+
+[source,ruby]
+.test/controllers/api/v1/products_controller_test.rb
+----
+# ...
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  # ...
+
+  test 'should create product' do
+    assert_difference('Product.count') do
+      post api_v1_products_url,
+           params: { product: { title: @product.title, price: @product.price, published: @product.published } },
+           headers: { Authorization: JsonWebToken.encode(user_id: @product.user_id) },
+           as: :json
+    end
+    assert_response :created
+  end
+
+  test 'should forbid create product' do
+    assert_no_difference('Product.count') do
+      post api_v1_products_url,
+           params: { product: { title: @product.title, price: @product.price, published: @product.published } },
+           as: :json
+    end
+    assert_response :forbidden
+  end
+end
+----
+
+Wow! We added a lot of code. If you remember previous section, tests are pretty similar than those for about user creation. Except for some minor changes.
+
+In this way, we can see the user and create a product associated with them. But wait! There's something better.
+
+If we adopt this approach, we can increase the scope of our authorization mechanism. We actually built the logic to get logged user from the header `Authorization` and assigned him a method `current_user`. It is therefore quite easy to set up by simply adding the authorization header to the request and retrieving the user from it. So let's do it:
+
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  before_action :check_login, only: %i[create]
+  # ...
+
+  def create
+    product = current_user.products.build(product_params)
+    if product.save
+      render json: product, status: :created
+    else
+      render json: { errors: product.errors }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def product_params
+    params.require(:product).permit(:title, :price, :published)
+  end
+end
+----
+
+As you can see, we protect the `create` action with the `check_login` method. We also build the product by associating the current user. I added this very simplistic method to the _concern_ `authenticable.rb`:
+
+[source,ruby]
+.app/controllers/concerns/authenticable.rb
+----
+module Authenticable
+  # ...
+  protected
+
+  def check_login
+    head :forbidden unless self.current_user
+  end
+end
+----
+
+One last thing before you do your tests: the necessary route:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      # ...
+      resources :products, only: %i[show index create]
+    end
+  end
+end
+
+----
+
+Now tests should all pass:
+
+....
+$ rake test
+....................
+....
+
+
+=== Updating products
+
+Hopefully by now you understand the logic to build the upcoming actions. In this section we will focus on the `update` action which will work similarly to the `create` one. We just need to fetch the product from the database and the update it.
+
+We first adding the action to the routes so we don’t forget later:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      # ...
+      resources :products, only: %i[show index create update]
+    end
+  end
+end
+----
+
+Before we start dropping some tests I just want to clarify that similarly to the `create` action we will scope the product to the `current_user`. In this case we want to make sure the product we are updating is owned by the current user. So we will fetch that product from the `user.products` association provided by Rails.
+
+Let's add some specs:
+
+[source,ruby]
+.test/controllers/api/v1/products_controller_test.rb
+----
+require 'test_helper'
+
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  # ...
+
+  test 'should update product' do
+    patch api_v1_product_url(@product),
+          params: { product: { title: @product.title } },
+          headers: { Authorization: JsonWebToken.encode(user_id: @product.user_id) },
+          as: :json
+    assert_response :success
+  end
+
+  test 'should forbid update product' do
+    patch api_v1_product_url(@product),
+          params: { product: { title: @product.title } },
+          headers: { Authorization: JsonWebToken.encode(user_id: users(:two).id) },
+          as: :json
+    assert_response :forbidden
+  end
+end
+----
+
+
+NOTE: I have added a _fixture_ corresponding to a second user in order to verify that the second user cannot modify the first user's product.
+
+Tests may look complex but take a second peek. They are almost the same we built for users.
+
+Now let’s implement the code to make our tests pass:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  before_action :set_product, only: %i[show update]
+  before_action :check_login, only: %i[create]
+  before_action :check_owner, only: %i[update]
+
+  # ...
+
+  def create
+    product = current_user.products.build(product_params)
+    if product.save
+      render json: product, status: :created
+    else
+      render json: { errors: product.errors }, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @product.update(product_params)
+      render json: @product
+    else
+      render json: @product.errors, status: :unprocessable_entity
+    end
+  end
+
+  private
+  # ...
+
+  def check_owner
+    head :forbidden unless @product.user_id == current_user&.id
+  end
+
+  def set_product
+    @product = Product.find(params[:id])
+  end
+end
+----
+
+Implementation is quite simple. We will simply retrieve the product from the connected user and simply update it. We have also added this action to the `before_action` to prevent any unauthorized user from updating a product.
+
+Now tests should pass:
+
+[source,bash]
+----
+$ rake test
+......................
+----
+
+
+=== Destroying products
+
+Our last stop for the products endpoints will be the `destroy` action. You might now imagine how this would look like. The strategy in here will be pretty similar to the `create` and `update` actions: we'll get the logged user with JWT token and then fetch the product from the `user.products` association and finally destroy it, returning a `204` code.
+
+Let’s start again by adding the route name to the routes file:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: %i[show create update destroy]
+      resources :tokens, only: [:create]
+      resources :products
+    end
+  end
+end
+----
+
+After this, we have to add some tests as shown on this code snippet:
+
+[source,ruby]
+.test/controllers/api/v1/products_controller_test.rb
+----
+# ...
+class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
+  # ...
+
+  test "should destroy product" do
+    assert_difference('Product.count', -1) do
+      delete api_v1_product_url(@product), headers: { Authorization: JsonWebToken.encode(user_id: @product.user_id) }, as: :json
+    end
+    assert_response :no_content
+  end
+
+  test "should forbid destroy user" do
+    assert_no_difference('Product.count') do
+      delete api_v1_user_url(@product), headers: { Authorization: JsonWebToken.encode(user_id: users(:two).id) }, as: :json
+    end
+    assert_response :forbidden
+  end
+end
+----
+
+
+Now we simply add the necessary code to make tests pass:
+
+[source,ruby]
+.app/controllers/api/v1/products_controller.rb
+----
+class Api::V1::ProductsController < ApplicationController
+  before_action :set_product, only: %i[show update destroy]
+  before_action :check_login, only: %i[create]
+  before_action :check_owner, only: %i[update destroy]
+
+  # ...
+
+  def destroy
+    @product.destroy
+    head 204
+  end
+
+  # ...
+end
+----
+
+As you can see the four lines implementation does the job. We can run tests to make sure everything is good and then we will commit the changes as we added a bunch of new code. Also make sure you hook this action to the `before_action` callback as with the `update` action.
+
+[source,bash]
+----
+$ rake test
+........................
+----
+
+Let’s commit the changes:
+
+[source,bash]
+----
+$ git commit -am "Adds the products create, update and destroy actions"
+----
+
+
+== Feed the database
+
+let's fill the database with fake data before continuing with more code. We will use _seeds_ to do so.
+
+With the file `db/seeds.rb`, Rails gives us a way to easily and quickly provide default values for a new installation. It is a simple Ruby file that gives full access to all classes and methods of the application. So you don't need to enter everything manually with the Rails console but you can simply use the file `db/seeds.rb` with the command `rake db:seed`.
+
+So let's start by creating a user:
+
+.db/seeds.rb
+[source,ruby]
+----
+User.delete_all
+user = User.create! email: 'toto@toto.fr', password: 'toto123'
+puts "Created a new user: #{user.email}"
+----
+
+And now you can create the user by simply executing the following command:
+
+
+[source,bash]
+----
+$ rake db:seed
+Created a new user: toto@toto.fr
+----
+
+It works. I don't know about you, but I like to have dummy data that correctly fills out my test database. Only I don't always have the inspiration to give meaning to my _seed_ so I use the gem https://github.com/stympy/faker[`faker`]. Let's set it up there:
+
+[source,bash]
+----
+$ bundle add faker
+----
+
+Now we can use it to create five users at once with different emails.
+
+.db/seeds.rb
+[source,ruby]
+----
+User.delete_all
+
+5.times do
+  user = User.create! email: Faker::Internet.email, password: 'locadex1234'
+  puts "Created a new user: #{user.email}"
+end
+----
+
+And let's see what happens:
+
+[source,bash]
+----
+$ rake db:seed
+Created a new user: barbar@greenholt.io
+Created a new user: westonpaucek@ortizbotsford.net
+Created a new user: ricardo@schneider.com
+Created a new user: scott@moenerdman.biz
+Created a new user: chelsie@wiza.net
+----
+
+There you go. But we can go further by creating products associated with these users:
+
+
+.db/seeds.rb
+[source,ruby]
+----
+Product.delete_all
+User.delete_all
+
+3.times do
+  user = User.create! email: Faker::Internet.email, password: 'locadex1234'
+  puts "Created a new user: #{user.email}"
+
+  2.times do
+    product = Product.create!(
+      title: Faker::Commerce.product_name,
+      price: rand(1.0..100.0),
+      published: true,
+      user_id: user.id
+    )
+    puts "Created a brand new product: #{product.title}"
+  end
+end
+----
+
+There you go. The result is amazing. In one order we can create three users and six products:
+
+[source,bash]
+----
+$ rake db:seed
+Created a new user: tova@beatty.org
+Created a brand new product: Lightweight Steel Hat
+Created a brand new product: Ergonomic Aluminum Lamp
+Created a new user: tommyrunolfon@tremblay.biz
+Created a brand new product: Durable Plastic Car
+Created a brand new product: Ergonomic Leather Shirt
+Created a new user: jordon@torp.io
+Created a brand new product: Incredible Paper Hat
+Created a brand new product: Sleek Concrete Pants
+----
+
+Let's _commit_ changes:
+
+[source,bash]
+----
+$ git commit -am "Create a seed to populate database"
+----
+
+And as we get to the end of our chapter, it's time to apply all our modifications to the master branch by making a _merge_:
+
+Then we create a bunch of product objects with the `FactoryBot` gem:
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter05
+----
+
+== Conclusion
+
+I hope you have enjoyed this chapter. It's a long one but the code we put together is an excellent base for the core app.
+
+In the next chapter, we will focus on customizing the output of user and product models using the gem https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi]. It will allow us to easily filter the attributes to display and manage associations such as embedded objects for example.
+
