@@ -78,7 +78,7 @@ We will modify a little bit this migration in order to add some database validat
 We will therefore add two additional constraints:
 
 - email is mandatory: we use the property `null: false`.
-- email must be unique: we use the `unique: true` property
+- email must be unique: we add an index for the email column with property `unique: true`.
 - password is mandatory: we use the property `null: false`.
 
 The migration thus becomes:
@@ -88,7 +88,8 @@ The migration thus becomes:
 ----
 # ...
 create_table :users do |t|
-  t.string :email, unique: true, null: false
+  t.string :email, null: false
+  t.index :email, unique: true
   t.string :password_digest, null: false
   # ...
 end
@@ -181,7 +182,7 @@ end
 [source,ruby]
 ----
 # ...
-test 'user with unvalid email should be unvalid' do
+test 'user with invalid email should be invalid' do
   user = User.new(email: 'test', password_digest: 'test')
   assert_not user.valid?
 end
@@ -193,7 +194,7 @@ end
 [source,ruby]
 ----
 # ...
-test 'user with taken email should be unvalid' do
+test 'user with taken email should be invalid' do
   other_user = users(:one)
   user = User.new(email: other_user.email, password_digest: 'test')
   assert_not user.valid?
@@ -267,7 +268,7 @@ end
 
 In addition, this method will add a `User#password` attribute that will be automatically hashed and saved in the `User#password_digest` attribute.
 
-Let's try this right now in the Rails console. Open a console with `console rails`:
+Let's try this right now in the Rails console. Open a console with `rails console`:
 
 [source,ruby]
 ----
@@ -342,7 +343,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "should show user" do
     get api_v1_user_url(@user), as: :json
     assert_response :success
-    # on teste que la réponse contient le courriel
+    # Test to ensure response contains the correct email
     json_response = JSON.parse(self.response.body)
     assert_equal @user.email, json_response['email']
   end
@@ -356,6 +357,7 @@ Then simply add the action to our controller. It is extremely simple:
 .app/controllers/api/v1/users\_controller.rb
 ----
 class  Api::V1::UsersController < ApplicationController
+  # GET /users/1
   def show
     render json: User.find(params[:id])
   end
@@ -409,6 +411,14 @@ $ git add . && git commit -m "Adds show action the users controller"
 
 So we finally have a resource to test. We have several solutions to test it. The first one that comes to mind is the use of cURL, which is integrated in almost all Linux distributions. So let's try it:
 
+First initialize the rails server on a new terminal.
+[source,bash]
+----
+$ rails s
+----
+
+Then switch back to your other terminal and run:
+
 [source,bash]
 ----
 $ curl http://localhost:3000/api/v1/users/1
@@ -449,8 +459,8 @@ end
 
 That's a lot of code. Don't worry I'll explain everything:
 
-* In the first test we check the creation of a user by sending a valid POST request. Then, we checked that an additional user exists in the database and that the HTTP code of the response is `created`
-* In the first test we check that the user is not created using an email already used. Then, we check that the HTTP code of the response is `created`
+* In the first test we check the creation of a user by sending a valid POST request. Then, we checked that an additional user exists in the database and that the HTTP code of the response is `created` (status code 201)
+* In the second test we check that the user is not created using an email already used. Then, we check that the HTTP code of the response is `unprocessable_entity` (status code 422)
 
 At that point, the tests must fail (as we expected):
 
@@ -538,7 +548,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should not update other user" do
+  test "should not update user when invalid params are sent" do
     patch api_v1_user_url(@user), params: { user: { email: 'bad_email', password: '123456' } }, as: :json
     assert_response :unprocessable_entity
   end
@@ -564,18 +574,18 @@ Then we implement the update action on the user controller and run our tests:
 ----
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[show update]
-
+  
+  # GET /users/1
   def show
     render json: @user
   end
 
   # ...
 
-  def create
-    @user = User.new(user_params)
-
-    if @user.save
-      render json: @user, status: :created
+  # PATCH/PUT /users/1
+  def update
+    if @user.update(user_params)
+      render json: @user, status: :ok
     else
       render json: @user.errors, status: :unprocessable_entity
     end
@@ -638,6 +648,7 @@ class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
   # ...
 
+  # DELETE /users/1
   def destroy
     @user.destroy
     head 204
