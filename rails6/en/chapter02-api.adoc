@@ -135,9 +135,7 @@ Up to this point we have not made anything crazy. What we want to generate is a 
 
 NOTE: Setting the API under a subdomain is a good practice because it allows the application to be adapted to a DNS level. But we will simplify things for now in our case.
 
-You should be concerned about versioning your application from the beginning as this will give your API a *better structure*. So when changes occur on your API you can thus propose to developers to adapt to the new features while the old ones are depreciated. 
-
-//thus ?
+You should be concerned about versioning your application from the beginning as this will give your API a *better structure*. So when changes occur on your API you can thus propose to developers to adapt to the new features while the old ones are depreciated.
 
 [source,ruby]
 .config/routes.rb
@@ -197,14 +195,14 @@ $ git merge chapter02
 
 == Api versioning
 
-At this point we should have a nice routes mapping using a subdomain for name spacing the requests. Your _routes.rb_ file should look like this:
+At this point we should have a nice routes mapping using a namespace. Your _routes.rb_ file should look like this:
 
 [source,ruby]
 .config/routes.rb
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+  namespace :api, defaults: { format: :json }, path: '/'  do
     # We are going to list our resources here
   end
 end
@@ -226,7 +224,7 @@ This way we can scope our api into different versions very easily, now we just n
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+  namespace :api, defaults: { format: :json }, path: '/'  do
     scope module: :v1 do
       # We are going to list our resources here
     end
@@ -235,167 +233,6 @@ end
 ----
 
 By this point the API is now scoped via the URL. For example with the current configuration an end point for retrieving a product would be like: http://localhost:3000/v1/products/1.
-
-=== Improving the versioning
-
-So far we have the API versioned scoped via the URL, but something doesn’t feel quite right, isn’t it? From my point of view the developer should not be aware of the version using it, by default they should be using the last version of your endpoints, but how do we accomplish this?.
-
-Well first of all, we need to improve the API version access through http://en.wikipedia.org/wiki/List_of_HTTP_header_fields[HTTP Headers]. This has two benefits:
-
-* Removes the version from the URL
-* The API description is handle through request headers
-
-.Most commons HTTP headers fields
-****
-HTTP header fields are components of the message header of requests and responses in the Hypertext Transfer Protocol (HTTP). They define an operating parameters of an HTTP transaction. A common list of used headers is presented below:
-
-* *Accept*: Content-Types acceptables for the response. Example: `Accept: text/plain`
-* *Authorization*: Authentication credentials for HTTP authentication. Example: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
-* *Content-Type*: The MIME type of the body of the request (used with POST and PUT requests). Example: `Content-Type: application/x-www-form-urlencoded`
-* *Origin*: Initiates a request for cross-origin resource sharing (asks server for an `Access-Control-Allow-Origin' response header). Example: `Origin: http://www.example-social-network.com`
-* *User-Agent*: The user agent string of the user agent. Example: `User-Agent: Mozilla/5.0`
-
-It is important you feel comfortable with this ones and understand them.
-
-****
-
-// In Rails it's very easy to add this type versioning through an _Accept_ header. We will create a class under the `lib` directory of your rails app, and remember we are doing http://en.wikipedia.org/wiki/Test-driven_development[TDD] so first things first.
-
-// First we need to add our testing suite, which in our case is going to be http://rspec.info/[Rspe]:
-
-// [source,ruby]
-// .Gemfile
-// ----
-// group :test do
-//   gem 'rspec-rails', '~> 3.8'
-//   gem 'factory_bot_rails', '~> 4.9'
-//   gem 'ffaker', '~> 2.10'
-// end
-// ----
-
-// Then we run the bundle command to install the gems
-
-// [source,bash]
-// ----
-// $ bundle install
-// ----
-
-// Finally we install the `rspec` and add some configuration to prevent views and helpers tests from being generated:
-
-// [source,bash]
-// ----
-// $ rails generate rspec:install
-// ----
-
-// [source,ruby]
-// .config/application.rb
-// ----
-// # ...
-// module MarketPlaceApi
-//   class Application < Rails::Application
-//     # Initialize configuration defaults for originally generated Rails version.
-//     config.load_defaults 5.2
-
-//     config.generators do |g|
-//       g.test_framework :rspec, fixture: true
-//       g.fixture_replacement :factory_bot, dir: 'spec/factories'
-//       g.view_specs false
-//       g.helper_specs false
-//       g.stylesheets = false
-//       g.javascripts = false
-//       g.helper = false
-//     end
-
-//     config.autoload_paths += %W(\#{config.root}/lib)
-
-//     # Don't generate system test files.
-//     config.generators.system_tests = nil
-//   end
-// end
-// ----
-
-// If everything went well it is now time to add a `spec` directory under `lib` and add the `api_constraints_test.rb`:
-
-// [source,bash]
-// ----
-// $ mkdir lib/spec
-// $ touch lib/spec/api_constraints_test.rb
-// ----
-
-//Then we add a bunch of specs describing our class:
-
-// [source,ruby]
-// .lib/spec/api_constraints_test.rb
-// ----
-// require 'spec_helper'
-// require './lib/api_constraints'
-
-// describe ApiConstraints do
-//   let(:api_constraints_v1) { ApiConstraints.new(version: 1) }
-//   let(:api_constraints_v2) { ApiConstraints.new(version: 2, default: true) }
-
-//   describe 'matches?' do
-//     it "returns true when the version matches the 'Accept' header" do
-//       request = double(host: 'api.marketplace.dev',
-//                        headers: { 'Accept' => 'application/vnd.marketplace.v1' })
-//       expect(api_constraints_v1.matches?(request)).to be_truthy
-//     end
-
-//     it "returns the default version when 'default' option is specified" do
-//       request = double(host: 'api.marketplace.dev')
-//       expect(api_constraints_v2.matches?(request)).to be_truthy
-//     end
-//   end
-// end
-// ----
-
-// Let me walk you through the code. We are initializing the class with an https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] option. https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] option will contain the version of the API and a default value for handling the default version. We provide a `matches?` method which the router will trigger for the constraint to see if the default version is required or the `Accept` header matches the given string.
-
-// The implementation looks likes this
-
-// [source,ruby]
-// .lib/api_constraints.rb
-// ----
-// class ApiConstraints
-//   def initialize(options)
-//     @version = options[:version]
-//     @default = options[:default]
-//   end
-
-//   def matches?(req)
-//     @default || req.headers['Accept'].include?("application/vnd.marketplace.v#{@version}")
-//   end
-// end
-// ----
-
-// As you imagine we need to add the class to our `routes.rb` file and set it as a constraint scope option.
-
-// [source,ruby]
-// .config/routes.rb
-// ----
-// # ...
-// Rails.application.routes.draw do
-//   # Api definition
-//   namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
-//     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-//       # We are going to list our resources here
-//     end
-//   end
-// end
-// ----
-
-// The configuration above now handles versioning through headers, and for now the version 1 is the default one, so every request will be redirected to that version, no matter if the header with the version is present or not.
-
-// Before we say goodbye, let’s run our first tests and make sure everything is nice and green:
-
-// [source,bash]
-// ----
-// $ bundle exec rspec lib/spec/api_constraints_test.rb
-// ..
-
-// Finished in 0.00294 seconds (files took 0.06292 seconds to load)
-// 2 examples, 0 failures
-// ----
 
 == Conclusion
 
