@@ -129,22 +129,20 @@ We then install the necessary gems and ignore documentation for each gem:
 [source,bash]
 ----
 $ gem install bundler
-$ gem install rails -v 6.0.0.rc1
+$ gem install rails -v 6.0.0
 ----
-
-NOTE: You may ask yoursel "what does RC1 mean?". RC1 means _Release Candidate_. As I write these lines, the final version for Rails 6.0 is not finished. So I use the he most recent version wich is 6.0.0.rc1
 
 Check for everything to be running nice and smooth:
 
 [source,bash]
 ----
 $ rails -v
-Rails 6.0.0.rc1
+Rails 6.0.0
 ----
 
 ==== Database
 
-I highly recommend you installing http://www.postgresql.org/[Postgresql] to manage your databases. But here we’ll using http://www.sqlite.org/[SQlite] for simplicity . If you are using Mac OS you should be ready to go, in case you are on Linux, don’t worry we have you covered:
+I highly recommend you install http://www.postgresql.org/[Postgresql] to manage your databases. But here we’ll be using http://www.sqlite.org/[SQlite] for simplicity . If you are using Mac OS you should be ready to go, in case you are on Linux, don’t worry we have you covered:
 
 [source,bash]
 ----
@@ -171,7 +169,7 @@ $ cd ~/workspace
 $ rails new market_place_api --api
 ----
 
-NOTE: The `--api` option appeared in version 5 of Rails. It allows to limit the libraries and _Middleware_ included in the application. This also avoids generating HTML views when using Rails generators.
+NOTE: The `--api` option appeared in version 5 of Rails. It allows you to limit the libraries and _Middleware_ included in the application. This also avoids generating HTML views when using Rails generators.
 
 As you may guess, the commands above will generate the bare bones of your Rails application.
 
@@ -189,7 +187,7 @@ $ git config --global user.name "Type in your name"
 $ git config --global user.email "Type in your email"
 ----
 
-Rails also provide a _.gitignore_ file to ignore some files that we don’t want to track. The default _.gitignore_ file should looks like the one shown below:
+Rails also provides a _.gitignore_ file to ignore some files that we don’t want to track. The default _.gitignore_ file should look like the one shown below:
 
 ..gitignore
 ----
@@ -215,7 +213,7 @@ Rails also provide a _.gitignore_ file to ignore some files that we don’t want
 /config/master.key
 ----
 
-After modifying the _.gitignore_ file we just need adding the files and commiting the changes, commands necessary are shown below:
+After modifying the _.gitignore_ file we just need to add the files and commit the changes, the necessary commands are shown below:
 
 [source,bash]
 ----
@@ -223,7 +221,7 @@ $ git add .
 $ git commit -m "Initial commit"
 ----
 
-TIP: I have encounter that committing with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand (or at least for me). I’ll follow this practice until the end of the tutorial.
+TIP: I have found that committing a message starting with a present tense verb, describing what the commit does and not what it did, helps when you are exploring the history of the project. I find it is more natural to read and understand. I’ll follow this practice until the end of the tutorial.
 
 Lastly and as an optional step we setup the GitHub (I’m not going through that in here) project and push our code to the remote server: We first add the remote:
 
