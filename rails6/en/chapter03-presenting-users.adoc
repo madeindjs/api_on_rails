@@ -71,9 +71,9 @@ class CreateUsers < ActiveRecord::Migration[6.0]
 end
 ----
 
-NOTE: inserted date at the beginning of the migration file name should be different for you since it corresponds to the migration creation date.
+NOTE: The inserted date at the beginning of the migration file name should be different for you since it corresponds to the migration creation date.
 
-We will modify a little bit this migration in order to add some database validations. With Rails it is common practice to make these verifications directly in the Ruby model. It is good practice to do so also in the database schema.
+We will make a small change to the migration in order to add some database validations. With Rails it is common practice to make these verifications directly in the Ruby model. It is good practice to do so also in the database schema.
 
 We will therefore add two additional constraints:
 
@@ -115,9 +115,9 @@ So we defined our database schema. The next step is to update our model to defin
 
 Ruby on Rails provides a complete validation mechanism that can be found at https://guides.rubyonrails.org/active_record_validations.html[their official documentation]. In our case we want to validate only three things:
 
-- the email must have a valid format
-- the email must be unique
-- the password must be filled in
+. the email must have a valid format
+. the email must be unique
+. the password must be filled in
 
 These three rules are defined by the following code:
 
@@ -162,9 +162,9 @@ one:
   password_digest: hashed_password
 ----
 
-So we can now create the tests. There will be three of them:
+So we can now create three tests:
 
-- we check that a user with valid data is valid:
+- 1. Check that a user with valid data is valid:
 
 .test/models/user_test.rb
 [source,ruby]
@@ -176,7 +176,7 @@ test 'user with a valid email should be valid' do
 end
 ----
 
-- we check that a user with an invalid email address is not valid:
+- 2. Check that a user with an invalid email address is not valid:
 
 .test/models/user_test.rb
 [source,ruby]
@@ -188,7 +188,7 @@ test 'user with invalid email should be invalid' do
 end
 ----
 
-- we check that a user with an email already used is not valid. So we use the same email as the _fixture_ we just created.
+- 3. Check that a new user with a duplicate email is not valid. So we use the same email as the _fixture_ we just created.
 
 .test/models/user_test.rb
 [source,ruby]
@@ -293,7 +293,7 @@ $ git commit -am "Setup Bcrypt"
 
 == Build users
 
-It's time to make our first entry point. We will just start building the `show` action for the user who will display a user in JSON. We will first
+It's time to make our first entry point. We will begin by building the `show` action which will respond with a single user in the JSON data format. The steps are:
 
 1. generate the `users_controller`.
 2. add the corresponding tests
@@ -335,7 +335,7 @@ We will therefore implement the functional test that verifies access to the `Use
 .test/controllers/api/v1/users_controller_test.rb
 ----
 # ...
-class UsersControllerTest < ActionDispatch::IntegrationTest
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
   end
@@ -439,7 +439,7 @@ So let's start by writing our test by adding an entry to create a user on the fi
 .test/controllers/users_controller_test.rb
 ----
 # ...
-class UsersControllerTest < ActionDispatch::IntegrationTest
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
   # ...
   test "should create user" do
     assert_difference('User.count') do
@@ -541,7 +541,7 @@ As usual, we start by writing our tests:
 .test/controllers/users_controller_test.rb
 ----
 # ...
-class UsersControllerTest < ActionDispatch::IntegrationTest
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
   # ...
   test "should update user" do
     patch api_v1_user_url(@user), params: { user: { email: @user.email, password: '123456' } }, as: :json
@@ -625,7 +625,7 @@ So far, we have built a lot of actions on the user controller with their tests b
 .test/controllers/users_controller_test.rb
 ----
 # ...
-class UsersControllerTest < ActionDispatch::IntegrationTest
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
   # ...
 
   test "should destroy user" do
