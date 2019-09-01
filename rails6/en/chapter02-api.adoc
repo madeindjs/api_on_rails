@@ -19,7 +19,7 @@ As we want to go simple with the application it consists on five models. Don’t
 
 image:data_model.png[Schema of links betweens models]
 
-In short terms the `user` will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
+In brief, the `user` will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
 
 We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there like javascript frameworks (https://angularjs.org/[Angular], https://vuejs.org/[Vue.js], https://reactjs.org/[React.js]).
 
@@ -33,9 +33,9 @@ That’s fair. Probably if you google something related to api exploring, an app
 
 An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 
-JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement. Many of the current frameworks consume JSON API’s by default (https://angularjs.org/[Angular] or https://vuejs.org/[Vue.js] for example). There are also great libraries for Objective-C too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android but because of my lack of experience on that development platform I might not be the right person to recommend you something.
+JSON, as the Internet media type standard, is widely accepted, readable, extensible and easy to implement. Many of the current frameworks consume JSON API’s by default (https://angularjs.org/[Angular] or https://vuejs.org/[Vue.js] for example). There are also great libraries for Objective-C too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android but because of my lack of experience on that development platform I might not be the right person to recommend you something.
 
-All right. So we are building our API with JSON. There are many ways to achieve this. The first thing that could come to your mind would be just to start dropping some routes defining the end points. This may be bad because they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
+All right. So we are building our API with JSON. There are many ways to achieve this. The first thing that comes to mind would be just to start adding routes defining the end points. This may be bad because they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
 
 [source,soap]
 ----
@@ -48,7 +48,7 @@ RESTful APIs must follow at least three simple guidelines:
 
 * A base http://en.wikipedia.org/wiki/Uniform_resource_identifier[URI], such as `http://example.com/resources/`.
 * An Internet media type to represent the data, it is commonly JSON and is commonly set through headers exchange.
-* Follow the standard http://en.wikipedia.org/wiki/HTTP_method#Request_methods[HTTP Methods] such as GET, POST, PUT, DELETE.
+* Follows the standard http://en.wikipedia.org/wiki/HTTP_method#Request_methods[HTTP Methods] such as GET, POST, PUT, DELETE.
 ** *GET*: Reads the resource or resources defined by the URI pattern
 ** *POST*: Creates a new entry into the resources collection
 ** *PUT*: Updates a collection or member of the resources
@@ -182,7 +182,7 @@ Don't worry we'll get more details about the versioning later. It is time to _co
 $ git commit -am "Set the routes namespaces for the api"
 ----
 
-NOTE: There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he'ss using. For the sake of simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
+NOTE: There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he's using. For the sake of simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
 
 We are at the end of our chapter. It is therefore time to apply all our modifications to the master branch by making a _merge_. To do this, we place ourselves on the `master` branch and we _merge_ `chapter02`:
 
