@@ -202,7 +202,7 @@ At this point we should have a nice routes mapping using a namespace. Your _rout
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, path: '/'  do
+  namespace :api, defaults: { format: :json }  do
     # We are going to list our resources here
   end
 end
@@ -224,7 +224,7 @@ This way we can scope our api into different versions very easily, now we just n
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, path: '/'  do
+  namespace :api, defaults: { format: :json }  do
     scope module: :v1 do
       # We are going to list our resources here
     end

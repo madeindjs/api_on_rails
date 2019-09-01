@@ -153,7 +153,7 @@ Jusqu’à présent, nous n’avons rien fait de compliqué. Nous voulons mainte
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }  do
     # We are going to list our resources here
   end
 end
@@ -186,7 +186,7 @@ A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-doma
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }  do
     # We are going to list our resources here
   end
 end
@@ -207,7 +207,7 @@ De cette façon, nous pouvons très facilement définir la portée de notre API 
 .config/routes.rb
 ----
 Rails.application.routes.draw do
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }  do
     scope module: :v1 do
       # We are going to list our resources here
     end
@@ -355,7 +355,7 @@ require 'api_constraints'
 
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       # We are going to list our resources here
     end

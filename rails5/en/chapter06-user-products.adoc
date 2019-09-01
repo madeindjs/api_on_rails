@@ -400,7 +400,7 @@ Wait! Don’t run the tests yet. Remember we need to add the resource to the `ro
 # ...
 Rails.application.routes.draw do
   # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       # ...
       resources :products, only: [:show]
@@ -587,7 +587,7 @@ One last thing before you run your tests, just the necessary route:
 # ...
 Rails.application.routes.draw do
   # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: %i[show create update destroy] do
         resources :products, only: [:create]
@@ -620,7 +620,7 @@ We are first add the action to the routes, so we don’t forget later:
 # ...
 Rails.application.routes.draw do
   # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: %i[show create update destroy] do
         resources :products, only: %i[create update]
@@ -729,7 +729,7 @@ Let’s start again by adding the route name to the routes file:
 # ...
 Rails.application.routes.draw do
   # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: %i[show create update destroy] do
         resources :products, only: %i[create update destroy]

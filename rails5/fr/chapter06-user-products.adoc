@@ -394,7 +394,7 @@ require 'api_constraints'
 
 Rails.application.routes.draw do
   # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       # ...
       resources :products, only: [:show]
@@ -597,7 +597,7 @@ Une dernière chose avant de faire vos tests: la route nécessaire:
 # ...
 Rails.application.routes.draw do
   # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: %i[show create update destroy] do
         resources :products, only: [:create]
@@ -630,7 +630,7 @@ Nous ajoutons d’abord l’action aux routes pour ne pas oublier plus tard:
 # ...
 Rails.application.routes.draw do
   # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: %i[show create update destroy] do
         resources :products, only: %i[create update]
@@ -739,7 +739,7 @@ Recommençons par ajouter la route:
 # ...
 Rails.application.routes.draw do
   # ...
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       resources :users, only: %i[show create update destroy] do
         resources :products, only: %i[create update destroy]

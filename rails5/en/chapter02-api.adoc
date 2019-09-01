@@ -138,7 +138,7 @@ Up to this point we have not made anything crazy. What we want to to generate a 
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }  do
     # We are going to list our resources here
   end
 end
@@ -176,7 +176,7 @@ At this point we should have a nice routes mapping using a subdomain for name sp
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }  do
     # We are going to list our resources here
   end
 end
@@ -198,7 +198,7 @@ This way we can scope our api into different versions very easily, now we just n
 ----
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/'  do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }  do
     scope module: :v1 do
       # We are going to list our resources here
     end
@@ -348,7 +348,7 @@ As you imagine we need to add the class to our `routes.rb` file and set it as a 
 # ...
 Rails.application.routes.draw do
   # Api definition
-  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' }, path: '/' do
+  namespace :api, defaults: { format: :json }, constraints: { subdomain: 'api' } do
     scope module: :v1, constraints: ApiConstraints.new(version: 1, default: true) do
       # We are going to list our resources here
     end
