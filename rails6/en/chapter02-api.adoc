@@ -214,4 +214,4 @@ It’s been a long way, I know, but you made it, don’t give up this is just ou
 * https://github.com/Sutto/rocket_pants[RocketPants]
 * https://github.com/bploetz/versionist[Versionist]
 
-I’m not covering those in this book, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way the code up to this point is https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd[here].
+I’m not covering those in this book, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way the code up to this point is https://github.com/madeindjs/market_place_api_6/releases/tag/checkpoint_chapter03[here].
