@@ -131,34 +131,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Up to this point we have not made anything crazy. What we want to generate is a _base_uri_ wich include the API version like this: http://localhost:3000/api/v1.
-
-NOTE: Setting the API under a subdomain is a good practice because it allows the application to be adapted to a DNS level. But we will simplify things for now in our case.
-
-You should be concerned about versioning your application from the beginning as this will give your API a *better structure*. So when changes occur on your API you can thus propose to developers to adapt to the new features while the old ones are depreciated.
-
-[source,ruby]
-.config/routes.rb
-----
-Rails.application.routes.draw do
-  namespace :api, defaults: { format: :json } do
-    namespace :v1 do
-      # We are going to list our resources here
-    end
-  end
-end
-----
-
-.Common API patterns
-****
-You can find many approaches to set up the _base_uri_ when building an api following different patterns, assuming we are versioning our api:
-
-* `api.example.com/`: In my opinion this is the way to go, gives you a better interface and isolation, and in the long term can help you to http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[quickly scalate]
-* `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don’t want to namespace your api under a subdomain
-* `example.com/api/v1`: it seems like a good idea, by setting the version of the api through the URL seems like a more descriptive pattern, but this way you enforce the version to be included on URL on each request, so if you ever decide to change this pattern, this becomes a problem of maintenance in the long-term
-****
-
-Time to commit:
+Up to this point we have not made anything crazy. What we want to generate is a _base_uri_ wich include the API version. But let's make a comit before go to next section:
 
 [source,bash]
 ----
@@ -166,36 +139,9 @@ $ git add config/routes.rb
 $ git commit -m "Set the routes constraints for the api"
 ----
 
-In order to define the API version, we must first add another directory under the `api/` folder we created:
-
-[source,bash]
-----
-$ mkdir app/controllers/api/v1
-----
-
-The API is now _scoped_ via the URL. For example, with the current configuration, the recovery of a product via the API would be done with this url: http://localhost:3000/v1/products/1.
-
-Don't worry we'll get more details about the versioning later. It is time to _commit_:
-
-[source,bash]
-----
-$ git commit -am "Set the routes namespaces for the api"
-----
-
-NOTE: There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he's using. For the sake of simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
-
-We are at the end of our chapter. It is therefore time to apply all our modifications to the master branch by making a _merge_. To do this, we place ourselves on the `master` branch and we _merge_ `chapter02`:
-
-[source,bash]
-----
-$ git checkout master
-$ git merge chapter02
-----
-
-
 == Api versioning
 
-At this point we should have a nice routes mapping using a namespace. Your _routes.rb_ file should look like this:
+At this point we should have a nice routes mapping using a namespace. Your `routes.rb` file should look like this:
 
 [source,ruby]
 .config/routes.rb
@@ -210,14 +156,14 @@ end
 
 Now it is time to set up some other constraints for versioning purposes. You should care about versioning your application from the beginning since this will give a better structure to your api, and when changes need to be done, you can give developers who are consuming your api the opportunity to adapt for the new features while the old ones are being deprecated. There is an excellent http://railscasts.com/episodes/350-rest-api-versioning[railscast] explaining this.
 
-In order to set the version for the api, we first need to add another directory under the `api` we created
+In order to set the version for the API, we first need to add another directory under the `api` we created:
 
 [source,bash]
 ----
 $ mkdir app/controllers/api/v1
 ----
 
-This way we can scope our api into different versions very easily, now we just need to add the necessary code to the `routes.rb` file
+This way we can namespace our api into different versions very easily, now we just need to add the necessary code to the `routes.rb` file:
 
 [source,ruby]
 .config/routes.rb
@@ -225,14 +171,41 @@ This way we can scope our api into different versions very easily, now we just n
 Rails.application.routes.draw do
   # Api definition
   namespace :api, defaults: { format: :json }  do
-    scope module: :v1 do
+    namespace: :v1 do
       # We are going to list our resources here
     end
   end
 end
 ----
 
-By this point the API is now scoped via the URL. For example with the current configuration an end point for retrieving a product would be like: http://localhost:3000/v1/products/1.
+By this point the API is now scoped via the URL. For example with the current configuration an end point for retrieving a product would be like: <http://localhost:3000/v1/products/1> .
+
+
+.Common API patterns
+****
+You can find many approaches to set up the _base_uri_ when building an api following different patterns, assuming we are versioning our api:
+
+* `api.example.com/`: In my opinion this is the way to go, gives you a better interface and isolation, and in the long term can help you to http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[quickly scalate]
+* `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don’t want to namespace your api under a subdomain
+* `example.com/api/v1`: it seems like a good idea, by setting the version of the api through the URL seems like a more descriptive pattern, but this way you enforce the version to be included on URL on each request, so if you ever decide to change this pattern, this becomes a problem of maintenance in the long-term
+
+There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he's using. For the sake of simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
+****
+
+It is time to _commit_:
+
+[source,bash]
+----
+$ git commit -am "Set the versioning namespaces for API"
+----
+
+We are at the end of our chapter. It is therefore time to apply all our modifications to the master branch by making a _merge_. To do this, we place ourselves on the `master` branch and we _merge_ `chapter02`:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter02
+----
 
 == Conclusion
 
