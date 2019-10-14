@@ -238,7 +238,7 @@ Expected response to be a <401: unauthorized>, but was a <204: No Content>
 
 That's normal. It's now time implementing the logic to create the JWT token. It is very simple.
 
-.config/routes.rb
+.app/controllers/api/v1/tokens_controller.rb
 [source,ruby]
 ----
 class Api::V1::TokensController < ApplicationController
@@ -524,7 +524,7 @@ The solution is quite simple. We will add a `before_action` which will call the 
 Here is the implementation:
 
 [source,ruby]
-.spec/controllers/api/v1/users_controller_test.rb
+.app/controllers/api/v1/users_controller.rb
 ----
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
