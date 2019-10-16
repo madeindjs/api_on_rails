@@ -236,7 +236,7 @@ Now it is time for the orders controller implementation:
 
 [source,bash]
 ----
-$ rails generate controller api::v1::orders
+$ rails generate serializer Order
 ----
 
 And let's add relationships:
@@ -477,6 +477,8 @@ class OrderTest < ActiveSupport::TestCase
 
   setup do
     @order = orders(:one)
+    @product1 = products(:one)
+    @product2 = products(:two)
   end
 
   test 'Should set total' do
