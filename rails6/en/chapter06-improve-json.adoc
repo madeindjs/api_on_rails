@@ -202,7 +202,7 @@ end
 There you go. It's no more complicated than that. Let's change our controller a little bit.
 
 [source,ruby]
-.app/controllers/api/v1/products_controller.rb
+.test/controllers/api/v1/products_controller_test.rb
 ----
 class Api::V1::ProductsController < ApplicationController
   # ...
@@ -527,7 +527,7 @@ This addition will add a `relationship` key containing the user's identifier:
 This allows us correcting our first two assertions. We now want to include attributes of the user who owns the product. To do this we simply need to pass an option `:include` to the _serializer_ instantiated in the _controller_. Then let's do it:
 
 [source,ruby]
-.app/serializers/product_serializer.rb
+.app/controllers/api/v1/products_controller.rb
 ----
 class Api::V1::ProductsController < ApplicationController
   # ...
@@ -593,7 +593,7 @@ Do you understand the principle? We have included user information in the JSON o
 Let's start with the test:
 
 [source,ruby]
-.app/controllers/api/v1/users_controller.rb
+.test/controllers/api/v1/users_controller_test.rb
 ----
 # ...
 class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest

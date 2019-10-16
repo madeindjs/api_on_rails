@@ -400,15 +400,6 @@ class Order < ApplicationRecord
 end
 ----
 
-And now everything should be nice and green:
-
-[source,bash]
-----
-$ rake test
-..........................................
-42 runs, 63 assertions, 0 failures, 0 errors, 0 skips
-----
-
 Let’s commit changes:
 
 [source,bash]
@@ -501,4 +492,3 @@ $ git merge chapter08
 Oh, you're here! Allow me to congratulate you! That's a long way from the first chapter. But you're one step closer. In fact, the next chapter will be the last. So try to make the most of it.
 
 The last chapter will focus on the way to optimize the API using paging, caching and background tasks. So buckle up, it's going to be a hectic ride.
-
