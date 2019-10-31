@@ -264,7 +264,7 @@ end
 
 * The password must be present when creating.
 * The password length must be less than or equal to 72 bytes.
-* the confirmation of the password using the attribute `password_confirmation` (if sent)
+* The confirmation of the password using the attribute `password_confirmation` (if sent)
 
 In addition, this method will add a `User#password` attribute that will be automatically hashed and saved in the `User#password_digest` attribute.
 
@@ -354,7 +354,7 @@ end
 Then simply add the action to our controller. It is extremely simple:
 
 [source,ruby]
-.app/controllers/api/v1/users\_controller.rb
+.app/controllers/api/v1/users_controller.rb
 ----
 class  Api::V1::UsersController < ApplicationController
   # GET /users/1
@@ -404,7 +404,7 @@ As usual, after adding one of the features we are satisfied with, we make a _com
 
 [source,bash]
 ----
-$ git add . && git commit -m "Adds show action the users controller"
+$ git add . && git commit -m "Adds show action to the users controller"
 ----
 
 === Test our resource with cURL
