@@ -129,7 +129,7 @@ I know that's a lot of code but we're going to review it together.
 
 There you go. In order to load the file into our application, you must specify the `lib` folder in the list of Ruby on Rails _autoload_s. To do this, add the following configuration to the `application.rb` file:
 
-.lib/json_web_token.rb
+.config/application.rb
 [source,ruby]
 ----
 # ...
@@ -450,7 +450,7 @@ We have a route to update the user but there is a problem: anyone can update any
 
 It is now time to update our `users_controller.rb` file to refuse access to certain actions. We will also implement the `current_user` method on the `update` and `destroy` action to ensure that the user who is logged in will only be able to update his data and can only delete (and only) his account.
 
-We will therefore split our test _should update user_ and _should destroy user_ into two tests
+We will therefore split our test _should update user_ and _should destroy user_ into two tests.
 
 Let's start by updating the _should update user_ test.
 
@@ -475,7 +475,7 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-You can see now we have to add a header _Authorization_ for the user's modification action. We want to receive a _forbidden_ response if we don't .
+You can see now we have to add a header _Authorization_ for the user's modification action. We want to receive a _forbidden_ response if we don't.
 
 We can imagine about the same thing for the test _should forbid destroy user_:
 
@@ -543,6 +543,7 @@ There you go! The implementation is really simple. It is therefore time to _comm
 
 [source,bash]
 ----
+$ git commit -am "Restrict actions for unauthorized users"
 $ git checkout master
 $ git merge chapter04
 ----
