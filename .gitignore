@@ -8,3 +8,4 @@
 *.toc
 _minted-api-on-rails
 build
+.DS_Store
