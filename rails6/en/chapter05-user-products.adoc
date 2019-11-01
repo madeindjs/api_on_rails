@@ -137,7 +137,7 @@ end
 
 You just have to modify the `User` model and specify the `has_many` relationship with the `depend: :destroy` option. We will see later what this method does in more detail.
 
-.test/models/user_test.rb
+.app/models/user.rb
 [source,ruby]
 ----
 # ...
@@ -146,17 +146,7 @@ class User < ApplicationRecord
   has_many :products, dependent: :destroy
 end
 ----
-
-.test/models/user_test.rb
-[source,ruby]
-----
-# ...
-class User < ApplicationRecord
-  # ...
-  has_many :products, dependent: :destroy
-end
-----
-
+<<<
 And that's it. Now make a _commit_:
 
 [source,bash]
@@ -177,7 +167,7 @@ Also an important thing about validation is to validate that every product has a
 ----
 # ...
 class ProductTest < ActiveSupport::TestCase
-  test "Should have a positive price" do
+  test "should have a positive price" do
     product = products(:one)
     product.price = -1
     assert_not product.valid?
@@ -605,7 +595,7 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
     assert_response :no_content
   end
 
-  test "should forbid destroy user" do
+  test "should forbid destroy product" do
     assert_no_difference('Product.count') do
       delete api_v1_user_url(@product), headers: { Authorization: JsonWebToken.encode(user_id: users(:two).id) }, as: :json
     end
@@ -759,7 +749,6 @@ $ git commit -am "Create a seed to populate database"
 
 And as we get to the end of our chapter, it's time to apply all our modifications to the master branch by making a _merge_:
 
-Then we create a bunch of product objects with the `FactoryBot` gem:
 [source,bash]
 ----
 $ git checkout master
@@ -770,5 +759,5 @@ $ git merge chapter05
 
 I hope you have enjoyed this chapter. It's a long one but the code we put together is an excellent base for the core app.
 
-In the next chapter, we will focus on customizing the output of user and product models using the gem https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi]. It will allow us to easily filter the attributes to display and manage associations such as embedded objects for example.
+In the next chapter, we will focus on customizing the output of user and product models using the gem https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. It will allow us to easily filter the attributes to display and manage associations such as embedded objects for example.
 
