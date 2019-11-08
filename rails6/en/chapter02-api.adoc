@@ -17,7 +17,7 @@ To summarize, we simply generated our Rails application and made our first commi
 
 As we want to go simple with the application it consists on five models. Don’t worry if you don’t fully understand what is going on. We will review and build each of these resources as we move on with the tutorial.
 
-image:img/data_model.png[Schema of links betweens models]
+image:data_model.png[Schema of links betweens models]
 
 In brief, the `user` will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
 
