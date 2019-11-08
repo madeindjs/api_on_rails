@@ -202,8 +202,8 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
     get api_v1_orders_url, headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) }, as: :json
     assert_response :success
 
-    json_response = JSON.parse(response.body)
-    assert_equal @order.user.orders.count, json_response['data'].count
+    json_response = JSON.parse(response.body, symbolize_names: true)
+    assert_equal @order.user.orders.count, json_response[:data].count
     assert_not_nil json_response.dig(:links, :first)
     assert_not_nil json_response.dig(:links, :last)
     assert_not_nil json_response.dig(:links, :prev)
@@ -287,7 +287,7 @@ assert_not_nil json_response.dig(:links, :next)
 assert_not_nil json_response.dig(:links, :prev)
 ----
 
-Let’s add a `shared_examples` folder under the `spec/support/` directory:
+In order to factor it, we will move these assertions into the `test_helper.rb` file in a method we will use:
 
 [source,ruby]
 .test/test_helper.rb
@@ -304,9 +304,7 @@ class ActiveSupport::TestCase
 end
 ----
 
-In order to factor it, we will move these assertions into the `test_helper.rb` file in a method we will use:
-
-This shared example can now be used to replace the five tests in the `orders_controller_test.rb` and `products_controller_test.rb` files:
+This method can now be used to replace the four assertions in the `orders_controller_test.rb` and `products_controller_test.rb` files:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -435,7 +433,7 @@ If we make a request to the product list, we will notice that the response time 
 
 [source,bash]
 ----
-$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/api/v1/products
 Total: 0,137088
 ----
 
@@ -474,9 +472,9 @@ And that’s all! Let’s check for improvement:
 
 [source,bash]
 ----
-$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/products
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/api/v1/products
 Total: 0,054786
-$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/products/
+$ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/api/v1/products
 Total: 0,032341
 ----
 
@@ -493,7 +491,7 @@ N+1* requests are a wound that can have a huge impact on the performance of an a
 
 Something to know about SQL queries is that it's better limiting the number. In other words, a large request is often more efficient than a hundred small ones.
 
-Here is an example where we want to recover all users who have already created a product. Open the Rails console with `Console Rails` and execute the following Ruby code:
+Here is an example where we want to recover all users who have already created a product. Open the Rails console with `rails console` and execute the following Ruby code:
 
 [source,ruby]
 ----
@@ -504,7 +502,7 @@ The interactive console of Rails shows us the SQL queries that are generated. Se
 
 We see here that a large number of requests are generated:
 
-- `Product.all` = 1 request to recover the recipes
+- `Product.all` = 1 request to recover the products
 - `product.user` = 1 request `SELECT "users".* FROM "users" WHERE "users". "id" =? LIMIT 1 [[[["id", 1]]]` per product recovered
 
 Hence the name "N+1 request" since a request is made via a child link.
@@ -528,7 +526,7 @@ Rails makes a second request that will retrieve *all* users at once.
 
 === Prevention of N + 1 requests
 
-Imagine we want adding owners of the products for the road `/products`. We have already seen that with the `fast_jsonapi` library it is very easy to do this:
+Imagine we want adding owners of the products for the path `/products`. We have already seen that with the `fast_jsonapi` library it is very easy to do this:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -627,7 +625,7 @@ He even tells us how to correct it:
 
 > Add to your search engine:: includes => [: user]
 
-So correct our error so the controller:
+So we correct our error in the controller:
 
 
 [source,ruby]
@@ -663,7 +661,7 @@ In this last section, I will talk to you about one last problem that you will pr
 
 When you first request an external site (via an AJAX request for example), you will encounter an error of this kind:
 
-> Failed to load https://example.com/ No'Access-Control-Allow-Origin' header is present on the requested resource. Origin "https://anfo.pl" is therefore not allowed access. If an opaque response serves your needs, set the request's mode to "no-cors" to fetch the resource with CORS disabled.
+> Failed to load https://example.com/ No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin "https://anfo.pl" is therefore not allowed access. If an opaque response serves your needs, set the request's mode to "no-cors" to fetch the resource with CORS disabled.
 
 "But what does _Access-Control-Allow-Origin_ mean?". The behavior you observe is the effect of the CORS implementation of browsers. Before the standardization of CORS, there was no way to call an API terminal under another domain for security reasons. This has been (and still is to some extent) blocked by the policy of the same origin.
 
@@ -735,6 +733,6 @@ If you get to that point, it means you're done with the book. Good work! You hav
 
 So together we have built a solid and complete API. This one has all the qualities to dethrone https://www.amazon.com/[Amazon], rest assured. Thank you for going through this great adventure with me, I hope you enjoyed the trip as much as I did.
 
-I would like to remind you that all the source code for this book is available in the format https://asciidoctor.org[Asciidoctor] on https://asciidoctor.org_on_rails[GitHub]. So do not hesitate to https://github.com/madeindjs/api_on_rails/fork_on_rails/fork[forker] the project if you want to improve it or correct a mistake that I missed.
+I would like to remind you that all the source code for this book is available in the format https://asciidoctor.org[Asciidoctor] on https://github.com/asciidoctor/asciidoctor[GitHub]. So do not hesitate to https://github.com/madeindjs/api_on_rails[forker] the project if you want to improve it or correct a mistake that I missed.
 
 If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer :).
