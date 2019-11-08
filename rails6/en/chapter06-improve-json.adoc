@@ -58,7 +58,7 @@ The content of the `data` key is also quite strict:
 * properties of the objects must be placed in an `attributes` key
 * links of the objects must be placed in a `relationships` key
 
-In this chapter we will customize the JSON output using Netflix's gem: https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi]. Luckily for use they already implements all https://jsonapi.org/[JSON:API] specifications.
+In this chapter we will customize the JSON output using Netflix's gem: https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. Luckily for use they already implements all https://jsonapi.org/[JSON:API] specifications.
 
 So let's install the gem `fast_jsonapi`:
 
@@ -202,7 +202,7 @@ end
 There you go. It's no more complicated than that. Let's change our controller a little bit.
 
 [source,ruby]
-.test/controllers/api/v1/products_controller_test.rb
+.app/controllers/api/v1/products_controller.rb
 ----
 class Api::V1::ProductsController < ApplicationController
   # ...
@@ -238,7 +238,7 @@ end
 And we're updating our functional test:
 
 [source,ruby]
-.app/controllers/api/v1/products_controller.rb
+.test/controllers/api/v1/products_controller_test.rb
 ----
 # ...
 class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
@@ -559,17 +559,6 @@ There you go. Now this is what the JSON should look like:
 }
 ----
 
-Implementation is very simple: just add a line to the product serializer.
-
-[source,ruby]
-.app/serializers/product_serializer.rb
-----
-class ProductSerializer < ActiveModel::Serializer
-  attributes :id, :title, :price, :published
-  has_one :user
-end
-----
-
 Now all tests should pass:
 
 [source,bash]
@@ -582,9 +571,10 @@ Let's make a _commit_ to celebrate:
 
 [source,bash]
 ----
-$ git commit -am "Add user relationship to product"
+$ git commit -am "Add user relationship to product serializer"
 ----
 
+<<<
 
 === Retrieve user's products
 
@@ -694,7 +684,7 @@ $ git commit -am "Add products relationship to user#show"
 
 In this last section we will continue to strengthen the `Products#index` action by setting up a very simple search mechanism allowing any customer to filter the results. This section is optional as it will have no impact on the application modules. But if you want to practice more with the TDD I recommend that you to complete this last step.
 
-I use https://github.com/activerecord-hackery/ransack[Ransack] or https://github.com/casecommons/pg_search_search[pg_search] to build advanced search forms extremely quickly. But since the goal is learning and searching we are going to do is very simple. I think we can build a search engine from scratch. We simply have to consider the criteria by which we will filter the attributes. Hang on to your seats it's going to be a tough trip.
+I use https://github.com/activerecord-hackery/ransack[Ransack] or https://github.com/casecommons/pg_search[pg_search] to build advanced search forms extremely quickly. But since the goal is learning and searching we are going to do is very simple. I think we can build a search engine from scratch. We simply have to consider the criteria by which we will filter the attributes. Hang on to your seats it's going to be a tough trip.
 
 We will therefore filter the products according to the following criteria:
 
@@ -741,11 +731,11 @@ And now we can build some tests:
 class ProductTest < ActiveSupport::TestCase
   # ...
   test "should filter products by name" do
-    assert_equal 2, Product.filter_by_title('TV').count
+    assert_equal 2, Product.filter_by_title('tv').count
   end
 
   test 'should filter products by name and sort them' do
-    assert_equal [products(:another_tv), products(:one)], Product.filter_by_title('TV').sort
+    assert_equal [products(:another_tv), products(:one)], Product.filter_by_title('tv').sort
   end
 end
 ----
@@ -915,12 +905,12 @@ class ProductTest < ActiveSupport::TestCase
     assert Product.search(search_hash).empty?
   end
 
-  test 'search should fin cheap TV' do
+  test 'search should find cheap TV' do
     search_hash = { keyword: 'tv', min_price: 50, max_price: 150 }
     assert_equal [products(:another_tv)], Product.search(search_hash)
   end
 
-  test 'should get all product when no parameters' do
+  test 'should get all products when no parameters' do
     assert_equal Product.all.to_a, Product.search({})
   end
 
@@ -939,12 +929,12 @@ We have added a lot of code but I assure you that the implementation is very eas
 class Product < ApplicationRecord
   # ...
   def self.search(params = {})
-    products = params[:product_ids].present? ? Product.find(params[:product_ids]) : Product.all
+    products = params[:product_ids].present? ? Product.where(id: params[:product_ids]) : Product.all
 
     products = products.filter_by_title(params[:keyword]) if params[:keyword]
     products = products.above_or_equal_to_price(params[:min_price].to_f) if params[:min_price]
     products = products.below_or_equal_to_price(params[:max_price].to_f) if params[:max_price]
-    products = products.recent(params[:recent]) if params[:recent].present?
+    products = products.recent if params[:recent]
 
     products
   end
