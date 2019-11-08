@@ -138,7 +138,7 @@ $ rake test
 40 runs, 60 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-The `build_placements_with_product_ids_and_quantities` will build the placement objects and once we trigger the `save` method for the order everything will be inserted into the database. One last step before committing this is to update the `orders_controller_spec` along with its implementation.
+The `build_placements_with_product_ids_and_quantities` will build the placement objects and once we trigger the `save` method for the order everything will be inserted into the database. One last step before committing this is to update the `orders_controller_test` along with its implementation.
 
 First we update the `orders_controller_test` file:
 
@@ -186,9 +186,10 @@ class Api::V1::OrdersController < ApplicationController
     order.build_placements_with_product_ids_and_quantities(order_params[:product_ids_and_quantities])
 
     if order.save
+      OrderMailer.send_confirmation(order).deliver
       render json: order, status: :created
     else
-      render json: { errors: order.errors }, status: :forbidden
+      render json: { errors: order.errors }, status: :unprocessable_entity
     end
   end
 
@@ -225,7 +226,7 @@ As with the product quantity attribute migration we should add a default value e
 [source,ruby]
 .db/migrate/20190621114614_add_quantity_to_placements.rb
 ----
-class AddQuantityToPlacements < ActiveRecord::Migration[5.2]
+class AddQuantityToPlacements < ActiveRecord::Migration[6.0]
   def change
     add_column :placements, :quantity, :integer, default: 0
   end
@@ -341,7 +342,7 @@ $ git commit -am "Decreases the product quantity by the placement quantity"
 
 Since the beginning of the chapter, we have added the attribute `quantity` to the product model. It is now time to validate the quantity of product is sufficient for the order to be placed. In order to make things more interesting, we will do this using a custom validator.
 
-NOTE: You can consult https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations_record_validations.html#performing-custom-validations[documentation].
+NOTE: You can consult https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation].
 
 First we need adding a `validators` directory under the `app` directory (Rails will pick it up for so we do not need to load it).
 
