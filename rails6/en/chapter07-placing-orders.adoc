@@ -123,7 +123,7 @@ Implementation is like so:
 class Product < ApplicationRecord
   belongs_to :user
   has_many :placements, dependent: :destroy
-  has_many :products, through: :placements
+  has_many :orders, through: :placements
   # ...
 end
 ----
@@ -197,7 +197,7 @@ In our case, we will not do this because we will retrieve the user commands from
 # ...
 class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @order = products(:one)
+    @order = orders(:one)
   end
 
   test 'should forbid orders for unlogged' do
@@ -232,7 +232,8 @@ Rails.application.routes.draw do
 end
 ----
 
-Now it is time for the orders controller implementation:
+Now it is time for the orders serializer implementation:
+
 
 [source,bash]
 ----
@@ -274,11 +275,11 @@ $ rake test
 36 runs, 53 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-We like our commits very atomic, so let’s commit this changes:
+We like our commits very atomic, so let’s commit these changes:
 
 [source,bash]
 ----
-$ git add . && git commit -m "Adds the show action for order"
+$ git add . && git commit -m "Adds the index action for order"
 ----
 
 === Render a single order
@@ -288,17 +289,20 @@ As you can already imagine this route is very easy. We only have to set up a few
 Let's start by adding some tests:
 
 [source,ruby]
-.spec/controllers/api/v1/orders_controller_test.rb
+.test/controllers/api/v1/orders_controller_test.rb
 ----
 # ...
 class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
   # ...
-  test 'should show orders' do
-    get api_v1_orders_url, headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },  as: :json
+  test 'should show order' do
+    get api_v1_order_url(@order),
+        headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
+        as: :json
     assert_response :success
 
     json_response = JSON.parse(response.body)
-    assert_equal @order.user.orders.count, json_response['data'].count
+    include_product_attr = json_response['included'][0]['attributes']
+    assert_equal @order.products.first.title, include_product_attr['title']
   end
 end
 ----
@@ -383,7 +387,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
   setup do
     # ...
     @order_params = { order: {
-      product_id: [products(:one).id, products(:two).id],
+      product_ids: [products(:one).id, products(:two).id],
       total: 50
     } }
   end
@@ -604,7 +608,7 @@ After adding this code we must add corresponding views. It is a good practice to
 
 [source,erb]
 ----
-<%# app/views/order_mailer/send_confirmation.txt.erb %>
+<%# app/views/order_mailer/send_confirmation.text.erb %>
 Order: #<%= @order.id %>
 You ordered <%= @order.products.count %> products:
 <% @order.products.each do |product| %>
