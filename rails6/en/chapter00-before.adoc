@@ -33,3 +33,15 @@ THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMP
 "API on Rails 6" by https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] is shared according to http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Attribution-ShareAlike 4.0 International]. Built upon this book http://apionrails.icalialabs.com/book/.
 
 Book's cover picture use a beautiful photo shot by https://unsplash.com/@siloine?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText[Yoann Siloine] who published it on https://unsplash.com[Unsplash].
+
+== Thanks
+
+A big "thank you" to all Github contributors who make this book alive. In alphabetical order:
+
+* https://github.com/airdry[airdry]
+* https://github.com/Landris18[Landris18]
+* https://github.com/lex111[lex111]
+* https://github.com/cuilei5205189[cuilei5205189]
+* https://github.com/franklinjosmell[franklinjosmell]
+* https://github.com/notapatch[notapatch]
+* https://github.com/tacataca[tacataca]

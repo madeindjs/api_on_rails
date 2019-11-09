@@ -29,3 +29,15 @@ LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D’AUCUNE SORTE, EXPLICITE O
 ****
 
 "API on Rails 5" de https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] est mis à disposition selon les termes de la licence http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International]. Fondé sur une œuvre à http://apionrails.icalialabs.com/book/.
+
+== Merci
+
+Un grand merci à tous les contributeurs de Github qui rendent ce livre vivant. Par ordre alphabétique :
+
+* https://github.com/airdry[airdry]
+* https://github.com/Landris18[Landris18]
+* https://github.com/lex111[lex111]
+* https://github.com/cuilei5205189[cuilei5205189]
+* https://github.com/franklinjosmell[franklinjosmell]
+* https://github.com/notapatch[notapatch]
+* https://github.com/tacataca[tacataca]
