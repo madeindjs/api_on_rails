@@ -419,7 +419,7 @@ Now our tests must pass:
 ----
 $ rake test
 .............
-13 runs, 19 assertions, 0 failures, 0 errors, 0 skips
+13 runs, 18 assertions, 0 failures, 0 errors, 0 skips
 ----
 
 All we have to do is include the `Authenticable` module in the `ApplicationController` class:
