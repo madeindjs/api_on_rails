@@ -852,8 +852,6 @@ class ProductTest < ActiveSupport::TestCase
   test 'should sort product by most recent' do
     # we will touch some products to update them
     products(:two).touch
-    products(:one)
-
     assert_equal [products(:another_tv), products(:one), products(:two)], Product.recent.to_a
   end
 end
