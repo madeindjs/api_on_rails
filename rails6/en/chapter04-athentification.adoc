@@ -294,7 +294,7 @@ $ git add . && git commit -m "Setup tokens controller"
 
 So we implemented the following logic: API returns the authentication token to the client if credentials are correct.
 
-We will now implement the following logic: we'll find corresponding user of authentication token given into the HTTP header. We'll need to do so each time this client requests a protected page.
+We will now implement the following logic: we'll find corresponding user of authentication token given into the HTTP header. We'll need to do so each time this client requests an entry point which requires permission.
 
 We will use the HTTP header `Authorization` which is often used for this purpose. We may also use a GET parameter named `apiKey` but I prefer to use an HTTP header because it gives context to the request without polluting the URL with additional parameters.
 
