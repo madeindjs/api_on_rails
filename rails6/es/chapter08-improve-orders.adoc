@@ -1,12 +1,12 @@
 [#chapter08-improve_orders]
 = Mejorando las ordenes
 
-En el capítulo anterior extendimos nuestra API para ordenar y enviar email de confirmación al usuario (solo para mejorar la experiencia del usuario). Este capitulo cuida algunas validaciones en el modelo de la orden, solo para asegurarse que se puede ordenar, algo como:
+En el capítulo anterior extendimos nuestra API para ordenar y enviar email de confirmación al usuario (solo para mejorar la experiencia del usuario). Este capítulo cuida algunas validaciones en el modelo de la orden, solo para asegurarse que se puede ordenar, algo como:
 
 - Reducir la cantidad del producto actual cuando se genera una orden
 - ¿Que pasa cuando no hay productos disponibles?
 
-Probablemente necesitaremos actualiza un poco la salida JSON para las ordenes pero no estropeemos las cosas.
+Probablemente necesitaremos actualiza un poco la salida JSON para las ordenes, pero no estropeemos las cosas.
 
 Asi que ahora que tenemos todo claro podemos ensuciarnos las manos. Puedes clonar el proyecto hasta este punto con:
 
@@ -24,17 +24,17 @@ $ git checkout -b chapter08
 
 == Decrementando la cantidad del producto
 
-En esta primera parada vamos a trabajar en la actualizacion de la cantidad de productopara asegurar que cada pedido entregue la orden real.
-Actualmente el modelo `product` no tiene un atributo `quantity`. ASo que vamos a hacer eso:
+En esta primera parada vamos a trabajar en la actualización de la cantidad de producto para asegurar que cada pedido entregue la orden real.
+Actualmente el modelo `product` no tiene un atributo `quantity`. Así que vamos a hacer eso:
 
 [source,bash]
 ----
 $ rails generate migration add_quantity_to_products quantity:integer
 ----
 
-Espera, no corras las migraciones ahora. Le haremos unas pequeñas modificaciones. Como una buena practica me gusta añadir los valores por defecto a la base de datos solo para asegurarme que no me equivoco con valores `null`. ¡Este es un caso perfecto!
+Espera, no corras las migraciones ahora. Le haremos unas pequeñas modificaciones. Como una buena práctica me gusta añadir los valores por defecto a la base de datos solo para asegurarme que no me equivoco con valores `null`. ¡Este es un caso perfecto!
 
-Tu archivo de migración deberia lucir como esto:
+Tu archivo de migración debería lucir como esto:
 
 [source,ruby]
 .db/migrate/20190621105101_add_quantity_to_products.rb
@@ -53,7 +53,7 @@ Ahora podemos migrar la base de datos:
 $ rake db:migrate
 ----
 
-Y no olvidemos actualizar los _fixtures_ añadiendo el campo *quantity* (Yo elegi el valor `5` de manera aleatoria).
+Y no olvidemos actualizar los _fixtures_ añadiendo el campo *quantity* (Yo elegí el valor `5` de manera aleatoria).
 
 [source,yml]
 .test/fixtures/products.yml
@@ -72,11 +72,11 @@ another_tv:
 ----
 
 
-Es tiempo ahora de reducir la cantidad de productos meintras una `Orden` esta siendo procesada. La primera cosa probablemente que vien a la mente es hacerlo en el modelo `Order`. Esto es un misterio común.
+Es tiempo ahora de reducir la cantidad de productos mientras una `Orden` está siendo procesada. La primera cosa probablemente que viene a la mente es hacerlo en el modelo `Order`. Esto es un misterio común.
 
-Cuando trabajas con asociaciones _Many-to-Many_ (muchos a muchos), nos olvidamos completamente del modelo de union que en este caso es `Placement`. `Placement` es el mejor lugar para gestionar esto porque tiene accesos la orden y al producto. De esta forma, podemos facilmente reducir el stock de el producto.
+Cuando trabajas con asociaciones _Many-to-Many_ (muchos a muchos), nos olvidamos completamente del modelo de unión que en este caso es `Placement`. `Placement` es el mejor lugar para gestionar esto porque tiene accesos la orden y al producto. De esta forma, podemos fácilmente reducir el stock del producto.
 
-Antes de empezar a implementar código, necesitamos cambiar la forma que manipulamos la creación de ordenes porque ahora tenemos que aceptar la cantidad para cada producto. Si recuerdas estamos esperando por una tabla de indenfiricadores de producto. Intentaré mantener las cosas simples y enviar una tabla Hash con las llaves `product_id` y `quantity`.
+Antes de empezar a implementar código, necesitamos cambiar la forma que manipulamos la creación de ordenes porque ahora tenemos que aceptar la cantidad para cada producto. Si recuerdas estamos esperando por una tabla de identificadores de producto. Intentaré mantener las cosas simples y enviar una tabla Hash con las llaves `product_id` y `quantity`.
 
 Un ejemplo rápido podria ser algo como esto:
 
@@ -88,7 +88,7 @@ product_ids_and_quantities = [
 ]
 ----
 
-Esto se ponde dificl pero quedate conmigo. Vamos primero a construor algunas pruebas:
+Esto se pondrá difícil pero quédate conmigo. Vamos primero a construir algunas pruebas:
 
 [source,ruby]
 .test/models/order_test.rb
@@ -130,7 +130,7 @@ class Order < ApplicationRecord
 end
 ----
 +
-Y si coremos nuestras pruebas, deberian estar bien y en verde:
+Y si corremos nuestras pruebas, deberían estar bien y en verde:
 
 [source,bash]
 ----
@@ -139,7 +139,7 @@ $ rake test
 40 runs, 60 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Lo que es `build_placements_with_product_ids_and_quantities` hará la colocacion de objetos y luego ejecutará el método `save` para la ordenar todo sera insertada en la base de datos. Un último paso antes de guardar esto es actualizar la prueba  `orders_controller_test` junto con esta implementación.
+Lo que es `build_placements_with_product_ids_and_quantities` hará la colocación de objetos y luego ejecutará el método `save` para la ordenar todo será insertada en la base de datos. Un último paso antes de guardar esto es actualizar la prueba `orders_controller_test` junto con esta implementación.
 
 Primero actualizamos el archivo `orders_controller_test`:
 
@@ -203,9 +203,9 @@ end
 ----
 
 
-Nota que tambien modifique el método `OrdersController#order_params`.
+Nota que también modifique el método `OrdersController#order_params`.
 
-Por último pero no menos importante, necesitamos actualizar el archivo que fabrica productos para asignar un valor alto de cantidad para tener algunos productos en stock.
+Por último, pero no menos importante, necesitamos actualizar el archivo que fabrica productos para asignar un valor alto de cantidad para tener algunos productos en stock.
 
 Hagamos commit de estos cambios y continuemos:
 
@@ -215,14 +215,14 @@ $ git add .
 $ git commit -m "Allows the order to be placed along with product quantity"
 ----
 
-¿Notaste que no estamos guardando la cantidad por cada producto en ningun lado? Esta no es la forma de darle seguimiento. Esto puede ser reparado facilemente. Solo añadamos un atributo `quantity` a el modelo `Placement`. Asi de este modo para cada producto guardaremos su cantidad correspondiente. Vamos a iniciar creando la migración:
+¿Notaste que no estamos guardando la cantidad por cada producto en ningún lado? Esta no es la forma de darle seguimiento. Esto puede ser reparado fácilmente. Solo añadamos un atributo `quantity` a el modelo `Placement`. De este modo para cada producto guardaremos su cantidad correspondiente. Vamos a iniciar creando la migración:
 
 [source,bash]
 ----
 $ rails generate migration add_quantity_to_placements quantity:integer
 ----
 
-Como con el atrubuto para la cantidad del producto deberiamos añadir un valor por defecto igual a 0. Recuerda que esto es opcional pero me gusta este enfoque. El archivo de migración deberia lucir así:
+Como con el atributo para la cantidad del producto deberíamos añadir un valor por defecto igual a 0. Recuerda que esto es opcional, pero me gusta este enfoque. El archivo de migración debería lucir así:
 
 [source,ruby]
 .db/migrate/20190621114614_add_quantity_to_placements.rb
@@ -277,7 +277,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Ahora nuestras pruebas deberian pasar:
+Ahora nuestras pruebas deberían pasar:
 
 [source,bash]
 ----
@@ -293,9 +293,9 @@ Vamos a guardar los cambios:
 $ git add . && git commit -m "Adds quantity to placements"
 ----
 
-=== Eltendiendo el modelo Placement
+=== Entendiendo el modelo Placement
 
-Est tiempo de actualizar la cantidad del producto cada que la orden es guardada, o mas exacto cada que el placement (colocación) es creado. A fin de lograr esto vamos a añadir un metodo y entonces conectarlo con el callback `after_create`.
+Es tiempo de actualizar la cantidad del producto cada que la orden es guardada, o más exacto cada que el placement (colocación) es creado. A fin de lograr esto vamos a añadir un método y entonces conectarlo con el callback `after_create`.
 
 [source,ruby]
 .test/models/placement_test.rb
@@ -316,7 +316,7 @@ class PlacementTest < ActiveSupport::TestCase
 end
 ----
 
-La implementación es bastante facil como se muestra a continación:
+La implementación es bastante fácil como se muestra a continuación:
 
 [source,ruby]
 .app/models/placement.rb
@@ -339,13 +339,13 @@ Hagamos _commit_ a nuestros cambios:
 $ git commit -am "Decreases the product quantity by the placement quantity"
 ----
 
-== Validar la canridad de productos
+== Validar la cantidad de productos
 
-Desde el comienzo del capítulo, tenemos añadido el atributo `quantity` a el modelo del producto. Es ahora tiempo para validar si la cantidad de producto es sificiente para conciliar la orden. A fin de que hagamos las cosas mas intersantes, vamos a hacer usando un validador personalizado.
+Desde el comienzo del capítulo, tenemos añadido el atributo `quantity` a el modelo del producto. Es ahora tiempo para validar si la cantidad de producto es suficiente para conciliar la orden. A fin de que hagamos las cosas más interesantes, vamos a hacer usando un validador personalizado.
 
 NOTE: puedes consultar https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[la documentación].
 
-Primero necesitamos añadir un directorio `validators` en el directorio `app` (Rails lo incluira por lo que no necesitamos preocuparnos de cargarlo).
+Primero necesitamos añadir un directorio `validators` en el directorio `app` (Rails lo incluirá por lo que no necesitamos preocuparnos de cargarlo).
 
 [source,bash]
 ----
@@ -353,7 +353,7 @@ $ mkdir app/validators
 $ touch app/validators/enough_products_validator.rb
 ----
 
-Antes que borremos cualquier linea de código, necesitamos asegurarnos de añadir especificaciones a el modelo `Order` par revisar si la orden puede ser realizada.
+Antes que borremos cualquier línea de código, necesitamos asegurarnos de añadir especificaciones a el modelo `Order` para revisar si la orden puede ser realizada.
 
 [source,ruby]
 .test/models/order_test.rb
@@ -370,9 +370,9 @@ class OrderTest < ActiveSupport::TestCase
 end
 ----
 
-Como puedes ver en la especificación, primero nos aseguramos que `placement_2` este tratando de pedir mas productos de los que stan disponibles, asi que en este caso suponemos que la `order` (orden) no es válida.
+Como puedes ver en la especificación, primero nos aseguramos que `placement_2` este tratando de pedir mas productos de los que están disponibles, así que en este caso suponemos que la `order` (orden) no es válida.
 
-La prueba por ahora deberia fallar, vamos a convertirla en verde añadiendo el código del validador:
+La prueba por ahora debería fallar, vamos a convertirla en verde añadiendo el código del validador:
 
 [source,ruby]
 .app/validators/enough_products_validator.rb
@@ -389,7 +389,7 @@ class EnoughProductsValidator < ActiveModel::Validator
 end
 ----
 
-Manipulo para añandir el mensaje a cada uno de los producto que estan fuera de stock, pero puede manejarlo diferente si quieres. Ahora solamente necesito añadir el validador al modelo `Order` de esta forma:
+Manipulo para añadir el mensaje a cada uno de los producto que están fuera de stock, pero puede manejarlo diferente si quieres. Ahora solamente necesito añadir el validador al modelo `Order` de esta forma:
 
 [source,ruby]
 .app/models/order.rb
@@ -402,7 +402,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Gurademos los cambios:
+Guardemos los cambios:
 
 [source,bash]
 ----
@@ -411,7 +411,7 @@ $ git add . && git commit -m "Adds validator for order with not enough products 
 
 == Actualizando el total
 
-Notaste que el `total` esta siendo calculado incorrectamente, porque actualmente este está añadiendo el precio para los productos en la orden independientemente de la cantidad solicitada. Dejame añadir el código para aclarar el problema:
+Notaste que el `total` está siendo calculado incorrectamente, porque actualmente este está añadiendo el precio para los productos en la orden independientemente de la cantidad solicitada. Déjame añadir el código para aclarar el problema:
 
 Actualmente en el modelo `order` tenemos este método para calcular el monto a pagar:
 
@@ -427,7 +427,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Ahora en lugar de calcular el `total` solo añadiendo el precio del producto necesitamos multiplicarlo por la cantidad. Asi que vamos a actualizar las especificaciones primero:
+Ahora en lugar de calcular el `total` solo añadiendo el precio del producto necesitamos multiplicarlo por la cantidad. Así que vamos a actualizar las especificaciones primero:
 
 [source,ruby]
 .test/models/order_test.rb
@@ -449,7 +449,7 @@ class OrderTest < ActiveSupport::TestCase
 end
 ----
 
-Y la implementacion es muy sencilla:
+Y la implementación es muy sencilla:
 
 [source,ruby]
 .app/models/order.rb
@@ -465,7 +465,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Y las especificaciones deberian ser verdes:
+Y las especificaciones deberían ser verdes:
 
 [source,bash]
 ----
@@ -481,7 +481,7 @@ Vamos a guardar los cambios:
 $ git commit -am "Updates the total calculation for order"
 ----
 
-Y asi es como llegamos al final de nuesro capítulo, es tiempo de aplicar todas nuestras modificaciones a la rama master haciendo un _merge_:
+Y así es como llegamos al final de nuestro capítulo, es tiempo de aplicar todas nuestras modificaciones a la rama master haciendo un _merge_:
 
 [source,bash]
 ----
@@ -491,6 +491,6 @@ $ git merge chapter08
 
 == Conclusión
 
-Oh, ahi tienes! Dejame felicirater! Es un lagro camingo desde el pimer capítulo. Pero estas un paso mas cerca, De echo, el próximo capítulo sera el último. Así que trata de aprovecharlo al máximo.
+¡Oh, ahi tienes! ¡Déjame felicitarte! Es un largo camino desde el primer capítulo. Pero estas un paso más cerca, De hecho, el próximo capítulo será el último. Así que trata de aprovecharlo al máximo.
 
-El último capítulo se enfocará en la forma de optimizar la API usando paginado, caché y tareas en segundo plano. Así que abrochate el cinturón, va a ser un viaje agitado.
+El último capítulo se enfocará en la forma de optimizar la API usando paginado, caché y tareas en segundo plano. Así que abróchate el cinturón, va a ser un viaje agitado.

@@ -3,7 +3,7 @@
 
 Ha sido un largo tiempo desde que iniciamos. Espero que te guste este viaje tanto como a mí.
 
-En el capítulo anterior configuramos las entradas de recursos para los usuarios. Si te saltaste este capítulo ó si no entendiste todo, te recomiendo encarecidamente que lo mires. Éste cubre las primeras bases de las pruebas y es una introducción a respuestas JSON.
+En el capítulo anterior configuramos las entradas de recursos para los usuarios. Si te saltaste este capítulo o si no entendiste todo, te recomiendo encarecidamente que lo mires. Éste cubre las primeras bases de las pruebas y es una introducción a respuestas JSON.
 
 Puedes clonar el proyecto hasta este punto:
 
@@ -12,7 +12,7 @@ Puedes clonar el proyecto hasta este punto:
 $ git checkout tags/checkpoint_chapter04
 ----
 
-En este capítulo las cosas se pondrán muy intersantes porque vamos a configurar el mecanismo de autenticación. En mi opinión es uno de los capítulos mas interesantes. Introduciremos un montón de terminos nuevos y terminarás con un simple pero poderoso sistema de autenticación. No sientas panico vamos por ello.
+En este capítulo las cosas se pondrán muy interesantes porque vamos a configurar el mecanismo de autenticación. En mi opinión es uno de los capítulos más interesantes. Introduciremos un montón de términos nuevos y terminarás con un simple pero poderoso sistema de autenticación. No sientas pánico vamos por ello.
 
 La primera cosa es que primero (y como es usual cuando iniciamos un nuevo capítulo) vamos a crear una nueva rama:
 
@@ -23,7 +23,7 @@ $ git checkout -b chapter04
 
 == Sesion sin estado
 
-Antes de que hagamos algo, algo debe estar claro: *una API no maneja sesiones*. Si no tienes experiencia construyendo este tipo de aplicaciones puede sonar un poco loco pero quedate conmigo. Un API puede ser sin estado lo cual significa por definición _es una que provee una respuesa despues de tú peticion, y luego no requiere más atención_. Lo cual significa que un estado previo o un estado futuro no es requerido para que esl sistema trabaje.
+Antes de que hagamos algo, algo debe estar claro: *una API no maneja sesiones*. Si no tienes experiencia construyendo este tipo de aplicaciones puede sonar un poco loco pero quédate conmigo. Un API puede ser sin estado lo cual significa por definición _es una que provee una respuesta después de tú petición, y luego no requiere más atención_. Lo cual significa que un estado previo o un estado futuro no es requerido para que el sistema trabaje.
 
 El flujo para autenticar al usuario mediante una API es muy simple:
 
@@ -31,22 +31,22 @@ El flujo para autenticar al usuario mediante una API es muy simple:
 . El server regresa el recurso `user` junto con su correspondiente token de autenticación
 . Para cada página que requiere autenticación el cliente tiene que enviar el `token de autenticación`
 
-Por supuesto estos no son los únicos 3 pasos a seguir, y en el paso 2 debería pensar, bien yo realmente necesito responder con la información del usuario o solo el `token de autenticación`? Yo podría decir que eso realmente depende de tí, pero a mí me gusta regresar el usuario completo, de esta forma puedo mapearlo de inmediato en mi cliente y guardar otra posible solicitud que haya sido echa.
+Por supuesto estos no son los únicos 3 pasos a seguir, y en el paso 2 debería pensar, bien yo realmente ¿necesito responder con la información del usuario o solo el `token de autenticación`? Yo podría decir que eso realmente depende de tí, pero a mí me gusta regresar el usuario completo, de esta forma puedo mapearlo de inmediato en mi cliente y guardar otra posible solicitud que haya sido echa.
 
-En esta sección y la siguiente vamos a enfocarnos en construir un controllador de sesiones junto a sus acciones correspondientes. Vamos entonces a completar el flujo de solicitudes agregando los accesos de autorización necesarios.
+En esta sección y la siguiente vamos a enfocarnos en construir un controlador de sesiones junto a sus acciones correspondientes. Vamos entonces a completar el flujo de solicitudes agregando los accesos de autorización necesarios.
 
 
 === Presentación de JWT
 
-Cuando nos acercamos a los tokens de autenticación, tenemos un estandar: el JSON Web Token (JWT).
+Cuando nos acercamos a los tokens de autenticación, tenemos un estándar: el JSON Web Token (JWT).
 
-> JWT es un estandar abierto definido en RFC 75191. Este permite el intercambio seguro de tokens entre varias partes. - https://wikipedia.org/wiki/JSON_Web_Token_Web_Token[Wikipedia]
+> JWT es un estándar abierto definido en RFC 75191. Este permite el intercambio seguro de tokens entre varias partes. - https://wikipedia.org/wiki/JSON_Web_Token_Web_Token[Wikipedia]
 
 En general un token JWT se compone de tres partes:
 
 - un *header* estructurado en JSON contiene por ejemplo la fecha de validación del token.
 - un *payload* estructurado en JSON puede contener *cualquier dato*. En nuestro caso, contiene el indetificador del usuario "conectado".
-- un *signature* que nos permite verificar que el token fue encriptado por nuestra aplicación  y es por lo danto válido.
+- un *signature* que nos permite verificar que el token fue encriptado por nuestra aplicación y es por lo danto válido.
 
 Estas tres partes son cada una codificadas en base64 y entonces concatenadas usando puntos (`.`). Lo cual nos da algo como:
 
@@ -57,7 +57,7 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4
 
 Una ves decodificado, este token nos da la siguiente información:
 
-.La cabecera del tojen JWT
+.La cabecera del token JWT
 [source,json]
 ----
 { "alg": "HS256", "typ": "JWT" }
@@ -69,29 +69,29 @@ Una ves decodificado, este token nos da la siguiente información:
 { "sub": "1234567890", "name": "John Doe", "iat": 1516239022 }
 ----
 
-NOTE: Para mas información sobre tokens JWT te invito a visiar https://jwt.io[jwt.io]
+NOTE: Para más información sobre tokens JWT te invito a visitar https://jwt.io[jwt.io]
 
-Esto tien muchas ventajas justo como enviar información en payload de tokens. Por ejemplo, podemos elegir integrar información del usuario en el _payload_.
+Esto tiene muchas ventajas justo como enviar información en payload de tokens. Por ejemplo, podemos elegir integrar información del usuario en el _payload_.
 
 === Configurando el token de autenticación
 
-El estandar JWT tiene muchas implementaciones en varios lenguajes y librerias. Por supuesto, hay una gema de Ruby en este tema: https://github.com/jwt/ruby-jwt[ruby-jwt].
+El estándar JWT tiene muchas implementaciones en varios lenguajes y librerías. Por supuesto, hay una gema de Ruby en este tema: https://github.com/jwt/ruby-jwt[ruby-jwt].
 
-Asi que vamos a comenzar instalandola:
+Asi que vamos a comenzar instalándola:
 
 [source,bash]
 ----
 $ bundle add jwt
 ----
 
-Una vez completada la siguiente linea es añadida a tu _Gemfile_:
+Una vez completada la siguiente línea es añadida a tu _Gemfile_:
 
 [source,ruby]
 ----
 gem "jwt", "~> 2.2"
 ----
 
-La librería es muy simple. Hay dos metodos: `JWT.encode` y `JWT.decode`. Vamos a abrir una terminal con `console rails` y a correr algunas pruebas:
+La librería es muy simple. Hay dos métodos: `JWT.encode` y `JWT.decode`. Vamos a abrir una terminal con `console rails` y a correr algunas pruebas:
 
 [source,ruby]
 ----
@@ -100,9 +100,9 @@ La librería es muy simple. Hay dos metodos: `JWT.encode` y `JWT.decode`. Vamos 
  => [{"message"=>"Hello World"}, {"alg"=>"HS256"}]
 ----
 
-En la primera linea codificamos un _payload_ con la llave secreta `my_secret_key`. Asi obtenemos un token que podemos decodificar de manera simple. La segunda linea decodifica el token y vemos que podemos encontrar sin dilema nuestro _payload_.
+En la primera línea codificamos un _payload_ con la llave secreta `my_secret_key`. así obtenemos un token que podemos decodificar de manera simple. La segunda línea decodifica el token y vemos que podemos encontrar sin dilema nuestro _payload_.
 
-Vamos a incluir toda la logica en una clase `JsonWebToken` en un nuevo archivo localizado en `lib/`. Esto nos permite evitar el código duplicado. Esta clase justamente codificará y decodificará los tokens JWT. Así que aqui esta la implementación.
+Vamos a incluir toda la lógica en una clase `JsonWebToken` en un nuevo archivo localizado en `lib/`. Esto nos permite evitar el código duplicado. Esta clase justamente codificará y decodificará los tokens JWT. Así que aquí está la implementación.
 
 .lib/json_web_token.rb
 [source,ruby]
@@ -122,9 +122,9 @@ class JsonWebToken
 end
 ----
 
-Yo se que es un monton de código pero lo revisaremos juntos.
+Yo se que es un montón de código pero lo revisaremos juntos.
 
-- el método `JsonWebToken.encode` se encarga de codificar el _payload_ añadiendo una fecha de expiración de 24 horas por defecto. Ademas usamos la misma llave de encriptación que viene configurada con Rails.
+- el método `JsonWebToken.encode` se encarga de codificar el _payload_ añadiendo una fecha de expiración de 24 horas por defecto. Además usamos la misma llave de encriptación que viene configurada con Rails.
 - el método `JsonWebToken.decode` decodifica el token JWT y obtiene el _payload_. Entonces usamos la clase https://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html[`HashWithIndifferentAccess`] proveída por Rails la cual nos permite recuperar un valor de un `Hash` con un `Symbol` ó `String`.
 
 Ahí tienes. Para cargar el archivo en tú aplicación, necesitas especificar el directorio `lib` en la lista de _autoload  de Ruby on rails. Para hacerlo, agrega la siguiente configuración al archivo `application.rb`:
@@ -150,7 +150,7 @@ $ git add . && git commit -m "Setup JWT gem"
 
 === Controlador de Token
 
-Tenemos sin embargo que configurar el sistema para generar un token JWT. Es ahora tiempo de crear una ruta que generará este token. Las acciones que implementaremos seran administradas como servicios _RESTful_: la conexión sera gestionada por una peticion POST a la acción `create`.
+Tenemos sin embargo que configurar el sistema para generar un token JWT. Es ahora tiempo de crear una ruta que generará este token. Las acciones que implementaremos serán administradas como servicios _RESTful_: la conexión será gestionada por una petición POST a la acción `create`.
 
 Para empezar, iniciaremos creando el controlador y el método `create` en el _namespace_ `/api/v1`. Con Rails, una orden es suficiente:
 
@@ -176,12 +176,12 @@ end
 ----
 
 
-Vamos a construir pruebas funcionales antes de ir mas lejos. El comportamiento deseado es el siguiente:
+Vamos a construir pruebas funcionales antes de ir más lejos. El comportamiento deseado es el siguiente:
 
-- Yo recibo un token si envio un email valido junto con el password
+- Yo recibo un token si envío un email valido junto con el password
 - de otro modo el server responde un `forbidden`
 
-Las pruebas por lo tanto se materilizan de la siguiente forma:
+Las pruebas por lo tanto se materializan de la siguiente forma:
 
 .test/controllers/api/v1/tokens_controller_test.rb
 [source,ruby]
@@ -208,7 +208,7 @@ class Api::V1::TokensControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Te estarás preguntando: "pero como puedes saber la contraseña del usuario?". Simplemente usa el método `BCrypt::Password.create` en los _fixtures_ de `users`:
+Te estarás preguntando: "¿pero como puedes saber la contraseña del usuario?". Simplemente usa el método `BCrypt::Password.create` en los _fixtures_ de `users`:
 
 .test/fixtures/users.yml
 [source,yaml]
@@ -235,7 +235,7 @@ Failure:
 Expected response to be a <401: unauthorized>, but was a <204: No Content>
 ----
 
-Es normal. Ahora es tiempo de implementar la logica para crear el token JWT. Es muy sencillo.
+Es normal. Ahora es tiempo de implementar la lógica para crear el token JWT. Es muy sencillo.
 
 .app/controllers/api/v1/tokens_controller.rb
 [source,ruby]
@@ -262,14 +262,14 @@ class Api::V1::TokensController < ApplicationController
 end
 ----
 
-Es un montón de codigo pero es muy simple:
+Es un montón de código pero es muy simple:
 
-. Siempre filtramos los parametros con el metodo `user_params`.
-. Recuperamos el usuario con el método `User.find_by_email` (que es un metodo "mágico" de _Active Record_ mientras el campo `email` este presente en la base de datos) y recuperamos el usuario
-. Usamos el método `User#authenticate` (el cual existe gracias a la gema `bcrypt`) con la contraseña como un parameto. Bcrypt hará un _hash_ de la contraseña y verifica si coincide con el atributo `password_digest`. La funcion regresa `true` si todo salio bien, `false` si no.
+. Siempre filtramos los parámetros con el método `user_params`.
+. Recuperamos el usuario con el método `User.find_by_email` (que es un método "mágico" de _Active Record_ mientras el campo `email` esté presente en la base de datos) y recuperamos el usuario
+. Usamos el método `User#authenticate` (el cual existe gracias a la gema `bcrypt`) con la contraseña como un parámetro. Bcrypt hará un _hash_ de la contraseña y verifica si coincide con el atributo `password_digest`. La función regresa `true` si todo salió bien, `false` si no.
 . Si la contraseña corresponde al _hash_, un JSON conteniendo el _token_ generado con la clase `JsonWebToken` es devuelto. De otro modo, una respuesta vacía es devuelta con una cabecera `unauthorized`
 
-Estas hasta aquí? No te preocupes, esta terminado! Ahora tus pruebas deberían pasar.
+¿Estas hasta aquí? ¡No te preocupes, esta terminado! Ahora tus pruebas deberían pasar.
 
 [source,bash]
 ----
@@ -281,7 +281,7 @@ Finished in 0.226196s, 48.6304 runs/s, 70.7351 assertions/s.
 11 runs, 16 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Muy bien! Es tiempo de hacer un commit que contendra todos nuestros cambios:
+¡Muy bien! Es tiempo de hacer un commit que contendrá todos nuestros cambios:
 
 [source,bash]
 ----
@@ -295,11 +295,11 @@ Entonces ya implementamos la siguiente lógica: la API retorna el token de auten
 
 Pero ahora implementaremos la siguiente lógica: encontraremos el usuario correspondiente del token de autenticación proporcionado en la cabecera HTTP. Necesitamos hacerlo cada vez que este cliente solicite un `entry point`  que requiera permisos.
 
-Usaremos la cabecera HTTP `Authorization` que a menudo es usada para este proposito. Tambien podemos usar un parametro GET llamado `apiKey` pero prefiero usar una cabecera HTTP porque da contexto a la petición sin contaminar la URL con parametros adicionales.
+Usaremos la cabecera HTTP `Authorization` que a menudo es usada para este propósito. También podemos usar un parámetro GET llamado `apiKey` pero prefiero usar una cabecera HTTP porque da contexto a la petición sin contaminar la URL con parámetros adicionales.
 
-Por lo tanto crearemos un método `current_user` para satisfacer nuestras necesidades. Este encontrará el usuario gracias a su token de autenticación que es enviado en cada petición.
+Por lo tanto, crearemos un método `current_user` para satisfacer nuestras necesidades. Este encontrará el usuario gracias a su token de autenticación que es enviado en cada petición.
 
-Cuando se trata de autenticación, me gusta añadir todos los metodos asociados en un archivo separado. Entonces simplemente incluimos el archivo `ApplicationController`. De este modo,  es muy facil para probar de forma aislada. Vamos a crear el archivo en el directorio `controllers/concerns` con un metodo `current_user` que implementaremos despues:
+Cuando se trata de autenticación, me gusta añadir todos los métodos asociados en un archivo separado. Entonces simplemente incluimos el archivo `ApplicationController`. De este modo, es muy fácil para probar de forma aislada. Vamos a crear el archivo en el directorio `controllers/concerns` con un método `current_user` que implementaremos después:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -344,7 +344,7 @@ class AuthenticableTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Te estaras preguntando, "De donde viene el controlador `MockController`?", De echo, éste es un _Mock_, por ejemplo una clase que imita el comportamiento de otra para probar un comportamiento
+Te estarás preguntando, "¿De donde viene el controlador `MockController`?", De hecho, éste es un _Mock_, por ejemplo una clase que imita el comportamiento de otra para probar un comportamiento
 
 Podemos definir la clase `MockController` justo sobre nuestra prueba:
 
@@ -391,7 +391,7 @@ class AuthenticableTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Nuestra prueba debería fallar. Asi que vamos a implementar el código para que ésta pase:
+Nuestra prueba debería fallar. Así que vamos a implementar el código para que ésta pase:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -443,11 +443,11 @@ $ git add . && git commit -m "Adds authenticable module for managing authenticat
 
 La autorización juega un papel importante en la construcción de aplicaciones porque nos ayuda a definir que usuario tiene permisos para continuar.
 
-Tenemos una ruta para actualizar el usuario pero es un problema: cualquiera puede actualizar cualquier usuario. En esta seccion, vamos a implementar un metodo que requerirá al usuario estar logueado para prevenir accesos no autorizados.
+Tenemos una ruta para actualizar el usuario, pero hay un problema: cualquiera puede actualizar cualquier usuario. En esta sección, vamos a implementar un método que requerirá al usuario estar logueado para prevenir accesos no autorizados.
 
 === Acciones de autorización
 
-Es tiempo ahora de actualizar nuestro archivo `users_controller.rb` para negar el acceso a ciertas acciones. Vamos tambien a implementar el método `current_user` en las acciones `update` y `destroy` para asegurarnos que el usuario que esta logueado solo podrá actualizar sus datos y puede unicamente borrar (y solo) su cuenta.
+Es tiempo ahora de actualizar nuestro archivo `users_controller.rb` para negar el acceso a ciertas acciones. Vamos también a implementar el método `current_user` en las acciones `update` y `destroy` para asegurarnos que el usuario que esta logueado solo podrá actualizar sus datos y puede únicamente borrar (y solo) su cuenta.
 
 Por lo tanto dividimos nuestra prueba en dos pruebas _should update user_ y _should destroy user_.
 
@@ -474,7 +474,7 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Puedes ver ahora que tenemos que añadir una cabecera _Authorization_ para la acción de modidficar usuarios. De lo contrario queremos recibir una respuesta _forbidden_.
+Puedes ver ahora que tenemos que añadir una cabecera _Authorization_ para la acción de modificar usuarios. De lo contrario queremos recibir una respuesta _forbidden_.
 
 Podemos pensar de forma similar para la prueba _should forbid destroy user_:
 
@@ -538,7 +538,7 @@ class Api::V1::UsersController < ApplicationController
 end
 ----
 
-Ahí tienes! La implementación es realmente simple. Es por lo tanto tiempo de hacer un _commit_:
+¡Ahí tienes! La implementación es realmente simple. Es por lo tanto tiempo de hacer un _commit_:
 
 [source,bash]
 ----
@@ -549,6 +549,6 @@ $ git merge chapter04
 
 == Conclusión
 
-Yeah! lo hiciste! tienes medio camino terminado! Manten este buen trabajo. Éste capítulo fue largo y dificil pero es un gran paso a seguir para implementar un mecanismo solido para manipular autenticación de usuarios. Incluso logramos tocar la superficie para implemenatar reglas simples de autenticación.
+¡Yeah!, ¡lo hiciste! tienes medio camino terminado! Mantén este buen trabajo. Este capítulo fue largo y difícil pero es un gran paso a seguir para implementar un mecanismo sólido para manipular autenticación de usuarios. Incluso logramos tocar la superficie para implementar reglas simples de autenticación.
 
-En el proximo capítulo nos enfocaremos en la personalizacion de las salidas JSON para el usuario con la gema https://github.com/Netflix/fast_jsonapi[fast_jsonapi] y añadiremos un modelo `product` a la ecuación dando al usuario la habilidad para crear un producto y publicarlo para su venta.
+En el próximo capítulo nos enfocaremos en la personalización de las salidas JSON para el usuario con la gema https://github.com/Netflix/fast_jsonapi[fast_jsonapi] y añadiremos un modelo `product` a la ecuación dando al usuario la habilidad para crear un producto y publicarlo para su venta.

@@ -1,15 +1,15 @@
 [#chapter07-placing-orders]
 = Colocando órdenes
 
-En el capitulo previo manejamos asociaciones entre productos y usuarios y como serializarlos a fin de escalar rapido y fácil. Ahora es tiempo de empezar a color ordenes lo cual será una situacion algo mas compleja. Manejaremos asociaciones entre estos tres modelos. Debemos ser lo suficientemente inteligenes para manejar la salida JSON que estamos entregando.
+En el capítulo previo manejamos asociaciones entre productos y usuarios y como serializarlos a fin de escalar rápido y fácil. Ahora es tiempo de empezar a color ordenes lo cual será una situación algo más compleja. Manejaremos asociaciones entre estos tres modelos. Debemos ser lo suficientemente inteligentes para manejar la salida JSON que estamos entregando.
 
-En este capítulo haremos algunas cosas que estan listadas a continuación:
+En este capítulo haremos algunas cosas que están listadas a continuación:
 
 * Crear un modelo `Order` con sus correspondientes especificaciones
-* Manipular la salida JSON con asociacion entre los modelos orden de usuario y producto
-* Enviar un mail de confirmacion con el resumen de la orden
+* Manipular la salida JSON con asociación entre los modelos orden de usuario y producto
+* Enviar un mail de confirmación con el resumen de la orden
 
-Asi que ahora todo esta claro podemos ensuciarnos las manos. Puedes clonar el proyecto hasta este punto con:
+Entonces ahora todo está claro podemos ensuciarnos las manos. Puedes clonar el proyecto hasta este punto con:
 
 [source,bash]
 ----
@@ -25,16 +25,16 @@ $ git checkout -b chapter07
 
 == Modelando la orden
 
-Si recuerdas asociaciones de modelos, el modelo `Order` esta asociado con usuarios y productos al mismo tiempo. Acutalmente esto es muy simple de lograr en Rails. La parte dificil es cuado vamos a serializar estos objetos. Hablare mas sobre esto en la siguiente sección.
+Si recuerdas asociaciones de modelos, el modelo `Order` esta asociado con usuarios y productos al mismo tiempo. Actualmente esto es muy simple de lograr en Rails. La parte difícil es cuando vamos a serializar estos objetos. Hablare más sobre esto en la siguiente sección.
 
-Vamos a empezar creando el modelo `order`con una forma especial:
+Vamos a empezar creando el modelo `order` con una forma especial:
 
 [source,bash]
 ----
 $ rails generate model order user:belongs_to total:decimal
 ----
 
-El comando anterior generará el modelo order pero estoy tomando ventaja del método `references` para crear la llaver foranea correspondiente para que la orden pertenezca a el usuario. Esto también añade la directiva `belongs_to` dentro del modelo. Vamos a migrar la base de datos.
+El comando anterior generará el modelo order pero estoy tomando ventaja del método `references` para crear la llave foránea correspondiente para que la orden pertenezca a el usuario. Esto también añade la directiva `belongs_to` dentro del modelo. Vamos a migrar la base de datos.
 
 [source,bash]
 ----
@@ -56,7 +56,7 @@ class OrderTest < ActiveSupport::TestCase
 end
 ----
 
-La implementacion es demasiado simple:
+La implementación es demasiado simple:
 
 [source,ruby]
 .app/models/order.rb
@@ -68,7 +68,7 @@ class Order < ApplicationRecord
 end
 ----
 
-No olvides añadir la relación `orders` a nuestros usuarios espedivicando el borrado en cascada:
+No olvides añadir la relación `orders` a nuestros usuarios especificando el borrado en cascada:
 
 [source,ruby]
 .app/models/user.rb
@@ -99,7 +99,7 @@ $ git add . && git commit -m "Generate orders"
 
 === Ordenes y productos
 
-Necesitamos configurar la asociacion entre la `order` y el `product` y esto se hace con una asociación *has-many-to-many*. Como muchos productos puden ser puestos en muchas ordenes y las ordenes puede tener multiples productos. Así en este caso necesiamos un modelo intermedio el cual unirá estos tros dos objetos y mapeara las asociaciones apropiadas.
+Necesitamos configurar la asociación entre la `order` y el `product` y esto se hace con una asociación *has-many-to-many*. Como muchos productos pueden ser puestos en muchas ordenes y las ordenes puede tener múltiples productos. Así en este caso necesitamos un modelo intermedio el cual unirá estos otros dos objetos y mapeará las asociaciones apropiadas.
 
 Vamos a genera este modelo:
 
@@ -115,7 +115,7 @@ Vamos a correr la migración en la base de datos:
 $ rake db:migrate
 ----
 
-LA implementación es como:
+La implementación es como:
 
 [source,ruby]
 .app/models/product.rb
@@ -138,7 +138,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Si has etado siguiendo el tutorial para la implementacion , esta ya esta lista debido a las `references` (referencias) que forman parte del comando generador del modelo. Podriamos añadir la opción `inverse_of` a el modelo `placement` para cada llamada `belongs_to`. Esto da un pequeño impulso cuando referenciamos al objeto padre.
+Si has estado siguiendo el tutorial para la implementación , esta ya está lista debido a las `references` (referencias) que forman parte del comando generador del modelo. Podríamos añadir la opción `inverse_of` a el modelo `placement` para cada llamada `belongs_to`. Esto da un pequeño impulso cuando referenciamos al objeto padre.
 
 [source,ruby]
 .app/models/placement.rb
@@ -157,7 +157,7 @@ $ rake test
 ..................................
 ----
 
-Ahora que todo esta bieny en varde vamos a hacer commit de los cambios y continuar.
+Ahora que todo está bien y en verde vamos a hacer commit de los cambios y continuar.
 
 [source,bash]
 ----
@@ -167,15 +167,15 @@ $ git add . && git commit -m "Associates products and orders with a placements m
 
 == Exponer el modelo usuario
 
-Es tiempo de poner en orden el controlador para epxopner las ordenes correctas. Si recuerdas el capítulo previo donde https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi] fue usada, deberias reorder que fue realmente fácil.
+Es tiempo de poner en orden el controlador para exponer las ordenes correctas. Si recuerdas el capítulo previo donde https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi] fue usada, deberías recordar que fue realmente fácil.
 
-Vamos a definir prumero que acciones tomará:
+Vamos a definir primero que acciones tomará:
 
-. Una acción de indexación para recuperar las ordenes de usuaro actuales
-. Una accion show para recuperar un commando particular desde el usuario actual
-. Una accion de creación para generar la orden
+. Una acción de indexación para recuperar las ordenes de usuario actuales
+. Una acción show para recuperar un comando particular desde el usuario actual
+. Una acción de creación para generar la orden
 
-Vamos a inciiar con la acción `index`. Primero tenemos el comando para crear el conrolador:
+Vamos a iniciar con la acción `index`. Primero tenemos el comando para crear el controlador:
 
 [source,bash]
 ----
@@ -184,11 +184,11 @@ $ rails generate controller api::v1::orders
 
 Hasta este punto y antes de empezar a escribir algo de código tenemos que preguntarnos a nosotros mismos:
 
-> ¿Deberia dejar mis enpoints de ordenes anidado dentro de `UserController` o deberia aislarlas?
+> ¿Debería dejar mis enpoints de ordenes anidado dentro de `UserController` o debería aislarlas?
 
 La respuesta es realmente simple: esto depende de la carga o información que quieras exponer al desarrollador.
 
-En nuesro caso, no haremos esto porque recuperaremos los comandos del usuario desde la ruta `/orders`. Vamos a iniciar con algunas pruebas:
+En nuestro caso, no haremos esto porque recuperaremos los comandos del usuario desde la ruta `/orders`. Vamos a iniciar con algunas pruebas:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -216,7 +216,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Si corremos la suit de pruebas ahora ambas pruebas deberian de fallar como ya esperabamos. Esto es porque estas no tienen establecidas las rutas o acciones correctas. Iniciemos añadiendo las rutas:
+Si corremos la suit de pruebas ahora ambas pruebas deberían de fallar como ya esperábamos. Esto es porque estas no tienen establecidas las rutas o acciones correctas. Iniciemos añadiendo las rutas:
 
 [source,ruby]
 .config/routes.rb
@@ -266,7 +266,7 @@ class Api::V1::OrdersController < ApplicationController
 end
 ----
 
-Y ahora todos nuestras pruebas deberían de pasar:
+Y ahora todas nuestras pruebas deberían de pasar:
 
 [source,bash]
 ----
@@ -275,7 +275,7 @@ $ rake test
 36 runs, 53 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Nos gustan que nuestros commits sean muy atomicos, asi que vamos a guardar estos cambios:
+Nos gustan que nuestros commits sean muy atómicos, así que vamos a guardar estos cambios:
 
 [source,bash]
 ----
@@ -284,9 +284,9 @@ $ git add . && git commit -m "Adds the index action for order"
 
 === Renderizar una sola orden
 
-Como ahora puedes imaginar esta ruta es muy facil. Unicamente hacemos algunas configuraciones (rutas, acción de controlador) y esta seccion estara terminada. Tabmien incluiremos productos relacionados a esta orden en la salida JSON.
+Como ahora puedes imaginar esta ruta es muy fácil. Únicamente hacemos algunas configuraciones (rutas, acción de controlador) y esta sección estará terminada. También incluiremos productos relacionados a esta orden en la salida JSON.
 
-Vamos ainiciar añadiendo algunas pruebas:
+Vamos a iniciar añadiendo algunas pruebas:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -307,9 +307,9 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Como puedes ver, la segunda parte de la prueba verifica que el producto esta incluido en el JSON.
+Como puedes ver, la segunda parte de la prueba verifica que el producto está incluido en el JSON.
 
-Vamos añadir la implementacion para correr nuestras pruebas. En el archivo `routes.rb` añadimos la acción `show` a las rutas de comando:
+Vamos añadir la implementación para correr nuestras pruebas. En el archivo `routes.rb` añadimos la acción `show` a las rutas de comando:
 
 [source,ruby]
 .config/routes.rb
@@ -322,7 +322,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Y la implementación deberia lucir como esto:
+Y la implementación debería lucir como esto:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
@@ -343,7 +343,7 @@ class Api::V1::OrdersController < ApplicationController
 end
 ----
 
-Nuestras pruebas deberian estar todas verdes:
+Nuestras pruebas deberían estar todas verdes:
 
 [source,bash]
 ----
@@ -352,7 +352,7 @@ $ rake test
 37 runs, 55 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Vamos a hacer commit de los cambios y parar a crear la accion de crear orden:
+Vamos a hacer commit de los cambios y parar a crear la acción de crear orden:
 
 [source,bash]
 ----
@@ -361,15 +361,15 @@ $ git commit -am "Adds the show action for order"
 
 === Colocando y ordenando
 
-Es tiempo ahora de dar la oportunidad de colocar algunas ordenes. ESto añadira complejidad a la aplicación, pero no te preocupes, vamos a hacer cada cosa en su tiempo.
+Es tiempo ahora de dar la oportunidad de colocar algunas órdenes. Esto añadirá complejidad a la aplicación, pero no te preocupes, vamos a hacer cada cosa en su tiempo.
 
-Antes de implementar esta caracteristica, tomare tiempo para pensar sobre la implicación de crear un comando en la applicación. No estoy hablando sobre configurar un servicio de transaccion como el de https://stripe.com/[Stripe] ó https://www.braintreepayments.com/[Braintree] pero algo como:
+Antes de implementar esta característica, tomare tiempo para pensar sobre la implicación de crear un comando en la aplicación. No estoy hablando sobre configurar un servicio de transacción como el de https://stripe.com/[Stripe] ó https://www.braintreepayments.com/[Braintree] pero algo como:
 
 * gestionamiento de productos out-of-stock (fuera de stock)
 * reducir el inventario del producto
-* añadir alguna validacion para el colocamiento de ordenes para asegurar que hay los sufcientes prodctos al momento de coloar la orden
+* añadir alguna validación para el colocamiento de ordenes para asegurar que hay los suficientes productos al momento de colocar la orden
 
-Parece que aún hay mucho por hacer pero creeme: estar mas cerca de lo que piensas y no es tan dificil como parece. Por ahora mandengamoslo simple y asumamos que aún tendremos suficientes productos para colocar cualquier numero de ordenes. Solo estamos preocupados sobre la respuesta del servidor por el momentos.
+Parece que aún hay mucho por hacer pero créeme: estar más cerca de lo que piensas y no es tan difícil como parece. Por ahora mantengámoslo simple y asumamos que aún tendremos suficientes productos para colocar cualquier número de órdenes. Solo estamos preocupados sobre la respuesta del servidor por el momento.
 
 Si tu recuerdas el modelo de orden, necesitamos tres cosas:
 
@@ -377,7 +377,7 @@ Si tu recuerdas el modelo de orden, necesitamos tres cosas:
 * usuario que coloca la orden
 * productos para la orden
 
-Basado en esta información podemos empezar añadiendo alguns pruebas:
+Basado en esta información podemos empezar añadiendo algunas pruebas:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -413,9 +413,9 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Como puedes ver estamos crean una variable `order_params` con los datos de la orden. ¿Puedes ver el problema aquí? Si no, lo explicare mas tarde. Justamente añadimos el código necesario para hacer pasar laprueba.
+Como puedes ver estamos crean una variable `order_params` con los datos de la orden. ¿Puedes ver el problema aquí? Si no, lo explicare más tarde. Justamente añadimos el código necesario para hacer pasar la prueba.
 
-Primero necesitamos añadir la acción a los recuros en el archivo de rutas:
+Primero necesitamos añadir la acción a los recursos en el archivo de rutas:
 
 [source,ruby]
 .config/routes.rb
@@ -428,7 +428,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Entonces la implementacion es fácil:
+Entonces la implementación es fácil:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
@@ -464,11 +464,11 @@ $ rake test
 39 runs, 59 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Ok, entonces tenemos todo correcto y en verde. Ahora deberíamos movernos al sigueinte capitulo, ¿correcto? Dejame detenerte justo aquí. Tenemos algunos errores serios en la applicación, y estos no estan relacionados al código por si mismo pero si en la parte del negocio.
+Ok, entonces tenemos todo correcto y en verde. Ahora deberíamos movernos al siguiente capitulo, ¿correcto? Déjame detenerte justo aquí. Tenemos algunos errores serios en la aplicación, y estos no están relacionados al código por sí mismo, pero si en la parte del negocio.
 
-No porque los las pruebas esten verdes, esto significa que la aplicación esta cibriendo la parte del negocio. Queria traer esto aqui porque en muchos casoses super facil solo recibir parametros y contruir objetos desde esos parametor pensando que siempre estamos recibiendo los datos correctos. En este caso particular no podemos confiar en eso, y la forma facil de ver esto, es que le estamos dando al cliente la oportunidad de poner el total, que locura!
+No porque los las pruebas estén verdes, esto significa que la aplicación esta cubriendo la parte del negocio. Quería traer esto aquí porque en muchos casos es super fácil solo recibir parámetros y construir objetos desde esos parámetros pensando que siempre estamos recibiendo los datos correctos. En este caso particular no podemos confiar en eso, y la forma fácil de ver esto, es que le estamos dando al cliente la oportunidad de poner el total, ¡que locura!
 
-Tenemos que añadir algunas validaciones o un callbacl para calcular el total de la orden y colocarlo entre el modelo. De esta forma ya no recibiremos mas el atributo del total y asi tener el control total sobre este atributo. Vamos a hacer esto:
+Tenemos que añadir algunas validaciones o un callback para calcular el total de la orden y colocarlo entre el modelo. De esta forma ya no recibiremos más el atributo del total y asi tener el control total sobre este atributo. Vamos a hacer esto:
 
 Primer necesitamos algunas especificaciones a el modelo de la orden:
 
@@ -495,7 +495,7 @@ class OrderTest < ActiveSupport::TestCase
 end
 ----
 
-Ahora podemos añadir la implementacion:
+Ahora podemos añadir la implementación:
 
 [source,ruby]
 .app/models/order.rb
@@ -519,7 +519,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Hasta este punto nos aseguramos que el total esta siempre presente y es mayor o igual a cero. Esto significa que podemos quitar esas validaciones y quitar las especificaciones. Esperaré. Nuestros test deberian pasar por ahora:
+Hasta este punto nos aseguramos que el total está siempre presente y es mayor o igual a cero. Esto significa que podemos quitar esas validaciones y quitar las especificaciones. Esperaré. Nuestras pruebas deberían pasar por ahora:
 
 [source,bash]
 ----
@@ -540,9 +540,9 @@ Finished in 0.542600s, 73.7191 runs/s, 110.5786 assertions/s.
 ----
 
 
-Oops! Obtuvimos un _failure_ (falla) en nuestra anterior prueba _Should have a positive total_. Es lógico desde que el total de la orden es calculado dinamicamente. Asi que podemos simplemente quitar esta prueba que ha quedado obsoleta.
+¡Oops! Obtuvimos un _failure_ (falla) en nuestra anterior prueba _Should have a positive total_. Es lógico desde que el total de la orden es calculado dinámicamente. Así que podemos simplemente quitar esta prueba que ha quedado obsoleta.
 
-Nustra prueba deberia pasar. Guardemos nuestros cambios:
+Nuestra prueba debería pasar. Guardemos nuestros cambios:
 
 [source,bash]
 ----
@@ -550,11 +550,11 @@ $ git commit -am "Adds the create method for the orders controller"
 ----
 
 
-== Enviar email de confirmacion de la orden
+== Enviar email de confirmación de la orden
 
-La última seccion para este capítulo es para enviar el mail de confirmación al usuario que ordenó. Si quiere saltar esta parte e ir al siguiente capítulo hazlo. Esta seccion es mas como un calentamiento.
+La última sección para este capítulo es para enviar el mail de confirmación al usuario que ordenó. Si quiere saltar esta parte e ir al siguiente capítulo hazlo. Esta sección es más como un calentamiento.
 
-Tal vez estas familiarizado con la manipulacion de emails con Rails asi que intentaremos hacer esto fácil y rápido. Primero creamos el `order_mailer` con un email llamado `send_confirmation`:
+Tal vez estas familiarizado con la manipulación de emails con Rails así que intentaremos hacer esto fácil y rápido. Primero creamos el `order_mailer` con un email llamado `send_confirmation`:
 
 [source,bash]
 ----
@@ -585,7 +585,7 @@ class OrderMailerTest < ActionMailer::TestCase
 end
 ----
 
-Yo simplemente copie/pegue las pruebas desde la documentacion y las adapte a nuesras necesidades. Ahora nos aseguramos que estas pruebas pasan.
+Yo simplemente copie/pegue las pruebas desde la documentación y las adapte a nuestras necesidades. Ahora nos aseguramos que estas pruebas pasan.
 
 Primero, añadimos el método `OrderMailer#send_confirmation`:
 
@@ -602,7 +602,7 @@ class OrderMailer < ApplicationMailer
 end
 ----
 
-Despues de añadir este código añadimos las vistas correspondientes. Es una buena practica incluir un texto de la versión como extra a la version HTML.
+Después de añadir este código añadimos las vistas correspondientes. Es una buena práctica incluir un texto de la versión como extra a la versión HTML.
 
 
 [source,erb]
@@ -636,7 +636,7 @@ $ rake test
 40 runs, 66 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Y ahora, solo llamamos al método `OrderMailer#send_confirmation` en la accion de crear en el controlador de la orden:
+Y ahora, solo llamamos al método `OrderMailer#send_confirmation` en la acción de crear en el controlador de la orden:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
@@ -666,7 +666,7 @@ $ rake test
 40 runs, 66 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Hagamos commit a todo para ya que esta completa esta sección:
+Hagamos commit a todo para ya que está completa esta sección:
 
 [source,bash]
 ----
@@ -683,11 +683,11 @@ $ git merge chapter07
 
 == Conclusión
 
-Eso es! Lo hiciste! Puedes aplaudirte. Se que fue un largo tiemp pero creeme estas casi terminando.
+¡Eso es! ¡Lo hiciste! Puedes aplaudirte. Se que fue un largo tiempo pero créeme estas casi terminando.
 
-En siguientes capitulos continuaremos trabajando en la plantilla de la orden y añadir validaciones cuando se hace una orden. Algunos escenarios son:
+En siguientes capítulos continuaremos trabajando en la plantilla de la orden y añadir validaciones cuando se hace una orden. Algunos escenarios son:
 
-* Que pasa cuando los productos no estan disponibles?
-* Reducir la cantidad de los productos en progreso cuadno se esta ordenando
+* Que pasa cuando los productos no están disponibles?
+* Reducir la cantidad de los productos en progreso cuando se está ordenando
 
-El siguiente capítulo sera corto, pero es muy importante para la salud de la aplicación. Asi que no te lo saltes.
+El siguiente capítulo será corto, pero es muy importante para la salud de la aplicación. así que no te lo saltes.

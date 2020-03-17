@@ -12,7 +12,7 @@ v6.0.5, 2020-01-09
 :keywords: Rails, API, Ruby, Software
 :lang: es
 :author: Alexandre Rousseau
-:description: Learn best practice to build an API using Ruby on Rails 5
+:description: Aprende las mejores prácticas para construir una API usando Ruby on Rails 6
 :front-cover-image: image:cover.svg[]
 :revdate: 2020-01-09
 
