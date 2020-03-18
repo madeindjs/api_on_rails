@@ -49,3 +49,7 @@ rake build:pdf[version,lang]   # Build a PDF version
 ## License
 
 This book is under [MIT license](https://opensource.org/licenses/MIT) and [Creative Common BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+
+## Contributors
+
+- [Oscar Téllez](https://github.com/oscartzgz) (spanish translation)
