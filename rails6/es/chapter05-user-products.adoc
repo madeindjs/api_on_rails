@@ -750,6 +750,18 @@ Y como llegamos al final de nuestro capítulo, es tiempo de aplicar todas las mo
 $ git checkout master
 $ git merge chapter05
 ----
+I make two little comments. I also see two things to update:
+
+    add es lang in rakefile: https://github.com/madeindjs/api_on_rails/blob/master/Rakefile#L4
+    upload the book on leanpubas YOUR book version and add a link https://github.com/madeindjs/api_on_rails#support-the-project (if you want it of course)
+    add a section "contributor" ith your name on readme: https://github.com/madeindjs/api_on_rails#license :)
+
+I make two little comments. I also see two things to update:
+
+    add es lang in rakefile: https://github.com/madeindjs/api_on_rails/blob/master/Rakefile#L4
+    upload the book on leanpubas YOUR book version and add a link https://github.com/madeindjs/api_on_rails#support-the-project (if you want it of course)
+    add a section "contributor" ith your name on readme: https://github.com/madeindjs/api_on_rails#license :)
+
 
 == Conclusión
 
