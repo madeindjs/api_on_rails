@@ -1,0 +1,496 @@
+[#chapter08-improve_orders]
+= Mejorando las ordenes
+
+En el capítulo anterior extendimos nuestra API para ordenar y enviar email de confirmación al usuario (solo para mejorar la experiencia del usuario). Este capítulo cuida algunas validaciones en el modelo de la orden, solo para asegurarse que se puede ordenar, algo como:
+
+- Reducir la cantidad del producto actual cuando se genera una orden
+- ¿Que pasa cuando no hay productos disponibles?
+
+Probablemente necesitaremos actualiza un poco la salida JSON para las ordenes, pero no estropeemos las cosas.
+
+Asi que ahora que tenemos todo claro podemos ensuciarnos las manos. Puedes clonar el proyecto hasta este punto con:
+
+[source,ruby]
+----
+$ git checkout tags/checkpoint_chapter08
+----
+
+Vamos a crear una rama para empezar a trabajar:
+
+[source,ruby]
+----
+$ git checkout -b chapter08
+----
+
+== Decrementando la cantidad del producto
+
+En esta primera parada vamos a trabajar en la actualización de la cantidad de producto para asegurar que cada pedido entregue la orden real.
+Actualmente el modelo `product` no tiene un atributo `quantity`. Así que vamos a hacer eso:
+
+[source,bash]
+----
+$ rails generate migration add_quantity_to_products quantity:integer
+----
+
+Espera, no corras las migraciones ahora. Le haremos unas pequeñas modificaciones. Como una buena práctica me gusta añadir los valores por defecto a la base de datos solo para asegurarme que no me equivoco con valores `null`. ¡Este es un caso perfecto!
+
+Tu archivo de migración debería lucir como esto:
+
+[source,ruby]
+.db/migrate/20190621105101_add_quantity_to_products.rb
+----
+class AddQuantityToProducts < ActiveRecord::Migration[6.0]
+  def change
+    add_column :products, :quantity, :integer, default: 0
+  end
+end
+----
+
+Ahora podemos migrar la base de datos:
+
+[source,bash]
+----
+$ rake db:migrate
+----
+
+Y no olvidemos actualizar los _fixtures_ añadiendo el campo *quantity* (Yo elegí el valor `5` de manera aleatoria).
+
+[source,yml]
+.test/fixtures/products.yml
+----
+one:
+  # ...
+  quantity: 5
+
+two:
+  # ...
+  quantity: 5
+
+another_tv:
+  # ...
+  quantity: 5
+----
+
+
+Es tiempo ahora de reducir la cantidad de productos mientras una `Orden` está siendo procesada. La primera cosa probablemente que viene a la mente es hacerlo en el modelo `Order`. Esto es un misterio común.
+
+Cuando trabajas con asociaciones _Many-to-Many_ (muchos a muchos), nos olvidamos completamente del modelo de unión que en este caso es `Placement`. `Placement` es el mejor lugar para gestionar esto porque tiene accesos la orden y al producto. De esta forma, podemos fácilmente reducir el stock del producto.
+
+Antes de empezar a implementar código, necesitamos cambiar la forma que manipulamos la creación de ordenes porque ahora tenemos que aceptar la cantidad para cada producto. Si recuerdas estamos esperando por una tabla de identificadores de producto. Intentaré mantener las cosas simples y enviar una tabla Hash con las llaves `product_id` y `quantity`.
+
+Un ejemplo rápido podria ser algo como esto:
+
+[source,ruby]
+----
+product_ids_and_quantities = [
+  { product_id: 1, quantity: 4 },
+  { product_id: 3, quantity: 5 }
+]
+----
+
+Esto se pondrá difícil pero quédate conmigo. Vamos primero a construir algunas pruebas:
+
+[source,ruby]
+.test/models/order_test.rb
+----
+# ...
+class OrderTest < ActiveSupport::TestCase
+  # ...
+
+  test 'builds 2 placements for the order' do
+    @order.build_placements_with_product_ids_and_quantities [
+      { product_id: @product1.id, quantity: 2 },
+      { product_id: @product2.id, quantity: 3 },
+    ]
+
+    assert_difference('Placement.count', 2) do
+      @order.save
+    end
+  end
+end
+----
+
+
+Entonces en la implementación:
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  # ...
+
+  # @param product_ids_and_quantities [Array<Hash>] something like this `[{product_id: 1, quantity: 2}]`
+  # @yield [Placement] placements build
+  def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
+    product_ids_and_quantities.each do |product_id_and_quantity|
+      placement = placements.build(product_id: product_id_and_quantity[:product_id])
+      yield placement if block_given?
+    end
+  end
+end
+----
++
+Y si corremos nuestras pruebas, deberían estar bien y en verde:
+
+[source,bash]
+----
+$ rake test
+........................................
+40 runs, 60 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Lo que es `build_placements_with_product_ids_and_quantities` hará la colocación de objetos y luego ejecutará el método `save` para la ordenar todo será insertada en la base de datos. Un último paso antes de guardar esto es actualizar la prueba `orders_controller_test` junto con esta implementación.
+
+Primero actualizamos el archivo `orders_controller_test`:
+
+[source,ruby]
+.test/controllers/api/v1/orders_controller_test.rb
+----
+# ...
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @order = products(:one)
+    @order_params = {
+      order: {
+        product_ids_and_quantities: [
+          { product_id: products(:one).id, quantity: 2 },
+          { product_id: products(:two).id, quantity: 3 },
+        ]
+      }
+    }
+  end
+
+  # ...
+
+  test 'should create order with two products and placements' do
+    assert_difference('Order.count', 1) do
+      assert_difference('Placement.count', 2) do
+        post api_v1_orders_url, params: @order_params, as: :json
+            headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
+      end
+    end
+    assert_response :created
+  end
+end
+----
+
+Entonces necesitamos actualizar `orders_controller`:
+
+[source,ruby]
+.app/controllers/api/v1/orders_controller.rb
+----
+class Api::V1::OrdersController < ApplicationController
+  # ...
+
+  def create
+    order = Order.create! user: current_user
+    order.build_placements_with_product_ids_and_quantities(order_params[:product_ids_and_quantities])
+
+    if order.save
+      OrderMailer.send_confirmation(order).deliver
+      render json: order, status: :created
+    else
+      render json: { errors: order.errors }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def order_params
+    params.require(:order).permit(product_ids_and_quantities: [:product_id, :quantity])
+  end
+end
+----
+
+
+Nota que también modifique el método `OrdersController#order_params`.
+
+Por último, pero no menos importante, necesitamos actualizar el archivo que fabrica productos para asignar un valor alto de cantidad para tener algunos productos en stock.
+
+Hagamos commit de estos cambios y continuemos:
+
+[source,bash]
+----
+$ git add .
+$ git commit -m "Allows the order to be placed along with product quantity"
+----
+
+¿Notaste que no estamos guardando la cantidad por cada producto en ningún lado? Esta no es la forma de darle seguimiento. Esto puede ser reparado fácilmente. Solo añadamos un atributo `quantity` a el modelo `Placement`. De este modo para cada producto guardaremos su cantidad correspondiente. Vamos a iniciar creando la migración:
+
+[source,bash]
+----
+$ rails generate migration add_quantity_to_placements quantity:integer
+----
+
+Como con el atributo para la cantidad del producto deberíamos añadir un valor por defecto igual a 0. Recuerda que esto es opcional, pero me gusta este enfoque. El archivo de migración debería lucir así:
+
+[source,ruby]
+.db/migrate/20190621114614_add_quantity_to_placements.rb
+----
+class AddQuantityToPlacements < ActiveRecord::Migration[6.0]
+  def change
+    add_column :placements, :quantity, :integer, default: 0
+  end
+end
+----
+
+Entonces corre las migraciones:
+
+[source,bash]
+----
+$ rake db:migrate
+----
+
+Ahora agregamos el atributo `quantity` en los _fixtures_:
+
+[source,yml]
+.test/fixtures/placements.yml
+----
+one:
+  # ...
+  quantity: 5
+
+two:
+  # ...
+  quantity: 5
+----
+
+Ahora solo necesitamos actualizar la prueba `build_placements_with_product_ids_and_quantities` para añadir `quantity` para hacer los pedidos:
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  # ...
+
+  # @param product_ids_and_quantities [Array<Hash>] something like this `[{product_id: 1, quantity: 2}]`
+  # @yield [Placement] placements build
+  def build_placements_with_product_ids_and_quantities(product_ids_and_quantities)
+    product_ids_and_quantities.each do |product_id_and_quantity|
+      placement = placements.build(
+        product_id: product_id_and_quantity[:product_id],
+        quantity: product_id_and_quantity[:quantity],
+      )
+      yield placement if block_given?
+    end
+  end
+end
+----
+
+Ahora nuestras pruebas deberían pasar:
+
+[source,bash]
+----
+$ rake test
+........................................
+40 runs, 61 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Vamos a guardar los cambios:
+
+[source,bash]
+----
+$ git add . && git commit -m "Adds quantity to placements"
+----
+
+=== Entendiendo el modelo Placement
+
+Es tiempo de actualizar la cantidad del producto cada que la orden es guardada, o más exacto cada que el placement (colocación) es creado. A fin de lograr esto vamos a añadir un método y entonces conectarlo con el callback `after_create`.
+
+[source,ruby]
+.test/models/placement_test.rb
+----
+# ...
+class PlacementTest < ActiveSupport::TestCase
+  setup do
+    @placement = placements(:one)
+  end
+
+  test 'decreases the product quantity by the placement quantity' do
+    product = @placement.product
+
+    assert_difference('product.quantity', -@placement.quantity) do
+      @placement.decrement_product_quantity!
+    end
+  end
+end
+----
+
+La implementación es bastante fácil como se muestra a continuación:
+
+[source,ruby]
+.app/models/placement.rb
+----
+class Placement < ApplicationRecord
+  # ...
+  after_create :decrement_product_quantity!
+
+  def decrement_product_quantity!
+    product.decrement!(:quantity, quantity)
+  end
+end
+----
+
+
+Hagamos _commit_ a nuestros cambios:
+
+[source,bash]
+----
+$ git commit -am "Decreases the product quantity by the placement quantity"
+----
+
+== Validar la cantidad de productos
+
+Desde el comienzo del capítulo, tenemos añadido el atributo `quantity` a el modelo del producto. Es ahora tiempo para validar si la cantidad de producto es suficiente para conciliar la orden. A fin de que hagamos las cosas más interesantes, vamos a hacer usando un validador personalizado.
+
+NOTE: puedes consultar https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[la documentación].
+
+Primero necesitamos añadir un directorio `validators` en el directorio `app` (Rails lo incluirá por lo que no necesitamos preocuparnos de cargarlo).
+
+[source,bash]
+----
+$ mkdir app/validators
+$ touch app/validators/enough_products_validator.rb
+----
+
+Antes que borremos cualquier línea de código, necesitamos asegurarnos de añadir especificaciones a el modelo `Order` para revisar si la orden puede ser realizada.
+
+[source,ruby]
+.test/models/order_test.rb
+----
+# ...
+class OrderTest < ActiveSupport::TestCase
+  # ...
+
+  test "an order should command not too much product than available" do
+    @order.placements << Placement.new(product_id: @product1.id, quantity: (1 + @product1.quantity))
+
+    assert_not @order.valid?
+  end
+end
+----
+
+Como puedes ver en la especificación, primero nos aseguramos que `placement_2` este tratando de pedir mas productos de los que están disponibles, así que en este caso suponemos que la `order` (orden) no es válida.
+
+La prueba por ahora debería fallar, vamos a convertirla en verde añadiendo el código del validador:
+
+[source,ruby]
+.app/validators/enough_products_validator.rb
+----
+class EnoughProductsValidator < ActiveModel::Validator
+  def validate(record)
+    record.placements.each do |placement|
+      product = placement.product
+      if placement.quantity > product.quantity
+        record.errors[product.title.to_s] << "Is out of stock, just #{product.quantity} left"
+      end
+    end
+  end
+end
+----
+
+Manipulo para añadir el mensaje a cada uno de los producto que están fuera de stock, pero puede manejarlo diferente si quieres. Ahora solamente necesito añadir el validador al modelo `Order` de esta forma:
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  include ActiveModel::Validations
+  # ...
+  validates_with EnoughProductsValidator
+  # ...
+end
+----
+
+Guardemos los cambios:
+
+[source,bash]
+----
+$ git add . && git commit -m "Adds validator for order with not enough products on stock"
+----
+
+== Actualizando el total
+
+Notaste que el `total` está siendo calculado incorrectamente, porque actualmente este está añadiendo el precio para los productos en la orden independientemente de la cantidad solicitada. Déjame añadir el código para aclarar el problema:
+
+Actualmente en el modelo `order` tenemos este método para calcular el monto a pagar:
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  # ...
+  def set_total!
+    self.total = products.map(&:price).sum
+  end
+  # ...
+end
+----
+
+Ahora en lugar de calcular el `total` solo añadiendo el precio del producto necesitamos multiplicarlo por la cantidad. Así que vamos a actualizar las especificaciones primero:
+
+[source,ruby]
+.test/models/order_test.rb
+----
+# ...
+class OrderTest < ActiveSupport::TestCase
+  # ...
+
+  test "Should set total" do
+    @order.placements = [
+      Placement.new(product_id: @product1.id, quantity: 2),
+      Placement.new(product_id: @product2.id, quantity: 2)
+    ]
+    @order.set_total!
+    expected_total = (@product1.price * 2) + (@product2.price * 2)
+
+    assert_equal expected_total, @order.total
+  end
+end
+----
+
+Y la implementación es muy sencilla:
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  # ...
+  def set_total!
+    self.total = self.placements
+                     .map{ |placement| placement.product.price * placement.quantity }
+                     .sum
+  end
+  # ...
+end
+----
+
+Y las especificaciones deberían ser verdes:
+
+[source,bash]
+----
+$ rake test
+..........................................
+42 runs, 63 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Vamos a guardar los cambios:
+
+[source,bash]
+----
+$ git commit -am "Updates the total calculation for order"
+----
+
+Y así es como llegamos al final de nuestro capítulo, es tiempo de aplicar todas nuestras modificaciones a la rama master haciendo un _merge_:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter08
+----
+
+== Conclusión
+
+¡Oh, ahi tienes! ¡Déjame felicitarte! Es un largo camino desde el primer capítulo. Pero estas un paso más cerca, De hecho, el próximo capítulo será el último. Así que trata de aprovecharlo al máximo.
+
+El último capítulo se enfocará en la forma de optimizar la API usando paginado, caché y tareas en segundo plano. Así que abróchate el cinturón, va a ser un viaje agitado.

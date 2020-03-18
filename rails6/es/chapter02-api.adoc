@@ -1,0 +1,218 @@
+[#chapter02-api]
+= La API
+
+En esta sección resumiré la aplicación. Hasta aquí ya debiste leer el capítulo anterior. Si no lo has leído te recomiendo que lo hagas.
+
+Puedes clonar el proyecto hasta este punto con:
+
+[source,bash]
+----
+$ git checkout tags/checkpoint_chapter02
+----
+
+Resumiendo, simplemente generamos nuestra aplicación Rails e hicimos el primer commit.
+
+== Planificando la aplicación
+
+Como queremos que la aplicación sea sencilla, esta consistirá de 5 modelos. No te preocupes si no entiendes completamente que estamos haciendo. Vamos a revisar y a construir cada uno de los recursos a medida que avancemos con el tutorial.
+
+image:data_model.png[Esquema conexiones entre los modelos]
+
+Resumiendo, el `user`(usuario) podrá realizar muchas `orders`(ordenes/pedidos), subir múltiples `products`(productos) los cuales pueden tener muchas `images`(imágenes) ó `comments`(comentarios) de otros usuarios de la aplicación.
+
+No construiremos vistas para mostrar o interactuar con la API, así que no hagas de esto un gran tutorial. Para ello hay muchas opciones allá afuera como los frameworks de javascript (https://angularjs.org/[Angular], https://vuejs.org/[Vue.js], https://reactjs.org/[React.js]).
+
+Hasta este punto deberías preguntarte:
+
+> ¿Esta bien, pero, yo necesito explorar o visualizar cómo va la construcción del API?
+
+
+Y eso es justo. Probablemente si googleas algo relacionado con explorar un api, aparecerá una aplicación llamada https://www.getpostman.com/[Postman]. Este es un gran software pero no lo utilizaremos porque usaremos *cURL* que permite a cualquiera reproducir peticiones en cualquier computadora.
+
+== Configurar la API
+
+Una API es definida por http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] como _La interfaz de programación de aplicaciones (API), es un conjunto de subrutinas, funciones y procedimientos que ofrece cierta biblioteca para ser utilizado por otro software como una capa de abstracción. _ En otras palabras la forma en que el sistema interactúa entre sí mediante una interfaz común, en nuestro caso un servicio web construido con JSON. Hay otros protocolos de comunicación como SOAP, pero no lo cubriremos aquí.
+
+JSON, como tipo estándar en Internet, es ampliamente aceptado, legible, extensible y fácil de implementar.
+Muchos de los frameworks actuales consumen APIs JSON por defecto (https://angularjs.org/[Angular] ó https://vuejs.org/[Vue.js] por ejemplo). También hay grandes bibliotecas para Objetive-C como https://github.com/AFNetworking/AFNetworking[AFNetworking] ó http://restkit.org/[RESTKit]. Probablemente hay buenas soluciones para Android, pero por mi falta de experiencia en esa plataforma, podría no ser la persona adecuada para recomendarte alguna.
+
+Muy bien. Así que vamos a construir nuestra API con JSON. Hay muchos caminos para logarlo. Lo primero que me viene a la mente es justamente iniciar añadiendo rutas definiendo los _end points_. Pero puede ser mala idea porque no hay un http://www.w3.org/2005/Incubator/wcl/matching.html[patrón URI] suficientemente claro para saber que recurso está expuesto. El protocolo o estructura del que estoy hablando es http://en.wikipedia.org/wiki/Representational_state_transfer[REST] que significa Transferencia de Estado Representacional(Representational state transfer) según la definición de Wikipedia.
+
+[source,soap]
+----
+aService.getUser("1")
+----
+
+Y en REST puedes llamar una URL con una petición HTTP específica, en este caso con una petición GET: <http://domain.com/resources_name/uri_pattern>
+
+La APIs RESTful debe seguir al menos tres simples pautas:
+
+* Una base http://en.wikipedia.org/wiki/Uniform_resource_identifier[URI], como es `http://example.com/resources/`.
+* Un tipo multimedia de Internet para representar los datos, es comúnmente JSON y es comúnmente definido mediante el intercambio de cabeceras.
+* Sigue el estándar http://en.wikipedia.org/wiki/HTTP_method#Request_methods[Metodos HTTP] como son GET, POST, PUT, DELETE.
+** *GET*: Lee el recurso o recursos definidos por el patrón URI
+** *POST*: Crea una nueva entrada en la colección de recursos
+** *PUT*: Actualiza una colección o un miembro de los recursos
+** *DELETE*: Destruye una colección o miembro de los recursos
+
+Esto podría no ser suficientemente claro o podría parecer mucha información para digerir, pero como vamos avanzando en el tutorial, con suerte conseguirás entender con mayor facilidad.
+
+=== Restricciones de Rutas y Espacios de Nombres
+
+Antes de comenzar a escribir código, preparamos el código con git. Vamos a estar usando una rama por capítulo, la subiremos a GitHub y entonces la fusionaremos con la rama master. Así que vamos a a iniciar abriendo la terminal, `cd` hacia el directorio `market_place_api` y tecleamos lo siguiente:
+
+[source,bash]
+----
+$ git checkout -b chapter02
+Switched to a new branch 'chapter02'
+----
+
+Únicamente vamos a estar trabajando en `config/routes.rb`, ya que solo vamos a establecer las restricciones y el `formato` de respuesta predeterminado para cada respuesta.
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # ...
+end
+----
+
+Primero que todo borra todo el código comentado que viene en el archivo, no lo vamos a necesitar. Entonces haz un commit, solo como un calentamiento:
+
+[source,bash]
+----
+$ git add config/routes.rb
+$ git commit -m "Removes comments from the routes file"
+----
+
+Vamos a aislar los controladores del API bajo un espacio de nombres. Con Rails esto es bastante simple: solo tienes que crear un folder en `app/controllers` llamado `api`. El nombre es importante porque es el espacio de nombres que usaremos para gestionar los controladores para los endpoints del api.
+
+[source,bash]
+----
+$ mkdir app/controllers/api
+----
+
+Entonces agregamos el nombre de espacio dentro de nuestro archivo _routes.rb_:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # Api definition
+  namespace :api do
+    # We are going to list our resources here
+  end
+end
+----
+
+Por definición un espacio de nombres en el archivo `routes.rb`. Rails automáticamente mapeara que espacio de nombres corresponde al folder de los _controlladores_, en nuestro caso el directorio `api/``.
+
+.Archivos multimedia soportados por Rails
+****
+Rails soporta 35 tipos diferentes de archivos multimedia, puedes listarlos accediendo a la clase SET del módulo Mime:
+
+[source,bash]
+----
+$ rails c
+2.6.3 :001 > Mime::SET.collect(&:to_s)
+ => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip"]
+----
+****
+
+Esto es importante porque vamos a trabajar con JSON, uno de los http://en.wikipedia.org/wiki/Internet_media_type[tipos MIME] aceptados por Rails, solo necesitamos especificar que este es el formato por defecto:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # Api definition
+  namespace :api, defaults: { format: :json }  do
+    # We are going to list our resources here
+  end
+end
+----
+
+Hasta este punto no hemos hecho nada loco. Ahora lo que queremos es una _base_uri_ que incluye la versión de la API. Pero hagamos commit antes de ir a la siguiente sección:
+
+[source,bash]
+----
+$ git add config/routes.rb
+$ git commit -m "Set the routes constraints for the api"
+----
+
+== Versionado Api
+
+Hasta este punto deberíamos tener un buen mapeado de rutas usando espacio de nombres. Tu archivo `routes.rb` debería lucir como esto:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # Api definition
+  namespace :api, defaults: { format: :json }  do
+    # We are going to list our resources here
+  end
+end
+----
+
+Ahora es tiempo de configurar algunas otras restricciones para propósitos de versionado. Deberías preocuparte por versionar tú aplicación desde el inicio pues le dará una mejor estructura a tu api, y cuando hagas cambios, puedes dar a los desarrolladores que están consumiendo tu api la oportunidad de adaptar las nuevas características mientras las viejas quedan obsoletas. Este es un excelente http://railscasts.com/episodes/350-rest-api-versioning[railscast] explicando esto.
+
+Para establecer la versión del API, primero necesitamos agregar otro directorio en el de `api` que antes creamos:
+
+[source,bash]
+----
+$ mkdir app/controllers/api/v1
+----
+
+De esta forma podemos definir espacio de nombres a nuestra api con diferentes versiones fácilmente, ahora solo necesitamos añadir el código necesario al archivo `routes.rb`:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # Api definition
+  namespace :api, defaults: { format: :json }  do
+    namespace :v1 do
+      # We are going to list our resources here
+    end
+  end
+end
+----
+
+Hasta este punto, el API puede ser alcanzada a través de la URL. Por ejemplo con esta configuración un end-point para recuperar un producto podría ser algo como: <http://localhost:3000/v1/products/1> .
+
+
+.Patrones Comunes del API
+****
+Puedes encontrar muchas formas de configurar un _base_uri_ cuando construimos un api siguiendo diferentes patrones, asumiendo que estamos versionando nuestra api:
+
+* `api.example.com/`: En mi opinión este es el camino a seguir, te da una mejor interfaz y aislamiento, y a largo plazo puede ayudarte a http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[escalar rápidamente]
+* `example.com/api/`: Este patrón es muy común, y es actualmente un buen camino a seguir cuando no quieres poner bajo espacio de nombres tu api en un subdominio
+* `example.com/api/v1`: parece buena idea, poniendo la versión del api mediante la URL, parece como un patrón descriptivo, pero esta forma te forza a incluir la URL en cada petición, así que si en algún momento decides cambiar este patrón, se convierte en un problema de mantenimiento a largo plazo.
+
+Estas son algunas prácticas en la construcción de una API que recomiendan no versionar el API a través de la URL. Es verdad. El desarrollador no debería conocer la versión que está usando. En términos de simplicidad, he decidido dejar esta convención, que podremos aplicar en una segunda fase.
+****
+
+Es tiempo de hacer _commit_:
+
+[source,bash]
+----
+$ git commit -am "Set the versioning namespaces for API"
+----
+
+Estamos en lo último del capítulo. Por lo tanto, es tiempo de aplicar nuestras modificaciones a la rama master haciendo un _merge_. Para hacerlo, nos cambiamos a la rama `master` y hacemos _merge_ de `chapter02`:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter02
+----
+
+== Conclusión
+
+Ha sido un largo camino, lo sé, pero lo hiciste, no te rindas esto solo es un pequeño escalón para cualquier cosa grande, así que sigue. Mientras tanto y si te sientes curioso hay algunas gemas que pueden manejar este tipo de configuración:
+
+* https://github.com/Sutto/rocket_pants[RocketPants]
+* https://github.com/bploetz/versionist[Versionist]
+
+No cubriré eso en este libro, ya que estamos intentando aprender a implementar este tipo de funcionalidades, pero es bueno saberlo. Por cierto, el código hasta este punto está https://github.com/madeindjs/market_place_api_6/releases/tag/checkpoint_chapter03[aquí].
