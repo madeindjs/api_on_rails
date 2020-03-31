@@ -33,18 +33,18 @@ Or you can support me with Liberapay: <noscript><a href="https://liberapay.com/a
 $ git clone https://github.com/madeindjs/api_on_rails/
 $ cd api_on_rails
 $ bundle install
-$ rake build:pdf[6,fr]
+$ rake "build:pdf[6,fr]"
 ~~~
 
 You can see all build available with `rake -T`
 
 ~~~bash
 $ rake -T
-rake build:all[version,lang]   # Build all versions
-rake build:epub[version,lang]  # Build an EPUB version
-rake build:html[version,lang]  # Build an HTML version
-rake build:mobi[version,lang]  # Build a MOBI version
-rake build:pdf[version,lang]   # Build a PDF version
+rake "build:all[version,lang]"   # Build all versions
+rake "build:epub[version,lang]"  # Build an EPUB version
+rake "build:html[version,lang]"  # Build an HTML version
+rake "build:mobi[version,lang]"  # Build a MOBI version
+rake "build:pdf[version,lang]"   # Build a PDF version
 ~~~
 
 ## License
