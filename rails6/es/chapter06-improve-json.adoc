@@ -22,7 +22,7 @@ Ahora puedes estar satisfecho con todo este trabajo. Pero todavía tenemos un mo
 }
 ----
 
-Como sea buscamso una salida que no contenga los campos `user_id`, `created_at` y `updated_at`.
+Como sea buscamos una salida que no contenga los campos `user_id`, `created_at` y `updated_at`.
 
 Una parte importante (y difícil) cuando estas creando tu API es decidir el formato de salida. Afortunadamente algunas organizaciones ya tienen encarado este tipo de problema y tienen establecidas algunas convenciones que descubrirás en este capítulo.
 
