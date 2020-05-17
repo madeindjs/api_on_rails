@@ -1,7 +1,7 @@
 [#chapter07-placing-orders]
 = Placing Orders
 
-In previous chapter we handle associations between products and users and how serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between thesesthree models. We have to be smart enough to handle the JSON output we are delivering.
+In previous chapter we handle associations between products and users and how serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between theses three models. We have to be smart enough to handle the JSON output we are delivering.
 
 In this chapter we will make several things which I list below:
 
