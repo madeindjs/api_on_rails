@@ -1,7 +1,7 @@
 [#chapter07-placing-orders]
 = Colocando órdenes
 
-En el capítulo previo manejamos asociaciones entre productos y usuarios y como serializarlos a fin de escalar rápido y fácil. Ahora es tiempo de empezar a color ordenes lo cual será una situación algo más compleja. Manejaremos asociaciones entre estos tres modelos. Debemos ser lo suficientemente inteligentes para manejar la salida JSON que estamos entregando.
+En el capítulo previo manejamos asociaciones entre productos y usuarios y como serializarlos a fin de escalar rápido y fácil. Ahora es tiempo de empezar a implementar las ordenes lo cual será una situación algo más compleja. Manejaremos asociaciones entre estos tres modelos. Debemos ser lo suficientemente inteligentes para manejar la salida JSON que estamos entregando.
 
 En este capítulo haremos algunas cosas que están listadas a continuación:
 
