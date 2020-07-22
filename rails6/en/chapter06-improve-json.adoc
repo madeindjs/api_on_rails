@@ -430,7 +430,7 @@ A JSON is worth a thousand words:
         },
         "relationships": {
           "user": {
-            "id": 1,
+            "id": 2,
             "type": "user"
           }
         }
