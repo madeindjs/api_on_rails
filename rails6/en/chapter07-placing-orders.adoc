@@ -173,10 +173,10 @@ It is now time to prepare the order controller to expose the right orders. If yo
 Let us first define what actions we will take:
 
 . An indexing action to retrieve current user orders
-. A show action to retrieve a particular command from the current user
+. A show action to retrieve a particular order from the current user
 . A creation action to actually place the order
 
-Let's start with the action `index`. First we have to create the command controller:
+Let's start with the action `index`. First we have to create the order controller:
 
 [source,bash]
 ----
@@ -189,7 +189,7 @@ Up to this point and before start typing some code we have to ask ourselves:
 
 The answer is really simple: it depends on the amount of information you want to expose to the developer.
 
-In our case, we will not do this because we will retrieve the user commands from the `/orders` route. Let's start with some tests:
+In our case, we will not do this because we will retrieve the user orders from the `/orders` route. Let's start with some tests:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -309,7 +309,7 @@ end
 
 As you can see, the second part of the test verifies the product is included in the JSON.
 
-Let's add the implementation to run our tests. On the `routes.rb` file add the `show` action to the command routes:
+Let's add the implementation to run our tests. On the `routes.rb` file add the `show` action to the order routes:
 
 [source,ruby]
 .config/routes.rb
@@ -359,11 +359,11 @@ Let’s commit the changes and move onto the create order action:
 $ git commit -am "Adds the show action for order"
 ----
 
-=== Placing and order
+=== Placing an order
 
 It is now time to give the user the opportunity to place some orders. This will add complexity to the application, but don't worry, we'll do it one step at a time.
 
-Before launching this feature, let's take the time to think about the implications of creating a command in the application. I'm not talking about setting up a transaction service like https://stripe.com/[Stripe] or https://www.braintreepayments.com/[Braintree] but things like:
+Before launching this feature, let's take the time to think about the implications of creating an order in the application. I'm not talking about setting up a transaction service like https://stripe.com/[Stripe] or https://www.braintreepayments.com/[Braintree] but things like:
 
 * management of out-of-stock products
 * decrease in product inventory
