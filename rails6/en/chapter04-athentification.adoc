@@ -321,7 +321,7 @@ $ mkdir test/controllers/concerns
 $ touch test/controllers/concerns/authenticable_test.rb
 ----
 
-As usual, we start by writing our tests. In this case, our `current_user` method will search for an user by the authentication token in the HTTP header `Authorization`. The test is quite basic:
+As usual, we start by writing our tests. In this case, our `current_user` method will search for a user by the authentication token in the HTTP header `Authorization`. The test is quite basic:
 
 [source,ruby]
 .test/controllers/concerns/authenticable_test.rb

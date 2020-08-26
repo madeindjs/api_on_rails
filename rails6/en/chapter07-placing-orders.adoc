@@ -25,7 +25,7 @@ $ git checkout -b chapter07
 
 == Modeling order
 
-If you remember associations model, `Order` model is associated with users and products at the same time. It is actually really simply to achieve this in Rails. The tricky part is when comes to serializing this objects. I'll talk more about this in a next section.
+If you remember associations model, `Order` model is associated with users and products at the same time. Actually, It is really simple to achieve this in Rails. The tricky part is when it comes to serializing this object. I'll talk more about this in a next section.
 
 Let’s start by creating the order model with a special form:
 
