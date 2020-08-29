@@ -1,7 +1,7 @@
 [#chapter06-improve-json]
 = Building JSON
 
-In the previous chapter we added products to the application and built all the necessary routes. We have also associated a product with an user and restricted some of actions of `products_controller`.
+In the previous chapter we added products to the application and built all the necessary routes. We have also associated a product with a user and restricted some of actions of `products_controller`.
 
 Now you should be satisfied with all this work. But we still have a lot of work to do. Currently we have a JSON output that is not perfect. JSON output looks like this:
 

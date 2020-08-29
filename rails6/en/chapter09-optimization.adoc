@@ -551,7 +551,7 @@ Now let's make a request with cURL. I remind you we must obtain an authenticatio
 $ curl -X POST --data "user[email]=ockymarvin@jacobi.co" --data "user[password]=locadex1234"  http://localhost:3000/api/v1/tokens
 ----
 
-NOTE: "ockymarvin@jacobi.co" corresponds to an user created in my application with the _seed_. In your case, it will probably be different from mine since we used the Faker library.
+NOTE: "ockymarvin@jacobi.co" corresponds to a user created in my application with the _seed_. In your case, it will probably be different from mine since we used the Faker library.
 
 With the help of the token obtained, we can now make a request to access the products
 
