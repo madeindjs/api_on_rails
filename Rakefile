@@ -1,6 +1,6 @@
 require 'asciidoctor'
 require 'asciidoctor-pdf'
-require 'json'
+require 'yaml'
 
 LANGS = %w[en fr es].freeze
 VERSIONS = %w[5 6].freeze
@@ -35,7 +35,7 @@ end
 namespace :build do
   desc 'Build for all versions, languages'
   task :CI do
-    builds = JSON.parse(File.read("builds.json"))
+    builds = YAML.load(File.read("builds.yaml"))
     builds.entries.each do |version, languages|
       languages.each do |language|
         puts "VERSION: #{version} - LANG: #{language}"

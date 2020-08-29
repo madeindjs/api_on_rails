@@ -29,7 +29,6 @@ GEM
       nokogiri (>= 1.8.2, < 1.11)
       rubyzip (> 1.1.1, < 2.3)
     hashery (2.1.2)
-    json (2.3.1)
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2020.0512)
@@ -75,7 +74,6 @@ DEPENDENCIES
   asciidoctor-epub3 (~> 1.5.alpha.9)
   asciidoctor-pdf (~> 1.5.beta.7)
   concurrent-ruby (~> 1.1)
-  json
   rouge (~> 3.3)
 
 BUNDLED WITH
