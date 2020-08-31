@@ -1,0 +1,49 @@
+name: Build Book
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+      - run: bundle install
+      - run: rake build:CI
+      - uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs').promises;
+
+            const { repo: { owner, repo }, sha } = context;
+
+            const release = await github.repos.createRelease({
+              owner, repo,
+              tag_name: `v6.${process.env.GITHUB_RUN_NUMBER}`,
+              draft: true,
+              target_commitish: sha
+            });
+
+            console.log('A release has been created');
+            const build_dir = 'build';
+
+            for (let file of await fs.readdir(build_dir)) {
+              if (file == '.gitkeep') continue;
+              console.log('uploading', file);
+              await github.repos.uploadReleaseAsset({
+                owner, repo,
+                release_id: release.data.id,
+                name: file,
+                data: await fs.readFile(`${build_dir}/${file}`)
+              });
+            }
+            console.log('DONE')

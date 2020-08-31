@@ -1,5 +1,6 @@
 require 'asciidoctor'
 require 'asciidoctor-pdf'
+require 'yaml'
 
 LANGS = %w[en fr es].freeze
 VERSIONS = %w[5 6].freeze
@@ -10,13 +11,13 @@ FONTS_DIR = File.join __dir__, 'fonts'
 def check_args(args)
   lang = args[:lang]
   unless LANGS.include?(lang)
-    msg = format('Lang not availaible. Select on of theses langs: %s', LANGS.join(', '))
+    msg = format('Lang not available. Select on of these langs: %s', LANGS.join(', '))
     raise ArgumentError, msg
   end
 
   version = args[:version]
   unless VERSIONS.include?(version)
-    msg = format('Version not availaible. Select on of theses versions: %s', VERSIONS.join(', '))
+    msg = format('Version not available. Select on of these versions: %s', VERSIONS.join(', '))
     raise ArgumentError, msg
   end
 
@@ -32,6 +33,23 @@ def out_filename(args, extension)
 end
 
 namespace :build do
+  desc 'Build for all versions, languages'
+  task :CI do
+    builds = YAML.load(File.read("builds.yaml"))
+    builds.entries.each do |version, languages|
+      languages.each do |language|
+        puts "VERSION: #{version} - LANG: #{language}"
+        args = { version: version, lang: language }
+        Rake::Task['build:pdf'].execute(args)
+        Rake::Task['build:html'].execute(args)
+        Rake::Task['build:epub'].execute(args)
+        # [temporary] no mobi build
+        # TODO: fix when issue(https://github.com/tdtds/kindlegen/issues/42) solved
+        # Rake::Task['build:mobi'].execute(args)
+      end
+    end
+  end
+
   desc 'Build all versions'
   task :all, [:version, :lang] do |_task, args|
     check_args(args)
