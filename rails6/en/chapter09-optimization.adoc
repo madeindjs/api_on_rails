@@ -733,6 +733,6 @@ If you get to that point, it means you're done with the book. Good work! You hav
 
 So together we have built a solid and complete API. This one has all the qualities to dethrone https://www.amazon.com/[Amazon], rest assured. Thank you for going through this great adventure with me, I hope you enjoyed the trip as much as I did.
 
-I would like to remind you that all the source code for this book is available in the format https://asciidoctor.org[Asciidoctor] on https://github.com/asciidoctor/asciidoctor[GitHub]. So do not hesitate to https://github.com/madeindjs/api_on_rails[forker] the project if you want to improve it or correct a mistake that I missed.
+I would like to remind you that all the source code for this book is available in the format https://asciidoctor.org[Asciidoctor] on https://github.com/asciidoctor/asciidoctor[GitHub]. So do not hesitate to https://github.com/madeindjs/api_on_rails/fork[fork] the project if you want to improve it or correct a mistake that I missed.
 
 If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer :).
