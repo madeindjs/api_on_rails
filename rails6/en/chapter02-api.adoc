@@ -131,7 +131,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Up to this point, we have not made anything crazy. What we want to generate is a _base_uri_ which includes the API version. But let's commit the changes before going to the next section:
+Up to this point, we have not made anything crazy. What we want to generate is a _base_uri_ which includes the API version. But let's commit changes before going to the next section:
 
 [source,bash]
 ----
