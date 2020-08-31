@@ -27,7 +27,7 @@ By this point you must be asking yourself:
 
 > all right but I need to explore or visualize the API we are going to be building?
 
-That’s fair. Probably if you google something related to API exploring, an application called https://www.getpostman.com/[Postman] will pop. It is great software but we won’t be using that anyway because we'll use *cURL* which allows anybody to reproduce requests on their computer.
+That’s fair. Probably if you google something related to API exploring, an application called https://www.getpostman.com/[Postman] will pop. It is great software but we won’t be using that anyway because we'll use *cURL* which allows anybody to reproduce requests on any computer.
 
 == Setting the API
 
