@@ -36,10 +36,10 @@ namespace :build do
   desc 'Build for all versions, languages'
   task :CI do
     builds = YAML.load(File.read("builds.yaml"))
-    builds.entries.each do |version, languages|
+    builds.each do |version, languages|
       languages.each do |language|
         puts "VERSION: #{version} - LANG: #{language}"
-        args = { version: version, lang: language }
+        args = { version: version.to_s, lang: language }
         Rake::Task['build:pdf'].execute(args)
         Rake::Task['build:html'].execute(args)
         Rake::Task['build:epub'].execute(args)
