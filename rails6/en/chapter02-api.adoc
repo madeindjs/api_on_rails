@@ -58,7 +58,7 @@ This might not be clear enough or may look like a lot of information to digest b
 
 === Routes, Constraints and Namespaces
 
-Before start typing any code, we prepare the code with git. We’ll be using a branch per chapter, upload it to GitHub and then merge it with the master branch. So let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
+Before start typing any code, we prepare the code with git. We’ll be using a branch per chapter, upload it to GitHub and then merge it on `master` branch. So let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
 
 [source,bash]
 ----
