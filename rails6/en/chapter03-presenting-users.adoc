@@ -1,9 +1,9 @@
 [#chapter03-presenting-users]
 = Presenting users
 
-In the last chapter we manage to set up the bare bones for our application endpoints configuration.
+In the last chapter, we manage to set up the bare bones for our application endpoints configuration.
 
-In a next chapter we will handle users authentication through authentication tokens as well as setting permissions to limit access for let’s say signed in users. In coming chapters we will relate `products` to users and give them the ability to place orders.
+In the next chapter, we will handle user authentication through authentication tokens as well as setting permissions to limit access for let’s say, signed-in users. In the coming chapters, we will relate `products` to users and give them the ability to place orders.
 
 You can clone the project until this point with:
 
@@ -13,11 +13,11 @@ $ git checkout tags/checkpoint_chapter03
 ----
 
 
-As you can already imagine there are a lot of authentication solutions for Rails, https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] and https://github.com/plataformatec/devise[Devise].
+As you can already imagine there are a lot of authentication solutions for Rails, https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance], and https://github.com/plataformatec/devise[Devise].
 
-These solutions are turnkey libraries, i.e. they allow you to manage a whole bunch of things like authentication, password forgetfulness, validation, etc... Nevertheless we will use https://github.com/codahale/bcrypt-ruby[bcrypt] gem to hash the user's password.
+These solutions are turnkey libraries, i.e. they allow you to manage a whole bunch of things like authentication, password forgetfulness, validation, etc... Nevertheless, we will use https://github.com/codahale/bcrypt-ruby[bcrypt] gem to hash the user's password.
 
-This chapter will be complete. It may be a long one but I will try to cover as many topics as possible. Feel free to have a coffee and let's go. At the end of this chapter you will have built all the user logic as well as the validation and error management.
+This chapter will be complete. It may be a long one but I will try to cover as many topics as possible. Feel free to have a coffee and let's go. At the end of this chapter, you will have built all the user logic as well as validation and error management.
 
 It is a good time to create a new branch:
 
@@ -50,7 +50,7 @@ invoke  active_record
       create      test/fixtures/users.yml
 ----
 
-NOTE: The _model_ is the element containing the data as well as the logic related to the data: validation, reading and recording.
+NOTE: The _model_ is the element containing the data as well as the logic related to the data: validation, reading, and recording.
 
 This command generates a lot of files! Don't worry we'll review them one by one.
 
@@ -73,7 +73,7 @@ end
 
 NOTE: The inserted date at the beginning of the migration file name should be different for you since it corresponds to the migration creation date.
 
-We will make a small change to the migration in order to add some database validations. With Rails it is common practice to make these verifications directly in the Ruby model. It is good practice to do so also in the database schema.
+We will make a small change to the migration in order to add some database validations. With Rails, it is common practice to make these verifications directly in the Ruby model. It is good practice to do so also in the database schema.
 
 We will therefore add two additional constraints:
 
@@ -411,7 +411,7 @@ $ git add . && git commit -m "Adds show action to the users controller"
 
 So we finally have a resource to test. We have several solutions to test it. The first one that comes to mind is the use of cURL, which is integrated in almost all Linux distributions. So let's try it:
 
-First initialize the rails server on a new terminal.
+First, initialize the rails server on a new terminal.
 [source,bash]
 ----
 $ rails s
@@ -459,8 +459,8 @@ end
 
 That's a lot of code. Don't worry I'll explain everything:
 
-* In the first test we check the creation of a user by sending a valid POST request. Then, we checked that an additional user exists in the database and that the HTTP code of the response is `created` (status code 201)
-* In the second test we check that the user is not created using an email already used. Then, we check that the HTTP code of the response is `unprocessable_entity` (status code 422)
+* In the first test, we check the creation of a user by sending a valid POST request. Then, we checked that an additional user exists in the database and that the HTTP code of the response is `created` (status code 201)
+* In the second test, we check that the user is not created using an email already used. Then, we check that the HTTP code of the response is `unprocessable_entity` (status code 422)
 
 At that point, the tests must fail (as we expected):
 
@@ -574,7 +574,7 @@ Then we implement the update action on the user controller and run our tests:
 ----
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[show update]
-  
+
   # GET /users/1
   def show
     render json: @user

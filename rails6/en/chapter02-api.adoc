@@ -1,7 +1,7 @@
 [#chapter02-api]
 = The API
 
-In this section I’ll outline the application. By now you should have read the previous chapter. If you did not read it I recommend you to do it.
+In this section, I’ll outline the application. By now you should have read the previous chapter. If you did not read it I recommend you to do it.
 
 You can clone the project until this point with:
 
@@ -15,34 +15,34 @@ To summarize, we simply generated our Rails application and made our first commi
 
 == Planning the application
 
-As we want to go simple with the application it consists on five models. Don’t worry if you don’t fully understand what is going on. We will review and build each of these resources as we move on with the tutorial.
+As we want to go simple with the application it consists of five models. Don’t worry if you don’t fully understand what is going on. We will review and build each of these resources as we move on with the tutorial.
 
 image:data_model.png[Schema of links betweens models]
 
-In brief, the `user` will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
+In brief, the `user` will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from other users on the app.
 
 We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there like javascript frameworks (https://angularjs.org/[Angular], https://vuejs.org/[Vue.js], https://reactjs.org/[React.js]).
 
 By this point you must be asking yourself:
 
-> all right but I need to explore or visualize the api we are going to be building?
+> all right but I need to explore or visualize the API we are going to be building?
 
-That’s fair. Probably if you google something related to api exploring, an application called https://www.getpostman.com/[Postman] will pop. It is a great software but we won’t be using that anyway because we'll use *cURL* who allow anybody to reproduce request on any computer.
+That’s fair. Probably if you google something related to API exploring, an application called https://www.getpostman.com/[Postman] will pop. It is great software but we won’t be using that anyway because we'll use *cURL* which allows anybody to reproduce requests on their computer.
 
 == Setting the API
 
-An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
+An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words, the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 
-JSON, as the Internet media type standard, is widely accepted, readable, extensible and easy to implement. Many of the current frameworks consume JSON API’s by default (https://angularjs.org/[Angular] or https://vuejs.org/[Vue.js] for example). There are also great libraries for Objective-C too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android but because of my lack of experience on that development platform I might not be the right person to recommend you something.
+JSON, as the Internet media type standard, is widely accepted, readable, extensible, and easy to implement. Many of the current frameworks consume JSON APIs by default (https://angularjs.org/[Angular] or https://vuejs.org/[Vue.js] for example). There are also great libraries for Objective-C too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android but because of my lack of experience on that development platform, I might not be the right person to recommend something.
 
-All right. So we are building our API with JSON. There are many ways to achieve this. The first thing that comes to mind would be just to start adding routes defining the end points. This may be bad because they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
+All right. So we are building our API with JSON. There are many ways to achieve this. The first thing that comes to mind would be just to start adding routes defining the endpoints. This may be bad because they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by Wikipedia definition
 
 [source,soap]
 ----
 aService.getUser("1")
 ----
 
-And in REST you may call a URL with an specific HTTP request, in this case with a GET request: <http://domain.com/resources_name/uri_pattern>
+And in REST you may call a URL with a specific HTTP request, in this case with a GET request: <http://domain.com/resources_name/uri_pattern>
 
 RESTful APIs must follow at least three simple guidelines:
 
@@ -54,11 +54,11 @@ RESTful APIs must follow at least three simple guidelines:
 ** *PUT*: Updates a collection or member of the resources
 ** *DELETE*: Destroys a collection or member of the resources
 
-This might not be clear enough or may look like a lot of information to digest but as we move on with the tutorial, hopefully it’ll get a lot easier to understand.
+This might not be clear enough or may look like a lot of information to digest but as we move on with the tutorial, hopefully, it’ll get a lot easier to understand.
 
 === Routes, Constraints and Namespaces
 
-Before start typing any code, we prepare the code with git. We’ll be using a branch per chapter, upload it to GitHub and then merge it with master. So let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
+Before start typing any code, we prepare the code with git. We’ll be using a branch per chapter, upload it to GitHub and then merge it with the master branch. So let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
 
 [source,bash]
 ----
@@ -76,7 +76,7 @@ Rails.application.routes.draw do
 end
 ----
 
-First of all erase all commented code that comes within the file, we are not gonna need it. Then commit it, just as a warm up:
+First of all, erase all commented code that comes within the file, we are not gonna need it. Then commit it, just as a warm-up:
 
 [source,bash]
 ----
@@ -84,7 +84,7 @@ $ git add config/routes.rb
 $ git commit -m "Removes comments from the routes file"
 ----
 
-We are going to isolate the api controllers under a namespace. With Rails this is fairly simple: you just have to create a folder under the `app/controllers` named `api`. The name is important because that's the namespace we’ll use for managing the controllers for the api endpoints.
+We are going to isolate the API controllers under a namespace. With Rails this is fairly simple: you just have to create a folder under the `app/controllers` named `api`. The name is important because that's the namespace we’ll use for managing the controllers for the API endpoints.
 
 [source,bash]
 ----
@@ -97,7 +97,7 @@ Then we add that namespace into our _routes.rb_ file:
 .config/routes.rb
 ----
 Rails.application.routes.draw do
-  # Api definition
+  # API definition
   namespace :api do
     # We are going to list our resources here
   end
@@ -124,14 +124,14 @@ This is important because we are going to be working with JSON, one of the built
 .config/routes.rb
 ----
 Rails.application.routes.draw do
-  # Api definition
+  # API definition
   namespace :api, defaults: { format: :json }  do
     # We are going to list our resources here
   end
 end
 ----
 
-Up to this point we have not made anything crazy. What we want to generate is a _base_uri_ wich include the API version. But let's make a comit before go to next section:
+Up to this point, we have not made anything crazy. What we want to generate is a _base_uri_ which includes the API version. But let's commit the changes before going to the next section:
 
 [source,bash]
 ----
@@ -141,20 +141,20 @@ $ git commit -m "Set the routes constraints for the api"
 
 == Api versioning
 
-At this point we should have a nice routes mapping using a namespace. Your `routes.rb` file should look like this:
+At this point, we should have a nice routes mapping using a namespace. Your `routes.rb` file should look like this:
 
 [source,ruby]
 .config/routes.rb
 ----
 Rails.application.routes.draw do
-  # Api definition
+  # API definition
   namespace :api, defaults: { format: :json }  do
     # We are going to list our resources here
   end
 end
 ----
 
-Now it is time to set up some other constraints for versioning purposes. You should care about versioning your application from the beginning since this will give a better structure to your api, and when changes need to be done, you can give developers who are consuming your api the opportunity to adapt for the new features while the old ones are being deprecated. There is an excellent http://railscasts.com/episodes/350-rest-api-versioning[railscast] explaining this.
+Now it is time to set up some other constraints for versioning purposes. You should care about versioning your application from the beginning since this will give a better structure to your API, and when changes need to be done, you can give developers who are consuming your API the opportunity to adapt for the new features while the old ones are being deprecated. There is an excellent http://railscasts.com/episodes/350-rest-api-versioning[railscast] explaining this.
 
 In order to set the version for the API, we first need to add another directory under the `api` we created:
 
@@ -178,16 +178,16 @@ Rails.application.routes.draw do
 end
 ----
 
-By this point the API is now scoped via the URL. For example with the current configuration an end point for retrieving a product would be like: <http://localhost:3000/v1/products/1> .
+By this point, the API is now scoped via the URL. For example, with the current configuration, an endpoint for retrieving a product would be like <http://localhost:3000/v1/products/1>.
 
 
 .Common API patterns
 ****
-You can find many approaches to set up the _base_uri_ when building an api following different patterns, assuming we are versioning our api:
+You can find many approaches to set up the _base_uri_ when building an API following different patterns, assuming we are versioning our api:
 
-* `api.example.com/`: In my opinion this is the way to go, gives you a better interface and isolation, and in the long term can help you to http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[quickly scalate]
-* `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don’t want to namespace your api under a subdomain
-* `example.com/api/v1`: it seems like a good idea, by setting the version of the api through the URL seems like a more descriptive pattern, but this way you enforce the version to be included on URL on each request, so if you ever decide to change this pattern, this becomes a problem of maintenance in the long-term
+* `api.example.com/`: In my opinion, this is the way to go, gives you a better interface and isolation, and in the long term can help you to http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[quickly scalate]
+* `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don’t want to namespace your API under a subdomain
+* `example.com/api/v1`: it seems like a good idea, by setting the version of the API through the URL seems like a more descriptive pattern, but this way you enforce the version to be included on URL on each request, so if you ever decide to change this pattern, this becomes a problem of maintenance in the long-term
 
 There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he's using. For the sake of simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
 ****
@@ -214,4 +214,4 @@ It’s been a long way, I know, but you made it, don’t give up this is just ou
 * https://github.com/Sutto/rocket_pants[RocketPants]
 * https://github.com/bploetz/versionist[Versionist]
 
-I’m not covering those in this book, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way the code up to this point is https://github.com/madeindjs/market_place_api_6/releases/tag/checkpoint_chapter03[here].
+I’m not covering those in this book, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way, the code up to this point is https://github.com/madeindjs/market_place_api_6/releases/tag/checkpoint_chapter03[here].

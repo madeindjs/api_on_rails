@@ -1,7 +1,7 @@
 [#chapter08-improve_orders]
 = Improving orders
 
-In previous chapter we extended our API to place orders and send a confirmation email to the user (just to improve the user experience). This chapter will take care of some validations on the order model, just to make sure it is placeable, just like:
+In the previous chapter, we extended our API to place orders and send a confirmation email to the user (just to improve the user experience). This chapter will take care of some validations on the order model, just to make sure it is placeable, just like:
 
 - Decrement the current product quantity when an order is placed
 - What happens when products are not available?
@@ -24,14 +24,14 @@ $ git checkout -b chapter08
 
 == Decrementing product quantity
 
-On this first stop we will work on update the product quantity to make sure every order will deliver the actual product. Currently the `product` model doesn’t have a `quantity` attribute. So let’s do that:
+On this first stop, we will work on update the product quantity to make sure every order will deliver the actual product. Currently, the `product` model doesn’t have a `quantity` attribute. So let’s do that:
 
 [source,bash]
 ----
 $ rails generate migration add_quantity_to_products quantity:integer
 ----
 
-Wait, don’t run migrations now. We'll making a small modification to it. As a good practice I like adding default values for the database just making sure I don’t mess things up with `null` values. This is a perfect case!
+Wait, don’t run migrations now. We'll be making a small modification to it. As a good practice, I like adding default values for the database just making sure I don’t mess things up with `null` values. This is a perfect case!
 
 Your migration file should look like this:
 
@@ -45,7 +45,7 @@ class AddQuantityToProducts < ActiveRecord::Migration[6.0]
 end
 ----
 
-Now we can migrate database:
+Now we can migrate the database:
 
 [source,bash]
 ----
@@ -216,7 +216,7 @@ $ git add .
 $ git commit -m "Allows the order to be placed along with product quantity"
 ----
 
-Did you notice we are not saving the quantity for each product anywhere? There is no way to keep track of that. This can be fix really easy. Just adding a quantity attribute to the `Placement` model. So this way for each product we save its corresponding quantity. Let’s start by creating the migration:
+Did you notice we are not saving the quantity for each product anywhere? There is no way to keep track of that. This can be easily fixed by just adding a quantity attribute to the `Placement` model. So this way for each product we save its corresponding quantity. Let’s start by creating the migration:
 
 [source,bash]
 ----
@@ -296,7 +296,7 @@ $ git add . && git commit -m "Adds quantity to placements"
 
 === Extending the Placement model
 
-It is time to update the product quantity once the order is saved, or more accurate once the placement is created. In order to achieve this we are going to add a method and then hook it up to an `after_create` callback.
+It is time to update the product quantity once the order is saved, or more accurate once the placement is created. To achieve this we are going to add a method and then hook it up to an `after_create` callback.
 
 [source,ruby]
 .test/models/placement_test.rb
@@ -346,7 +346,7 @@ Since the beginning of the chapter, we have added the attribute `quantity` to th
 
 NOTE: You can consult https://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation].
 
-First we need adding a `validators` directory under the `app` directory (Rails will pick it up for so we do not need to load it).
+First, we need to add a `validators` directory under the `app` directory (Rails will pick it up for so we do not need to load it).
 
 [source,bash]
 ----
@@ -371,7 +371,7 @@ class OrderTest < ActiveSupport::TestCase
 end
 ----
 
-As you can see on the spec, we first make sure that `placement_2` is trying to request more products than are available, so in this case the `order` is not supposed to be valid.
+As you can see on the spec, we first make sure that `placement_2` is trying to request more products than are available, so in this case, the `order` is not supposed to be valid.
 
 The test by now should be failing, let’s turn it into green by adding the code for the validator:
 
@@ -412,9 +412,9 @@ $ git add . && git commit -m "Adds validator for order with not enough products 
 
 == Updating the total
 
-Did you realize that the `total` is being calculated incorrectly, because currently it is just adding the price for the products on the order regardless of the quantity requested. Let me add the code to clarify the problem:
+Did you realize that the `total` is being calculated incorrectly? This is because currently, it is just adding the price for the products on the order regardless of the quantity requested. Let me add the code to clarify the problem:
 
-Currently in the `order` model we have this method to calculate the amount to pay:
+Currently, in the `order` model we have this method to calculate the amount to pay:
 
 [source,ruby]
 .app/models/order.rb
@@ -428,7 +428,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Now instead of calculating the `total` by just adding the product prices we need to multiply it by the quantity. So let’s update the spec first:
+Now instead of calculating the `total` by just adding the product prices, we need to multiply it by the quantity. So let’s update the spec first:
 
 [source,ruby]
 .test/models/order_test.rb
@@ -494,4 +494,4 @@ $ git merge chapter08
 
 Oh, you're here! Allow me to congratulate you! That's a long way from the first chapter. But you're one step closer. In fact, the next chapter will be the last. So try to make the most of it.
 
-The last chapter will focus on the way to optimize the API using paging, caching and background tasks. So buckle up, it's going to be a hectic ride.
+The last chapter will focus on the way to optimize the API using paging, caching, and background tasks. So buckle up, it's going to be a hectic ride.

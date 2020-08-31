@@ -29,7 +29,7 @@ $ git checkout -b chapter05
 
 == The product model
 
-We will first create a `Product` model first. Then we'll add some validations and finally associate it with the `User` model. Like the `User` model, the `Product` will be fully tested and will be automatically deleted if the user is deleted.
+We will first create a `Product` model. Then we'll add some validations and finally associate it with the `User` model. Like the `User` model, the `Product` will be fully tested and will be automatically deleted if the user is deleted.
 
 === The foundations of the product
 
@@ -82,7 +82,7 @@ We now just have to initiate migration:
 $ rake db:migrate
 ----
 
-A test must fails at this point:
+A test must fail at this point:
 
 [source,bash]
 ----
@@ -118,7 +118,7 @@ one:
 
 You can see this _fixture_ does not use the attribute `user_id` but `user`. This means that the `one` product will have an `user_id` attribute corresponding to the `one` user ID.
 
-It is therefore necessary to specify a cascading deletion in order to delete the `one` product when the `one` user is deleted. Let's start with the unit test:
+It is, therefore, necessary to specify a cascading deletion in order to delete the `one` product when the `one` user is deleted. Let's start with the unit test:
 
 
 .test/models/user_test.rb
@@ -158,9 +158,9 @@ $ git add . && git commit -m "Generate product model"
 
 === Product validations
 
-Validations are an important part when building any kind of application. This will prevent any junk data from being saved onto the database. In the product we have to make sure for example the price is a `number` and that is not negative.
+Validations are an important part when building any kind of application. This will prevent any junk data from being saved onto the database. In the product, we have to make sure for example the price is a `number` and that is not negative.
 
-Also an important thing about validation is to validate that every product has a user. In this case we need to validate the presence of the `user_id`. You can see what I’m talking about in next code snippet.
+Also, an important thing about validation is to validate that every product has a user. In this case, we need to validate the presence of the `user_id`. You can see what I’m talking about in the next code snippet.
 
 [source,ruby]
 .test/models/product_test.rb
@@ -205,7 +205,7 @@ $ git commit -am "Adds some validations to products"
 
 == Products endpoints
 
-It is now time to start building the products endpoints. For now we will just build five REST actions. In the next Chapter we will customize the JSON output by implementing the https://github.com/Netflix/fast_jsonapi[fast_jsonapi].
+It is now time to start building the products endpoints. For now, we will just build five REST actions. In the next chapter, we will customize the JSON output by implementing the https://github.com/Netflix/fast_jsonapi[fast_jsonapi].
 
 First we need to create the `products_controller`, and we can easily achieve this with the command below:
 
@@ -221,11 +221,11 @@ $ rails generate controller api::v1::products
 The above command will generate a lot of files that will allow us to start working quickly. What I mean by that is that it will generate the controller and test files already _scoped_ to version 1 of the API.
 
 
-As a warmup we will start nice and easy by building the `show` action for the product.
+As a warmup, we will start nice and easy by building the `show` action for the product.
 
 === Show action for products
 
-As usual we begin by adding some product `show` controller specs. The strategy here is very simple: we just need to create a single product and make sure the response from server is what we expect.
+As usual, we begin by adding some product `show` controller specs. The strategy here is very simple: we just need to create a single product and make sure the response from the server is what we expect.
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -282,11 +282,11 @@ $ rake test
 .................
 ----
 
-As you may notice already the specs and implementation are very simple. Actually they behave the same as the users.
+As you may notice already the specs and implementation are very simple. They behave the same as users.
 
 === Products list
 
-Now it is time to output a list of products (which could be displayed as the market place product catalog). This endpoint should be accessible without credentials. That means we don’t require the user to be logged-in to access the data. As usual we will start writing some tests:
+Now it is time to output a list of products (which could be displayed as the market place product catalog). This endpoint should be accessible without credentials. That means we don’t require the user to be logged in to access the data. As usual, we will start writing some tests:
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -341,7 +341,7 @@ Rails.application.routes.draw do
 end
 ----
 
-We are done for now with the public product endpoints. In the next sections we will focus on building the actions requiring a user to be logged in to access them. Said that we are committing this changes and continue.
+We are done for now with the public product endpoints. In the next sections, we will focus on building the actions requiring a user to be logged in to access them. Said that we are committing these changes and continue.
 
 [source,bash]
 ----
@@ -382,11 +382,11 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Wow! We added a lot of code. If you remember previous section, tests are pretty similar than those for about user creation. Except for some minor changes.
+Wow! We added a lot of code. If you remember the previous section, tests are pretty similar to those for about user creation. Except for some minor changes.
 
 In this way, we can see the user and create a product associated with them. But wait! There's something better.
 
-If we adopt this approach, we can increase the scope of our authorization mechanism. We actually built the logic to get logged user from the header `Authorization` and assigned him a method `current_user`. It is therefore quite easy to set up by simply adding the authorization header to the request and retrieving the user from it. So let's do it:
+If we adopt this approach, we can increase the scope of our authorization mechanism. We built the logic to get a logged user from the header `Authorization` and assigned him a method `current_user`. It is therefore quite easy to set up by simply adding the authorization header to the request and retrieving the user from it. So let's do it:
 
 
 [source,ruby]
@@ -413,7 +413,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-As you can see, we protect the `create` action with the `check_login` method. We also build the product by associating the current user. I added this very simplistic method to the _concern_ `authenticable.rb`:
+As you can see, we protect the `create` action with the `check_login` method. We also build the product by associating the current user. I added this very simple method to the _concern_ `authenticable.rb`:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -454,7 +454,7 @@ $ rake test
 
 === Updating products
 
-Hopefully by now you understand the logic to build the upcoming actions. In this section we will focus on the `update` action which will work similarly to the `create` one. We just need to fetch the product from the database and the update it.
+Hopefully, by now you understand the logic to build the upcoming actions. In this section, we will focus on the `update` action which will work similarly to the `create` one. We just need to fetch the product from the database and update it.
 
 We first adding the action to the routes so we don’t forget later:
 
@@ -471,7 +471,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Before we start dropping some tests I just want to clarify that similarly to the `create` action we will scope the product to the `current_user`. In this case we want to make sure the product we are updating is owned by the current user. So we will fetch that product from the `user.products` association provided by Rails.
+Before we start dropping some tests I just want to clarify that similarly to the `create` action we will scope the product to the `current_user`. In this case, we want to make sure the product we are updating is owned by the current user. So we will fetch that product from the `user.products` association provided by Rails.
 
 Let's add some specs:
 
@@ -502,7 +502,7 @@ end
 ----
 
 
-NOTE: I have added a _fixture_ corresponding to a second user in order to verify that the second user cannot modify the first user's product.
+NOTE: I have added a _fixture_ corresponding to a second user to verify that the second user cannot modify the first user's product.
 
 Tests may look complex but take a second peek. They are almost the same we built for users.
 
@@ -561,7 +561,7 @@ $ rake test
 
 === Destroying products
 
-Our last stop for the products endpoints will be the `destroy` action. You might now imagine how this would look like. The strategy in here will be pretty similar to the `create` and `update` actions: we'll get the logged user with JWT token and then fetch the product from the `user.products` association and finally destroy it, returning a `204` code.
+Our last stop for the product endpoints will be the `destroy` action. You might now imagine how this would look like. The strategy in here will be pretty similar to the `create` and `update` actions: we'll get the logged user with JWT token and then fetch the product from the `user.products` association and finally destroy it, returning a `204` code.
 
 Let’s start again by adding the route name to the routes file:
 
@@ -626,7 +626,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-As you can see the four lines implementation does the job. We can run tests to make sure everything is good and then we will commit the changes as we added a bunch of new code. Also make sure you hook this action to the `before_action` callback as with the `update` action.
+As you can see the four lines implementation does the job. We can run tests to make sure everything is good and then we will commit the changes as we added a bunch of new code. Also, make sure you hook this action to the `before_action` callback as with the `update` action.
 
 [source,bash]
 ----
@@ -760,4 +760,3 @@ $ git merge chapter05
 I hope you have enjoyed this chapter. It's a long one but the code we put together is an excellent base for the core app.
 
 In the next chapter, we will focus on customizing the output of user and product models using the gem https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. It will allow us to easily filter the attributes to display and manage associations such as embedded objects for example.
-

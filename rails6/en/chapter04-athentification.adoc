@@ -1,9 +1,9 @@
-[#chapter05-athentification]
+[#chapter04-authentication]
 = Authenticating user
 
 It's been a long time since you started. I hope you enjoy this trip as much as I do.
 
-In the previous chapter we set up user resource entries. If you have skipped this chapter or if you have not understood everything, I strongly recommend that you look at it. It covers the first bases of the tests and is an introduction to JSON answers.
+In the previous chapter, we set up user resource entries. If you have skipped this chapter or if you have not understood everything, I strongly recommend that you look at it. It covers the first bases of the tests and is an introduction to JSON answers.
 
 You can clone the project up to this point:
 
@@ -12,7 +12,7 @@ You can clone the project up to this point:
 $ git checkout tags/checkpoint_chapter04
 ----
 
-In this chapter things will get very interesting because we are going to set up our authentication mechanism. In my opinion it's one of the most interesting chapters. We will introduce a lot of new terms and you will end with a simple but powerful authentication system. Don’t feel panic we will get to that.
+In this chapter, things will get very interesting because we are going to set up our authentication mechanism. In my opinion, it's one of the most interesting chapters. We will introduce a lot of new terms and you will end with a simple but powerful authentication system. Don’t feel panic we will get to that.
 
 First things first (and as usual when starting a new chapter) we will create a new branch:
 
@@ -29,9 +29,9 @@ The flow for authenticating the user through an API is very simple:
 
 . The client request for `sessions` resource with the corresponding credentials (usually email and password)
 . The server returns the `user` resource along with its corresponding authentication token
-. For every page that requires authentication the client has to send that `authentication token`
+. For every page that requires authentication, the client has to send that `authentication token`
 
-Of course this is not the only 3-step to follow, and even on step 2 you might think, well do I really need to respond with the entire user or just the `authentication token` ? I would say, it really depends on you, but I like to return the entire user, this way I can map it right away on my client and save another possible request from being placed.
+Of course, this is not the only 3-step to follow, and even on step 2 you might think, well do I really need to respond with the entire user or just the `authentication token`? I would say, it really depends on you, but I like to return the entire user, this way I can map it right away on my client and save another possible request from being placed.
 
 This section and the next we will be focusing on building a Sessions controller along with its corresponding actions. We’ll then complete the request flow by adding the necessary authorization access.
 
@@ -100,9 +100,9 @@ The library is very simple. There are two methods: `JWT.encode` and `JWT.decode`
  => [{"message"=>"Hello World"}, {"alg"=>"HS256"}]
 ----
 
-In the first line we encoded a _payload_ with the secret key `my_secret_key`. So we get a token we can simply decode. The second line decodes the token and we see that we find our _payload_ well.
+In the first line, we encoded a _payload_ with the secret key `my_secret_key`. So we get a token we can simply decode. The second line decodes the token and we see that we find our _payload_ well.
 
-We will now include all this logic in a `JsonWebToken` class in a new file located in `lib/`. This will allow us to avoide duplicating the code.  This class will just encode and decode the JWT tokens. So here is the implementation.
+We will now include all this logic in a `JsonWebToken` class in a new file located in `lib/`. This will allow us to avoid duplicating the code.  This class will just encode and decode the JWT tokens. So here is the implementation.
 
 .lib/json_web_token.rb
 [source,ruby]
@@ -179,8 +179,8 @@ end
 
 We will build functional tests before going any further. The desired behavior is the following:
 
-- I receive a token if I send a valid email / password pair
-- otherwise server repond a `forbidden` response
+- I receive a token if I send a valid email/password pair
+- otherwise, the server responds a `forbidden` response
 
 The tests therefore materialize as follows:
 
@@ -294,7 +294,7 @@ $ git add . && git commit -m "Setup tokens controller"
 
 So we implemented the following logic: API returns the authentication token to the client if credentials are correct.
 
-We will now implement the following logic: we'll find corresponding user of authentication token given into the HTTP header. We'll need to do so each time this client requests an entry point which requires permission.
+We will now implement the following logic: we'll find the corresponding user of the authentication token given into the HTTP header. We'll need to do so each time this client requests an entry point which requires permission.
 
 We will use the HTTP header `Authorization` which is often used for this purpose. We may also use a GET parameter named `apiKey` but I prefer to use an HTTP header because it gives context to the request without polluting the URL with additional parameters.
 
@@ -442,7 +442,7 @@ $ git add . && git commit -m "Adds authenticable module for managing authenticat
 
 == Authentication with the token
 
-Authorization plays an important role in the construction of applications because it helps us define what user is allowed to do.
+Authorization plays an important role in the construction of applications because it helps us define what the user is allowed to do.
 
 We have a route to update the user but there is a problem: anyone can update any user. In this section, we will implement a method that will require the user to be logged in to prevent unauthorized access.
 
@@ -514,7 +514,7 @@ Expected response to be a <2XX: success>, but was a <403: Forbidden>
 ..F
 
 Failure:
-"User.count" didn t change by -1.
+"User.count" didn't change by -1.
 Expected: 0
   Actual: 1
 ----
@@ -550,6 +550,6 @@ $ git merge chapter04
 
 == Conclusion
 
-Yeah! you made it! you are half way done! Keep up the good work. This chapter was a long and hard one but it is a great step forward on setting a solid mechanism for handling user authentication. We even scratch the surface for simple authorization rules.
+Yeah! you made it! you are halfway done! Keep up the good work. This chapter was a long and hard one but it is a great step forward on setting a solid mechanism for handling user authentication. We even scratch the surface for simple authorization rules.
 
-In the next chapter we will be focusing on customizing the JSON output for the user with https://github.com/Netflix/fast_jsonapi[fast_jsonapi] gem and adding a `product` model to the equation by giving the user the ability to create a product and publish it for sale.
+In the next chapter, we will be focusing on customizing the JSON output for the user with https://github.com/Netflix/fast_jsonapi[fast_jsonapi] gem and adding a `product` model to the equation by giving the user the ability to create a product and publish it for sale.
