@@ -1,7 +1,7 @@
 [#chapter07-placing-orders]
 = Placing Orders
 
-In previous chapter we handle associations between products and users and how serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between theses three models. We have to be smart enough to handle the JSON output we are delivering.
+In the previous chapter, we handle associations between products and users and how to serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between these three models. We have to be smart enough to handle the JSON output we are delivering.
 
 In this chapter we will make several things which I list below:
 
@@ -25,7 +25,7 @@ $ git checkout -b chapter07
 
 == Modeling order
 
-If you remember associations model, `Order` model is associated with users and products at the same time. Actually, It is really simple to achieve this in Rails. The tricky part is when it comes to serializing this object. I'll talk more about this in a next section.
+If you remember the associations model, `Order` model is associated with users and products at the same time. Actually, It is really simple to achieve this in Rails. The tricky part is when it comes to serializing this object. I'll talk more about this in the next section.
 
 Let’s start by creating the order model with a special form:
 
@@ -99,7 +99,7 @@ $ git add . && git commit -m "Generate orders"
 
 === Orders and Products
 
-We need to setup the association between the `order` and the `product` and this is build with a *has-many-to-many* association. As many products will be placed on many orders and the orders will have multiple products. So in this case we need a model in the middle which will join these two other objects and map the appropriate association.
+We need to setup the association between the `order` and the `product` and this is build with a *has-many-to-many* association. As many products will be placed on many orders and the orders will have multiple products. So in this case we need a model in the middle that will join these two other objects and map the appropriate association.
 
 Let’s generate this model:
 
@@ -108,7 +108,7 @@ Let’s generate this model:
 $ rails generate model placement order:belongs_to product:belongs_to
 ----
 
-Let’s run migration on database:
+Let’s run the migration on the database:
 
 [source,bash]
 ----
@@ -176,7 +176,7 @@ Let us first define what actions we will take:
 . A show action to retrieve a particular order from the current user
 . A creation action to actually place the order
 
-Let's start with the action `index`. First we have to create the order controller:
+Let's start with the action `index`. First, we have to create the order controller:
 
 [source,bash]
 ----
@@ -361,7 +361,7 @@ $ git commit -am "Adds the show action for order"
 
 === Placing an order
 
-It is now time to give the user the opportunity to place some orders. This will add complexity to the application, but don't worry, we'll do it one step at a time.
+It is now time to allow the user to place some orders. This will add complexity to the application but don't worry, we'll do it one step at a time.
 
 Before launching this feature, let's take the time to think about the implications of creating an order in the application. I'm not talking about setting up a transaction service like https://stripe.com/[Stripe] or https://www.braintreepayments.com/[Braintree] but things like:
 
@@ -369,7 +369,7 @@ Before launching this feature, let's take the time to think about the implicatio
 * decrease in product inventory
 * add some validation for order placement to ensure that there are enough products at the time the order is placed
 
-It seems like there's still a lot to do but believe me: you're closer than you think and it's not as hard as it looks. For now let's keep it simple and assume that we still have enough products to place any number of orders. We're just concerned about the server's response at the moment.
+It seems like there's still a lot to do but believe me: you're closer than you think and it's not as hard as it looks. For now, let's keep it simple and assume that we still have enough products to place any number of orders. We're just concerned about the server's response at the moment.
 
 If you remember order model we need three things:
 
@@ -415,7 +415,7 @@ end
 
 As you can see we are creating a `order_params` variable with the order data. Can you see the problem here? If not I’ll explain it later. Let’s just add the necessary code to make this test pass.
 
-First we need to add the action to the resources on the routes file:
+First, we need to add the action to the resources on the routes file:
 
 [source,ruby]
 .config/routes.rb
@@ -465,11 +465,11 @@ $ rake test
 ----
 
 
-Ok, so we have everything nice and green. Now we should move on to the next chapter right? Let me stop you right there. We have some serious errors on the app, and they are not related to the code itself but on the business part.
+Ok, so we have everything nice and green. Now we should move on to the next chapter, right? Let me stop you right there. We have some serious errors on the app, and they are not related to the code itself but on the business part.
 
-Not because the tests are green, it means the app is filling the business part of the app. I wanted to bring this up because in many cases that's super easy just receiving params and building objects from those params thinking that we are always receiving the correct data. In this particular case we cannot rely on that, and the easiest way to see this, is that we are letting the client to set the order total, yeah crazy!
+Not because the tests are green, it means the app is filling the business part of the app. I wanted to bring this up because in many cases that's super easy just receiving params and building objects from those params thinking that we are always receiving the correct data. In this particular case, we cannot rely on that, and the easiest way to see this is that we are letting the client set the order total, yeah crazy!
 
-We have to add some validations or a callback to calculate the order total an set it through the model. This way we don’t longer receive that total attribute and have complete control on this attribute. So let’s do that.
+We have to add some validations or a callback to calculate the order total an set it through the model. This way we don’t longer receive that total attribute and have complete control over this attribute. So let’s do that.
 
 We first need to add some specs for the order model:
 
@@ -520,7 +520,7 @@ class Order < ApplicationRecord
 end
 ----
 
-At this point we are making sure the total is always present and bigger or equal to zero. This means we can remove those validations and remove the specs. I’ll wait. Our tests should be passing by now:
+At this point, we are making sure the total is always present and bigger or equal to zero. This means we can remove those validations and remove the specs. I’ll wait. Our tests should be passing by now:
 
 [source,bash]
 ----
@@ -684,11 +684,11 @@ $ git merge chapter07
 
 == Conclusion
 
-That's it! You did it! You can applaud yourself. I know it's been a long time but believe me it's almost over.
+That's it! You did it! You can applaud yourself. I know it's been a long time but believe me, it's almost over.
 
-In next chapters we will continue working on the order template to add validations when placing an order. Some scenarios are:
+In the next chapters, we will continue working on the order template to add validations when placing an order. Some scenarios are:
 
 * What happens when products are not available?
 * Decrease the quantity of the product in progress when placing an order
 
-The next chapter will be short, but it is very important for health application. So don't skip it.
+The next chapter will be short, but it is very important for the health of the application. So don't skip it.

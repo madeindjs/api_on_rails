@@ -27,15 +27,15 @@ $ git checkout -b chapter09
 
 == Pagination
 
-A very common strategy to optimize an array of records from the database, is to load just a few by paginating them and if you are familiar with this technique you know that in Rails that's really easy to achieve it whether if you are using https://github.com/mislav/will_paginate[will_paginate] or https://github.com/amatsuda/kaminari[kaminari].
+A very common strategy to optimize an array of records from the database is to load just a few by paginating them and if you are familiar with this technique you know that in Rails that's really easy to achieve it whether if you are using https://github.com/mislav/will_paginate[will_paginate] or https://github.com/amatsuda/kaminari[kaminari].
 
-Then only tricky part in here is how are we suppose to handle the JSON output now to give enough information to the client on how the array is paginated. If you recall first chapter I shared some resources on the practices I was going to be following in here. One of them was http://jsonapi.org/ which is a must-bookmark page.
+Then only tricky part in here is how are we suppose to handle the JSON output now to give enough information to the client on how the array is paginated. If you recall the first chapter I shared some resources on the practices I was going to be following in here. One of them was http://jsonapi.org/ which is a must-bookmark page.
 
-If we read the format section we will reach a sub section called http://jsonapi.org/format/#document-structure-top-level[Top Level] and in very few words they mention something about pagination:
+If we read the format section we will reach a sub-section called http://jsonapi.org/format/#document-structure-top-level[Top Level] and in very few words they mention something about pagination:
 
 > "meta": meta-information about a resource, such as pagination.
 
-It is not very descriptive but at least we have a hint on what to look next about the pagination implementation, but don’t worry that is exactly what we are going to do in here.
+It is not very descriptive but at least we have a hint on what to look next about the pagination implementation, but don’t worry that is exactly what we are going to do here.
 
 Let’s start with the `products` list.
 
@@ -43,7 +43,7 @@ Let’s start with the `products` list.
 
 We are going to start nice and easy by paginating the products list as we don’t have any kind of access restriction which leads to easier testing.
 
-First we need to add the https://github.com/amatsuda/kaminari[kaminari] gem to our `Gemfile`:
+First, we need to add the https://github.com/amatsuda/kaminari[kaminari] gem to our `Gemfile`:
 
 [source,bash]
 ----
@@ -190,7 +190,7 @@ $ git commit -m "Adds pagination for the products index action to optimize respo
 
 === Orders list
 
-Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first let’s add some specs to the `orders_controller_test.rb` file:
+Now it’s time to do exactly the same for the `orders` list endpoint which should be really easy to implement. But first, let’s add some specs to the `orders_controller_test.rb` file:
 
 [source,ruby]
 .test/controllers/api/v1/orders_controller_test.rb
@@ -287,7 +287,7 @@ assert_not_nil json_response.dig(:links, :next)
 assert_not_nil json_response.dig(:links, :prev)
 ----
 
-In order to factor it, we will move these assertions into the `test_helper.rb` file in a method we will use:
+In order to refactor it, we will move these assertions into the `test_helper.rb` file in a method we will use:
 
 [source,ruby]
 .test/test_helper.rb
@@ -429,7 +429,7 @@ $ git commit -am "Factorize pagination"
 
 There is currently an implementation to do caching with the gem `fast_jsonapi` which is really easy to handle. Although in older versions of the gem, this implementation can change, it does the job.
 
-If we make a request to the product list, we will notice that the response time takes about 174 milliseconds using cURL:
+If we request the product list, we will notice that the response time takes about 174 milliseconds using cURL:
 
 [source,bash]
 ----
@@ -478,7 +478,7 @@ $ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://localhost:3000/api/v1/
 Total: 0,032341
 ----
 
-So we went from 174 ms to 21 ms. The improvement is therefore enormous! Let’s commit our change a last time:
+So we went from 174 ms to 21 ms. The improvement is therefore enormous! Let’s commit our changes:
 
 [source,ruby]
 ----
@@ -487,9 +487,9 @@ $ git commit -am "Adds caching for the serializers"
 
 == N+1 Queries
 
-N+1* requests are a wound that can have a huge impact on the performance of an application. This phenomenon often occurs when using a **ORM** because it generates **automatically** SQL queries for us. This handy tool is double-edged because it can generate a **large number** of SQL queries.
+N+1* requests are a wound that can have a huge impact on the performance of an application. This phenomenon often occurs when using an **ORM** because it generates **automatically** SQL queries for us. This handy tool is double-edged because it can generate a **large number** of SQL queries.
 
-Something to know about SQL queries is that it's better limiting the number. In other words, a large request is often more efficient than a hundred small ones.
+Something to know about SQL queries is that it's better to limit the number. In other words, a large request is often more efficient than a hundred small ones.
 
 Here is an example where we want to recover all users who have already created a product. Open the Rails console with `rails console` and execute the following Ruby code:
 
@@ -560,7 +560,7 @@ With the help of the token obtained, we can now make a request to access the pro
 $ curl --header "Authorization=ey..." http://localhost:3000/api/v1/products
 ----
 
-You will most likely see several requests in the Rails console running the web server.
+You will most likely see several requests in the Rails console running the webserver.
 
 [source,sql]
 ----
@@ -605,7 +605,7 @@ Rails.application.configure do
 end
 ----
 
-Restart the web server and restart the last request with cURL:
+Restart the webserver and restart the last request with cURL:
 
 [source,bash]
 ----
