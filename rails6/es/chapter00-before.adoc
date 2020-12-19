@@ -19,7 +19,7 @@ Todo el código fuente de este libro está en formato https://asciidoctor.org/[A
 
 Este libro está bajo la http://opensource.org/licenses/MIT[licencia MIT]. Todo el código fuente del libro está en el formato https://fr.wikipedia.org/wiki/Markdown[Markdown] disponible en https://github.com/madeindjs/api_on_rails[GitHub]
 
-.Licencia MIT 
+.Licencia MIT
 ****
 Copyright 2019 Alexandre Rousseau
 
@@ -43,4 +43,5 @@ Un gran "gracias" a todos los contribuidores de GitHub quienes mantienen este li
 * https://github.com/cuilei5205189[cuilei5205189]
 * https://github.com/franklinjosmell[franklinjosmell]
 * https://github.com/notapatch[notapatch]
+* https://github.com/promisepreston[promisepreston]
 * https://github.com/tacataca[tacataca]
