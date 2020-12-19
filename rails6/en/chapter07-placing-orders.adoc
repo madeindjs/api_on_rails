@@ -246,7 +246,7 @@ And let's add relationships:
 [source,ruby]
 ----
 class OrderSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
   belongs_to :user
   has_many :products
 end
@@ -261,7 +261,7 @@ class Api::V1::OrdersController < ApplicationController
   before_action :check_login, only: %i[index]
 
   def index
-    render json: OrderSerializer.new(current_user.orders).serializable_hash
+    render json: OrderSerializer.new(current_user.orders).serializable_hash.to_json
   end
 end
 ----
@@ -335,7 +335,7 @@ class Api::V1::OrdersController < ApplicationController
 
     if order
       options = { include: [:products] }
-      render json: OrderSerializer.new(order, options).serializable_hash
+      render json: OrderSerializer.new(order, options).serializable_hash.to_json
     else
       head 404
     end
