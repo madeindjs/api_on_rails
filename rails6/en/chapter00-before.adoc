@@ -44,4 +44,5 @@ A big "thank you" to all Github contributors who keep this book alive. In alphab
 * https://github.com/cuilei5205189[cuilei5205189]
 * https://github.com/franklinjosmell[franklinjosmell]
 * https://github.com/notapatch[notapatch]
+* https://github.com/promisepreston[promisepreston]
 * https://github.com/tacataca[tacataca]
