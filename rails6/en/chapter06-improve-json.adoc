@@ -58,20 +58,20 @@ The content of the `data` key is also quite strict:
 * properties of the objects must be placed in an `attributes` key
 * links of the objects must be placed in a `relationships` key
 
-In this chapter we will customize the JSON output using Netflix's gem: https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. Luckily for us, they already implement all https://jsonapi.org/[JSON:API] specifications.
+In this chapter we will customize the JSON output using https://github.com/jsonapi-serializer/jsonapi-serializer[jsonapi-serializer] gem (fork of Netflix's https://github.com/Netflix/fast_jsonapi[fast_jsonapi] gem) . Luckily for us, it already implements all https://jsonapi.org/[JSON:API] specifications.
 
-So let's install the gem `fast_jsonapi`:
+So let's install the gem `jsonapi-serializer`:
 
 [source,bash]
 ----
-$ bundle add fast_jsonapi
+$ bundle add jsonapi-serializer
 ----
 
 You should be ready to continue with this tutorial.
 
 == Serialize user
 
-FastJSON API uses *serializers*. Serializers represent Ruby classes that will be responsible to converting a model into an https://ruby-doc.org/core-2.6.3/Hash.html[`Hash`] or a JSON.
+JSON:API Serializer uses *serializers*. Serializers represent Ruby classes that will be responsible to converting a model into an https://ruby-doc.org/core-2.6.3/Hash.html[`Hash`] or a JSON.
 
 So we need to add a `user_serializer.rb` file. We can do it manually but the gem provides a command-line interface to do it:
 
@@ -87,7 +87,7 @@ This has created a file called `user_serializer.rb` under the `app/serializers` 
 .app/serializers/user_serializer.rb
 ----
 class UserSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
   attributes :email
 end
 ----
@@ -111,12 +111,12 @@ There you go. As you can see this is easy. Now we can use our new _serializer_ i
 class Api::V1::UsersController < ApplicationController
   # ...
   def show
-    render json: UserSerializer.new(@user).serializable_hash
+    render json: UserSerializer.new(@user).serializable_hash.to_json
   end
 
   def update
     if @user.update(user_params)
-      render json: UserSerializer.new(@user).serializable_hash
+      render json: UserSerializer.new(@user).serializable_hash.to_json
     else
       # ...
     end
@@ -125,7 +125,7 @@ class Api::V1::UsersController < ApplicationController
   def create
     # ...
     if @user.save
-      render json: UserSerializer.new(@user).serializable_hash, status: :created
+      render json: UserSerializer.new(@user).serializable_hash.to_json, status: :created
     else
       # ...
     end
@@ -194,7 +194,7 @@ Now let's add attributes to serialize the product:
 .app/serializers/product_serializer.rb
 ----
 class ProductSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
   attributes :title, :price, :published
 end
 ----
@@ -208,17 +208,17 @@ class Api::V1::ProductsController < ApplicationController
   # ...
   def index
     @products = Product.all
-    render json: ProductSerializer.new(@products).serializable_hash
+    render json: ProductSerializer.new(@products).serializable_hash.to_json
   end
 
   def show
-    render json: ProductSerializer.new(@product).serializable_hash
+    render json: ProductSerializer.new(@product).serializable_hash.to_json
   end
 
   def create
     product = current_user.products.build(product_params)
     if product.save
-      render json: ProductSerializer.new(product).serializable_hash, status: :created
+      render json: ProductSerializer.new(product).serializable_hash.to_json, status: :created
     else
       # ...
     end
@@ -226,7 +226,7 @@ class Api::V1::ProductsController < ApplicationController
 
   def update
     if @product.update(product_params)
-      render json: ProductSerializer.new(@product).serializable_hash
+      render json: ProductSerializer.new(@product).serializable_hash.to_json
     else
       # ...
     end
@@ -493,7 +493,7 @@ To pass this test we will start by including the relationship in the _serializer
 .app/serializers/product_serializer.rb
 ----
 class ProductSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
   attributes :title, :price, :published
   belongs_to :user
 end
@@ -533,7 +533,7 @@ class Api::V1::ProductsController < ApplicationController
   # ...
   def show
     options = { include: [:user] }
-    render json: ProductSerializer.new(@product, options).serializable_hash
+    render json: ProductSerializer.new(@product, options).serializable_hash.to_json
   end
   # ...
 end
@@ -607,7 +607,7 @@ _serializer_:
 .app/serializers/user_serializer.rb
 ----
 class UserSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
   attributes :email
   has_many :products
 end
@@ -622,7 +622,7 @@ class Api::V1::UsersController < ApplicationController
   # ...
   def show
     options = { include: [:products] }
-    render json: UserSerializer.new(@user, options).serializable_hash
+    render json: UserSerializer.new(@user, options).serializable_hash.to_json
   end
   # ...
 end
@@ -948,7 +948,7 @@ class Api::V1::ProductsController < ApplicationController
   # ...
   def index
     @products = Product.search(params)
-    render json: ProductSerializer.new(@products).serializable_hash
+    render json: ProductSerializer.new(@products).serializable_hash.to_json
   end
   # ...
 end
@@ -980,4 +980,4 @@ $ git merge chapter06
 
 == Conclusion
 
-Until now it was easy thanks to the gem https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi]. In the coming chapters, we will start building the `Order` model that will involve users in the products.
+Until now it was easy thanks to the gem https://github.com/jsonapi-serializer/jsonapi-serializer[jsonapi-serializer]. In the coming chapters, we will start building the `Order` model that will involve users in the products.

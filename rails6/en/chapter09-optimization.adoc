@@ -62,7 +62,7 @@ class Api::V1::ProductsController < ApplicationController
                        .per(params[:per_page])
                        .search(params)
 
-    render json: ProductSerializer.new(@products).serializable_hash
+    render json: ProductSerializer.new(@products).serializable_hash.to_json
   end
   # ...
 end
@@ -163,7 +163,7 @@ class Api::V1::ProductsController < ApplicationController
       }
     }
 
-    render json: ProductSerializer.new(@products, options).serializable_hash
+    render json: ProductSerializer.new(@products, options).serializable_hash.to_json
   end
 end
 ----
@@ -249,7 +249,7 @@ class Api::V1::OrdersController < ApplicationController
       }
     }
 
-    render json: OrderSerializer.new(@orders, options).serializable_hash
+    render json: OrderSerializer.new(@orders, options).serializable_hash.to_json
   end
   # ...
 end
@@ -383,7 +383,7 @@ class Api::V1::OrdersController < ApplicationController
 
     options = get_links_serializer_options('api_v1_orders_path', @orders)
 
-    render json: OrderSerializer.new(@orders, options).serializable_hash
+    render json: OrderSerializer.new(@orders, options).serializable_hash.to_json
   end
   # ...
 end
@@ -403,7 +403,7 @@ class Api::V1::ProductsController < ApplicationController
 
     options = get_links_serializer_options('api_v1_products_path', @products)
 
-    render json: ProductSerializer.new(@products, options).serializable_hash
+    render json: ProductSerializer.new(@products, options).serializable_hash.to_json
   end
   # ...
 end
@@ -427,7 +427,7 @@ $ git commit -am "Factorize pagination"
 
 == API Caching
 
-There is currently an implementation to do caching with the gem `fast_jsonapi` which is really easy to handle. Although in older versions of the gem, this implementation can change, it does the job.
+There is currently an implementation to do caching with the gem `jsonapi-serializer` which is really easy to handle. Although in older versions of the gem, this implementation can change, it does the job.
 
 If we request the product list, we will notice that the response time takes about 174 milliseconds using cURL:
 
@@ -446,7 +446,7 @@ By adding only one line to the `ProductSerializer` class, we will see a signific
 ----
 class OrderSerializer
   # ...
-  cache_options enabled: true, cache_length: 12.hours
+  cache_options store: Rails.cache, namespace: 'jsonapi-serializer', expires_in: 1.hour
 end
 ----
 
@@ -455,7 +455,7 @@ end
 ----
 class ProductSerializer
   # ...
-  cache_options enabled: true, cache_length: 12.hours
+  cache_options store: Rails.cache, namespace: 'jsonapi-serializer', expires_in: 1.hour
 end
 ----
 
@@ -464,7 +464,7 @@ end
 ----
 class UserSerializer
   # ...
-  cache_options enabled: true, cache_length: 12.hours
+  cache_options store: Rails.cache, namespace: 'jsonapi-serializer', expires_in: 1.hour
 end
 ----
 
@@ -538,7 +538,7 @@ class Api::V1::ProductsController < ApplicationController
     options = get_links_serializer_options('api_v1_products_path', @products)
     options[:include] = [:user]
 
-    render json: ProductSerializer.new(@products, options).serializable_hash
+    render json: ProductSerializer.new(@products, options).serializable_hash.to_json
   end
   # ...
 end
@@ -642,7 +642,7 @@ class Api::V1::ProductsController < ApplicationController
     options = get_links_serializer_options('api_v1_products_path', @products)
     options[:include] = [:user]
 
-    render json: ProductSerializer.new(@products, options).serializable_hash
+    render json: ProductSerializer.new(@products, options).serializable_hash.to_json
   end
   # ...
 end
