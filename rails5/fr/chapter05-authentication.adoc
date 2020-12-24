@@ -1,4 +1,4 @@
-[#chapter05-athentification]
+[#chapter05-authentication]
 = Authentification des utilisateurs
 
 Cela fait longtemps que vous avez commencé. J’espère que vous appréciez ce voyage autant que moi. Au chapitre 4, nous avons factorisé notre suite de tests et, comme nous n’avons pas ajouté beaucoup de code, cela n’a pas pris trop de temps. Si vous avez sauté ce chapitre, je vous recommande de le lire, car nous allons utiliser certaines méthodes dans les chapitres à venir.

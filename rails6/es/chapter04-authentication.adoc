@@ -1,4 +1,4 @@
-[#chapter05-athentification]
+[#chapter05-authentication]
 = Autenticando al usuario
 
 Ha sido un largo tiempo desde que iniciamos. Espero que te guste este viaje tanto como a mí.

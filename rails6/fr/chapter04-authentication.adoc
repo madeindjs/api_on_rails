@@ -1,4 +1,4 @@
-[#chapter04-athentification]
+[#chapter04-authentication]
 = Authentification des utilisateurs
 
 Cela fait longtemps que vous avez commencé. J’espère que vous appréciez ce voyage autant que moi.

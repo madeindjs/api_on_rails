@@ -32,7 +32,7 @@ include::chapter03-presenting-users.adoc[]
 
 <<<
 
-include::chapter04-athentification.adoc[]
+include::chapter04-authentication.adoc[]
 
 <<<
 
