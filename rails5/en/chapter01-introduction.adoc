@@ -1,20 +1,20 @@
 [#chapter01-introduction]
 = Introduction
 
-Welcome to https://github.com/madeindjs/api_on_rails[APIs on Rails] a tutorial on steroids on how to build your next API with Rails. The goal of this book is to provide an answer on how to develop a RESTful API following the best practices out there, along with my own experience. By the time you are done with _API’s on Rails_ you should be able to build your own `API` and integrate it with any clients such as a web browser or your next mobile app. The code generated is built on top of Rails 4 which is the current version, for more information about this check out http://rubyonrails.org/. The most up-to-date version of the _API’s on Rails_ can be found on https://github.com/madeindjs/api_on_rails[APIs on Rails]; don’t forget to update your offline version if that is the case.
+Welcome to https://github.com/madeindjs/api_on_rails[APIs on Rails] a tutorial on steroids on how to build your next API with Rails. The goal of this book is to provide an answer on how to develop a RESTful API following the best practices out there, along with my own experience. By the time you are done with _API's on Rails_ you should be able to build your own `API` and integrate it with any clients such as a web browser or your next mobile app. The code generated is built on top of Rails 4 which is the current version, for more information about this check out http://rubyonrails.org/. The most up-to-date version of the _API's on Rails_ can be found on https://github.com/madeindjs/api_on_rails[APIs on Rails]; don't forget to update your offline version if that is the case.
 
-The intention with this book it’s not only to teach you how to build an API with Rails. The purpose is also to teach you how to build scalable and maintainable API with Rails which means improve your current Rails knowledge. In this journey we are going to take, you will learn to:
+The intention with this book it's not only to teach you how to build an API with Rails. The purpose is also to teach you how to build scalable and maintainable API with Rails which means improve your current Rails knowledge. In this journey we are going to take, you will learn to:
 
 * Build JSON responses
 * Use Git for version controlling
 * Testing your endpoints
 * Optimize and cache the API
 
-I highly recommend you go step by step on this book, try not to skip chapters, as I mention tips and interesting facts for improving your skills on each on them. You can think yourself as the main character of a video game and with each chapter you’ll get a higher level.
+I highly recommend you go step by step on this book, try not to skip chapters, as I mention tips and interesting facts for improving your skills on each on them. You can think yourself as the main character of a video game and with each chapter you'll get a higher level.
 
-In this first chapter I will walk you through on how to setup your environment in case you don’t have it already. We’ll then create the application called `market_place_api`. I’ll emphasize all my effort into teaching you all the best practices I’ve learned along the years, so this means right after initializing the project we will start tracking it with Git.
+In this first chapter I will walk you through on how to setup your environment in case you don't have it already. We'll then create the application called `market_place_api`. I'll emphasize all my effort into teaching you all the best practices I've learned along the years, so this means right after initializing the project we will start tracking it with Git.
 
-In the next chapters we will be building the application to demonstrate a simple workflow I use on my daily basis. We’ll develop the whole application using *test driven development* (TDD), getting started by explaining why you want to build an API’s for your next project and deciding whether to use JSON or XML as the response format. We’ll get our hands dirty then and complete the foundation for the application by building all the necessary endpoints, securing the API access and handling authentication through headers exchange. Finally on the last chapter we’ll add some optimization techniques for improving the server responses.
+In the next chapters we will be building the application to demonstrate a simple workflow I use on my daily basis. We'll develop the whole application using *test driven development* (TDD), getting started by explaining why you want to build an API's for your next project and deciding whether to use JSON or XML as the response format. We'll get our hands dirty then and complete the foundation for the application by building all the necessary endpoints, securing the API access and handling authentication through headers exchange. Finally on the last chapter we'll add some optimization techniques for improving the server responses.
 
 The final application will scratch the surface of being a market place where users will be able to place orders, upload products and more. There are plenty of options out there to set up an online store, such as http://shopify.com[Shopify], http://spreecommerce.com/[Spree] or http://magento.com[Magento].
 
@@ -26,9 +26,9 @@ By the end or during the process (it really depends on your expertise), you will
 
 == Conventions on this book
 
-The conventions on this book are based on the ones from http://www.railstutorial.org/book/beginning#sec-conventions[Ruby on Rails Tutorial]. In this section I’ll mention some that may not be so clear.
+The conventions on this book are based on the ones from http://www.railstutorial.org/book/beginning#sec-conventions[Ruby on Rails Tutorial]. In this section I'll mention some that may not be so clear.
 
-I’ll be using many examples using command-line commands. I won’t deal with windows `cmd` (sorry guys), so I’ll based all the examples using Unix-style command line prompt, as follows:
+I'll be using many examples using command-line commands. I won't deal with windows `cmd` (sorry guys), so I'll based all the examples using Unix-style command line prompt, as follows:
 
 [source,bash]
 ----
@@ -36,13 +36,13 @@ $ echo "A command-line command"
 A command-line command
 ----
 
-I’ll be using some guidelines related to the language, what I mean by this is:
+I'll be using some guidelines related to the language, what I mean by this is:
 
 * *Avoid* means you are not supposed to do it
-* *Prefer* indicates that from the 2 options, the first it’s a better fit
+* *Prefer* indicates that from the 2 options, the first it's a better fit
 * *Use* means you are good to use the resource
 
-If for any reason you encounter some errors when running a command, rather than trying to explain every possible outcome, I’ll will recommend you to `google it', which I don’t consider a bad practice or whatsoever. But if you feel like want to grab a beer or have troubles with the tutorial you can always mailto:contact@rousseau-alexandre.fr[email me].
+If for any reason you encounter some errors when running a command, rather than trying to explain every possible outcome, I'll will recommend you to `google it', which I don't consider a bad practice or whatsoever. But if you feel like want to grab a beer or have troubles with the tutorial you can always mailto:contact@rousseau-alexandre.fr[email me].
 
 == Development environments
 
@@ -50,10 +50,10 @@ One of the most painful parts for almost every developer is setting everything u
 
 === Text editors and Terminal
 
-There are many cases in which development environments may differ from computer to computer. That is not the case with text editors or IDE’s. I think for Rails development an IDE is way to much, but some other might find that the best way to go, so if that it’s your case I recommend you go with http://www.aptana.com/products/radrails[RadRails] or http://www.jetbrains.com/ruby/index.html[RubyMine], both are well supported and comes with many integrations out of the box.
+There are many cases in which development environments may differ from computer to computer. That is not the case with text editors or IDE's. I think for Rails development an IDE is way to much, but some other might find that the best way to go, so if that it's your case I recommend you go with http://www.aptana.com/products/radrails[RadRails] or http://www.jetbrains.com/ruby/index.html[RubyMine], both are well supported and comes with many integrations out of the box.
 
-* *Text editor*: I personally use http://www.vim.org/[vim] as my default editor with https://github.com/carlhuda/janus[janus] which will add and handle many of the plugins you are probably going to use. In case you are not a _vim_ fan like me, there are a lot of other solutions such as http://www.sublimetext.com/[Sublime Text] which is a cross-platform easy to learn and customize (this is probably your best option), it is highly inspired by http://macromates.com/[TextMate] (only available for Mac OS). A third option is to use a more recent text editor from the guys at http://gitub.com[GitHub] called https://atom.io/[Atom], it’s a promising text editor made with JavaScript, it is easy to extend and customize to meet your needs, give it a try. Any of the editors I present will do the job, so I’ll let you decide which one fits your eye.
-* *Terminal*: If you decided to go with http://icalialabs.github.io/kaishi/[kaishi] for setting the environment you will notice that it sets the default shell to `zsh`, which I highly recommend. For the terminal, I’m not a fan of the _Terminal_ app that comes out of the box if you are on Mac OS, so check out http://www.iterm2.com/#/section/home[iTerm2], which is a terminal replacement for Mac OS. If you are on Linux you probable have a nice terminal already, but the default should work just fine.
+* *Text editor*: I personally use http://www.vim.org/[vim] as my default editor with https://github.com/carlhuda/janus[janus] which will add and handle many of the plugins you are probably going to use. In case you are not a _vim_ fan like me, there are a lot of other solutions such as http://www.sublimetext.com/[Sublime Text] which is a cross-platform easy to learn and customize (this is probably your best option), it is highly inspired by http://macromates.com/[TextMate] (only available for Mac OS). A third option is to use a more recent text editor from the guys at http://gitub.com[GitHub] called https://atom.io/[Atom], it's a promising text editor made with JavaScript, it is easy to extend and customize to meet your needs, give it a try. Any of the editors I present will do the job, so I'll let you decide which one fits your eye.
+* *Terminal*: If you decided to go with http://icalialabs.github.io/kaishi/[kaishi] for setting the environment you will notice that it sets the default shell to `zsh`, which I highly recommend. For the terminal, I'm not a fan of the _Terminal_ app that comes out of the box if you are on Mac OS, so check out http://www.iterm2.com/#/section/home[iTerm2], which is a terminal replacement for Mac OS. If you are on Linux you probable have a nice terminal already, but the default should work just fine.
 
 === Browsers
 
@@ -61,7 +61,7 @@ When it comes to browsers I would say http://www.mozilla.org/en-US/firefox/new/[
 
 === Package manager
 
-* *Mac OS*: There are many options to manage how you install packages on your Mac, such as https://www.macports.org/[Mac Ports] or http://brew.sh/[Homebrew], both are good options but I would choose the last one, I’ve encountered less troubles when installing software and managing it. To install `brew` just run the command below:
+* *Mac OS*: There are many options to manage how you install packages on your Mac, such as https://www.macports.org/[Mac Ports] or http://brew.sh/[Homebrew], both are good options but I would choose the last one, I've encountered less troubles when installing software and managing it. To install `brew` just run the command below:
 
 [source,bash]
 ----
@@ -141,7 +141,7 @@ $ rails -v 5.2
 
 ==== Database
 
-I highly recommend you install http://www.postgresql.org/[Postgresql] to manage your databases, but for simplicity we’ll be using http://www.sqlite.org/[SQlite]. If you are using Mac OS you should be ready to go, in case you are on Linux, don’t worry we have you covered:
+I highly recommend you install http://www.postgresql.org/[Postgresql] to manage your databases, but for simplicity we'll be using http://www.sqlite.org/[SQlite]. If you are using Mac OS you should be ready to go, in case you are on Linux, don't worry we have you covered:
 
 [source,bash]
 ----
@@ -159,7 +159,7 @@ $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 
 Initializing a Rails application must be pretty straightforward for you, if that is not the case, here is a super quick tutorial.
 
-Be aware that we’ll be using http://rspec.info/[Rspec] as the testing suite. So we will use the `--skip-test` option. Also we will use `--api` option.
+Be aware that we'll be using http://rspec.info/[Rspec] as the testing suite. So we will use the `--skip-test` option. Also we will use `--api` option.
 
 NOTE: This option came with Rails 5 and it allow to limit gems and Middleware. It will also avoid to generate HTML views when using Rails generators.
 
@@ -172,7 +172,7 @@ $ cd ~/workspace
 $ rails new market_place_api --skip-test --api
 ----
 
-As you may guess, the commands above will generate the bare bones of your Rails application. The next step is to add some `gems` we’ll be using to build the api.
+As you may guess, the commands above will generate the bare bones of your Rails application. The next step is to add some `gems` we'll be using to build the api.
 
 === Installing Pow or Prax
 
@@ -184,7 +184,7 @@ and the answer is simple, we will be working with http://en.wikipedia.org/wiki/S
 
 ==== Installing Pow
 
-NOTE: Pow only works on Mac OS, but don’t worry there is an alternative which mimics the functionality on Linux.
+NOTE: Pow only works on Mac OS, but don't worry there is an alternative which mimics the functionality on Linux.
 
 To install it just type in:
 
@@ -193,7 +193,7 @@ To install it just type in:
 $ curl get.pow.cx | sh
 ----
 
-And that’s it you are all set. You just have to symlink the application in order to set up the Rack app. First you go the `~/.pow` directory:
+And that's it you are all set. You just have to symlink the application in order to set up the Rack app. First you go the `~/.pow` directory:
 
 [source,bash]
 ----
@@ -301,7 +301,7 @@ After the command finish its execution, it is time to start tracking the project
 
 == Versioning
 
-Remember that Git helps you track and maintain history of your code. Keep in mind source code of the application is published on GitHub. You can follow the repository at https://github.com/madeindjs/api_on_rails[GitHub]. I’ll assume you have Git already configured and ready to use to start tracking the project. If that is not your case, follow these first-time setup steps:
+Remember that Git helps you track and maintain history of your code. Keep in mind source code of the application is published on GitHub. You can follow the repository at https://github.com/madeindjs/api_on_rails[GitHub]. I'll assume you have Git already configured and ready to use to start tracking the project. If that is not your case, follow these first-time setup steps:
 
 [source,bash]
 ----
@@ -320,7 +320,7 @@ $ git init
 Initialized empty Git repository in ~/workspace/market_place_api/.git/
 ----
 
-The next step is to ignore some files that we don’t want to track, so your `.gitignore` file should look like the one shown below:
+The next step is to ignore some files that we don't want to track, so your `.gitignore` file should look like the one shown below:
 
 ..gitignore
 ----
@@ -358,9 +358,9 @@ $ git add .
 $ git commit -m "Initial commit"
 ----
 
-TIP: I have encounter that committing with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand(or at least for me). I’ll follow this practice until the end of the tutorial.
+TIP: I have encounter that committing with a message starting with a present tense verb, describes what the commit does and not what it did, this way when you are exploring the history of the project it is more natural to read and understand(or at least for me). I'll follow this practice until the end of the tutorial.
 
-Lastly and as an optional step we setup the GitHub (I’m not going through that in here) project and push our code to the remote server: We first add the remote:
+Lastly and as an optional step we setup the GitHub (I'm not going through that in here) project and push our code to the remote server: We first add the remote:
 
 [source,bash]
 ----
@@ -374,8 +374,8 @@ Then:
 $ git push -u origin master
 ----
 
-As we move forward with the tutorial, I’ll be using the practices I follow on my daily basis, this includes working with `branches`, `rebasing`, `squash` and some more. For now you don’t have to worry if some of these don’t sound familiar to you, I walk you through them in time.
+As we move forward with the tutorial, I'll be using the practices I follow on my daily basis, this includes working with `branches`, `rebasing`, `squash` and some more. For now you don't have to worry if some of these don't sound familiar to you, I walk you through them in time.
 
 == Conclusion
 
-It’s been a long way through this chapter, if you reach here let me congratulate you and be sure that from this point things will get better. So let’s get our hands dirty and start typing some code!
+It's been a long way through this chapter, if you reach here let me congratulate you and be sure that from this point things will get better. So let's get our hands dirty and start typing some code!

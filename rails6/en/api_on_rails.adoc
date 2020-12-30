@@ -1,6 +1,6 @@
 = API on Rails 6
 Alexandre Rousseau <contact@rousseau-alexandre.fr>
-v6.9, 2020-09-01
+v6.9, 2020-12-20
 :doctype: book
 :toc:
 :imagesdir: img
@@ -14,7 +14,7 @@ v6.9, 2020-09-01
 :author: Alexandre Rousseau
 :description: Learn best practice to build an API using Ruby on Rails 6
 :front-cover-image: image:cover.svg[]
-:revdate: 2020-09-01
+:revdate: 2020-12-20
 
 include::chapter00-before.adoc[]
 

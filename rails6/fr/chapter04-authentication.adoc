@@ -1,20 +1,20 @@
 [#chapter04-athentification]
 = Authentification des utilisateurs
 
-Cela fait longtemps que vous avez commencé. J’espère que vous appréciez ce voyage autant que moi.
+Cela fait longtemps que vous avez commencé. J'espère que vous appréciez ce voyage autant que moi.
 
-Dans le chapitre précédent nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n’avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c’est une introduction aux réponses JSON.
+Dans le chapitre précédent nous avons mis en place des entrée de ressources utilisateur. Si vous avez sauté ce chapitre ou si vous n'avez pas tout compris, je vous recommande vivement de le regarder. Il couvre les premières bases des tests et c'est une introduction aux réponses JSON.
 
-Vous pouvez cloner le projet jusqu’ici:
+Vous pouvez cloner le projet jusqu'ici:
 
 [source,bash]
 ----
 $ git checkout tags/checkpoint_chapter04
 ----
 
-Dans ce chapitre, les choses vont devenir plus intéressantes. Nous allons mettre en place notre mécanisme d’authentification. À mon avis, ce sera l’un des chapitres les plus intéressants car nous allons introduire beaucoup de nouveaux concepts. A la fin, vous aurez un système d’authentification simple mais puissante. Ne paniquez pas, nous y arriverons.
+Dans ce chapitre, les choses vont devenir plus intéressantes. Nous allons mettre en place notre mécanisme d'authentification. À mon avis, ce sera l'un des chapitres les plus intéressants car nous allons introduire beaucoup de nouveaux concepts. A la fin, vous aurez un système d'authentification simple mais puissante. Ne paniquez pas, nous y arriverons.
 
-Commençons par le commencement. Comme d’habitude lorsque nous démarrons un nouveau chapitre, nous allons créer une nouvelle branche:
+Commençons par le commencement. Comme d'habitude lorsque nous démarrons un nouveau chapitre, nous allons créer une nouvelle branche:
 
 [source,bash]
 ----
@@ -23,15 +23,15 @@ $ git checkout -b chapter04
 
 == Session sans état
 
-Avant d’aller plus loin, quelque chose doit être clair: *une API ne gère pas les sessions*. Cela peut paraître un peu fou si vous n’avez pas d’expérience dans la création de ce genre d’applications. Une API doit être sans état. Ce qui signifie, par définition, qu’une API qui fournit une réponse après votre demande ne nécessite aucune autre attention. Cela a pour conséquence qu’aucun état antérieur ou futur n’est nécessaire pour que le système fonctionne.
+Avant d'aller plus loin, quelque chose doit être clair: *une API ne gère pas les sessions*. Cela peut paraître un peu fou si vous n'avez pas d'expérience dans la création de ce genre d'applications. Une API doit être sans état. Ce qui signifie, par définition, qu'une API qui fournit une réponse après votre demande ne nécessite aucune autre attention. Cela a pour conséquence qu'aucun état antérieur ou futur n'est nécessaire pour que le système fonctionne.
 
-Le processus d’authentification de l’utilisateur via une API est très simple:
+Le processus d'authentification de l'utilisateur via une API est très simple:
 
-. Le client *demande* une ressource de sessions avec les informations d’identification correspondantes (généralement un e-mail et un mot de passe).
-. Le serveur *renvoie* la ressource utilisateur avec son jeton d’authentification correspondant.
-. Pour chaque page qui nécessite une authentification, le client doit envoyer ce jeton d’authentification.
+. Le client *demande* une ressource de sessions avec les informations d'identification correspondantes (généralement un e-mail et un mot de passe).
+. Le serveur *renvoie* la ressource utilisateur avec son jeton d'authentification correspondant.
+. Pour chaque page qui nécessite une authentification, le client doit envoyer ce jeton d'authentification.
 
-Dans cette section et la suivante, nous nous concentrerons sur la construction d’un contrôleur de sessions avec ses actions correspondantes. Nous compléterons ensuite le flux de demandes en ajoutant l’accès d’autorisation nécessaire.
+Dans cette section et la suivante, nous nous concentrerons sur la construction d'un contrôleur de sessions avec ses actions correspondantes. Nous compléterons ensuite le flux de demandes en ajoutant l'accès d'autorisation nécessaire.
 
 
 === Présentation de JSON Web Token
@@ -43,7 +43,7 @@ Lorsqu'on parle de jeton d'authentification, un standard existe: le JSON Web Tok
 Globalement, un jeton JWT est composé de trois parties:
 
 - un *en-tête* structuré en JSON qui contiendra par exemple la date de validité du jeton.
-- un _payload_ structuré en JSON qui peut contenir *n'importe quelle donnée*. Dans notre cas, il contiendra l’identifiant de l'utilisateur "connecté".
+- un _payload_ structuré en JSON qui peut contenir *n'importe quelle donnée*. Dans notre cas, il contiendra l'identifiant de l'utilisateur "connecté".
 - une *signature* qui nous permettra de vérifier que le jeton a bien été chiffré par notre application et donc qu'il est valide.
 
 Ces trois parties sont chacune encodées en base64 puis concaténées en utilisant des points (`.`). Ce qui nous donne quelque chose comme ça:
@@ -71,7 +71,7 @@ NOTE: Pour plus d'information à propos des jetons JWT je vous invite à consult
 
 Cela possède beaucoup d'avantages comme par exemple le fait d'envoyer des informations au consommateur de l'API directement dans le token. On pourra par exemple choisir d'intégrer les informations de l'utilisateur dans le _payload_.
 
-=== Mise en place du jeton d’authentification
+=== Mise en place du jeton d'authentification
 
 La norme JWT possède beaucoup d'implémentation dans des langages et des librairies diverses. Bien entendu, il existe une gemme Ruby à ce sujet: https://github.com/jwt/ruby-jwt[ruby-jwt].
 
@@ -150,7 +150,7 @@ $ git add . && git commit -m "Setup JWT gem"
 
 === Le contrôleur de jeton
 
-Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui va générer ce jeton. Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l’action `create`.
+Nous avons donc mis en place le système de génération d'un jeton JWT. Il est maintenant temps de créer une route qui va générer ce jeton. Les actions que nous allons implémenter seront gérées en tant que services _RESTful_: la connexion sera gérée par une demande POST à l'action `create`.
 
 Pour débuter, nous allons commencer par créer le contrôleur du jeton d'authentification et la méthode `create` dans le _namespace_ `/api/v1`. Avec Rails, une commande suffit:
 
@@ -293,15 +293,15 @@ $ git add . && git commit -m "Setup tokens controller"
 
 == Utilisateur connecté
 
-Nous avons donc mis en place la logique suivante: l’API retourne un jeton d’authentification si les paramètres passés d'authentification sont corrects.
+Nous avons donc mis en place la logique suivante: l'API retourne un jeton d'authentification si les paramètres passés d'authentification sont corrects.
 
-Nous allons maintenant implémenter la logique suivante: A chaque fois que ce client demandera une page protégée, nous devrons retrouver l’utilisateur à partir de ce jeton d’authentification que l’utilisateur aura passé dans l’en-tête HTTP.
+Nous allons maintenant implémenter la logique suivante: A chaque fois que ce client demandera une page protégée, nous devrons retrouver l'utilisateur à partir de ce jeton d'authentification que l'utilisateur aura passé dans l'en-tête HTTP.
 
-Dans notre cas, nous utiliserons l’en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je trouve que c’est la meilleure manière parce que cela donne un contexte à la requête sans polluer l’URL avec des paramètres supplémentaires.
+Dans notre cas, nous utiliserons l'en-tête HTTP `Authorization` qui est souvent utilisé pour ça. Personnellement, je trouve que c'est la meilleure manière parce que cela donne un contexte à la requête sans polluer l'URL avec des paramètres supplémentaires.
 
-Nous allons donc créer une méthode `current_user` pour répondre à nos besoins. C’est-à-dire retrouver l’utilisateur grâce à son jeton d’authentification qui est envoyé sur chaque requête.
+Nous allons donc créer une méthode `current_user` pour répondre à nos besoins. C'est-à-dire retrouver l'utilisateur grâce à son jeton d'authentification qui est envoyé sur chaque requête.
 
-Quand il s’agit de l’authentification, j’aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d’inclure le fichier dans le `ApplicationController`. De cette façon, il est très facile à tester de manière isolée. Créons-donc le fichier dans le répertoire `controllers/concerns` avec une méthode `current_user` que nous implémenterons juste après:
+Quand il s'agit de l'authentification, j'aime ajouter toutes les méthodes associées dans un fichier séparé. Il suffit ensuite d'inclure le fichier dans le `ApplicationController`. De cette façon, il est très facile à tester de manière isolée. Créons-donc le fichier dans le répertoire `controllers/concerns` avec une méthode `current_user` que nous implémenterons juste après:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -314,7 +314,7 @@ end
 ----
 
 
-Ensuite, créons un répertoire `concerns` sous `tests/controllers/` et un fichier `authenticable_test.rb` pour nos tests d’authentification:
+Ensuite, créons un répertoire `concerns` sous `tests/controllers/` et un fichier `authenticable_test.rb` pour nos tests d'authentification:
 
 [source,bash]
 ----
@@ -322,7 +322,7 @@ $ mkdir test/controllers/concerns
 $ touch test/controllers/concerns/authenticable_test.rb
 ----
 
-Comme d’habitude, nous commençons par écrire nos tests. Dans ce cas, notre méthode `current_user` va chercher un utilisateur par le jeton d’authentification dans l’en-tête HTTP `Authorization`. Le test est assez basique:
+Comme d'habitude, nous commençons par écrire nos tests. Dans ce cas, notre méthode `current_user` va chercher un utilisateur par le jeton d'authentification dans l'en-tête HTTP `Authorization`. Le test est assez basique:
 
 [source,ruby]
 .test/controllers/concerns/authenticable_test.rb
@@ -395,7 +395,7 @@ end
 ----
 
 
-Nos tests doivent échouer. Implémentons donc le code pour qu’ils passent:
+Nos tests doivent échouer. Implémentons donc le code pour qu'ils passent:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -414,7 +414,7 @@ module Authenticable
 end
 ----
 
-Et voilà! Nous récupérons le jeton dans l'en-tête `Authorization` et nous cherchons l’utilisateur correspondant. Rien de bien sorcier.
+Et voilà! Nous récupérons le jeton dans l'en-tête `Authorization` et nous cherchons l'utilisateur correspondant. Rien de bien sorcier.
 
 Maintenant nos test doivent passer:
 
@@ -425,7 +425,7 @@ $ rake test
 13 runs, 19 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Nous n’avons plus qu’à inclure le module `Authenticable` dans la classe `ApplicationController`:
+Nous n'avons plus qu'à inclure le module `Authenticable` dans la classe `ApplicationController`:
 
 [source,ruby]
 .app/controllers/application_controller.rb
@@ -445,13 +445,13 @@ $ git add . && git commit -m "Adds authenticable module for managing authenticat
 
 == Authentification avec le jeton
 
-L’autorisation joue un rôle important dans la construction des applications car, contrairement à l’authentification qui permet d’identifier l’utilisateur, l’autorisation nous aide à définir ce qu’il a le droit de faire.
+L'autorisation joue un rôle important dans la construction des applications car, contrairement à l'authentification qui permet d'identifier l'utilisateur, l'autorisation nous aide à définir ce qu'il a le droit de faire.
 
-Nous avons une route pour mettre à jour l’utilisateur mais il y a un problème: n’importe qui peut mettre à jour n’importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l’utilisateur soit connecté afin d’empêcher tout accès non autorisé.
+Nous avons une route pour mettre à jour l'utilisateur mais il y a un problème: n'importe qui peut mettre à jour n'importe quel utilisateur. Dans cette section, nous allons mettre en œuvre une méthode qui exigera que l'utilisateur soit connecté afin d'empêcher tout accès non autorisé.
 
 === Autoriser les actions
 
-Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l’accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l’action `update` et `destroy` afin de s’assurer que l’utilisateur qui est connecté ne sera capable de mettre à jour que ses données et qu’il ne pourra supprimer que (et uniquement) son compte.
+Il est maintenant temps de mettre à jour notre fichier `users_controller.rb` pour refuser l'accès à certaines actions. Nous allons aussi implémenter la méthode `current_user` sur l'action `update` et `destroy` afin de s'assurer que l'utilisateur qui est connecté ne sera capable de mettre à jour que ses données et qu'il ne pourra supprimer que (et uniquement) son compte.
 
 Nous allons donc découper notre test _should update user_ et _should destroy user_ en deux tests
 
@@ -523,7 +523,7 @@ Expected: 0
   Actual: 1
 ----
 
-La solution est assez simple. Nous allons ajouter un `before_action` qui appellera la méthode `check_owner` pour les actions `update` et `destroy`. Ainsi nous vérifierons que l’utilisateur correspondant au jeton JWT est le même que l'utilisateur qui doit être mis à jour.
+La solution est assez simple. Nous allons ajouter un `before_action` qui appellera la méthode `check_owner` pour les actions `update` et `destroy`. Ainsi nous vérifierons que l'utilisateur correspondant au jeton JWT est le même que l'utilisateur qui doit être mis à jour.
 
 Voici l'implémentation:
 
@@ -560,6 +560,6 @@ $ git merge chapter04
 
 == Conclusion
 
-Vous l’avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c’est un grand pas en avant sur la mise en place d’un mécanisme solide pour gérer l’authentification utilisateur et nous commençons même à gratter la surface pour de simples règles d’autorisation.
+Vous l'avez fait! Vous êtes à mi-chemin! Ce chapitre a été long et difficile, mais c'est un grand pas en avant sur la mise en place d'un mécanisme solide pour gérer l'authentification utilisateur et nous commençons même à gratter la surface pour de simples règles d'autorisation.
 
-Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l’utilisateur avec https://github.com/Netflix/fast_jsonapi[`fast_jsonapi`] et l’ajout d’un modèle de produit en donnant à l’utilisateur la possibilité de créer un produit et le publier pour la vente.
+Dans le prochain chapitre, nous nous concentrerons sur la personnalisation de la sortie JSON pour l'utilisateur avec https://github.com/Netflix/fast_jsonapi[`fast_jsonapi`] et l'ajout d'un modèle de produit en donnant à l'utilisateur la possibilité de créer un produit et le publier pour la vente.

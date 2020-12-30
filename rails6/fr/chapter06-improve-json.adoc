@@ -1,9 +1,9 @@
 [#chapter06-improve-json]
 = Modélisation du JSON
 
-Dans le chapitre précédent, nous avons ajouté les produits à l’application et construit toutes les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
+Dans le chapitre précédent, nous avons ajouté les produits à l'application et construit toutes les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
 
-Maintenant, vous devriez être satisfaits de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n’est pas parfaite. La sortie JSON ressemble à celle-ci:
+Maintenant, vous devriez être satisfaits de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n'est pas parfaite. La sortie JSON ressemble à celle-ci:
 
 [source,json]
 ----
@@ -27,7 +27,7 @@ Or nous voulons une sortie qui ne contienne pas les champs `user_id`, `created_a
 De plus, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions que vous allez découvrir dans ce chapitre.
 
 
-Vous pouvez clôner le projet jusqu’à ce point avec:
+Vous pouvez clôner le projet jusqu'à ce point avec:
 
 [source,bash]
 ----
@@ -55,9 +55,9 @@ Ainsi, notre document *doit* contenir ces clefs:
 
 Le contenu de la clé `data` est lui aussi assez strict:
 
-* il doit posséder une clé `type`qui décrit le type du modèle JSON (si c’est un article, un utilisateur, etc..)
-* les propriétés de l’objet doivent être placées dans une clé `attributes` et les _undescore_ (`_`) sont remplacés par des tirets (`-`)
-* les liaisons de l’objets doivent être placées dans une clé `relationships`
+* il doit posséder une clé `type`qui décrit le type du modèle JSON (si c'est un article, un utilisateur, etc..)
+* les propriétés de l'objet doivent être placées dans une clé `attributes` et les _undescore_ (`_`) sont remplacés par des tirets (`-`)
+* les liaisons de l'objets doivent être placées dans une clé `relationships`
 
 Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi] de Netflix qui respecte toutes les normes https://jsonapi.org/[JSON:API].
 
@@ -70,11 +70,11 @@ $ bundle add fast_jsonapi
 
 Vous devriez être prêts à continuer avec ce tutoriel.
 
-== Sérialiser l’utilisateur
+== Sérialiser l'utilisateur
 
 FastJSON API utilise des *sérialiseurs*. Les sérialiseurs représentent des classes Ruby qui seront responsables de convertir un modèle en un `Hash` ou un JSON.
 
-Nous devons d’abord ajouter un fichier `user_serializer.rb`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
+Nous devons d'abord ajouter un fichier `user_serializer.rb`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
 [source,bash]
 ----
@@ -147,7 +147,7 @@ Expected: "one@one.org"
 ----
 
 
-Vous pouvez voir que pour une raison quelconque, la réponse n’est pas tout à fait ce que nous attendions. C’est parce que la gemme modifie la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit de mettre à jour notre test:
+Vous pouvez voir que pour une raison quelconque, la réponse n'est pas tout à fait ce que nous attendions. C'est parce que la gemme modifie la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit de mettre à jour notre test:
 
 [source,ruby]
 .test/controllers/api/v1/users_controller_test.rb
@@ -174,7 +174,7 @@ $ rake test
 ........................
 ----
 
-_Commitons_ ces changements et continuons d’avancer:
+_Commitons_ ces changements et continuons d'avancer:
 
 [source,bash]
 ----
@@ -184,7 +184,7 @@ $ git commit -am "Adds user serializer for customizing the json output"
 
 == Sérialiser les produits
 
-Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape est identique à celle pour l’utilisateur, nous avons besoin d’un sérialiseur de produit, alors faisons-le:
+Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape est identique à celle pour l'utilisateur, nous avons besoin d'un sérialiseur de produit, alors faisons-le:
 
 [source,bash]
 ----
@@ -192,7 +192,7 @@ $ rails generate serializer Product title price published
       create  app/serializers/product_serializer.rb
 ----
 
-Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l’avons fait avec l’utilisateur dans la section précédente:
+Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l'avons fait avec l'utilisateur dans la section précédente:
 
 [source,ruby]
 .app/serializers/product_serializer.rb
@@ -203,7 +203,7 @@ class ProductSerializer
 end
 ----
 
-Et voilà. Ce n’est pas plus compliqué que cela. Modifions un petit peu notre contrôleur.
+Et voilà. Ce n'est pas plus compliqué que cela. Modifions un petit peu notre contrôleur.
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -265,11 +265,11 @@ $ git commit -m "Adds product serializer for custom json output"
 
 === Sérialiser les associations
 
-Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c’est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne. Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre.
+Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c'est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne. Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre.
 
 Nous n'avons pas à nous soucier de ce problème dans notre cas, la norme JSON:API l'a fait pour nous!
 
-Pour résumer, nous avons une association de type `has_many` entre l’utilisateur et le modèle de produit.
+Pour résumer, nous avons une association de type `has_many` entre l'utilisateur et le modèle de produit.
 
 [source,ruby]
 .app/models/user.rb
@@ -289,19 +289,19 @@ class Product < ApplicationRecord
 end
 ----
 
-C’est une bonne idée d’intégrer les utilisateurs dans les sortie JSON des produits. Cela rendra la sortie plus lourde mais ça évitera au client de l'API d'éxecuter d'autres requêtes pour récupérer les informations des utilisateurs liées aux produits. Cette méthode peut vraiment vous éviter un énorme goulet d'étranglement.
+C'est une bonne idée d'intégrer les utilisateurs dans les sortie JSON des produits. Cela rendra la sortie plus lourde mais ça évitera au client de l'API d'éxecuter d'autres requêtes pour récupérer les informations des utilisateurs liées aux produits. Cette méthode peut vraiment vous éviter un énorme goulet d'étranglement.
 
 == Théorie de l'injection des relations
 
-Imaginez un scénario où vous allez chercher les produits dans l’API, mais dans ce cas, vous devez afficher une partie des informations de l’utilisateur.
+Imaginez un scénario où vous allez chercher les produits dans l'API, mais dans ce cas, vous devez afficher une partie des informations de l'utilisateur.
 
-Une solution possible serait d’ajouter l’attribut `user_id` au `product_serializer` pour que nous puissions récupérer l’utilisateur correspondant plus tard. Cela peut sembler être une bonne idée, mais si vous vous souciez de la performance, ou si les transactions de votre base de données ne sont pas assez rapides, vous devriez reconsidérer cette approche. Vous devez comprendre que pour chaque produit que vous récupérez, vous allez devoir récupérer son utilisateur correspondant.
+Une solution possible serait d'ajouter l'attribut `user_id` au `product_serializer` pour que nous puissions récupérer l'utilisateur correspondant plus tard. Cela peut sembler être une bonne idée, mais si vous vous souciez de la performance, ou si les transactions de votre base de données ne sont pas assez rapides, vous devriez reconsidérer cette approche. Vous devez comprendre que pour chaque produit que vous récupérez, vous allez devoir récupérer son utilisateur correspondant.
 
 Face à ce problème, il y a plusieurs alternatives possibles.
 
 === Intégrer dans un attribut meta
 
-Une bonne solution à mon avis est d’intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
+Une bonne solution à mon avis est d'intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
 
 
 [source,json]
@@ -314,11 +314,11 @@ Une bonne solution à mon avis est d’intégrer les identifiants des utilisateu
 }
 ----
 
-Cela peut nécessiter une configuration supplémentaire sur le terminal de l’utilisateur, afin que le client puisse récupérer ses utilisateurs à partir de ces `user_ids`.
+Cela peut nécessiter une configuration supplémentaire sur le terminal de l'utilisateur, afin que le client puisse récupérer ses utilisateurs à partir de ces `user_ids`.
 
 === Incorporer l'objet dans l'attribut
 
-Une autre solution, est d’incorporer l’objet `user` dans l’objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n’a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
+Une autre solution, est d'incorporer l'objet `user` dans l'objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n'a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
 
 [source,json]
 ----
@@ -459,7 +459,7 @@ Vous voyez la différence? Cette solution réduit drastiquement la taille du JSO
 
 == Application de l'injection des relations
 
-Nous allons donc incorporer l’objet utilisateur dans le produit. Commençons par ajouter quelques tests.
+Nous allons donc incorporer l'objet utilisateur dans le produit. Commençons par ajouter quelques tests.
 
 Nous allons simplement modifier le test `Products#show` afin de vérifier que nous récupérons:
 
@@ -486,7 +486,7 @@ end
 Nous vérifions maintenant trois choses sur le JSON qui est retourné:
 
 . il contient le titre du produit
-. il contient l’identifiant de l’utilisateur lié au produit
+. il contient l'identifiant de l'utilisateur lié au produit
 . les données de l'utilisateur sont incluses dans la clé `include`
 
 NOTE: Vous avez sûrement remarqué que j'ai choisi d'utiliser la méthode https://ruby-doc.org/core-2.6.3/Hash.html#method-i-dig[`Hash#dig`]. C'est une méthode Ruby qui permet de récupérer des éléments dans un _Hash_ imbriqué en évitant les erreurs si un élément n'est pas présent.
@@ -503,7 +503,7 @@ class ProductSerializer
 end
 ----
 
-Cet ajout aura pour effet de rajouter une clé `relatioship` contenant l’identifiant de l'utilisateur:
+Cet ajout aura pour effet de rajouter une clé `relatioship` contenant l'identifiant de l'utilisateur:
 
 [source,json]
 ----
@@ -528,7 +528,7 @@ Cet ajout aura pour effet de rajouter une clé `relatioship` contenant l’ident
 }
 ----
 
-Cela nous permet donc de corriger nos deux premières assertions. Nous voulons maintenant inclure les attributs de l’utilisateur qui possède le produit. Pour faire cela, nous devons simplement passer une option `:include` au _serializer_ instancié dans le _controller_. Alors faisons le:
+Cela nous permet donc de corriger nos deux premières assertions. Nous voulons maintenant inclure les attributs de l'utilisateur qui possède le produit. Pour faire cela, nous devons simplement passer une option `:include` au _serializer_ instancié dans le _controller_. Alors faisons le:
 
 [source,ruby]
 .app/serializers/product_serializer.rb
@@ -563,7 +563,7 @@ Et voilà. Maintenant voilà à quoi le JSON devrait ressembler:
 }
 ----
 
-L’implémentation est très simple: il suffit d’ajouter une ligne au sérialiseur du produit:
+L'implémentation est très simple: il suffit d'ajouter une ligne au sérialiseur du produit:
 
 [source,ruby]
 .app/serializers/product_serializer.rb
@@ -698,9 +698,9 @@ $ git commit -am "Add products relationship to user#show"
 
 == Rechercher les produits
 
-Dans cette dernière section, nous continuerons à renforcer l’action `Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n’importe quel client de filtrer les résultats. Cette section est facultative car elle n’aura aucun impact sur les modules de l’application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
+Dans cette dernière section, nous continuerons à renforcer l'action `Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n'importe quel client de filtrer les résultats. Cette section est facultative car elle n'aura aucun impact sur les modules de l'application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
 
-J’utilise https://github.com/activerecord-hackery/ransack[Ransack] ou https://github.com/casecommons/pg_search[pg_search] pour construire des formulaires de recherche avancée extrêmement rapidement. Mais ici, comme le but est d'apprendre et que la recherche que nous allons effectuer est très simple, je pense que nous pouvons construire un moteur de recherche à partir de zéro. Nous devons simplement considérer les critères par lesquels nous allons filtrer les attributs. Accrochez-vous bien à vos sièges, ça va être un voyage difficile.
+J'utilise https://github.com/activerecord-hackery/ransack[Ransack] ou https://github.com/casecommons/pg_search[pg_search] pour construire des formulaires de recherche avancée extrêmement rapidement. Mais ici, comme le but est d'apprendre et que la recherche que nous allons effectuer est très simple, je pense que nous pouvons construire un moteur de recherche à partir de zéro. Nous devons simplement considérer les critères par lesquels nous allons filtrer les attributs. Accrochez-vous bien à vos sièges, ça va être un voyage difficile.
 
 Nous filtrerons donc les produits selon les critères suivants:
 
@@ -773,7 +773,7 @@ end
 
 NOTE: Le _scoping_ vous permet de spécifier des requêtes couramment utilisées qui peuvent être référencées comme des appels de méthode sur les modèles. Avec ces __scopes__ vous pouvez aussi chaîner avec les méthodes d'Active Record comme `where`, `joins` et `includes` car un _scope_ retourne toujours un  objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`]. Je vous invite à jeter un œil à la https://guides.rubyonrails.org/active_record_querying.html#scopes[documentation de Rails]
 
-L’implémentation est suffisante pour que nos tests passent:
+L'implémentation est suffisante pour que nos tests passent:
 
 [source,bash]
 ----
@@ -783,7 +783,7 @@ $ rake test
 
 === Par prix
 
-Pour filtrer par prix, les choses peuvent devenir un peu plus délicates. Nous allons briser la logique de filtrer par prix en deux méthodes différentes: l’une qui va chercher les produits plus grands que le prix reçu et l’autre qui va chercher ceux qui sont sous ce prix. De cette façon, nous garderons une certaine flexibilité et nous pouvons facilement tester les _scope_.
+Pour filtrer par prix, les choses peuvent devenir un peu plus délicates. Nous allons briser la logique de filtrer par prix en deux méthodes différentes: l'une qui va chercher les produits plus grands que le prix reçu et l'autre qui va chercher ceux qui sont sous ce prix. De cette façon, nous garderons une certaine flexibilité et nous pouvons facilement tester les _scope_.
 
 Commençons par construire les tests du _scope_ `above_or_equal_to_price`:
 
@@ -799,7 +799,7 @@ class ProductTest < ActiveSupport::TestCase
 end
 ----
 
-L’implémentation est très très simple:
+L'implémentation est très très simple:
 
 [source,ruby]
 .app/models/product.rb
@@ -812,7 +812,7 @@ class Product < ApplicationRecord
 end
 ----
 
-L’implémentation est suffisante pour que nos tests passent:
+L'implémentation est suffisante pour que nos tests passent:
 
 [source,bash]
 ----
@@ -834,7 +834,7 @@ class ProductTest < ActiveSupport::TestCase
 end
 ----
 
-Et l’implémentation:
+Et l'implémentation:
 
 [source,ruby]
 .app/models/product.rb
@@ -855,11 +855,11 @@ $ rake test
 ............................
 ----
 
-Comme vous pouvez le voir, nous n’avons pas eu beaucoup de problèmes. Ajoutons simplement une autre _scope_ pour trier les enregistrements par date de dernière mise à jour. Dans le cas où le propriétaire des produits décide de mettre à jour certaines données il voudra sûrement trier ses produits par date de création.
+Comme vous pouvez le voir, nous n'avons pas eu beaucoup de problèmes. Ajoutons simplement une autre _scope_ pour trier les enregistrements par date de dernière mise à jour. Dans le cas où le propriétaire des produits décide de mettre à jour certaines données il voudra sûrement trier ses produits par date de création.
 
 === Tri par date de création
 
-Ce _scope_ est très facile. Ajoutons d’abord quelques tests:
+Ce _scope_ est très facile. Ajoutons d'abord quelques tests:
 
 [source,ruby]
 .test/models/product_test.rb
@@ -877,7 +877,7 @@ class ProductTest < ActiveSupport::TestCase
 end
 ----
 
-Et l’implémentation:
+Et l'implémentation:
 
 [source,ruby]
 .app/models/product.rb
@@ -908,7 +908,7 @@ $ git commit -am "Adds search scopes on the product model"
 
 === Moteur de recherche
 
-Maintenant que nous avons la base pour le moteur de recherche que nous utiliserons dans l’application, il est temps de mettre en œuvre une méthode de recherche simple mais puissante. Elle s’occupera de gérer toute la logique pour récupérer les enregistrements des produits.
+Maintenant que nous avons la base pour le moteur de recherche que nous utiliserons dans l'application, il est temps de mettre en œuvre une méthode de recherche simple mais puissante. Elle s'occupera de gérer toute la logique pour récupérer les enregistrements des produits.
 
 La méthode consistera à enchaîner tous les `scope` que nous avons construits précédemment et à retourner le résultat. Commençons par ajouter quelques tests:
 
@@ -940,7 +940,7 @@ class ProductTest < ActiveSupport::TestCase
 end
 ----
 
-Nous avons ajouté un tas de code mais je vous assure que l’implémentation est très facile. Vous pouvez aller plus loin et ajouter quelques tests supplémentaires mais, dans mon cas, je n’ai pas trouvé cela nécessaire.
+Nous avons ajouté un tas de code mais je vous assure que l'implémentation est très facile. Vous pouvez aller plus loin et ajouter quelques tests supplémentaires mais, dans mon cas, je n'ai pas trouvé cela nécessaire.
 
 [source,ruby]
 .app/models/product.rb
@@ -961,7 +961,7 @@ end
 ----
 
 
-Il est important de noter que nous retournons les produits en tant qu’objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`] afin de pouvoir enchaîner d’autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l’action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
+Il est important de noter que nous retournons les produits en tant qu'objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`] afin de pouvoir enchaîner d'autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l'action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -976,7 +976,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Nous pouvons exécuter l’ensemble de la suite de tests, pour nous assurer que l’application est en bonne santé jusqu’ici:
+Nous pouvons exécuter l'ensemble de la suite de tests, pour nous assurer que l'application est en bonne santé jusqu'ici:
 
 [source,bash]
 ----
@@ -1003,4 +1003,4 @@ $ git merge chapter06
 
 == Conclusion
 
-Jusqu’à présent, et grâce à la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi], c’était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle `Order` qui associera les utilisateurs aux produits.
+Jusqu'à présent, et grâce à la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi], c'était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle `Order` qui associera les utilisateurs aux produits.

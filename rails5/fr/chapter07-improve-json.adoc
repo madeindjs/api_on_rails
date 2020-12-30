@@ -1,9 +1,9 @@
 [#chapter07-improve-json]
 = Modélisation du JSON
 
-Dans le chapitre précédent, nous avons ajouté les produits à l’application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
+Dans le chapitre précédent, nous avons ajouté les produits à l'application et construit tous les routes nécessaires. Nous avons également associé un produit à un utilisateur et restreint certaines des actions de `products_controller`.
 
-Maintenant, vous devriez être satisfaits de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n’est pas parfaite. La sortie JSON ressemble à celle-ci:
+Maintenant, vous devriez être satisfaits de tout ce travail. Mais nous avons encore du pain sur la planche. Actuellement, nous avons une sortie JSON qui n'est pas parfaite. La sortie JSON ressemble à celle-ci:
 
 [source,json]
 ----
@@ -36,9 +36,9 @@ Or nous voulons un sortie correspondante à celle-là.
 }
 ----
 
-Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme `active_model_serializers`. Pour plus d’informations vous pouvez consulter le https://github.com/rails-api/active_model_serializers[répertoire sur GitHub]. Je vais couvrir quelques points ici, de l’installation à l’implémentation, mais je vous recommande de jeter un œil à la documentation.
+Dans ce chapitre, nous allons personnaliser la sortie JSON en utilisant la gemme `active_model_serializers`. Pour plus d'informations vous pouvez consulter le https://github.com/rails-api/active_model_serializers[répertoire sur GitHub]. Je vais couvrir quelques points ici, de l'installation à l'implémentation, mais je vous recommande de jeter un œil à la documentation.
 
-Vous pouvez cloner le projet jusqu’à ce point avec:
+Vous pouvez cloner le projet jusqu'à ce point avec:
 
 [source,bash]
 ----
@@ -54,7 +54,7 @@ $ git checkout -b chapter7
 
 == Mise en place de la gemme
 
-Si vous avez suivi le tutoriel depuis le début, vous devriez déjà avoir la gemme installée. Mais au cas où vous auriez atterri ici, je vais vous guider dans l’installation.
+Si vous avez suivi le tutoriel depuis le début, vous devriez déjà avoir la gemme installée. Mais au cas où vous auriez atterri ici, je vais vous guider dans l'installation.
 
 Ajoutez la ligne suivante à votre `Gemfile`:
 
@@ -65,11 +65,11 @@ Ajoutez la ligne suivante à votre `Gemfile`:
 gem 'active_model_serializers', '~> 0.10.8'
 ----
 
-Exécutez la commande d’installation du paquet pour installer la gemme… et c’est tout! Vous devriez être prêts à continuer avec ce tutoriel.
+Exécutez la commande d'installation du paquet pour installer la gemme… et c'est tout! Vous devriez être prêts à continuer avec ce tutoriel.
 
-== Sérialiser l’utilisateur
+== Sérialiser l'utilisateur
 
-Nous devons d’abord ajouter un fichier `user_serializer`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
+Nous devons d'abord ajouter un fichier `user_serializer`. Nous pouvons le faire manuellement, mais la gemme fournit une interface en ligne de commande pour le faire:
 
 [source,bash]
 ----
@@ -95,9 +95,9 @@ $ rspec spec/controllers/api/v1/users_controller_spec.rb
 F.F....F.....
 ----
 
-NOTE: Rails recherchera automatiquement un sérialiseur nommé `PostSerializer`, et s’il existe, l’utilisera pour sérialiser un `Post`. Cela fonctionne aussi avec `respond_with`, qui utilise `to_json` sous le capot. Notez également que toutes les options passées pour rendre `:json` seront passées à votre sérialiseur et disponibles comme `@options` à l’intérieur. Cela signifie que peu importe si nous utilisons la méthode `render json` ou `respond_with`. A partir de maintenant, Rails recherchera le sérialiseur correspondant en premier.
+NOTE: Rails recherchera automatiquement un sérialiseur nommé `PostSerializer`, et s'il existe, l'utilisera pour sérialiser un `Post`. Cela fonctionne aussi avec `respond_with`, qui utilise `to_json` sous le capot. Notez également que toutes les options passées pour rendre `:json` seront passées à votre sérialiseur et disponibles comme `@options` à l'intérieur. Cela signifie que peu importe si nous utilisons la méthode `render json` ou `respond_with`. A partir de maintenant, Rails recherchera le sérialiseur correspondant en premier.
 
-Maintenant, de retour aux tests, vous pouvez voir que pour une raison quelconque, la réponse n’est pas tout à fait ce que nous attendons. C’est parce que la gemme réduit la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit d’ajouter les attributs à sérialiser dans le `user_serializer.rb` et de mettre à jour le fichier `users_controller_spec.rb`:
+Maintenant, de retour aux tests, vous pouvez voir que pour une raison quelconque, la réponse n'est pas tout à fait ce que nous attendons. C'est parce que la gemme réduit la réponse que nous avions précédemment définie. Donc pour faire passer les tests, il suffit d'ajouter les attributs à sérialiser dans le `user_serializer.rb` et de mettre à jour le fichier `users_controller_spec.rb`:
 
 [source,ruby]
 .app/serializers/user_serializer.rb
@@ -118,7 +118,7 @@ Finished in 0.16712 seconds (files took 0.80637 seconds to load)
 13 examples, 0 failures
 ----
 
-_Commitons_ ces changements et continuons d’avancer:
+_Commitons_ ces changements et continuons d'avancer:
 
 [source,bash]
 ----
@@ -130,7 +130,7 @@ Nous pouvons également tester les objets du sérialiseur, comme indiqué dans l
 
 == Sérialiser les produits
 
-Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape est identique à celle pour l’utilisateur, nous avons besoin d’un sérialiseur de produit, alors faisons-le:
+Maintenant que nous comprenons comment fonctionne la gemme de sérialisation, il est temps de personnaliser la sortie des produits. La première étape est identique à celle pour l'utilisateur, nous avons besoin d'un sérialiseur de produit, alors faisons-le:
 
 [source,bash]
 ----
@@ -138,7 +138,7 @@ $ rails generate serializer product
     create  app/serializers/product_serializer.rb
 ----
 
-Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l’avons fait avec l’utilisateur dans la section précédente:
+Ajoutons maintenant les attributs à sérialiser pour le produit, comme nous l'avons fait avec l'utilisateur dans la section précédente:
 
 [source,ruby]
 .app/serializers/product_serializer.rb
@@ -148,7 +148,7 @@ class ProductSerializer < ActiveModel::Serializer
 end
 ----
 
-Et voilà. Ce n’est pas plus compliqué que ça. Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons.
+Et voilà. Ce n'est pas plus compliqué que ça. Vous pouvez lancer les tests pour vérifier mais ils devraient encore être bons.
 
 _Commitons_ ces petits changements:
 
@@ -160,11 +160,11 @@ $ git commit -a "Adds product serializer for custom json output"
 
 === Sérialiser les associations
 
-Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c’est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne.
+Nous avons travaillé avec des sérialiseurs et vous remarquerez peut-être que c'est très simple. Dans certains cas, la décision difficile est de savoir comment nommer vos routes ou comment structurer la sortie JSON afin que votre solution soit pérenne.
 
-Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre. Ici, je vais expliquer ce que j’ai trouvé et ce qui fonctionne pour moi. Ce n’est pas la seule manière de faire, je vous laisse juger si elle vous convient. Dans cette section, nous allons étendre notre API pour gérer l’association produit/utilisateur. Je vais aussi vous expliquer certaines des erreurs courantes dans lesquels vous pouvez tomber.
+Lorsque vous travaillez avec des associations entre les modèles sur une API, il existe de nombreuses approches que vous pouvez prendre. Ici, je vais expliquer ce que j'ai trouvé et ce qui fonctionne pour moi. Ce n'est pas la seule manière de faire, je vous laisse juger si elle vous convient. Dans cette section, nous allons étendre notre API pour gérer l'association produit/utilisateur. Je vais aussi vous expliquer certaines des erreurs courantes dans lesquels vous pouvez tomber.
 
-Pour résumer, nous avons une association de type `has_many` entre l’utilisateur et le modèle de produit.
+Pour résumer, nous avons une association de type `has_many` entre l'utilisateur et le modèle de produit.
 
 [source,ruby]
 .app/models/user.rb
@@ -184,17 +184,17 @@ class Product < ApplicationRecord
 end
 ----
 
-C’est une bonne idée d’intégrer des modèles dans d’autres modèles dans d’autres modèles car cela évite au client de l’API d’exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d’étranglement.
+C'est une bonne idée d'intégrer des modèles dans d'autres modèles dans d'autres modèles car cela évite au client de l'API d'exécuter plusieurs requêtes. Cela rendra la sortie un peu plus lourde mais lorsque vous récupérez de nombreux enregistrements, cela peut vous éviter un énorme goulet d'étranglement.
 
-== Cas d’utilisation d’un objet incorporé dans une association
+== Cas d'utilisation d'un objet incorporé dans une association
 
-Imaginez un scénario où vous allez chercher les produits dans l’API, mais dans ce cas, vous devez afficher une partie des informations de l’utilisateur.
+Imaginez un scénario où vous allez chercher les produits dans l'API, mais dans ce cas, vous devez afficher une partie des informations de l'utilisateur.
 
-Une solution possible serait d’ajouter l’attribut `user_id` au `product_serializer` pour que nous puissions récupérer l’utilisateur correspondant plus tard. Cela peut sembler être une bonne idée, mais si vous vous souciez de la performance, ou si les transactions de votre base de données ne sont pas assez rapides, vous devriez reconsidérer cette approche. Vous devez comprendre que pour chaque produit que vous récupérez, vous allez devoir récupérer son utilisateur correspondant.
+Une solution possible serait d'ajouter l'attribut `user_id` au `product_serializer` pour que nous puissions récupérer l'utilisateur correspondant plus tard. Cela peut sembler être une bonne idée, mais si vous vous souciez de la performance, ou si les transactions de votre base de données ne sont pas assez rapides, vous devriez reconsidérer cette approche. Vous devez comprendre que pour chaque produit que vous récupérez, vous allez devoir récupérer son utilisateur correspondant.
 
 Face à ce problème, je suis venu avec deux alternatives possibles:
 
-* Une bonne solution à mon avis est d’intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
+* Une bonne solution à mon avis est d'intégrer les identifiants des utilisateurs liés aux produits dans un attribut meta, donc nous avons une sortie JSON comme:
 
 [source,json]
 ----
@@ -206,7 +206,7 @@ Face à ce problème, je suis venu avec deux alternatives possibles:
 }
 ----
 
-Cela peut nécessiter une configuration supplémentaire sur le terminal de l’utilisateur, afin que le client puisse récupérer ces utilisateurs à partir de ces `user_ids`. - Une autre solution, et celle que j’utiliserai ici, est d’incorporer l’objet `user` dans l’objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n’a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
+Cela peut nécessiter une configuration supplémentaire sur le terminal de l'utilisateur, afin que le client puisse récupérer ces utilisateurs à partir de ces `user_ids`. - Une autre solution, et celle que j'utiliserai ici, est d'incorporer l'objet `user` dans l'objet `product`. Ce qui peut rendre la première requête un peu plus lente, mais de cette façon le client n'a pas besoin de faire une autre requête supplémentaire. Un exemple des résultats escomptés est présenté ci-dessous:
 
 [source,json]
 ----
@@ -230,7 +230,7 @@ Cela peut nécessiter une configuration supplémentaire sur le terminal de l’u
 }
 ----
 
-Donc, nous allons incorporer l’objet utilisateur dans le produit. Commençons par ajouter quelques tests. Nous allons simplement modifier les tests des routes `Products#index` et `Products#show` .
+Donc, nous allons incorporer l'objet utilisateur dans le produit. Commençons par ajouter quelques tests. Nous allons simplement modifier les tests des routes `Products#index` et `Products#show` .
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -256,7 +256,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-L’implémentation est très simple: il suffit d’ajouter une ligne au sérialiseur du produit:
+L'implémentation est très simple: il suffit d'ajouter une ligne au sérialiseur du produit:
 
 [source,ruby]
 .app/serializers/product_serializer.rb
@@ -280,11 +280,11 @@ Finished in 0.57068 seconds (files took 0.67788 seconds to load)
 
 === Récupérer les produits pour des utilisateurs
 
-Maintenant, vous vous demandez peut-être si vous devriez intégrer les produits dans l’utilisateur (comme dans la section précédente). Même si cela peut sembler bien, cela peut entraîner de graves problèmes d’optimisation. Vous pourriez être en train de charger d’énormes quantités d’informations et il est vraiment facile de tomber dans le problème des *dépendances circulaires* qui boucle le programme jusqu’à épuiser la mémoire.
+Maintenant, vous vous demandez peut-être si vous devriez intégrer les produits dans l'utilisateur (comme dans la section précédente). Même si cela peut sembler bien, cela peut entraîner de graves problèmes d'optimisation. Vous pourriez être en train de charger d'énormes quantités d'informations et il est vraiment facile de tomber dans le problème des *dépendances circulaires* qui boucle le programme jusqu'à épuiser la mémoire.
 
-Mais ne vous inquiétez pas, tout n’est pas perdu, nous pouvons facilement résoudre ce problème en intégrant seulement les identifiants des produits dans l’utilisateur. Cela donnera à votre API une meilleure performance et cela évitera de charger des données supplémentaires. Dans cette section, nous allons donc étendre notre route de l’index des produits pour traiter un paramètre `product_ids` et formater la sortie JSON en conséquence.
+Mais ne vous inquiétez pas, tout n'est pas perdu, nous pouvons facilement résoudre ce problème en intégrant seulement les identifiants des produits dans l'utilisateur. Cela donnera à votre API une meilleure performance et cela évitera de charger des données supplémentaires. Dans cette section, nous allons donc étendre notre route de l'index des produits pour traiter un paramètre `product_ids` et formater la sortie JSON en conséquence.
 
-Tout d’abord, nous nous assurons que le `product_ids` fait partie de l’objet sérialisé de l’utilisateur:
+Tout d'abord, nous nous assurons que le `product_ids` fait partie de l'objet sérialisé de l'utilisateur:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -301,7 +301,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ----
 
-L’implémentation est très simple, comme décrit dans https://github.com/rails-api/active_model_serializers/blob/0-10-stable/docs/howto/add_relationship_links.md#links-as-an-attribute-of-a-resource[la documentation] de la gemme `active_model_serializers`:
+L'implémentation est très simple, comme décrit dans https://github.com/rails-api/active_model_serializers/blob/0-10-stable/docs/howto/add_relationship_links.md#links-as-an-attribute-of-a-resource[la documentation] de la gemme `active_model_serializers`:
 
 [source,ruby]
 .app/serializers/user_serializer.rb
@@ -325,7 +325,7 @@ Finished in 0.16791 seconds (files took 0.65902 seconds to load)
 14 examples, 0 failures
 ----
 
-Nous devons maintenant étendre l’action `index` depuis le `products_controller` pour qu’il puisse gérer le paramètre `product_ids` et afficher les enregistrements _scopés_. Commençons par ajouter quelques tests:
+Nous devons maintenant étendre l'action `index` depuis le `products_controller` pour qu'il puisse gérer le paramètre `product_ids` et afficher les enregistrements _scopés_. Commençons par ajouter quelques tests:
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -375,7 +375,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-Comme vous pouvez le voir, nous venons d’envelopper l’action index dans deux contextes séparés: l’un qui recevra les `product_ids` et l’autre l’ancien que nous avions écrit. Ajoutons le code nécessaire pour faire passer les tests:
+Comme vous pouvez le voir, nous venons d'envelopper l'action index dans deux contextes séparés: l'un qui recevra les `product_ids` et l'autre l'ancien que nous avions écrit. Ajoutons le code nécessaire pour faire passer les tests:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -391,7 +391,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Comme vous pouvez le voir l’implémentation est super simple. Nous allons simplement chercher les produits avec le paramètre `product_ids` au cas où ils seraient présents, sinon nous les cherchons tous. Assurons-nous que les tests sont bons:
+Comme vous pouvez le voir l'implémentation est super simple. Nous allons simplement chercher les produits avec le paramètre `product_ids` au cas où ils seraient présents, sinon nous les cherchons tous. Assurons-nous que les tests sont bons:
 
 [source,bash]
 ----
@@ -411,9 +411,9 @@ $ git commit -am "Embeds the products_ids into the user serialiser and fetches t
 
 == Rechercher les produits
 
-Dans cette dernière section, nous continuerons à renforcer l’action `Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n’importe quel client de filtrer les résultats. Cette section est facultative car elle n’aura aucun impact sur les modules de l’application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
+Dans cette dernière section, nous continuerons à renforcer l'action `Products#index` en mettant en place un mécanisme de recherche très simple pour permettre à n'importe quel client de filtrer les résultats. Cette section est facultative car elle n'aura aucun impact sur les modules de l'application. Mais si vous voulez pratiquer davantage avec le TDD, je vous recommande de compléter cette dernière étape.
 
-J’utilise https://github.com/activerecord-hackery/ransack[Ransack] pour construire des formulaires de recherche avancée extrêmement rapidement. Mais ici, comme le but est d'apprendre et que la recherche que nous allons effectuer est très simple, je pense que nous pouvons construire un moteur de recherche à partir de zéro. Nous devons simplement considérer les critères par lesquels nous allons filtrer les attributs. Accrochez-vous bien à vos sièges, ça va être un voyage difficile.
+J'utilise https://github.com/activerecord-hackery/ransack[Ransack] pour construire des formulaires de recherche avancée extrêmement rapidement. Mais ici, comme le but est d'apprendre et que la recherche que nous allons effectuer est très simple, je pense que nous pouvons construire un moteur de recherche à partir de zéro. Nous devons simplement considérer les critères par lesquels nous allons filtrer les attributs. Accrochez-vous bien à vos sièges, ça va être un voyage difficile.
 
 Nous filtrerons donc les produits selon les critères suivants:
 
@@ -425,7 +425,7 @@ Cela peut sembler court et facile, mais croyez-moi, cela vous donnera mal à la 
 
 === Le mot-clé by
 
-Nous allons créer un _scope_ pour trouver les enregistrements qui correspondent à un motif particulier de caractère. Appelons-le `filter_by_title`. Ajoutons d’abord quelques tests:
+Nous allons créer un _scope_ pour trouver les enregistrements qui correspondent à un motif particulier de caractère. Appelons-le `filter_by_title`. Ajoutons d'abord quelques tests:
 
 [source,ruby]
 .spec/models/product_spec.rb
@@ -454,7 +454,7 @@ RSpec.describe Product, type: :model do
 end
 ----
 
-Le test ici est de s’assurer que quel que soit le cas du titre envoyé, nous devons l’aseptiser afin de faire la comparaison appropriée. Dans notre cas nous utiliserons l’approche en minuscules. Implémentons le code nécessaire:
+Le test ici est de s'assurer que quel que soit le cas du titre envoyé, nous devons l'aseptiser afin de faire la comparaison appropriée. Dans notre cas nous utiliserons l'approche en minuscules. Implémentons le code nécessaire:
 
 [source,ruby]
 .app/models/product.rb
@@ -467,7 +467,7 @@ class Product < ApplicationRecord
 end
 ----
 
-L’implémentation est suffisante pour que nos tests passent:
+L'implémentation est suffisante pour que nos tests passent:
 
 [source,bash]
 ----
@@ -480,7 +480,7 @@ Finished in 0.17178 seconds (files took 3.59 seconds to load)
 
 === Par prix
 
-Pour filtrer par prix, les choses peuvent devenir un peu plus délicates. Nous allons briser la logique de filtrer par prix en deux méthodes différentes: l’une qui va chercher les produits plus grands que le prix reçu et l’autre qui va chercher ceux qui sont sous ce prix. De cette façon, nous garderons une certaine flexibilité et nous pouvons facilement tester les _scope_.
+Pour filtrer par prix, les choses peuvent devenir un peu plus délicates. Nous allons briser la logique de filtrer par prix en deux méthodes différentes: l'une qui va chercher les produits plus grands que le prix reçu et l'autre qui va chercher ceux qui sont sous ce prix. De cette façon, nous garderons une certaine flexibilité et nous pouvons facilement tester les _scope_.
 
 Commençons par construire les tests du _scope_ `above_or_equal_to_price`:
 
@@ -505,7 +505,7 @@ RSpec.describe Product, type: :model do
 end
 ----
 
-L’implémentation est très très simple:
+L'implémentation est très très simple:
 
 [source,ruby]
 .app/models/product.rb
@@ -518,7 +518,7 @@ class Product < ApplicationRecord
 end
 ----
 
-L’implémentation est suffisante pour que nos tests passent:
+L'implémentation est suffisante pour que nos tests passent:
 
 [source,bash]
 ----
@@ -552,7 +552,7 @@ RSpec.describe Product, type: :model do
 end
 ----
 
-Et l’implémentation:
+Et l'implémentation:
 
 [source,ruby]
 .app/models/product.rb
@@ -576,11 +576,11 @@ Finished in 0.18008 seconds (files took 0.6544 seconds to load)
 13 examples, 0 failures
 ----
 
-Comme vous pouvez le voir, nous n’avons pas eu beaucoup de problèmes. Ajoutons simplement une autre _scope_ pour trier les enregistrements par date de dernière mise à jour. Dans le cas où le propriétaire des produits décide de mettre à jour certaines données il voudra sûrement trier ses produits par date de création.
+Comme vous pouvez le voir, nous n'avons pas eu beaucoup de problèmes. Ajoutons simplement une autre _scope_ pour trier les enregistrements par date de dernière mise à jour. Dans le cas où le propriétaire des produits décide de mettre à jour certaines données il voudra sûrement trier ses produits par date de création.
 
 === Tri par date de création
 
-Ce _scope_ est très facile. Ajoutons d’abord quelques tests:
+Ce _scope_ est très facile. Ajoutons d'abord quelques tests:
 
 [source,ruby]
 .spec/models/product_spec.rb
@@ -607,7 +607,7 @@ RSpec.describe Product, type: :model do
 end
 ----
 
-Et l’implémentation:
+Et l'implémentation:
 
 [source,ruby]
 .app/models/product.rb
@@ -640,7 +640,7 @@ $ git commit -am "Adds search scopes on the product model"
 
 === Moteur de recherche
 
-Maintenant que nous avons la base pour le moteur de recherche que nous utiliserons dans l’application, il est temps de mettre en œuvre une méthode de recherche simple mais puissante. Elle s’occupera de gérer toute la logique pour récupérer les enregistrements des produits.
+Maintenant que nous avons la base pour le moteur de recherche que nous utiliserons dans l'application, il est temps de mettre en œuvre une méthode de recherche simple mais puissante. Elle s'occupera de gérer toute la logique pour récupérer les enregistrements des produits.
 
 La méthode consistera à enchaîner tous les `scope` que nous avons construits précédemment et à retourner le résultat. Commençons par ajouter quelques tests:
 
@@ -688,7 +688,7 @@ RSpec.describe Product, type: :model do
 end
 ----
 
-Nous avons ajouté un tas de code mais je vous assure que l’implémentation est très facile. Vous pouvez aller plus loin et ajouter quelques tests supplémentaires mais, dans mon cas, je n’ai pas trouvé cela nécessaire.
+Nous avons ajouté un tas de code mais je vous assure que l'implémentation est très facile. Vous pouvez aller plus loin et ajouter quelques tests supplémentaires mais, dans mon cas, je n'ai pas trouvé cela nécessaire.
 
 [source,ruby]
 .app/models/product.rb
@@ -708,7 +708,7 @@ class Product < ApplicationRecord
 end
 ----
 
-Il est important de noter que nous retournons les produits en tant qu’objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html:[`ActiveRelation`] afin de pouvoir enchaîner d’autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l’action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
+Il est important de noter que nous retournons les produits en tant qu'objet https://api.rubyonrails.org/classes/ActiveRecord/Relation.html:[`ActiveRelation`] afin de pouvoir enchaîner d'autres méthodes en cas de besoin ou les paginer comme nous allons le voir dans les derniers chapitres. Il suffit de mettre à jour l'action `Product#index` pour récupérer les produits à partir de la méthode de recherche:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -723,7 +723,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Nous pouvons exécuter l’ensemble de la suite de tests, pour nous assurer que l’application est en bonne santé jusqu’ici:
+Nous pouvons exécuter l'ensemble de la suite de tests, pour nous assurer que l'application est en bonne santé jusqu'ici:
 
 [source,bash]
 ----
@@ -743,4 +743,4 @@ $ git commit -am "Adds search class method to filter products"
 
 == Conclusion
 
-Jusqu’à présent, et grâce à la gemme https://github.com/rails-api/active_model_serializers[active_model_serializers], c’était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle `Order` qui associera les utilisateurs aux produits.
+Jusqu'à présent, et grâce à la gemme https://github.com/rails-api/active_model_serializers[active_model_serializers], c'était facile. Sur les chapitres à venir, nous allons commencer à construire le modèle `Order` qui associera les utilisateurs aux produits.

@@ -4,31 +4,31 @@
 
 Dans le chapitre précédent, nous avons réussi à mettre en place les bases de la configuration de notre application.
 
-Dans les prochains chapitres, nous traiterons l’authentification des utilisateurs à l’aide de jetons d’authentification ainsi que la définition de permissions pour limiter l’accès aux utilisateurs connectés. Nous relierons ensuite les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
+Dans les prochains chapitres, nous traiterons l'authentification des utilisateurs à l'aide de jetons d'authentification ainsi que la définition de permissions pour limiter l'accès aux utilisateurs connectés. Nous relierons ensuite les produits aux utilisateurs et leur donnerons la possibilité de passer des commandes.
 
-Vous pouvez cloner le projet jusqu’à ce point avec:
+Vous pouvez cloner le projet jusqu'à ce point avec:
 
 [source,bash]
 ----
 $ git checkout tags/checkpoint_chapter03
 ----
 
-Comme vous pouvez déjà l’imaginer, il existe de nombreuses solutions d’authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Ces solutions sont des librairies clé en main, c'est à dire qu'elles permettent de gérer tout un tas de choses comme l'authentification, la fonctionnalité d'oubli de mot de passe, la validation, etc..
+Comme vous pouvez déjà l'imaginer, il existe de nombreuses solutions d'authentification pour Rails comme https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance] et https://github.com/plataformatec/devise[Devise]. Ces solutions sont des librairies clé en main, c'est à dire qu'elles permettent de gérer tout un tas de choses comme l'authentification, la fonctionnalité d'oubli de mot de passe, la validation, etc..
 
 Nous ne les utiliserons pas afin de mieux appréhender le mécanisme d'authentification. Néanmoins nous allons utiliser la gemme https://github.com/codahale/bcrypt-ruby[bcrypt] afin de hasher le mots de passe de l'utilisateur.
 
-Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d’aborder autant de sujets que possible. N’hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validation et la gestion des erreurs.
+Ce chapitre sera complet. Il sera peut-être long mais je vais essayer d'aborder autant de sujets que possible. N'hésitez pas à vous prendre un café et allons-y. A la fin de ce chapitre, vous aurez construit toute la logique des utilisateurs ainsi que la validation et la gestion des erreurs.
 
-Nous voulons suivre ce chapitre, c’est donc un bon moment pour créer une nouvelle branche:
+Nous voulons suivre ce chapitre, c'est donc un bon moment pour créer une nouvelle branche:
 
 [source,bash]
 ----
 $ git checkout -b chapter03
 ----
 
-NOTE: Assurez-vous simplement d’être sur la branche `master` avant.
+NOTE: Assurez-vous simplement d'être sur la branche `master` avant.
 
-== Modèle d’utilisateur
+== Modèle d'utilisateur
 
 
 === Génération du modèle `User`
@@ -229,7 +229,7 @@ Nous allons donc utiliser la gemme bcrypt afin de hacher le mot de passe.
 
 NOTE: Le hachage consiste à transformer une chaîne de caractère en _Hash_. Ce _Hash_ ne permet pas de retrouver la chaîne de caractère d'origine. Cependant nous pouvons facilement l'utiliser afin de savoir si une chaîne de caractère donnée correspond au _hash_ que nous avons stocké.
 
-Nous devons d’abord ajouter la gemme Bcrypt au _Gemfile_. Nous pouvons utiliser la commande `bundle add`. Celle-ci va s'occuper:
+Nous devons d'abord ajouter la gemme Bcrypt au _Gemfile_. Nous pouvons utiliser la commande `bundle add`. Celle-ci va s'occuper:
 
 1. d'ajouter la gemme au Gemfile en récupérant la version actuelle
 2. lancer la commande `bundle install` qui va installer la gemme et mettre à jour le fichier _Gemfile.lock_ qui "verrouille" la version actuelle de la gemme
@@ -297,7 +297,7 @@ $ git commit -am "Setup Bcrypt"
 
 == Construire les utilisateurs
 
-Il est temps de faire notre premier point d’entrée. Nous allons juste commencer à construire l’action `show` pour l’utilisateur qui va afficher un utilisateur en JSON. Nous allons d’abord
+Il est temps de faire notre premier point d'entrée. Nous allons juste commencer à construire l'action `show` pour l'utilisateur qui va afficher un utilisateur en JSON. Nous allons d'abord
 
 1. générer le `users_controller`
 2. ajouter les tests correspondants
@@ -312,24 +312,24 @@ Afin de respecter le visionnement de notre API, nous allons découper notre appl
 $ rails generate controller api::v1::users
 ----
 
-Cette commande va créer le fichier `users_controller_test.rb`. Avant d’entrer dans le vif du sujet, il y a deux choses que nous voulons tester pour une API:
+Cette commande va créer le fichier `users_controller_test.rb`. Avant d'entrer dans le vif du sujet, il y a deux choses que nous voulons tester pour une API:
 
 * La structure du JSON renvoyée par le serveur
 * Le code de réponse HTTP renvoyé par le serveur
 
 .Les codes HTTP courants
 ****
-Le premier chiffre du code d’état spécifie l’une des cinq classes de réponse. Le strict minimum pour un client HTTP est qu’il utilise une ces cinq classes. Voici une liste des codes HTTP couramment utilisés:
+Le premier chiffre du code d'état spécifie l'une des cinq classes de réponse. Le strict minimum pour un client HTTP est qu'il utilise une ces cinq classes. Voici une liste des codes HTTP couramment utilisés:
 
-* `200`: Réponse standard pour les requêtes HTTP réussies. C’est généralement sur les requêtes `GET`
-* `201`: La demande a été satisfaite et a donné lieu à la création d’une nouvelle ressource. Après les demandes de `POST`
-* `204`: Le serveur a traité la requête avec succès, mais ne renvoie aucun contenu. Il s’agit généralement d’une requête `DELETE` réussie.
-* `400`: La requête ne peut pas être exécutée en raison d’une mauvaise syntaxe. Peut arriver pour tout type de requête.
-* `401`: Similaire au 403, mais spécifiquement pour une utilisation lorsque l’authentification est requise et qu’elle a échoué ou n’a pas encore été fournie. Peut arriver pour tout type de requête.
-* `404`: La ressource demandée n’a pas pu être trouvée mais peut être à nouveau disponible à l’avenir. Habituellement, concerne les requêtes `GET`
-* `500`: Un message d’erreur générique, donné lorsqu’une condition inattendue a été rencontrée et qu’aucun autre message spécifique ne convient.
+* `200`: Réponse standard pour les requêtes HTTP réussies. C'est généralement sur les requêtes `GET`
+* `201`: La demande a été satisfaite et a donné lieu à la création d'une nouvelle ressource. Après les demandes de `POST`
+* `204`: Le serveur a traité la requête avec succès, mais ne renvoie aucun contenu. Il s'agit généralement d'une requête `DELETE` réussie.
+* `400`: La requête ne peut pas être exécutée en raison d'une mauvaise syntaxe. Peut arriver pour tout type de requête.
+* `401`: Similaire au 403, mais spécifiquement pour une utilisation lorsque l'authentification est requise et qu'elle a échoué ou n'a pas encore été fournie. Peut arriver pour tout type de requête.
+* `404`: La ressource demandée n'a pas pu être trouvée mais peut être à nouveau disponible à l'avenir. Habituellement, concerne les requêtes `GET`
+* `500`: Un message d'erreur générique, donné lorsqu'une condition inattendue a été rencontrée et qu'aucun autre message spécifique ne convient.
 
-Pour une liste complète des codes de réponse HTTP, consultez l’ https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP[article sur Wikipedia].
+Pour une liste complète des codes de réponse HTTP, consultez l' https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP[article sur Wikipedia].
 ****
 
 Nous allons donc implémenter le test fonctionnel qui vérifie l'accès à la méthode `Users#show`. pour cela,
@@ -355,7 +355,7 @@ end
 ----
 
 
-Il suffit ensuite d’ajouter l’action à notre contrôleur. C’est extrêmement simple:
+Il suffit ensuite d'ajouter l'action à notre contrôleur. C'est extrêmement simple:
 
 [source,ruby]
 .app/controllers/api/v1/users\_controller.rb
@@ -367,7 +367,7 @@ class  Api::V1::UsersController < ApplicationController
 end
 ----
 
-Si vous exécutez les tests avec `rails test` vous obtenez l’erreur suivante:
+Si vous exécutez les tests avec `rails test` vous obtenez l'erreur suivante:
 
 [source,bash]
 ----
@@ -381,7 +381,7 @@ DRb::DRbRemoteError: undefined method `api_v1_user_url' for #<UsersControllerTes
     test/controllers/users_controller_test.rb:9:in `block in <class:UsersControllerTest>'
 ----
 
-Ce type d’erreur est très courant lorsque vous générez vos ressources à la main! En effet, nous avons totalement oublié *les routes*. Alors ajoutons-les:
+Ce type d'erreur est très courant lorsque vous générez vos ressources à la main! En effet, nous avons totalement oublié *les routes*. Alors ajoutons-les:
 
 [source,ruby]
 .config/routes.rb
@@ -403,7 +403,7 @@ $ rails test
 4 runs, 5 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Comme d’habitude, après avoir ajouté une des fonctionnalités dont nous sommes satisfaits, nous faisons un _commit_:
+Comme d'habitude, après avoir ajouté une des fonctionnalités dont nous sommes satisfaits, nous faisons un _commit_:
 
 [source,bash]
 ----
@@ -412,7 +412,7 @@ $ git add . && git commit -m "Adds show action the users controller"
 
 === Tester notre ressource avec cURL
 
-Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions pour la tester. La première qui me vient à l’esprit est l’utilisation de cURL qui est intégré dans presque toutes les distributions Linux. Alors, essayons:
+Nous avons donc enfin une ressource à tester. Nous avons plusieurs solutions pour la tester. La première qui me vient à l'esprit est l'utilisation de cURL qui est intégré dans presque toutes les distributions Linux. Alors, essayons:
 
 [source,bash]
 ----
@@ -420,13 +420,13 @@ $ curl http://localhost:3000/api/v1/users/1
 {"id":1,"email":"toto@toto.org", ...
 ----
 
-Nous retrouvons bien l'utilisateur que nous avons crée avec la console Rails dans la section précédente. Vous avez maintenant une entrée d’API d’enregistrement d’utilisateur.
+Nous retrouvons bien l'utilisateur que nous avons crée avec la console Rails dans la section précédente. Vous avez maintenant une entrée d'API d'enregistrement d'utilisateur.
 
 === Créer les utilisateurs
 
-Maintenant que nous avons une meilleure compréhension de la façon de construire des points d’entrée, il est temps d’étendre notre API. Une des fonctionnalités les plus importante est de laisser les utilisateurs créer un profil sur notre application. Comme d’habitude, nous allons écrire des tests avant d’implémenter notre code pour étendre notre suite de tests.
+Maintenant que nous avons une meilleure compréhension de la façon de construire des points d'entrée, il est temps d'étendre notre API. Une des fonctionnalités les plus importante est de laisser les utilisateurs créer un profil sur notre application. Comme d'habitude, nous allons écrire des tests avant d'implémenter notre code pour étendre notre suite de tests.
 
-Assurez-vous que votre répertoire Git est propre et que vous n’avez pas de fichier en _staging_. Si c’est le cas, _committez_-les pour que nous puissions recommencer à zéro.
+Assurez-vous que votre répertoire Git est propre et que vous n'avez pas de fichier en _staging_. Si c'est le cas, _committez_-les pour que nous puissions recommencer à zéro.
 
 Commençons donc par écrire notre test en ajoutant une entrée pour créer un utilisateur sur le fichier `users_controller_test.rb` :
 
@@ -465,7 +465,7 @@ $ rails test
 ...E
 ----
 
-Il est donc temps d’implémenter le code pour que nos tests réussissent:
+Il est donc temps d'implémenter le code pour que nos tests réussissent:
 
 [source,ruby]
 .app/controllers/api/v1/users_controller.rb
@@ -494,7 +494,7 @@ end
 
 ----
 
-Rappelez-vous qu’à chaque fois que nous ajoutons une entrée dans notre API il faut aussi ajouter cette action dans notre fichier `routes.rb`.
+Rappelez-vous qu'à chaque fois que nous ajoutons une entrée dans notre API il faut aussi ajouter cette action dans notre fichier `routes.rb`.
 
 [source,ruby]
 .config/routes.rb
@@ -508,7 +508,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Comme vous pouvez le constater, l’implémentation est assez simple. Nous avons également ajouté la méthode privée `user_params` pour protéger les assignations d’attributs en masse. Maintenant, nos tests devraient passer:
+Comme vous pouvez le constater, l'implémentation est assez simple. Nous avons également ajouté la méthode privée `user_params` pour protéger les assignations d'attributs en masse. Maintenant, nos tests devraient passer:
 
 [source,bash]
 ----
@@ -528,10 +528,10 @@ $ git commit -am "Adds the user create endpoint"
 
 Le schéma de mise à jour des utilisateurs est très similaire à celui de la création. Si vous êtes un développeur de Rails expérimenté, vous connaissez peut-être déjà les différences entre ces deux actions:
 
-* L’action de mise à jour répond à une requête PUT/PATCH .
-* Seul un utilisateur connecté devrait être en mesure de mettre à jour ses informations. Ce qui signifie que nous devrons forcer un utilisateur à s’authentifier. Nous en parlerons au chapitre 5.
+* L'action de mise à jour répond à une requête PUT/PATCH .
+* Seul un utilisateur connecté devrait être en mesure de mettre à jour ses informations. Ce qui signifie que nous devrons forcer un utilisateur à s'authentifier. Nous en parlerons au chapitre 5.
 
-Comme d’habitude, nous commençons par écrire nos tests:
+Comme d'habitude, nous commençons par écrire nos tests:
 
 [source,ruby]
 .test/controllers/users_controller_test.rb
@@ -551,7 +551,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Pour que les tests réussissent, nous devons construire l’action de mise à jour sur le fichier `users_controller.rb` et ajouter la route au fichier `routes.rb`. Comme vous pouvez le voir, nous avons trop de code dupliqué, nous remanierons nos tests au chapitre 4. Tout d’abord nous ajoutons l’action le fichier `routes.rb`:
+Pour que les tests réussissent, nous devons construire l'action de mise à jour sur le fichier `users_controller.rb` et ajouter la route au fichier `routes.rb`. Comme vous pouvez le voir, nous avons trop de code dupliqué, nous remanierons nos tests au chapitre 4. Tout d'abord nous ajoutons l'action le fichier `routes.rb`:
 
 [source,ruby]
 .config/routes.rb
@@ -563,7 +563,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Ensuite nous implémentons l’action de mise à jour sur le contrôleur utilisateur et faisons passer nos tests:
+Ensuite nous implémentons l'action de mise à jour sur le contrôleur utilisateur et faisons passer nos tests:
 
 [source,ruby]
 .app/controllers/api/v1/users_controller.rb
@@ -613,9 +613,9 @@ Vue que tout fonctionne, on effectue un _commit_:
 $ git commit -am "Adds update action the users controller"
 ----
 
-=== Supprimer l’utilisateur
+=== Supprimer l'utilisateur
 
-Jusqu’à présent, nous avons construit pas mal d’actions sur le contrôleur des utilisateurs avec leurs tests mais ce n’est terminé. Il nous en manque juste une dernière qui est l’action de destruction. Créons donc le test:
+Jusqu'à présent, nous avons construit pas mal d'actions sur le contrôleur des utilisateurs avec leurs tests mais ce n'est terminé. Il nous en manque juste une dernière qui est l'action de destruction. Créons donc le test:
 
 [source,ruby]
 .test/controllers/users_controller_test.rb
@@ -633,9 +633,9 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Comme vous pouvez le voir, le test est très simple. Nous ne répondons qu’avec un statut de *204* qui signifie `No Content`. Nous pourrions aussi retourner un code d’état de *200*, mais je trouve plus naturel de répondre `No Content` dans ce cas car nous supprimons une ressource et une réponse réussie peut suffire.
+Comme vous pouvez le voir, le test est très simple. Nous ne répondons qu'avec un statut de *204* qui signifie `No Content`. Nous pourrions aussi retourner un code d'état de *200*, mais je trouve plus naturel de répondre `No Content` dans ce cas car nous supprimons une ressource et une réponse réussie peut suffire.
 
-La mise en œuvre de l’action de destruction est également assez simple:
+La mise en œuvre de l'action de destruction est également assez simple:
 
 [source,ruby]
 .app/controllers/api/v1/users_controller.rb
@@ -653,7 +653,7 @@ class Api::V1::UsersController < ApplicationController
 end
 ----
 
-N’oubliez pas d’ajouter l’action `destroy` dans le fichier `routes.rb`:
+N'oubliez pas d'ajouter l'action `destroy` dans le fichier `routes.rb`:
 
 [source,ruby]
 .config/routes.rb
@@ -674,7 +674,7 @@ $ rails test
 9 runs, 13 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Rappelez-vous qu’après avoir apporté quelques modifications à notre code, il est de bonne pratique de les _commiter_ afin que nous gardions un historique bien découpé.
+Rappelez-vous qu'après avoir apporté quelques modifications à notre code, il est de bonne pratique de les _commiter_ afin que nous gardions un historique bien découpé.
 
 [source,bash]
 ----
@@ -691,4 +691,4 @@ $ git merge chapter03
 
 == Conclusion
 
-Oh vous êtes là! Bien joué! Je sais que c’était probablement long mais n’abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s’améliorer, dans le prochain chapitre, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!
+Oh vous êtes là! Bien joué! Je sais que c'était probablement long mais n'abandonnez pas! Assurez-vous que vous comprenez chaque morceau de code, les choses vont s'améliorer, dans le prochain chapitre, nous remanierons nos tests pour rendre le code plus lisible et plus maintenable. Alors restez avec moi!

@@ -1,7 +1,7 @@
 [#chapter02-api]
 = The API
 
-In this section I’ll outline the application. By now you should have the bare bones of the application. If you did not read it I recommend you to do it.
+In this section I'll outline the application. By now you should have the bare bones of the application. If you did not read it I recommend you to do it.
 
 You can clone the project until this point with:
 
@@ -16,23 +16,23 @@ And as a quick recap, we really just update the `Gemfile` to add the `active_mod
 
 == Planning the application
 
-As we want to go simple with the application, it consists on five models. Don’t worry if you don’t fully understand what is going on, we will review and build each of these resources as we move on with the tutorial.
+As we want to go simple with the application, it consists on five models. Don't worry if you don't fully understand what is going on, we will review and build each of these resources as we move on with the tutorial.
 
 image:data_model.png[Schema of links betweens models]
 
 In short terms we have the `user` who will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from another users on the app.
 
-We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I’ll let that to you. There are plenty of options out there, from javascript frameworks(https://angularjs.org/[Angular], http://emberjs.com/[EmberJS], http://backbonejs.org/[Backbone]) to mobile consumption(https://github.com/AFNetworking/AFNetworking[AFNetworking]).
+We are not going to build views for displaying or interacting with the API, so not to make this a huge tutorial, I'll let that to you. There are plenty of options out there, from javascript frameworks(https://angularjs.org/[Angular], http://emberjs.com/[EmberJS], http://backbonejs.org/[Backbone]) to mobile consumption(https://github.com/AFNetworking/AFNetworking[AFNetworking]).
 
-By this point you must be asking yourself, all right but I need to explore or visualize the api we are going to be building, and that’s fair. Probably if you google something related to api exploring, an application called https://www.getpostman.com/[Postman] will pop. It is a great software but we won’t be using that anyway because we'll use cURL who allow anybody to reproduce request on any computer.
+By this point you must be asking yourself, all right but I need to explore or visualize the api we are going to be building, and that's fair. Probably if you google something related to api exploring, an application called https://www.getpostman.com/[Postman] will pop. It is a great software but we won't be using that anyway because we'll use cURL who allow anybody to reproduce request on any computer.
 
 == Setting the API
 
 An API is defined by http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] as _an application programming interface (API) specifies how some software components should interact with each other._ In other words the way systems interact with each other through a common interface, in our case a web service built with JSON. There are other kinds of communication protocols like SOAP, but we are not covering that in here.
 
-JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement in fact many of the current frameworks consume JSON api’s by default, in JavaScript there is https://angularjs.org/[Angular] or http://emberjs.com/[EmberJS], but there are great libraries for objective-c too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android, but because of my lack of experience on that development platform I might not be the right person to recommend you something.
+JSON as the Internet media type is highly accepted because of readability, extensibility and easy to implement in fact many of the current frameworks consume JSON api's by default, in JavaScript there is https://angularjs.org/[Angular] or http://emberjs.com/[EmberJS], but there are great libraries for objective-c too like https://github.com/AFNetworking/AFNetworking[AFNetworking] or http://restkit.org/[RESTKit]. There are probably good solutions for Android, but because of my lack of experience on that development platform I might not be the right person to recommend you something.
 
-All right, so we are building our API with JSON, but there are many ways to achieve this, the first thing that could come to your mind would be just to start dropping some routes defining the http://en.wikipedia.org/wiki/Web_Services_Description_Language#Objects_in_WSDL_1.1_.2F_WSDL_2.0[end points] but they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I’m talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
+All right, so we are building our API with JSON, but there are many ways to achieve this, the first thing that could come to your mind would be just to start dropping some routes defining the http://en.wikipedia.org/wiki/Web_Services_Description_Language#Objects_in_WSDL_1.1_.2F_WSDL_2.0[end points] but they may not have a http://www.w3.org/2005/Incubator/wcl/matching.html[URI pattern] clear enough to know which resource is being exposed. The protocol or structure I'm talking about is http://en.wikipedia.org/wiki/Representational_state_transfer[REST] which stands for Representational State Transfer and by wikipedia definition
 
 > is a way to create, read, update or delete information on a server using simple HTTP calls. It is an alternative to more complex mechanisms like SOAP, CORBA and RPC. A REST call is simply a GET HTTP request to the server.
 
@@ -53,11 +53,11 @@ RESTful APIs must follow at least three simple guidelines:
 ** *PUT*: Updates a collection or member of the resources
 ** *DELETE*: Destroys a collection or member of the resources
 
-This might not be clear enough or may look like a lot of information to digest but as we move on with the tutorial, hopefully it’ll get a lot easier to understand.
+This might not be clear enough or may look like a lot of information to digest but as we move on with the tutorial, hopefully it'll get a lot easier to understand.
 
 === Routes, Constraints and Namespaces
 
-Before start typing any code, we prepare the code with git, the workflow we’ll be using a branch per chapter, upload it to GitHub and then merge it with master, so let’s get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
+Before start typing any code, we prepare the code with git, the workflow we'll be using a branch per chapter, upload it to GitHub and then merge it with master, so let's get started open the terminal, `cd` to the `market_place_api` directory and type in the following:
 
 [source,bash]
 ----
@@ -83,7 +83,7 @@ $ git add config/routes.rb
 $ git commit -m "Removes comments from the routes file"
 ----
 
-We are going to isolate the api controllers under a namespace, in Rails this is fairly simple, just create a folder under the `app/controllers` named `api`, the name is important as it is the namespace we’ll use for managing the controllers for the api endpoints.
+We are going to isolate the api controllers under a namespace, in Rails this is fairly simple, just create a folder under the `app/controllers` named `api`, the name is important as it is the namespace we'll use for managing the controllers for the api endpoints.
 
 [source,bash]
 ----
@@ -144,17 +144,17 @@ Rails.application.routes.draw do
 end
 ----
 
-Notice the changes? We didn’t just add an https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] constraints to specify the subdomain. We also add the `path` option, and set it on root path (`/`). This is telling Rails to set the starting path for each request to be root in relation to the subdomain, achieving what we are looking for.
+Notice the changes? We didn't just add an https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] constraints to specify the subdomain. We also add the `path` option, and set it on root path (`/`). This is telling Rails to set the starting path for each request to be root in relation to the subdomain, achieving what we are looking for.
 
 .Common API patterns
 ****
 You can find many approaches to set up the _base_uri_ when building an api following different patterns, assuming we are versioning our api:
 
 * `api.example.com/`: I my opinion this is the way to go, gives you a better interface and isolation, and in the long term can help you to http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[quickly scalate]
-* `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don’t want to namespace your api under a subdomain
+* `example.com/api/`: This pattern is very common, and it is actually a good way to go when you don't want to namespace your api under a subdomain
 * `example.com/api/v1`: his seems like a good idea, by setting the version of the api through the URL seems like a more descriptive pattern, but this way you enforce the version to be included on URL on each request, so if you ever decide to change this pattern, this becomes a problem of maintenance in the long-term
 
-Don’t worry about versioning right now, I’ll walk through it later.
+Don't worry about versioning right now, I'll walk through it later.
 ****
 
 Time to commit:
@@ -165,7 +165,7 @@ $ git add config/routes.rb
 $ git commit -m "Set the routes constraints for the api"
 ----
 
-All right take a deep breath, drink some water, and let’s get going.
+All right take a deep breath, drink some water, and let's get going.
 
 == Api versioning
 
@@ -210,7 +210,7 @@ By this point the API is now scoped via de URL. For example with the current con
 
 === Improving the versioning
 
-So far we have the API versioned scoped via the URL, but something doesn’t feel quite right, isn’t it?. What I mean by this is that from my point of view the developer should not be aware of the version using it, as by default they should be using the last version of your endpoints, but how do we accomplish this?.
+So far we have the API versioned scoped via the URL, but something doesn't feel quite right, isn't it?. What I mean by this is that from my point of view the developer should not be aware of the version using it, as by default they should be using the last version of your endpoints, but how do we accomplish this?.
 
 Well first of all, we need to improve the API version access through http://en.wikipedia.org/wiki/List_of_HTTP_header_fields[HTTP Headers]. This has two benefits:
 
@@ -358,7 +358,7 @@ end
 
 The configuration above now handles versioning through headers, and for now the version 1 is the default one, so every request will be redirected to that version, no matter if the header with the version is present or not.
 
-Before we say goodbye, let’s run our first tests and make sure everything is nice and green:
+Before we say goodbye, let's run our first tests and make sure everything is nice and green:
 
 [source,bash]
 ----
@@ -371,9 +371,9 @@ Finished in 0.00294 seconds (files took 0.06292 seconds to load)
 
 == Conclusion
 
-It’s been a long way, I know, but you made it, don’t give up this is just our small scaffolding for something big, so keep it up. In the meantime and I you feel curious there are some gems that handle this kind of configuration:
+It's been a long way, I know, but you made it, don't give up this is just our small scaffolding for something big, so keep it up. In the meantime and I you feel curious there are some gems that handle this kind of configuration:
 
 * https://github.com/Sutto/rocket_pants[RocketPants]
 * https://github.com/bploetz/versionist[Versionist]
 
-I’m not covering those in here, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way the code up to this point is https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd[here].
+I'm not covering those in here, since we are trying to learn how to actually implement this kind of functionality, but it is good to know though. By the way the code up to this point is https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd[here].

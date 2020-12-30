@@ -3,11 +3,11 @@
 
 In the previous chapter, we implemented the authentication mechanism we will use throughout the application.
 
-For the moment we have a very simple implementation of the `User` model but the moment of truth has come. We will customize the JSON output and add a second resource: the user's products. These are the elements that the user will sell in the application and therefore will be directly linked.
+We have a straightforward implementation of the `User` model, but the moment of truth has come. We will customize the JSON output and add a second resource: the user's products. These are the elements that the user will sell in the application and will be directly linked.
 
 If you are familiar with Rails, you may already know what I am talking about. But for those who don't know, we will associate the `User` model with the `Product` model using the `has_many` and `belongs_to` methods of _Active Record_.
 
-In this chapter we will:
+In this chapter, we will:
 
 * build the `Product` model from scratch
 * associate it with the user
@@ -20,7 +20,7 @@ You can clone the project up to this point:
 $ git checkout tags/checkpoint_chapter05
 ----
 
-Before we start and as usual when starting new features we need to create a brand new branch:
+Before we start and as usual, when starting new features, we need to create a brand new branch:
 
 [source,bash]
 ----
@@ -29,7 +29,7 @@ $ git checkout -b chapter05
 
 == The product model
 
-We will first create a `Product` model. Then we'll add some validations and finally associate it with the `User` model. Like the `User` model, the `Product` will be fully tested and will be automatically deleted if the user is deleted.
+We will first create a `Product` model. Then we'll add some validations and finally associate it with the `User` model. Like the `User` model, the `Product` will be fully tested and automatically deleted if the user is deleted.
 
 === The foundations of the product
 
@@ -54,7 +54,7 @@ Running via Spring preloader in process 1476
       create      test/fixtures/products.yml
 ----
 
-NOTE: We used the `belongs_to` type for the attribute `user`. This is a shortcut that will create an `user_id` column of type `int` and also add a foreign key to the `users.id` field. In addition, `user_id` will also be defined as an `index`. This is a good practice for association keys because it optimizes database queries. It is not mandatory, but I highly recommend it.
+NOTE: We used the `belongs_to` type for the attribute `user`. This is a shortcut that will create an `user_id` column of type `int` and add a foreign key to the `users.id` field. `user_id` will also be defined as an `index`. This is a good practice for association keys because it optimizes database queries. It is not mandatory, but I highly recommend it.
 
 Migration file should look like bellow:
 
@@ -102,7 +102,7 @@ You certainly said:
 
 What I have seen in the code of other developers, when they work with associations, is that they forget about destroying dependencies between models. What I mean by that is if a user is deleted, so should the user's products.
 
-We need a user with one of the products to test this interaction between the models. Then we will delete this user in the hope that the products will disappear with him. Rails has already generated this for us. Take a look at the _fixture_ of the products:
+We need a user with one of the products to test this interaction between the models. Then we will delete this user in the hope that the products will disappear with him. Rails have already generated this for us. Take a look at the _fixture_ of the products:
 
 
 .test/fixtures/products.yml
@@ -118,7 +118,7 @@ one:
 
 You can see this _fixture_ does not use the attribute `user_id` but `user`. This means that the `one` product will have an `user_id` attribute corresponding to the `one` user ID.
 
-It is, therefore, necessary to specify a cascading deletion in order to delete the `one` product when the `one` user is deleted. Let's start with the unit test:
+Therefore, it is necessary to specify a cascading deletion to delete the `one` product when the `one` user is deleted. Let's start with the unit test:
 
 
 .test/models/user_test.rb
@@ -158,7 +158,7 @@ $ git add . && git commit -m "Generate product model"
 
 === Product validations
 
-Validations are an important part when building any kind of application. This will prevent any junk data from being saved onto the database. In the product, we have to make sure for example the price is a `number` and that is not negative.
+Validations are an important part when building any kind of application. This will prevent any junk data from being saved onto the database. In the product, we have to make sure that the price is a `number` and that it is not negative.
 
 Also, an important thing about validation is to validate that every product has a user. In this case, we need to validate the presence of the `user_id`. You can see what I’m talking about in the next code snippet.
 
@@ -225,7 +225,7 @@ As a warmup, we will start nice and easy by building the `show` action for the p
 
 === Show action for products
 
-As usual, we begin by adding some product `show` controller specs. The strategy here is very simple: we just need to create a single product and make sure the response from the server is what we expect.
+As usual, we begin by adding some product `show` controller specs. The strategy here is straightforward: we just need to create a single product and make sure the server's response is what we expect.
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -282,11 +282,11 @@ $ rake test
 .................
 ----
 
-As you may notice already the specs and implementation are very simple. They behave the same as users.
+As you may notice already, the specs and implementation are straightforward. They behave the same as users.
 
 === Products list
 
-Now it is time to output a list of products (which could be displayed as the market place product catalog). This endpoint should be accessible without credentials. That means we don’t require the user to be logged in to access the data. As usual, we will start writing some tests:
+Now it is time to output a list of products (which could be displayed as the marketplace product catalog). This endpoint should be accessible without credentials. That means we don’t require the user to be logged in to access the data. As usual, we will start writing some tests:
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -454,7 +454,7 @@ $ rake test
 
 === Updating products
 
-Hopefully, by now you understand the logic to build the upcoming actions. In this section, we will focus on the `update` action which will work similarly to the `create` one. We just need to fetch the product from the database and update it.
+Hopefully, by now, you understand the logic to build the upcoming actions. This section will focus on the `update` action, which will work similarly to the `create` one. We just need to fetch the product from the database and update it.
 
 We first adding the action to the routes so we don’t forget later:
 
@@ -471,7 +471,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Before we start dropping some tests I just want to clarify that similarly to the `create` action we will scope the product to the `current_user`. In this case, we want to make sure the product we are updating is owned by the current user. So we will fetch that product from the `user.products` association provided by Rails.
+Before we start dropping some tests, I just want to clarify that similarly to the `create` action we will scope the product to the `current_user`. In this case, we want to ensure the product we are updating is owned by the current user. So we will fetch that product from the `user.products` association provided by Rails.
 
 Let's add some specs:
 
@@ -667,7 +667,7 @@ $ rake db:seed
 Created a new user: toto@toto.fr
 ----
 
-It works. I don't know about you, but I like to have dummy data that correctly fills out my test database. Only I don't always have the inspiration to give meaning to my _seed_ so I use the gem https://github.com/stympy/faker[`faker`]. Let's set it up there:
+It works. I don't know about you, but I like to have dummy data that correctly fills my test database. Only I don't always have the inspiration to give meaning to my _seed_, so I use the gem https://github.com/stympy/faker[`faker`]. Let's set it up there:
 
 [source,bash]
 ----
@@ -724,7 +724,7 @@ User.delete_all
 end
 ----
 
-There you go. The result is amazing. In one order we can create three users and six products:
+There you go. The result is amazing. In one order, we can create three users and six products:
 
 [source,bash]
 ----
@@ -759,4 +759,4 @@ $ git merge chapter05
 
 I hope you have enjoyed this chapter. It's a long one but the code we put together is an excellent base for the core app.
 
-In the next chapter, we will focus on customizing the output of user and product models using the gem https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. It will allow us to easily filter the attributes to display and manage associations such as embedded objects for example.
+In the next chapter, we will focus on customizing user and product models' output using the gem https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. It will allow us to easily filter the attributes to display and manage associations such as embedded objects.

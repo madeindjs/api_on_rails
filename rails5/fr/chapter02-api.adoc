@@ -1,9 +1,9 @@
 [#chapter02-api]
-= L’API
+= L'API
 
-Dans ce chapitre, je vais vous donner les grandes lignes de l’application. Vous devriez avoir lu le chapitre précédent. Si ce n’est pas le cas, je vous recommande de le faire.
+Dans ce chapitre, je vais vous donner les grandes lignes de l'application. Vous devriez avoir lu le chapitre précédent. Si ce n'est pas le cas, je vous recommande de le faire.
 
-Vous pouvez cloner le projet jusqu’ici avec:
+Vous pouvez cloner le projet jusqu'ici avec:
 
 [source,bash]
 ----
@@ -14,31 +14,31 @@ $ git checkout -b chapter1 b98a9a7a328017640482af95beebc1d6e612e0ac
 
 Pour résumer, nous avons mis à jour le `Gemfile` pour ajouter la gemme `active_model_serializers`.
 
-== Planification de l’application
+== Planification de l'application
 
 Notre application sera assez simple. Elle se composera de cinq modèles. Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
 
 image:data_model.png[Schéma des liaisons entre les différents modèles]
 
-En bref, nous avons l’utilisateur (`User`) qui sera en mesure de passer de nombreuses commandes (`Order`), télécharger de multiples produits (`product`) qui peuvent avoir de nombreuses images (`Image`) ou commentaires (`Comment`) d’autres utilisateurs sur l’application.
+En bref, nous avons l'utilisateur (`User`) qui sera en mesure de passer de nombreuses commandes (`Order`), télécharger de multiples produits (`product`) qui peuvent avoir de nombreuses images (`Image`) ou commentaires (`Comment`) d'autres utilisateurs sur l'application.
 
-Nous n’allons pas construire d’interface pour l’interaction avec l’API afin de ne pas surcharger le tutoriel. Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks JavaScript (https://angularjs.org/[Angular], https://vuejs.org/[Vue.JS], https://reactjs.org/[React]) ou des librairies mobiles (https://github.com/AFNetworking/AFNetworking[AFNetworking]).
+Nous n'allons pas construire d'interface pour l'interaction avec l'API afin de ne pas surcharger le tutoriel. Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks JavaScript (https://angularjs.org/[Angular], https://vuejs.org/[Vue.JS], https://reactjs.org/[React]) ou des librairies mobiles (https://github.com/AFNetworking/AFNetworking[AFNetworking]).
 
 À ce stade, vous devriez vous poser cette question:
 
-> D’accord, mais j’ai besoin d’explorer et de visualiser l’API que je vais construire, non?
+> D'accord, mais j'ai besoin d'explorer et de visualiser l'API que je vais construire, non?
 
-C’est juste. Si vous _googlez_ quelque chose lié à l’exploration d’une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outils en ligne de commande disponnible presque partout.
+C'est juste. Si vous _googlez_ quelque chose lié à l'exploration d'une API, vous allez trouver pas mal de résultats. Vous pouvez par exemple utiliser https://www.getpostman.com/[Postman] qui est devenu incontournable. Mais nous n'allons pas l'utiliser. Dans notre cas nous allons utiliser *cURL* qui est un outils en ligne de commande disponnible presque partout.
 
-== Mettre en place l’API
+== Mettre en place l'API
 
-Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme _une interface de programmation d’application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d’autres logiciels_. En d’autres termes, il s’agit d’une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)footnote:[Il existe d’autres types de protocoles de communication comme SOAP, mais nous n’en parlons pas ici.].
+Une API est définie par https://fr.wikipedia.org/wiki/Interface_de_programmation[wikipedia] comme _une interface de programmation d'application (API) qui est un ensemble normalisé de composants qui sert de façade par laquelle un logiciel offre des services à d'autres logiciels_. En d'autres termes, il s'agit d'une façon dont les systèmes interagissent les uns avec les autres via une interface (dans notre cas un service web construit avec JSON)footnote:[Il existe d'autres types de protocoles de communication comme SOAP, mais nous n'en parlons pas ici.].
 
-JSON est devenu incontournable en tant que média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l’utilisent comme protocole par défaut comme https://angularjs.org/[Angular] ou http://emberjs.com/[EmberJS]. D’autres grandes bibliothèques en Objective-C l’utilisent comme https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Il existe probablement de bonnes solutions pour Android mais en raison de mon manque d’expérience sur cette plate-forme de développement je ne peux pas vous recommander quelque chose.
+JSON est devenu incontournable en tant que média Internet en raison de sa lisibilité, de son extensibilité et de sa facilité à mettre en œuvre. Beaucoup de frameworks JavaScript l'utilisent comme protocole par défaut comme https://angularjs.org/[Angular] ou http://emberjs.com/[EmberJS]. D'autres grandes bibliothèques en Objective-C l'utilisent comme https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Il existe probablement de bonnes solutions pour Android mais en raison de mon manque d'expérience sur cette plate-forme de développement je ne peux pas vous recommander quelque chose.
 
-Nous allons donc l’utiliser pour construire notre API. La première chose qui pourrait vous venir à l’esprit serait de commencer à créer des routes en vrac. Le problème est qu’elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner quelle ressource est renvoyée par une route.
+Nous allons donc l'utiliser pour construire notre API. La première chose qui pourrait vous venir à l'esprit serait de commencer à créer des routes en vrac. Le problème est qu'elles ne seraient pas normalisées. Un utilisateur ne pourrait pas deviner quelle ressource est renvoyée par une route.
 
-C’est pourquoi une norme existe: *REST* _(Representational State Transfer)_. REST impose une norme pour les routes qui créent, lisent, mettent à jour ou suppriment des informations sur un serveur en utilisant de simples appels HTTP. C’est une alternative aux mécanismes plus complexes comme SOAP, CORBA et RPC. Un appel REST est simplement une requête GET HTTP vers le serveur.
+C'est pourquoi une norme existe: *REST* _(Representational State Transfer)_. REST impose une norme pour les routes qui créent, lisent, mettent à jour ou suppriment des informations sur un serveur en utilisant de simples appels HTTP. C'est une alternative aux mécanismes plus complexes comme SOAP, CORBA et RPC. Un appel REST est simplement une requête GET HTTP vers le serveur.
 
 [source,soap]
 ----
@@ -54,11 +54,11 @@ http://domain.com/resources_name/uri_pattern
 Les API _RESTful_ doivent suivre au minimum trois règles:
 
 * Une URI de base comme http://example.com/resources/
-* Un type de média Internet pour représenter les données, il est communément JSON et est communément défini par l’échange d’en-têtes.
+* Un type de média Internet pour représenter les données, il est communément JSON et est communément défini par l'échange d'en-têtes.
 * Suivez les méthodes https://fr.wikipedia.org/wiki/Hypertext_Transfer_Protocol[HTTP] standard telles que GET, POST, PUT, PUT, DELETE.
 ** *GET*: Lit la ou les ressources définies par le modèle URI
 ** *POST*: Crée une nouvelle entrée dans la collection de ressources
-** *PUT*: Mise à jour d’une collection ou d’un membre des ressources
+** *PUT*: Mise à jour d'une collection ou d'un membre des ressources
 ** *DELETE*: Détruit une collection ou un membre des ressources
 
 Cela peut sembler compliqué mais au fur et à mesure que nous avancerons dans le tutoriel cela deviendra beaucoup plus facile à comprendre.
@@ -90,7 +90,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Effacez tout le code commenté qui se trouve dans le fichier. Nous n’en aurons pas besoin. Ensuite, faites un _commit_, juste pour s’échauffer:
+Effacez tout le code commenté qui se trouve dans le fichier. Nous n'en aurons pas besoin. Ensuite, faites un _commit_, juste pour s'échauffer:
 
 [source,bash]
 ----
@@ -98,7 +98,7 @@ $ git add config/routes.rb
 $ git commit -m "Removes comments from the routes file"
 ----
 
-Nous allons isoler les contrôleurs API dans des _Namespace_. Avec Rails, c’est assez simple. Il suffit de créer un dossier sous `app/controllers` nommé `api`. Le nom est important car c’est le _Namespace_ que nous allons utiliser pour gérer les contrôleurs pour les points d’entrée de l’API
+Nous allons isoler les contrôleurs API dans des _Namespace_. Avec Rails, c'est assez simple. Il suffit de créer un dossier sous `app/controllers` nommé `api`. Le nom est important car c'est le _Namespace_ que nous allons utiliser pour gérer les contrôleurs pour les points d'entrée de l'API
 
 [source,bash]
 ----
@@ -122,7 +122,7 @@ En définissant un _Namespace_ dans le fichier `routes.rb`, Rails mappera automa
 
 .Les types de media supportés par Rails
 ****
-Rails supporte jusqu’à 35 types de médias différents! Vous pouvez les lister en accédant à la classe `SET` sous le module de `Mime`:
+Rails supporte jusqu'à 35 types de médias différents! Vous pouvez les lister en accédant à la classe `SET` sous le module de `Mime`:
 
 [source,bash]
 ----
@@ -133,7 +133,7 @@ irb(main):001:0> Mime::SET.collect(&:to_s)
 ----
 ****
 
-C’est important parce que nous allons travailler avec JSON, l’un des types MIME intégrés par Rails. Ainsi nous avons juste besoin de spécifier ce format comme format par défaut:
+C'est important parce que nous allons travailler avec JSON, l'un des types MIME intégrés par Rails. Ainsi nous avons juste besoin de spécifier ce format comme format par défaut:
 
 [source,ruby]
 .config/routes.rb
@@ -146,7 +146,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Jusqu’à présent, nous n’avons rien fait de compliqué. Nous voulons maintenant générer une `base_uri` sous un sous-domaine. C’est-à-dire quelque chose comme `api.market_place_api.dev`. Définir l’API sous un sous-domaine est une bonne pratique car cela permet d’adapter l’application à un niveau DNS. Alors, comment y parvenir?
+Jusqu'à présent, nous n'avons rien fait de compliqué. Nous voulons maintenant générer une `base_uri` sous un sous-domaine. C'est-à-dire quelque chose comme `api.market_place_api.dev`. Définir l'API sous un sous-domaine est une bonne pratique car cela permet d'adapter l'application à un niveau DNS. Alors, comment y parvenir?
 
 [source,ruby]
 .config/routes.rb
@@ -159,15 +159,15 @@ Rails.application.routes.draw do
 end
 ----
 
-Vous voyez la différence? Nous n’avons pas seulement ajouté un https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l’option chemin d’accès et lui avons donné un _backslash_. Cela indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
+Vous voyez la différence? Nous n'avons pas seulement ajouté un https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] de contraintes pour spécifier le sous-domaine, nous avons aussi ajouté l'option chemin d'accès et lui avons donné un _backslash_. Cela indique à Rails que le chemin de départ pour chaque requête est la racine par rapport au sous-domaine.
 
 === Les conventions des API
 
-Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d’une API. En supposant que nous versionnons notre api:
+Vous pouvez trouver de nombreuses approches pour configurer la `base_uri` d'une API. En supposant que nous versionnons notre api:
 
-* `api.example.com/`: Je suis d’avis que c’est la voie à suivre, elle vous donne une meilleure interface et l’isolement, et à long terme peut vous aider à http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[mettre rapidement à l’échelle]
-* `example.com/api/`: Ce modèle est très commun. C’est un bon moyen de commencer quand vous ne voulez pas de _Namespace_ de votre API avec sous un sous-domaine
-* `example.com/api/v1`: Cela semble être une bonne idée. Définir la version de l’API par l’URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version à l’URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
+* `api.example.com/`: Je suis d'avis que c'est la voie à suivre, elle vous donne une meilleure interface et l'isolement, et à long terme peut vous aider à http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[mettre rapidement à l'échelle]
+* `example.com/api/`: Ce modèle est très commun. C'est un bon moyen de commencer quand vous ne voulez pas de _Namespace_ de votre API avec sous un sous-domaine
+* `example.com/api/v1`: Cela semble être une bonne idée. Définir la version de l'API par l'URL semble être un modèle plus descriptif. Cependant, vous forcez à inclure la version à l'URL sur chaque demande. Cela devient un problème Si vous décidez de changer ce modèle
 
 Ne vous inquiétez pas, nous rentrerons plus en détails à propos du versionnement plus tard. Il est temps de _commiter_:
 
@@ -177,9 +177,9 @@ $ git add config/routes.rb
 $ git commit -m "Set the routes contraints for the api"
 ----
 
-== Versionnement de l’API
+== Versionnement de l'API
 
-A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l’espacement des noms des requêtes. Votre fichier `routes.rb` devrait ressembler à ceci:
+A ce stade, nous devrions avoir un bon mappage des routes utilisant un sous-domaine pour l'espacement des noms des requêtes. Votre fichier `routes.rb` devrait ressembler à ceci:
 
 [source,ruby]
 .config/routes.rb
@@ -192,16 +192,16 @@ Rails.application.routes.draw do
 end
 ----
 
-Il est maintenant temps de mettre en place d’autres contraintes pour le _versioning_. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une *meilleure structure* à votre API. Lorsque des changements interviendront sur votre API, vous pouvez ainsi proposer aux développeurs de s’adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées.
+Il est maintenant temps de mettre en place d'autres contraintes pour le _versioning_. Vous devriez vous soucier de versionner votre application dès le début car cela donnera une *meilleure structure* à votre API. Lorsque des changements interviendront sur votre API, vous pouvez ainsi proposer aux développeurs de s'adapter aux nouvelles fonctionnalités pendant que les anciennes sont dépréciées.
 
-Afin de définir la version de l’API, nous devons d’abord ajouter un autre répertoire sous le dossier `api/` que nous avons créé:
+Afin de définir la version de l'API, nous devons d'abord ajouter un autre répertoire sous le dossier `api/` que nous avons créé:
 
 [source,bash]
 ----
 $ mkdir app/controllers/api/v1
 ----
 
-De cette façon, nous pouvons très facilement définir la portée de notre API dans différentes versions. Il ne nous reste plus qu’à ajouter le code nécessaire dans le fichier `routes.rb`
+De cette façon, nous pouvons très facilement définir la portée de notre API dans différentes versions. Il ne nous reste plus qu'à ajouter le code nécessaire dans le fichier `routes.rb`
 
 [source,ruby]
 .config/routes.rb
@@ -215,30 +215,30 @@ Rails.application.routes.draw do
 end
 ----
 
-L’API est désormais _scopée_ via l’URL. Par exemple, avec la configuration actuelle, la récupération d’un produit via l’API se ferait avec cette url: http://api.marketplace.dev/v1/products/1.
+L'API est désormais _scopée_ via l'URL. Par exemple, avec la configuration actuelle, la récupération d'un produit via l'API se ferait avec cette url: http://api.marketplace.dev/v1/products/1.
 
 == Améliorer le versionnement
 
-Jusqu’à présent, l’API est versionnée via l’URL. Mais quelque chose ne va pas. De mon point de vue, le développeur ne devrait pas être au courant de la version qu’il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir?
+Jusqu'à présent, l'API est versionnée via l'URL. Mais quelque chose ne va pas. De mon point de vue, le développeur ne devrait pas être au courant de la version qu'il utilise. Par défaut, il devrait utiliser la dernière version. Mais comment pouvons-nous y parvenir?
 
-Tout d’abord, nous devons améliorer l’accès à la version de l’API via les http://en.wikipedia.org/wiki/List_of_HTTP_header_fields[en-têtes HTTP]. Cela permet de supprimer la version de l’API situé dans l’URL.
+Tout d'abord, nous devons améliorer l'accès à la version de l'API via les http://en.wikipedia.org/wiki/List_of_HTTP_header_fields[en-têtes HTTP]. Cela permet de supprimer la version de l'API situé dans l'URL.
 
-.Les champs d’en-tête HTTP courants
+.Les champs d'en-tête HTTP courants
 ****
-Les champs d’en-tête HTTP sont des composants de l’en-tête de demandes et de réponses dans le protocole HTTP. Ils définissent les paramètres de fonctionnement d’une transaction HTTP. Voici une liste commune des en-têtes couramment utilisés:
+Les champs d'en-tête HTTP sont des composants de l'en-tête de demandes et de réponses dans le protocole HTTP. Ils définissent les paramètres de fonctionnement d'une transaction HTTP. Voici une liste commune des en-têtes couramment utilisés:
 
 * *Accept*: Types de contenus acceptables pour la réponse. Exemple: `Accept: text/plain`
-* *Authorization*: Identifiants d’authentification pour l’authentification HTTP. Exemple: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
+* *Authorization*: Identifiants d'authentification pour l'authentification HTTP. Exemple: `Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==`
 * *Content-Type*: Le type MIME du corps de la requête (utilisé avec les requêtes POST et PUT). Exemple: `Content-Type: application/x-www-form-urlencoded`
-* *Origin*: Lance une demande de partage de ressources d’origines croisées (demande au serveur un en-tête de réponse `Access-Controle-Autorisation-Autorisation-Origin`). Exemple: `Origin: http://www.example-social-network.com`
-* *User-Agent*: La chaîne d’agent utilisateur de l’agent utilisateur. Exemple: `User-Agent: Mozilla/5.0`
+* *Origin*: Lance une demande de partage de ressources d'origines croisées (demande au serveur un en-tête de réponse `Access-Controle-Autorisation-Autorisation-Origin`). Exemple: `Origin: http://www.example-social-network.com`
+* *User-Agent*: La chaîne d'agent utilisateur de l'agent utilisateur. Exemple: `User-Agent: Mozilla/5.0`
 
-Il est important que vous vous sentiez à l’aise et que vous compreniez ces en-tête HTTP.
+Il est important que vous vous sentiez à l'aise et que vous compreniez ces en-tête HTTP.
 ****
 
-Avec Rails, il est très facile d’ajouter ce type de versionnement par le biais d’un en-tête HTTP `Accept`. Nous allons créer une classe sous le répertoire `lib`. N’oubliez pas que nous faisons du TDD donc nous allons commencer par un test.
+Avec Rails, il est très facile d'ajouter ce type de versionnement par le biais d'un en-tête HTTP `Accept`. Nous allons créer une classe sous le répertoire `lib`. N'oubliez pas que nous faisons du TDD donc nous allons commencer par un test.
 
-Tout d’abord, nous devons ajouter notre suite de tests, qui dans notre cas sera http://rspec.info/[Rspec]:
+Tout d'abord, nous devons ajouter notre suite de tests, qui dans notre cas sera http://rspec.info/[Rspec]:
 
 [source,ruby]
 .Gemfile
@@ -289,7 +289,7 @@ module MarketPlaceApi
 end
 ----
 
-Si tout s’est bien passé, il est maintenant temps d’ajouter un répertoire `spec` sous `lib` et d’ajouter le fichier `api_constraints_spec.rb`:
+Si tout s'est bien passé, il est maintenant temps d'ajouter un répertoire `spec` sous `lib` et d'ajouter le fichier `api_constraints_spec.rb`:
 
 [source,bash]
 ----
@@ -324,12 +324,12 @@ describe ApiConstraints do
 end
 ----
 
-Laissez-moi vous expliquer le code. Nous initialisons la classe avec un https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] d’options qui contiendra:
+Laissez-moi vous expliquer le code. Nous initialisons la classe avec un https://ruby-doc.org/core-2.4.0/Hash.html[`Hash`] d'options qui contiendra:
 
-* la version de l’API
+* la version de l'API
 * une valeur par défaut pour gérer la version par défaut
 
-Nous fournissons une méthode `match?` afin que le routeur devine si la version par défaut est requise ou si l’en-tête `Accept` correspond à la chaîne donnée. L’implémentation ressemble à ceci
+Nous fournissons une méthode `match?` afin que le routeur devine si la version par défaut est requise ou si l'en-tête `Accept` correspond à la chaîne donnée. L'implémentation ressemble à ceci
 
 [source,ruby]
 .lib/api_constraints.rb
@@ -346,7 +346,7 @@ class ApiConstraints
 end
 ----
 
-Comme vous l’imaginez, nous devons ajouter la classe à notre fichier `routes.rb` et la définir comme option de portée de contrainte:
+Comme vous l'imaginez, nous devons ajouter la classe à notre fichier `routes.rb` et la définir comme option de portée de contrainte:
 
 [source,ruby]
 .config/routes.rb
@@ -363,7 +363,7 @@ Rails.application.routes.draw do
 end
 ----
 
-La configuration ci-dessus gère maintenant le _versioning_ par le biais des en-têtes HTTP. Pour l’instant la version 1 est la version par défaut. Chaque requête sera redirigée vers cette version, peu importe si l’en-tête avec la version est présent ou non. Avant de nous dire au revoir, faisons nos premiers tests et assurons-nous que notre test fonctionne:
+La configuration ci-dessus gère maintenant le _versioning_ par le biais des en-têtes HTTP. Pour l'instant la version 1 est la version par défaut. Chaque requête sera redirigée vers cette version, peu importe si l'en-tête avec la version est présent ou non. Avant de nous dire au revoir, faisons nos premiers tests et assurons-nous que notre test fonctionne:
 
 [source,bash]
 ----
@@ -376,9 +376,9 @@ Finished in 0.00294 seconds (files took 0.06292 seconds to load)
 
 == Conclusion
 
-Ça a été un long, je sais, mais vous avez réussi! N’abandonnez pas, c’est juste notre petite fondation pour quelque chose de grand, alors continuez comme ça. Sachez qu’il y a des gemmes qui gèrent ce genre de configuration pour nous:
+Ça a été un long, je sais, mais vous avez réussi! N'abandonnez pas, c'est juste notre petite fondation pour quelque chose de grand, alors continuez comme ça. Sachez qu'il y a des gemmes qui gèrent ce genre de configuration pour nous:
 
 * https://github.com/Sutto/rocket_pants[RocketPants]
 * https://github.com/bploetz/versionist[Versionist]
 
-Je n’en parle pas ici puisque nous essayons d’apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu’ici est disponible https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd[ici].
+Je n'en parle pas ici puisque nous essayons d'apprendre comment mettre en œuvre ce genre de fonctionnalité. Le code jusqu'ici est disponible https://github.com/madeindjs/market_place_api/commit/124873774b578af3df21136df5ee80f4d50da3bd[ici].

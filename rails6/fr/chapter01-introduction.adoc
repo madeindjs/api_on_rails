@@ -3,33 +3,33 @@
 
 Bienvenue sur API on Rails 6, un tutoriel sous stéroïdes pour apprendre la meilleure façon de construire votre prochaine API avec Rails. Le but de ce livre est de vous fournir une méthodologie complète pour développer une API RESTful en suivant les meilleures pratiques.
 
-Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l’intégrer à n’importe quel client comme un navigateur Web ou une application mobile. Le code généré est construit avec Ruby on Rails 6.0 qui est la version actuelle.
+Lorsque vous en aurez fini avec ce livre, vous serez en mesure de créer votre propre API et de l'intégrer à n'importe quel client comme un navigateur Web ou une application mobile. Le code généré est construit avec Ruby on Rails 6.0 qui est la version actuelle.
 
-L’intention de ce livre n’est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API *évolutive* et *maintenable* avec Rails. C’est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendre à:
+L'intention de ce livre n'est pas seulement de vous apprendre à construire une API avec Rails mais plutôt de vous apprendre comment construire une API *évolutive* et *maintenable* avec Rails. C'est-à-dire améliorer vos connaissances actuelles avec Rails. Dans ce voyage, vous allez apprendre à:
 
 - Utiliser Git pour le contrôle de version
 - Construire des réponses JSON
 - Tester vos points d'entrées avec des tests unitaires et fonctionnels
 - Mettre en place une authentification avec des JSON Web Tokens (JWT)
 - Utiliser les spécifications JSON:API
-- Optimiser et mettre en cache l’API
+- Optimiser et mettre en cache l'API
 
-Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vais vous proposer des conseils et des astuces pour vous améliorer tout au long du livre. Vous pouvez vous considérer comme le personnage principal d’un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
+Je vous recommande fortement de suivre toutes les étapes de ce livre. Essayez de ne pas sauter des chapitres car je vais vous proposer des conseils et des astuces pour vous améliorer tout au long du livre. Vous pouvez vous considérer comme le personnage principal d'un jeu vidéo qui obtient un niveau supérieur à chaque chapitre.
 
-Dans ce premier chapitre je vous expliquerai comment configurer votre environnement (au cas où vous ne l’auriez pas déjà fait). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j’ai pu apprendre au cours de mon expérience. Cela signifie qu’après avoir initialisé le projet, nous commencerons à utiliser *Git*.
+Dans ce premier chapitre je vous expliquerai comment configurer votre environnement (au cas où vous ne l'auriez pas déjà fait). Nous allons ensuite créer une application appelée `market_place_api`. Je veillerai à vous enseigner les meilleures pratiques que j'ai pu apprendre au cours de mon expérience. Cela signifie qu'après avoir initialisé le projet, nous commencerons à utiliser *Git*.
 
-Dans les prochains chapitres, nous allons construire l’application en suivant une méthode de travail simple que j’utilise quotidiennement. Nous développerons toute l’application en utilisant le *développement piloté par les tests* (TDD). Je vous expliquerai aussi l’intérêt d’utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l’application en construisant toutes les routes nécessaires. Nous sécuriserons aussi l’accès à l’API en construisant une authentification par échange d’en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d’optimisation pour améliorer la structure et les temps de réponse du serveur.
+Dans les prochains chapitres, nous allons construire l'application en suivant une méthode de travail simple que j'utilise quotidiennement. Nous développerons toute l'application en utilisant le *développement piloté par les tests* (TDD). Je vous expliquerai aussi l'intérêt d'utiliser une API pour votre prochain projet et de choisir un format de réponse adapté comme le JSON ou le XML. Plus loin, nous mettrons les mains dans le code et nous compléterons les bases de l'application en construisant toutes les routes nécessaires. Nous sécuriserons aussi l'accès à l'API en construisant une authentification par échange d'en-têtes HTTP. Enfin, dans le dernier chapitre, nous ajouterons quelques techniques d'optimisation pour améliorer la structure et les temps de réponse du serveur.
 
-L’application finale sera une application de place de marché qui permettra à des vendeurs de mettre en place leur propre boutique en ligne. Les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme http://shopify.com/[Shopify], http://spreecommerce.com/[Spree] ou http://magento.com/[Magento].
+L'application finale sera une application de place de marché qui permettra à des vendeurs de mettre en place leur propre boutique en ligne. Les utilisateurs seront en mesure de passer des commandes, télécharger des produits et plus encore. Il existe de nombreuses options pour créer une boutique en ligne comme http://shopify.com/[Shopify], http://spreecommerce.com/[Spree] ou http://magento.com/[Magento].
 
-Tout au long de ce voyage (cela dépend de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J’ai aussi pris certaines des pratiques que j’ai trouvées sur http://railscasts.com/[Railscasts], http://codeschool.com/[CodeSchool] et http://jsonapi.org/format/[JSON API].
+Tout au long de ce voyage (cela dépend de votre expertise), vous allez vous améliorer et être en mesure de mieux comprendre certaines des meilleures ressources Rails. J'ai aussi pris certaines des pratiques que j'ai trouvées sur http://railscasts.com/[Railscasts], http://codeschool.com/[CodeSchool] et http://jsonapi.org/format/[JSON API].
 
 
 == Conventions sur ce livre
 
 Les conventions de ce livre sont basées sur celles du https://www.railstutorial.org/book[Tutoriel Ruby on Rails]. Dans cette section, je vais en mentionner quelques-unes que vous ne connaissez peut-être pas.
 
-Je vais utiliser de nombreux exemples en utilisant des ligne de commande. Je ne vais pas traiter avec Windows `cmd` (désolé les gars). Je vais baser tous les exemples en utilisant l’invite de ligne de commande de style Unix. Voici un exemple:
+Je vais utiliser de nombreux exemples en utilisant des ligne de commande. Je ne vais pas traiter avec Windows `cmd` (désolé les gars). Je vais baser tous les exemples en utilisant l'invite de ligne de commande de style Unix. Voici un exemple:
 
 [source,bash]
 ----
@@ -37,65 +37,65 @@ $ echo "A command-line command"
 A command-line command
 ----
 
-J’utiliserai quelques principes spécifiques à Ruby. C’est-à-dire:
+J'utiliserai quelques principes spécifiques à Ruby. C'est-à-dire:
 
-* _"Éviter"_ signifie que vous n’êtes pas censé le faire.
+* _"Éviter"_ signifie que vous n'êtes pas censé le faire.
 * _"Préférer"_ indique que parmi les deux options, la première est la plus appropriée.
-* _"Utiliser"_ signifie que vous êtes en mesure d’utiliser la ressource.
+* _"Utiliser"_ signifie que vous êtes en mesure d'utiliser la ressource.
 
-Si vous rencontrez une erreur quelconque lors de l’exécution d’une commande, je vous recommande d’utiliser votre moteur de recherche pour trouver votre solution. Malheureusement, je ne peux pas couvrir toutes les erreurs possibles. Si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours mailto:contact@rousseau-alexandre.fr[m’envoyer un email].
+Si vous rencontrez une erreur quelconque lors de l'exécution d'une commande, je vous recommande d'utiliser votre moteur de recherche pour trouver votre solution. Malheureusement, je ne peux pas couvrir toutes les erreurs possibles. Si vous rencontrez des problèmes avec ce tutoriel, vous pouvez toujours mailto:contact@rousseau-alexandre.fr[m'envoyer un email].
 
 == Environnements de développement
 
-Pour presque tous les développeurs, l’une des parties les plus douloureuses est de mettre en place un environnement de développement confortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d’enfant. Je vais vous guider dans cette étape afin de vous faciliter la tâche et de vous motiver.
+Pour presque tous les développeurs, l'une des parties les plus douloureuses est de mettre en place un environnement de développement confortable. Si vous le faites correctement, les prochaines étapes devraient être un jeu d'enfant. Je vais vous guider dans cette étape afin de vous faciliter la tâche et de vous motiver.
 
 === Éditeurs de texte et Terminal
 
-Les environnements de développement diffèrent d’un ordinateur à l’autre. Ce n’est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant certains pensent que c’est la meilleure façon de travailler. Si c’est votre cas, je vous recommande d’essayer http://www.aptana.com/products/radrails[RadRails] ou http://www.jetbrains.com/ruby/index.html[RubyMine]. Tous deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux qui, comme moi, préfèrent des outils simples, je peux vous dire qu’il existe beaucoup d’outils disponibles que vous pourrez personnaliser via des plugins et plus.
+Les environnements de développement diffèrent d'un ordinateur à l'autre. Ce n'est pas le cas avec les éditeurs de texte. Je pense que pour le développement avec Rails, un IDE est beaucoup trop lourd. Cependant certains pensent que c'est la meilleure façon de travailler. Si c'est votre cas, je vous recommande d'essayer http://www.aptana.com/products/radrails[RadRails] ou http://www.jetbrains.com/ruby/index.html[RubyMine]. Tous deux sont bien maintenus et possèdent de nombreuses intégrations par défaut. Maintenant, pour ceux qui, comme moi, préfèrent des outils simples, je peux vous dire qu'il existe beaucoup d'outils disponibles que vous pourrez personnaliser via des plugins et plus.
 
-* *Éditeur de texte*: J’utilise personnellement http://www.vim.org/[Vim] comme éditeur. Au cas où vous n’êtes pas un fan de Vim, il y a beaucoup d’autres solutions comme http://www.sublimetext.com/[Sublime Text] qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par http://macromates.com/[TextMate]. Une troisième option est d’utiliser un éditeur de texte plus récent comme https://atom.io/[Atom] de http://gitub.com/[GitHub]. C’est un éditeur de texte prometteur fait en JavaScript. Il est facile à personnaliser pour répondre à vos besoins. N’importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui où vous êtes le plus à l’aise.
-* *Terminal*: Je ne suis pas un fan de l’application Terminal par défaut sous Mac OS. Je recommande http://www.iterm2.com/#/section/home[iTerm2], qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
+* *Éditeur de texte*: J'utilise personnellement http://www.vim.org/[Vim] comme éditeur. Au cas où vous n'êtes pas un fan de Vim, il y a beaucoup d'autres solutions comme http://www.sublimetext.com/[Sublime Text] qui est facile à prendre en main et surtout multi-plateforme . Il est fortement inspiré par http://macromates.com/[TextMate]. Une troisième option est d'utiliser un éditeur de texte plus récent comme https://atom.io/[Atom] de http://gitub.com/[GitHub]. C'est un éditeur de texte prometteur fait en JavaScript. Il est facile à personnaliser pour répondre à vos besoins. N'importe lequel des éditeurs que je viens de vous présenter fera le travail. Choisissez donc celui où vous êtes le plus à l'aise.
+* *Terminal*: Je ne suis pas un fan de l'application Terminal par défaut sous Mac OS. Je recommande http://www.iterm2.com/#/section/home[iTerm2], qui est un remplacement de terminal pour Mac OS. Si vous êtes sous Linux, vous avez probablement déjà un bon terminal.
 
 === Navigateur web
 
-Quand au navigateur, je conseillerai directement http://www.mozilla.org/en-US/firefox/new/[Firefox]. Mais d’autres développeurs utilisent https://www.google.com/intl/en/chrome/browser/[Chrome] ou même https://www.apple.com/safari/[Safari]. N’importe lequel d’entre eux vous aidera à construire l’application que vous voulez. Ils proposent tous un bon inspecteur pour le DOM, un analyseur de réseau et de nombreuses autres fonctionnalités que vous connaissez peut-être déjà.
+Quand au navigateur, je conseillerai directement http://www.mozilla.org/en-US/firefox/new/[Firefox]. Mais d'autres développeurs utilisent https://www.google.com/intl/en/chrome/browser/[Chrome] ou même https://www.apple.com/safari/[Safari]. N'importe lequel d'entre eux vous aidera à construire l'application que vous voulez. Ils proposent tous un bon inspecteur pour le DOM, un analyseur de réseau et de nombreuses autres fonctionnalités que vous connaissez peut-être déjà.
 
 === Gestionnaire de paquets
 
-* *Mac OS*: Il existe de nombreuses options pour gérer la façon dont vous installez les paquets sur votre Mac, comme https://www.macports.org/[Mac Ports] ou http://brew.sh/[Homebrew]. Les deux sont de bonnes options, mais je choisirais la dernière. J’ai rencontré moins de problèmes lors de l’installation de logiciels avec Homebrew. Pour installer `brew` il suffit d’exécuter la commande ci-dessous:
+* *Mac OS*: Il existe de nombreuses options pour gérer la façon dont vous installez les paquets sur votre Mac, comme https://www.macports.org/[Mac Ports] ou http://brew.sh/[Homebrew]. Les deux sont de bonnes options, mais je choisirais la dernière. J'ai rencontré moins de problèmes lors de l'installation de logiciels avec Homebrew. Pour installer `brew` il suffit d'exécuter la commande ci-dessous:
 
 [source,bash]
 ----
 $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ----
 
-* *Linux*: Vous êtes déjà prêts! Peu importe si vous utilisez `apt`, `pacman`, `yum` tant que vous vous sentez à l’aise et que vous savez comment installer des paquets.
+* *Linux*: Vous êtes déjà prêts! Peu importe si vous utilisez `apt`, `pacman`, `yum` tant que vous vous sentez à l'aise et que vous savez comment installer des paquets.
 
 === Git
 
-Nous utiliserons beaucoup Git et vous devriez aussi l’utiliser (non seulement pour ce tutoriel mais aussi pour tous vos projets). Pour l’installer, c’est très facile:
+Nous utiliserons beaucoup Git et vous devriez aussi l'utiliser (non seulement pour ce tutoriel mais aussi pour tous vos projets). Pour l'installer, c'est très facile:
 
 * sous Mac OS: `$ brew install git`
 * sous Linux: `$ sudo apt-get install git`
 
 === Ruby
 
-Il existe de nombreuses façons d’installer et de gérer Ruby. Vous devriez probablement déjà avoir une version installée sur votre système. Pour connaître votre version, tapez simplement:
+Il existe de nombreuses façons d'installer et de gérer Ruby. Vous devriez probablement déjà avoir une version installée sur votre système. Pour connaître votre version, tapez simplement:
 
 [source,bash]
 ----
 $ ruby -v
 ----
 
-Rails 6.0 nécessite l’installation de la version 2.5 ou supérieure.
+Rails 6.0 nécessite l'installation de la version 2.5 ou supérieure.
 
-Pour l’installer, je vous recommande d’utiliser http://rvm.io/[Ruby Version Manager (RVM)] ou http://rbenv.org/[rbenv].
+Pour l'installer, je vous recommande d'utiliser http://rvm.io/[Ruby Version Manager (RVM)] ou http://rbenv.org/[rbenv].
 
-Le principe de ces outils est de permettre d’installer plusieurs versions de Ruby sur une même machine, dans un environnement hermétique à une éventuelle version installée sur votre système d'exploitation et de pouvoir basculer de l’une à l’autre facilement.
+Le principe de ces outils est de permettre d'installer plusieurs versions de Ruby sur une même machine, dans un environnement hermétique à une éventuelle version installée sur votre système d'exploitation et de pouvoir basculer de l'une à l'autre facilement.
 
 Dans ce tutoriel, nous allons utiliser RVM mais peu importe laquelle de ces deux options vous utiliserez.
 
-Pour installer RVM, rendez vous sur https://rvm.io/ et installez la clé GPG footnote:[La clé GPG vous permet de vérifier l’identité de l’auteur des sources que vous téléchargez.]. Une fois cela fait:
+Pour installer RVM, rendez vous sur https://rvm.io/ et installez la clé GPG footnote:[La clé GPG vous permet de vérifier l'identité de l'auteur des sources que vous téléchargez.]. Une fois cela fait:
 
 [source,bash]
 ----
@@ -110,11 +110,11 @@ Ensuite, vous pouvez installer la dernière version de Ruby:
 $ rvm install 2.6
 ----
 
-Si tout s’est bien passé, il est temps d’installer le reste des dépendances que nous allons utiliser.
+Si tout s'est bien passé, il est temps d'installer le reste des dépendances que nous allons utiliser.
 
 ==== Gemmes, Rails et bibliothèques manquantes
 
-Tout d’abord, nous mettons à jour les Gemmes sur l’ensemble du système:
+Tout d'abord, nous mettons à jour les Gemmes sur l'ensemble du système:
 
 [source,bash]
 ----
@@ -150,7 +150,7 @@ Rails 6.0.0.rc1
 
 ==== Bases de données
 
-Je vous recommande fortement d’installer http://www.postgresql.org/[Postgresql] pour gérer vos bases de données. Mais ici, pour plus de simplicité, nous allons utiliser http://www.sqlite.org/[SQlite]. Si vous utilisez Mac OS vous n’avez pas de bibliothèques supplémentaires à installer. Si vous êtes sous Linux, ne vous inquiétez pas, je vous guide:
+Je vous recommande fortement d'installer http://www.postgresql.org/[Postgresql] pour gérer vos bases de données. Mais ici, pour plus de simplicité, nous allons utiliser http://www.sqlite.org/[SQlite]. Si vous utilisez Mac OS vous n'avez pas de bibliothèques supplémentaires à installer. Si vous êtes sous Linux, ne vous inquiétez pas, je vous guide:
 
 [source,bash]
 ----
@@ -166,7 +166,7 @@ $ sudo yum install libxslt-devel libxml2-devel libsqlite3-devel
 
 == Initialisation du projet
 
-Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n’est pas le cas, jetez un coup d’œil à cette section.
+Vous devez sans doute déjà savoir comment initialiser une application Rails. Si ce n'est pas le cas, jetez un coup d'œil à cette section.
 
 La commande est donc la suivante:
 
@@ -177,15 +177,15 @@ $ cd ~/workspace
 $ rails new market_place_api --api
 ----
 
-NOTE: L’option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et _Middleware_ inclus dans l’application. Cela permet aussi d’éviter de générer les vues HTML lors de l’utilisation des générateurs de Rails.
+NOTE: L'option `--api` est apparue lors de la version 5 de Rails. Elle permet de limiter les librairies et _Middleware_ inclus dans l'application. Cela permet aussi d'éviter de générer les vues HTML lors de l'utilisation des générateurs de Rails.
 
-Comme vous pouvez le deviner, les commandes ci-dessus généreront les éléments indispensables à votre application Rails. La prochaine étape est d’ajouter quelques gemmes que nous utiliserons pour construire l’API.
+Comme vous pouvez le deviner, les commandes ci-dessus généreront les éléments indispensables à votre application Rails. La prochaine étape est d'ajouter quelques gemmes que nous utiliserons pour construire l'API.
 
 == Contrôle de version
 
-Rappelez-vous que Git vous aide à suivre et à maintenir l’historique de votre code. Gardez à l’esprit que le code source de l’application est publié sur GitHub. Vous pouvez suivre le projet sur https://github.com/madeindjs/api_on_rails_6[GitHub]
+Rappelez-vous que Git vous aide à suivre et à maintenir l'historique de votre code. Gardez à l'esprit que le code source de l'application est publié sur GitHub. Vous pouvez suivre le projet sur https://github.com/madeindjs/api_on_rails_6[GitHub]
 
-Lorsque vous avez utilisé la commande `rails new`, Ruby on Rails a initialisé le répertoire Git pour vous. Cela signifie que vous n'avez pas besoin d’exécuter la commande `git init`.
+Lorsque vous avez utilisé la commande `rails new`, Ruby on Rails a initialisé le répertoire Git pour vous. Cela signifie que vous n'avez pas besoin d'exécuter la commande `git init`.
 
 Il faut néanmoins configurer les informations de l'auteur des _commits_. Si ce n'est pas déjà fait, placez vous dans le répertoire et lancez les commandes suivantes:
 
@@ -222,7 +222,7 @@ Rails fournit également un fichier _.gitignore_ pour ignorer certains fichiers 
 /config/master.key
 ----
 
-Une fois Git mis en place, il suffit d’ajouter les fichiers et de valider les modifications. Les commandes nécessaires sont les suivantes:
+Une fois Git mis en place, il suffit d'ajouter les fichiers et de valider les modifications. Les commandes nécessaires sont les suivantes:
 
 [source,bash]
 ----
@@ -230,9 +230,9 @@ $ git add .
 $ git commit -m "Initial commit"
 ----
 
-NOTE: J’ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu’il a fait. De cette façon il est plus facile de lire et de comprendre l’historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu’à la fin du tutoriel.
+NOTE: J'ai appris que commencer un message par un verbe au présent décrit ce que fait le commit et non ce qu'il a fait. De cette façon il est plus facile de lire et de comprendre l'historique du projet (ou du moins pour moi). Je vais suivre cette pratique jusqu'à la fin du tutoriel.
 
-Enfin, et c’est une étape optionnelle, nous déployons le projet sur *GitHub* (je ne vais pas l’expliquer ici) et poussons notre code vers le serveur distant. On commence donc par ajouter un serveur distant:
+Enfin, et c'est une étape optionnelle, nous déployons le projet sur *GitHub* (je ne vais pas l'expliquer ici) et poussons notre code vers le serveur distant. On commence donc par ajouter un serveur distant:
 
 [source,bash]
 ----
@@ -246,8 +246,8 @@ Ensuite nous poussons le code:
 $ git push -u origin master
 ----
 
-Au fur et à mesure que nous avançons dans le tutoriel, j’utiliserai les pratiques que j’utilise quotidiennement. Cela inclut le travail avec les branches, le rebasage, le squash et bien d’autres. Vous n’avez pas à vous inquiéter si vous ne connaissez pas tous ces termes, je les expliquerai le temps venu.
+Au fur et à mesure que nous avançons dans le tutoriel, j'utiliserai les pratiques que j'utilise quotidiennement. Cela inclut le travail avec les branches, le rebasage, le squash et bien d'autres. Vous n'avez pas à vous inquiéter si vous ne connaissez pas tous ces termes, je les expliquerai le temps venu.
 
 == Conclusion
 
-Cela a été un chapitre assez long. Si vous êtes arrivés ici, permettez-moi de vous féliciter. Les choses vont s’améliorer à partir de ce point. Commençons à mettre les mains dans le code!
+Cela a été un chapitre assez long. Si vous êtes arrivés ici, permettez-moi de vous féliciter. Les choses vont s'améliorer à partir de ce point. Commençons à mettre les mains dans le code!

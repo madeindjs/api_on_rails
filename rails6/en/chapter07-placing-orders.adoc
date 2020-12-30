@@ -1,15 +1,15 @@
 [#chapter07-placing-orders]
 = Placing Orders
 
-In the previous chapter, we handle associations between products and users and how to serialize them in order to scale fast and easy. Now it is time to start placing orders which is going to be a more complex situation. We will handle associations between these three models. We have to be smart enough to handle the JSON output we are delivering.
+In the previous chapter, we handle associations between products and users and serialize them to scale fast and easy. Now it is time to start placing orders, which is going to be a more complex situation. We will handle associations between these three models. We have to be smart enough to handle the JSON output we are delivering.
 
-In this chapter we will make several things which I list below:
+In this chapter, we will make several things, which I list below:
 
 * Create an `Order` model with its corresponding specs
 * Handle JSON output association between the order user and product models
 * Send a confirmation email with the order summary
 
-So now everything is clear we can get our hands dirty. You can clone the project up to this point with:
+So now everything is clear, we can get our hands dirty. You can clone the project up to this point with:
 
 [source,bash]
 ----
@@ -25,16 +25,16 @@ $ git checkout -b chapter07
 
 == Modeling order
 
-If you remember the associations model, `Order` model is associated with users and products at the same time. Actually, It is really simple to achieve this in Rails. The tricky part is when it comes to serializing this object. I'll talk more about this in the next section.
+If you remember the associations model, `Order` model is associated with users and products simultaneously. Actually, It is straightforward to achieve this in Rails. The tricky part is when it comes to serializing this object. I'll talk more about this in the next section.
 
-Let’s start by creating the order model with a special form:
+Let’s start by creating the older model with a special form:
 
 [source,bash]
 ----
 $ rails generate model order user:belongs_to total:decimal
 ----
 
-The command above will generate the order model but I’m taking advantage of the `references` method to create the corresponding foreign key for the order to belong to a user. It also adds the `belongs_to` directive into the order model. Let’s migrate the database.
+The command above will generate the order model, but I’m taking advantage of the `references` method to create the corresponding foreign key for the order to belong to a user. It also adds the `belongs_to` directive into the order model. Let’s migrate the database.
 
 [source,bash]
 ----
@@ -99,7 +99,7 @@ $ git add . && git commit -m "Generate orders"
 
 === Orders and Products
 
-We need to setup the association between the `order` and the `product` and this is build with a *has-many-to-many* association. As many products will be placed on many orders and the orders will have multiple products. So in this case we need a model in the middle that will join these two other objects and map the appropriate association.
+We need to set up the association between the `order` and the `product`, built with a *has-many-to-many* association. As many products will be placed on many orders, and the orders will have multiple products. So, in this case, we need a middle model that will join these two other objects and map the appropriate association.
 
 Let’s generate this model:
 
@@ -139,7 +139,7 @@ end
 ----
 
 
-If you have been following the tutorial so far the implementation is already there because of the `references` type we pass on the model command generator. We should add `inverse_of` option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
+If you have been following the tutorial so far, the implementation is already there because of the `references` type we pass on the model command generator. We should add `inverse_of` option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
 
 [source,ruby]
 .app/models/placement.rb
@@ -158,7 +158,7 @@ $ rake test
 ..................................
 ----
 
-Now that everything is nice and green let’s commit the changes and continue.
+Now that everything is nice and green, let’s commit the changes and continue.
 
 [source,bash]
 ----
@@ -168,7 +168,7 @@ $ git add . && git commit -m "Associates products and orders with a placements m
 
 == Expose the user model
 
-It is now time to prepare the order controller to expose the right orders. If you remember the previous chapters where https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi] was used, you should remember that it was really easy.
+It is now time to prepare the order controller to expose the right orders. If you remember the previous chapters where https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi] was used, you should remember that it was straightforward.
 
 Let us first define what actions we will take:
 
@@ -183,11 +183,11 @@ Let's start with the action `index`. First, we have to create the order controll
 $ rails generate controller api::v1::orders
 ----
 
-Up to this point and before start typing some code we have to ask ourselves:
+Up to this point and before start typing some code, we have to ask ourselves:
 
 > Should I leave my order endpoints nested into the `UsersController` or should I isolate them?
 
-The answer is really simple: it depends on the amount of information you want to expose to the developer.
+The answer is straightforward: it depends on the amount of information you want to expose to the developer.
 
 In our case, we will not do this because we will retrieve the user orders from the `/orders` route. Let's start with some tests:
 
@@ -217,7 +217,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-If we run the test suite now both tests should fail as you may expect. This is because they have not even set the correct routes nor actions. So let’s start by adding the routes:
+If we run the test suite now, both tests should fail as you may expect. This is because they have not even set the correct routes nor actions. So let’s start by adding the routes:
 
 [source,ruby]
 .config/routes.rb
@@ -284,7 +284,7 @@ $ git add . && git commit -m "Adds the index action for order"
 
 === Render a single order
 
-As you can already imagine this route is very easy. We only have to set up a few configurations (routes, controller action) and this section will be over. We will also include products related to this order in the output JSON.
+As you can already imagine, this route is straightforward. We only have to set up a few configurations (routes, controller action), and this section will be over. We will also include products related to this order in the output JSON.
 
 Let's start by adding some tests:
 
@@ -309,7 +309,7 @@ end
 
 As you can see, the second part of the test verifies the product is included in the JSON.
 
-Let's add the implementation to run our tests. On the `routes.rb` file add the `show` action to the order routes:
+Let's add the implementation to run our tests. On the `routes.rb` file, add the `show` action to the order routes:
 
 [source,ruby]
 .config/routes.rb
@@ -369,7 +369,7 @@ Before launching this feature, let's take the time to think about the implicatio
 * decrease in product inventory
 * add some validation for order placement to ensure that there are enough products at the time the order is placed
 
-It seems like there's still a lot to do but believe me: you're closer than you think and it's not as hard as it looks. For now, let's keep it simple and assume that we still have enough products to place any number of orders. We're just concerned about the server's response at the moment.
+It seems like there's still a lot to do but believe me: you're closer than you think, and it's not as hard as it looks. For now, let's keep it simple and assume that we still have enough products to place any number of orders. We're just concerned about the server's response at the moment.
 
 If you remember order model we need three things:
 
@@ -413,7 +413,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-As you can see we are creating a `order_params` variable with the order data. Can you see the problem here? If not I’ll explain it later. Let’s just add the necessary code to make this test pass.
+As you can see, we are creating a `order_params` variable with the order data. Can you see the problem here? If not I’ll explain it later. Let’s just add the necessary code to make this test pass.
 
 First, we need to add the action to the resources on the routes file:
 
@@ -467,9 +467,9 @@ $ rake test
 
 Ok, so we have everything nice and green. Now we should move on to the next chapter, right? Let me stop you right there. We have some serious errors on the app, and they are not related to the code itself but on the business part.
 
-Not because the tests are green, it means the app is filling the business part of the app. I wanted to bring this up because in many cases that's super easy just receiving params and building objects from those params thinking that we are always receiving the correct data. In this particular case, we cannot rely on that, and the easiest way to see this is that we are letting the client set the order total, yeah crazy!
+Not because the tests are green, it means the app is filling the business part of the app. I wanted to bring this up because in many cases, that's super easy just receiving params and building objects from those params thinking that we are always receiving the correct data. In this particular case, we cannot rely on that, and the easiest way to see this is that we are letting the client set the order total, yeah crazy!
 
-We have to add some validations or a callback to calculate the order total an set it through the model. This way we don’t longer receive that total attribute and have complete control over this attribute. So let’s do that.
+We have to add some validations or a callback to calculate the order total and set it through the model. This way we don’t longer receive that total attribute and have complete control over this attribute. So let’s do that.
 
 We first need to add some specs for the order model:
 
@@ -509,7 +509,7 @@ class Order < ApplicationRecord
 end
 ----
 
-We can now hook the `set_total!` method to a `before_validation` callback to make sure it has the correct total before is validated.
+We can now hook the `set_total!` method to a `before_validation` callback to ensure it has the correct total before it is validated.
 
 [source,ruby]
 .app/models/order.rb
@@ -520,7 +520,7 @@ class Order < ApplicationRecord
 end
 ----
 
-At this point, we are making sure the total is always present and bigger or equal to zero. This means we can remove those validations and remove the specs. I’ll wait. Our tests should be passing by now:
+We are making sure the total is always present and bigger or equal to zero. This means we can remove those validations and remove the specs. I’ll wait. Our tests should be passing by now:
 
 [source,bash]
 ----
@@ -553,7 +553,7 @@ $ git commit -am "Adds the create method for the orders controller"
 
 == Send order confirmation email
 
-The last section for this chapter will be to sent a confirmation email for the user who just placed it. If you want to skip this and jump into the next chapter go ahead. This section is more like a warmup.
+The last section for this chapter will be to sent a confirmation email for the user who just placed it. If you want to skip this and jump into the next chapter, go ahead. This section is more like a warmup.
 
 You may be familiar with email manipulation with Rails so I’ll try to make this fast and simple. We first create the `order_mailer` with an email named `send_confirmation`:
 
@@ -691,4 +691,4 @@ In the next chapters, we will continue working on the order template to add vali
 * What happens when products are not available?
 * Decrease the quantity of the product in progress when placing an order
 
-The next chapter will be short, but it is very important for the health of the application. So don't skip it.
+The next chapter will be short, but it is essential for the health of the application. So don't skip it.

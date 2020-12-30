@@ -1,22 +1,22 @@
 [#chapter05-user-products]
 = Produits des utilisateurs
 
-Dans le chapitre précédent, nous avons implémenté le mécanisme d’authentification que nous allons utiliser tout au long de l’application.
+Dans le chapitre précédent, nous avons implémenté le mécanisme d'authentification que nous allons utiliser tout au long de l'application.
 
-Pour l’instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu. Nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits de l’utilisateur. Ce sont les éléments que l’utilisateur vendra dans l’application.
+Pour l'instant nous avons une implémentation très simple du modèle `User` mais le moment de vérité est venu. Nous allons personnaliser la sortie JSON et ajouter une deuxième ressource: les produits de l'utilisateur. Ce sont les éléments que l'utilisateur vendra dans l'application.
 
 Si vous êtes familier avec Rails, vous savez peut-être déjà de quoi je parle. Mais pour ceux qui ne le savent pas, nous allons associer le modèle `User` au modèle `Product` en utilisant les méthodes `has_many` et `belongs_to` de _Active Record_.
 
-Dans ce chapitre, nous allons construire le modèle de `Product` à partir de zéro, l’associer à l’utilisateur et créer les entrées nécessaires pour que tout client puisse accéder aux informations.
+Dans ce chapitre, nous allons construire le modèle de `Product` à partir de zéro, l'associer à l'utilisateur et créer les entrées nécessaires pour que tout client puisse accéder aux informations.
 
-Vous pouvez cloner le projet jusqu’à ce point:
+Vous pouvez cloner le projet jusqu'à ce point:
 
 [source,bash]
 ----
 $ git checkout tags/checkpoint_chapter05
 ----
 
-Avant de début, et comme d’habitude quand nous commençons de nouvelles fonctionnalités, nous créons une nouvelle branche:
+Avant de début, et comme d'habitude quand nous commençons de nouvelles fonctionnalités, nous créons une nouvelle branche:
 
 [source,bash]
 ----
@@ -26,7 +26,7 @@ $ git checkout -b chapter05
 
 == Le modèle du produit
 
-Nous commencerons d’abord par créer un modèle de `Product` puis nous y ajouterons quelques validations et enfin nous l’associerons au modèle `User`. Comme le modèle `User`, le `Product` sera entièrement testé et sera automatiquement supprimé si l’utilisateur est supprimé.
+Nous commencerons d'abord par créer un modèle de `Product` puis nous y ajouterons quelques validations et enfin nous l'associerons au modèle `User`. Comme le modèle `User`, le `Product` sera entièrement testé et sera automatiquement supprimé si l'utilisateur est supprimé.
 
 
 === Les fondements du produit
@@ -46,9 +46,9 @@ Running via Spring preloader in process 1476
 ----
 
 
-Comme vous pouvez le remarquer, nous avons utilisé le type `belongs_to` pour l’attribut. Ceci est un raccourci qui va créer une colonne `user_id` de type `int` et aussi ajouter une clé étrangère sur le champ `users.id`.
+Comme vous pouvez le remarquer, nous avons utilisé le type `belongs_to` pour l'attribut. Ceci est un raccourci qui va créer une colonne `user_id` de type `int` et aussi ajouter une clé étrangère sur le champ `users.id`.
 
-De plus, `user_id` sera aussi défini comme un `index`. C’est une bonne pratique pour les clés d’associations car cela optimise les requêtes de la base de données. Ce n’est pas obligatoire, mais je vous le recommande vivement.
+De plus, `user_id` sera aussi défini comme un `index`. C'est une bonne pratique pour les clés d'associations car cela optimise les requêtes de la base de données. Ce n'est pas obligatoire, mais je vous le recommande vivement.
 
 Le fichier de migration devrait ressembler à ceci:
 
@@ -90,9 +90,9 @@ ActiveRecord::InvalidForeignKey: SQLite3::ConstraintException: FOREIGN KEY const
 rails test test/controllers/api/v1/users_controller_test.rb:43
 ----
 
-"Quoi?! Mais je n'ai pas touché aux utilisateurs!" dites-vous très certainement. Ce que j’ai vu dans le code d’autres développeurs, lorsqu’ils travaillent avec des associations, c’est qu’ils oublient la destruction des dépendances entre les modèles. Ce que je veux dire par là, c’est que si un utilisateur est supprimé, les produits de l’utilisateur devraient l’être aussi.
+"Quoi?! Mais je n'ai pas touché aux utilisateurs!" dites-vous très certainement. Ce que j'ai vu dans le code d'autres développeurs, lorsqu'ils travaillent avec des associations, c'est qu'ils oublient la destruction des dépendances entre les modèles. Ce que je veux dire par là, c'est que si un utilisateur est supprimé, les produits de l'utilisateur devraient l'être aussi.
 
-Donc pour tester cette interaction entre les modèles, nous avons besoin d’un utilisateur avec un des produits. Puis, nous supprimerons cet utilisateur en espérant que les produits disparaissent avec lui. Rails à déjà généré cela pour nous. Jetez un coup d'œil à la _fixture_ des produits:
+Donc pour tester cette interaction entre les modèles, nous avons besoin d'un utilisateur avec un des produits. Puis, nous supprimerons cet utilisateur en espérant que les produits disparaissent avec lui. Rails à déjà généré cela pour nous. Jetez un coup d'œil à la _fixture_ des produits:
 
 .test/fixtures/products.yml
 [source,yaml]
@@ -105,7 +105,7 @@ one:
 # ...
 ----
 
-Vous pouvez voir que cette _fixture_ n'utilise pas l'attribut `user_id` mais `user`. Cela signifie que le produit `one` aura un attribut `user_id` correspondant à l’identifiant de l'utilisateur `one`.
+Vous pouvez voir que cette _fixture_ n'utilise pas l'attribut `user_id` mais `user`. Cela signifie que le produit `one` aura un attribut `user_id` correspondant à l'identifiant de l'utilisateur `one`.
 
 Il faut donc spécifier une suppression en cascade afin de supprimer le produit `one` lorsque l'utilisateur `one` est supprimé. Commençons par le test unitaire:
 
@@ -124,7 +124,7 @@ class UserTest < ActiveSupport::TestCase
 end
 ----
 
-Il suffit de modifier le modèle `User` et lui spécifier la relation `has_many` avec l’option `dependent: :destroy`. Nous verrons plus tard ce que cette méthode fait plus en détails.
+Il suffit de modifier le modèle `User` et lui spécifier la relation `has_many` avec l'option `dependent: :destroy`. Nous verrons plus tard ce que cette méthode fait plus en détails.
 
 .test/models/user_test.rb
 [source,ruby]
@@ -145,7 +145,7 @@ $ git add . && git commit -m "Generate product model"
 
 === Validations des produits
 
-Comme nous l’avons vu avec l’utilisateur, les validations sont une partie importante lors de la construction de tout type d’application. Cela nous permet d’empêcher toute donnée indésirable d’être enregistrée dans la base de données. Pour le produit, nous devons nous assurer, par exemple, que le prix est un nombre et qu’il n’est pas négatif.
+Comme nous l'avons vu avec l'utilisateur, les validations sont une partie importante lors de la construction de tout type d'application. Cela nous permet d'empêcher toute donnée indésirable d'être enregistrée dans la base de données. Pour le produit, nous devons nous assurer, par exemple, que le prix est un nombre et qu'il n'est pas négatif.
 
 Voici donc notre premier test pour le modèle des produits:
 
@@ -162,7 +162,7 @@ class ProductTest < ActiveSupport::TestCase
 end
 ----
 
-Il nous faut maintenant ajouter l’implémentation pour faire passer le test:
+Il nous faut maintenant ajouter l'implémentation pour faire passer le test:
 
 [source,ruby]
 .app/models/product.rb
@@ -182,7 +182,7 @@ $ rake test
 ................
 ----
 
-_Commitons_ ces changements et continuons d’avancer:
+_Commitons_ ces changements et continuons d'avancer:
 
 [source,bash]
 ----
@@ -190,11 +190,11 @@ $ git commit -am "Adds some validations to products"
 ----
 
 
-== Point d’entrée pour nos produits
+== Point d'entrée pour nos produits
 
-Il est maintenant temps de commencer à construire les points d’entrée des produits. Pour l’instant, nous allons juste construire cinq actions REST. Dans le prochain chapitre, nous allons personnaliser la sortie JSON en implémentant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi].
+Il est maintenant temps de commencer à construire les points d'entrée des produits. Pour l'instant, nous allons juste construire cinq actions REST. Dans le prochain chapitre, nous allons personnaliser la sortie JSON en implémentant la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi].
 
-Nous devons d’abord créer le `products_controller`, et nous pouvons facilement y parvenir avec la commande ci-dessous:
+Nous devons d'abord créer le `products_controller`, et nous pouvons facilement y parvenir avec la commande ci-dessous:
 
 [source,bash]
 ----
@@ -204,13 +204,13 @@ $ rails generate controller api::v1::products
       create    test/controllers/api/v1/products_controller_test.rb
 ----
 
-La commande ci-dessus va générer pas mal de fichiers qui vont nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c’est qu’il va générer le contrôleur et les fichiers de test déjà _scopés_ à la version 1 de l’API.
+La commande ci-dessus va générer pas mal de fichiers qui vont nous permettre de commencer à travailler rapidement. Ce que je veux dire par là, c'est qu'il va générer le contrôleur et les fichiers de test déjà _scopés_ à la version 1 de l'API.
 
-En guise d’échauffement, nous allons commencer par construire l’action du `show` pour le produit.
+En guise d'échauffement, nous allons commencer par construire l'action du `show` pour le produit.
 
-=== Action d’affichage d’un produit
+=== Action d'affichage d'un produit
 
-Comme d’habitude, nous commençons par ajouter quelques test du contrôleur des produits. La stratégie ici est très simple, il suffit de créer un seul produit et de s’assurer que la réponse du serveur est celle que nous attendons.
+Comme d'habitude, nous commençons par ajouter quelques test du contrôleur des produits. La stratégie ici est très simple, il suffit de créer un seul produit et de s'assurer que la réponse du serveur est celle que nous attendons.
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -243,7 +243,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Attendez! N’exécutez pas encore les tests. N’oubliez pas que nous devons ajouter la route au fichier `routes.rb`:
+Attendez! N'exécutez pas encore les tests. N'oubliez pas que nous devons ajouter la route au fichier `routes.rb`:
 
 [source,ruby]
 .config/routes.rb
@@ -267,11 +267,11 @@ $ rake test
 .................
 ----
 
-Comme vous pouvez déjà le constater, les tests et l’implémentation sont très simples. En fait, cela ressemble beaucoup à ce que nous avons fait pour les utilisateurs.
+Comme vous pouvez déjà le constater, les tests et l'implémentation sont très simples. En fait, cela ressemble beaucoup à ce que nous avons fait pour les utilisateurs.
 
 === Liste des produits
 
-Il est maintenant temps de créer une entrée pour une liste de produits qui pourrait permettre d’afficher le catalogue de produits d’un marché par exemple. Pour ce point d’accès, nous n’exigeons pas que l’utilisateur soit connecté. Comme d’habitude, nous allons commencer à écrire quelques tests:
+Il est maintenant temps de créer une entrée pour une liste de produits qui pourrait permettre d'afficher le catalogue de produits d'un marché par exemple. Pour ce point d'accès, nous n'exigeons pas que l'utilisateur soit connecté. Comme d'habitude, nous allons commencer à écrire quelques tests:
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -298,7 +298,7 @@ end
 ----
 
 
-Passons maintenant à la mise en œuvre, qui, pour l’instant, va être une petite méthode:
+Passons maintenant à la mise en œuvre, qui, pour l'instant, va être une petite méthode:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -311,7 +311,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Et n’oubliez pas, vous devez ajouter la route correspondante dans le fichier `config/routes.rb`:
+Et n'oubliez pas, vous devez ajouter la route correspondante dans le fichier `config/routes.rb`:
 
 [source,ruby]
 .config/routes.rb
@@ -326,7 +326,7 @@ Rails.application.routes.draw do
 end
 ----
 
-Dans les chapitres suivants, nous allons améliorer ce point d’entré et donner la possibilité de recevoir des paramètres pour les filtrer. _Commitons_ ces changements et continuons d’avancer:
+Dans les chapitres suivants, nous allons améliorer ce point d'entré et donner la possibilité de recevoir des paramètres pour les filtrer. _Commitons_ ces changements et continuons d'avancer:
 
 [source,bash]
 ----
@@ -335,7 +335,7 @@ $ git add . && git commit -m "Finishes modeling the product model along with use
 
 === Création des produits
 
-Créer des produits est un peu plus délicat parce que nous aurons besoin d’une configuration supplémentaire. La stratégie que nous suivrons est d’attribuer le produit créé à l'utilisateur propriétaire du jeton JWT fourni d'en l'en-tête HTTP `Authorization`.
+Créer des produits est un peu plus délicat parce que nous aurons besoin d'une configuration supplémentaire. La stratégie que nous suivrons est d'attribuer le produit créé à l'utilisateur propriétaire du jeton JWT fourni d'en l'en-tête HTTP `Authorization`.
 
 Notre premier arrêt sera donc le fichier `products_controller_test.rb`.
 
@@ -367,9 +367,9 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez, les tests sont en fait les mêmes que ceux de la création de l’utilisateur excepté quelques changements mineurs.
+Wow! Nous avons ajouté beaucoup de code. Si vous vous souvenez, les tests sont en fait les mêmes que ceux de la création de l'utilisateur excepté quelques changements mineurs.
 
-De cette façon, nous pouvons voir l’utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux. Si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d’autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l’utilisateur à partir de l’en-tête `Authorization` et lui avons assigné une méthode `current_user`. C’est donc assez facile à mettre en place en ajoutant simplement l’en-tête d’autorisation dans la requête et en récupérant l’utilisateur à partir de celui-ci. Alors faisons-le:
+De cette façon, nous pouvons voir l'utilisateur et lui créer un produit qui lui est associé. Mais attendez il y a mieux. Si nous adoptons cette approche, nous pouvons augmenter la portée de notre mécanisme d'autorisation. Dans ce cas, si vous vous souvenez, nous avons construit la logique pour obtenir l'utilisateur à partir de l'en-tête `Authorization` et lui avons assigné une méthode `current_user`. C'est donc assez facile à mettre en place en ajoutant simplement l'en-tête d'autorisation dans la requête et en récupérant l'utilisateur à partir de celui-ci. Alors faisons-le:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -395,7 +395,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Comme vous pouvez le voir, nous protégeons l’action de création avec la méthode `check_login`, et sur l’action `create` nous construisons le produit en associant l’utilisateur courant. J'ai ajouté cette méthode très simpliste au _concern_ `authenticable.rb`:
+Comme vous pouvez le voir, nous protégeons l'action de création avec la méthode `check_login`, et sur l'action `create` nous construisons le produit en associant l'utilisateur courant. J'ai ajouté cette méthode très simpliste au _concern_ `authenticable.rb`:
 
 [source,ruby]
 .app/controllers/concerns/authenticable.rb
@@ -435,9 +435,9 @@ $ rake test
 
 === Mise à jour des produits
 
-J’espère que maintenant vous comprenez la logique pour construire les actions à venir. Dans cette section, nous nous concentrerons sur l’action de mise à jour qui fonctionnera de manière similaire à celle de création. Nous avons juste besoin d’aller chercher le produit dans la base de données et de le mettre à jour.
+J'espère que maintenant vous comprenez la logique pour construire les actions à venir. Dans cette section, nous nous concentrerons sur l'action de mise à jour qui fonctionnera de manière similaire à celle de création. Nous avons juste besoin d'aller chercher le produit dans la base de données et de le mettre à jour.
 
-Nous ajoutons d’abord l’action aux routes pour ne pas oublier plus tard:
+Nous ajoutons d'abord l'action aux routes pour ne pas oublier plus tard:
 
 [source,ruby]
 .config/routes.rb
@@ -452,9 +452,9 @@ Rails.application.routes.draw do
 end
 ----
 
-Avant de commencer à coder certains tests je veux juste préciser que, de la même manière que pour l’action `create`, nous allons délimiter le produit à l’utilisateur courant. Nous voulons nous assurer que le produit que nous mettons à jour appartient bien à l’utilisateur. Nous allons donc chercher ce produit dans l’association `user.products` fournie par _Active Record_.
+Avant de commencer à coder certains tests je veux juste préciser que, de la même manière que pour l'action `create`, nous allons délimiter le produit à l'utilisateur courant. Nous voulons nous assurer que le produit que nous mettons à jour appartient bien à l'utilisateur. Nous allons donc chercher ce produit dans l'association `user.products` fournie par _Active Record_.
 
-Tout d’abord, nous ajoutons quelques tests:
+Tout d'abord, nous ajoutons quelques tests:
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -484,7 +484,7 @@ end
 
 NOTE: J'ai ajouté une _fixture_ correspondant à un deuxième utilisateur dans le but de vérifier que celui-ci ne peut pas modifier le produit du premier utilisateur.
 
-Les tests peuvent paraître complexes, mais en jetant un coup d’œil, ils sont presque identiques à ceux des utilisateurs.
+Les tests peuvent paraître complexes, mais en jetant un coup d'œil, ils sont presque identiques à ceux des utilisateurs.
 
 Maintenant implémentons le code pour faire passer nos tests avec succès:
 
@@ -528,7 +528,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Comme vous pouvez le constater, l’implémentation est assez simple. Nous allons simplement récupérer le produit auprès de l’utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au `before_action`, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
+Comme vous pouvez le constater, l'implémentation est assez simple. Nous allons simplement récupérer le produit auprès de l'utilisateur connecté et nous le mettons simplement à jour. Nous avons également ajouté cette action au `before_action`, pour empêcher tout utilisateur non autorisé de mettre à jour un produit.
 
 Si nous lançons les tests, ils devraient passer:
 
@@ -540,7 +540,7 @@ $ rake test
 
 === Suppression des produits
 
-Notre dernier arrêt pour les route des produits, sera l’action `destroy`. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La stratégie ici sera assez similaire à l’action de `create` et `update`. Ce qui signifie que nous allons récupérer l'utilisateur connecté puis récupérer le produit auprès de l’association `user.products` et enfin le supprimer en retournant un code 204.
+Notre dernier arrêt pour les route des produits, sera l'action `destroy`. Vous pouvez maintenant imaginer à quoi cela ressemblerait. La stratégie ici sera assez similaire à l'action de `create` et `update`. Ce qui signifie que nous allons récupérer l'utilisateur connecté puis récupérer le produit auprès de l'association `user.products` et enfin le supprimer en retournant un code 204.
 
 Recommençons par ajouter la route:
 
@@ -604,7 +604,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Comme vous pouvez le voir, l’implémentation fait le travail en trois lignes. Nous pouvons lancer les tests pour nous assurer que tout est bon.
+Comme vous pouvez le voir, l'implémentation fait le travail en trois lignes. Nous pouvons lancer les tests pour nous assurer que tout est bon.
 
 [source,bash]
 ----
@@ -734,4 +734,4 @@ $ git merge chapter05
 
 J'espère que vous avez apprécié ce chapitre. C'est un long travail, mais le code que nous avons créé est une excellente base pour l'application principale.
 
-Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produits à l’aide de la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.
+Dans le chapitre suivant, nous allons nous concentrer sur la personnalisation de la sortie des modèles utilisateur et produits à l'aide de la gemme https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. Elle nous permettra de filtrer facilement les attributs à afficher et à gérer les associations comme des objets embarqués par exemple.

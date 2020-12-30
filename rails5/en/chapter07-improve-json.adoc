@@ -20,7 +20,7 @@ In previous chapter we added a `products` resource to the application and built 
 }
 ----
 
-It doesn’t look nice, as the JSON output should render just an array of products, with the `products` as the root key. Something like this:
+It doesn't look nice, as the JSON output should render just an array of products, with the `products` as the root key. Something like this:
 
 [source,json]
 ----
@@ -40,7 +40,7 @@ This is further explained in the http://jsonapi.org/format/#document-structure-r
 
 I highly recommend you go and bookmark this reference. It is amazing and will cover some points I might not.
 
-In this chapter we will customize the JSON output using the `active_model_serializers` gem, for more information you can review the https://github.com/rails-api/active_model_serializers[repository] on GitHub. I’ll cover some points in here from installation to implementation but I do recommend you check the gem docs on your free time.
+In this chapter we will customize the JSON output using the `active_model_serializers` gem, for more information you can review the https://github.com/rails-api/active_model_serializers[repository] on GitHub. I'll cover some points in here from installation to implementation but I do recommend you check the gem docs on your free time.
 
 You can clone the project up to this point with:
 
@@ -49,7 +49,7 @@ You can clone the project up to this point with:
 $ git clone https://github.com/madeindjs/market_place_api.git -b chapter6
 ----
 
-Let’s branch out this chapter with:
+Let's branch out this chapter with:
 
 [source,bash]
 ----
@@ -58,7 +58,7 @@ $ git checkout -b chapter7
 
 == Setting up the gem
 
-If you have been following the tutorial all along. you should already have the gem installed. But in case you just landed here I’ll walk you through the setup.
+If you have been following the tutorial all along. you should already have the gem installed. But in case you just landed here I'll walk you through the setup.
 
 Add the following line to your `Gemfile`:
 
@@ -101,7 +101,7 @@ F.F....F.....
 
 NOTE: In this case, Rails will look for a serializer named PostSerializer, and if it exists, use it to serialize the `Post`. This also works with `respond_with`, which uses `to_json` under the hood. Also note that any options passed to render `:json` will be passed to your serializer and available as `@options inside`. This means that no matter if we are using the `render json` method or `respond_with`, from now on Rails will look for the corresponding serializer first.
 
-Now back to the specs. You can see that for some reason the response it’s not quite what we are expecting, and that is because the gem encapsulates the model into a javascript object with the model name as the root (in this case `user`).
+Now back to the specs. You can see that for some reason the response it's not quite what we are expecting, and that is because the gem encapsulates the model into a javascript object with the model name as the root (in this case `user`).
 
 So in order to make the tests pass we just need to add the attributes to serialize into the `user_serializer.rb` and update the `users_controller_spec.rb` file:
 
@@ -124,7 +124,7 @@ Finished in 0.16712 seconds (files took 0.80637 seconds to load)
 13 examples, 0 failures
 ----
 
-Let’s commit the changes:
+Let's commit the changes:
 
 [source,bash]
 ----
@@ -132,11 +132,11 @@ $ git add .
 $ git commit -am "Adds user serializer for customizing the json output"
 ----
 
-We can also test the serializer objects as shown on the https://github.com/rails-api/active_model_serializers#rspec[documentation] but I’ll let that to you to decide whether or not to test.
+We can also test the serializer objects as shown on the https://github.com/rails-api/active_model_serializers#rspec[documentation] but I'll let that to you to decide whether or not to test.
 
 == Serialize the product model
 
-Now that we kind of understand how the serializers gem works it is time to customize the products output. The first step and as with the user we need a product serializer. So let’s do that:
+Now that we kind of understand how the serializers gem works it is time to customize the products output. The first step and as with the user we need a product serializer. So let's do that:
 
 [source,bash]
 ----
@@ -144,7 +144,7 @@ $ rails generate serializer product
     create  app/serializers/product_serializer.rb
 ----
 
-Now let’s add the attributes to serialize for the product just as we did it with the user back in previous section:
+Now let's add the attributes to serialize for the product just as we did it with the user back in previous section:
 
 [source,ruby]
 .app/serializers/product_serializer.rb
@@ -154,7 +154,7 @@ class ProductSerializer < ActiveModel::Serializer
 end
 ----
 
-And that’s it. This is no more complicated as this. You can run all test suite but it will be green. Let’s commit the changes and move on onto next section.
+And that's it. This is no more complicated as this. You can run all test suite but it will be green. Let's commit the changes and move on onto next section.
 
 [source,bash]
 ----
@@ -166,7 +166,7 @@ $ git commit -a "Adds product serializer for custom json output"
 
 We have been working with serializers and you may notice that it is quite simple. In some cases the hard decision is how to name your endpoints, or how to structure the JSON output, so your solution is kept through time.
 
-When working with and API and associations between models there are many approaches you can take. Here I will explain what I found works for me and I let you judge. In this section we will extend our API to handle the product-user association. I’ll also explain some of the common mistakes or holes in which you can fall into.
+When working with and API and associations between models there are many approaches you can take. Here I will explain what I found works for me and I let you judge. In this section we will extend our API to handle the product-user association. I'll also explain some of the common mistakes or holes in which you can fall into.
 
 Just to recap, we have a http://guides.rubyonrails.org/association_basics.html#the-has-many-association[has_many] type association between the user and product model. Check theses code snippets.
 
@@ -196,9 +196,9 @@ This is important because sometimes to save some requests from being placed it i
 ****
 Imagine a scenario where you are fetching the products from the API. In this scenario you need to display some of the user info.
 
-One possible solution to this would be to add the `user_id` attribute to the `product_serializer` so we can fetch the corresponding user later. This might sound like a good idea but if you care about performance (or your database transactions are not fast enough) you should reconsider this approach. You have to realize that for every product you fetch you’ll have to request its corresponding user.
+One possible solution to this would be to add the `user_id` attribute to the `product_serializer` so we can fetch the corresponding user later. This might sound like a good idea but if you care about performance (or your database transactions are not fast enough) you should reconsider this approach. You have to realize that for every product you fetch you'll have to request its corresponding user.
 
-When facing this problem I’ve come with two possible alternatives:
+When facing this problem I've come with two possible alternatives:
 
 * One good solution (in my opinion) is to embed the user ids related to the products into a meta attribute. So we have a JSON output like:
 
@@ -211,9 +211,9 @@ When facing this problem I’ve come with two possible alternatives:
 }
 ----
 
-This might need some further configuration on the user’s endpoint, so the client can fetch those users from those `user_ids`.
+This might need some further configuration on the user's endpoint, so the client can fetch those users from those `user_ids`.
 
-* Another solution (the one which I’ll be using here) is to embed the user object into de product object. This can make the first request a bit slower but this way the client does not need to make another extra request. An example of the expected output is presented below:
+* Another solution (the one which I'll be using here) is to embed the user object into de product object. This can make the first request a bit slower but this way the client does not need to make another extra request. An example of the expected output is presented below:
 
 [source,json]
 ----
@@ -238,7 +238,7 @@ This might need some further configuration on the user’s endpoint, so the clie
 ----
 ****
 
-So we’ll be embedding the user object into the product. Let’s start by adding some tests. We will just modify the `show` and `index` endpoints spec.
+So we'll be embedding the user object into the product. Let's start by adding some tests. We will just modify the `show` and `index` endpoints spec.
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -290,7 +290,7 @@ Finished in 0.57068 seconds (files took 0.67788 seconds to load)
 
 By now you may be asking yourself if you should embed the products into the user the same as the the section above. Although it may sound fair, this can take to severe optimization problems, as you could be loading huge amounts of information and it is really easy to fall into the http://en.wikipedia.org/wiki/Circular_reference[Circular Reference problem] footnote:[in short loops the program until it runs out of memory and throws you and error or never respond you at all].
 
-But don’t worry not all is lost. We can easily solve this problem, and this is by embedding just the `ids` from the products into the user, giving your API a better performance and avoid loading extra data. So in this section we will extend our products `index` endpoint to deal with a `product_ids` parameter and format the JSON output accordingly.
+But don't worry not all is lost. We can easily solve this problem, and this is by embedding just the `ids` from the products into the user, giving your API a better performance and avoid loading extra data. So in this section we will extend our products `index` endpoint to deal with a `product_ids` parameter and format the JSON output accordingly.
 
 First we make sure the `product_ids` it is part of the user serialized object:
 
@@ -333,7 +333,7 @@ Finished in 0.16791 seconds (files took 0.65902 seconds to load)
 14 examples, 0 failures
 ----
 
-Now we need to extend the `index` action from the `products_controller` so it can handle the product_ids parameter and display the scoped records. Let’s start by adding some specs:
+Now we need to extend the `index` action from the `products_controller` so it can handle the product_ids parameter and display the scoped records. Let's start by adding some specs:
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -383,7 +383,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-As you can see from previous code we just wrapped the index action into two separate contexts: one which will receive the `product_ids`, and the old one we had which does not. Let’s add the necessary code to make the tests pass:
+As you can see from previous code we just wrapped the index action into two separate contexts: one which will receive the `product_ids`, and the old one we had which does not. Let's add the necessary code to make the tests pass:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -399,7 +399,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-As you can see the implementation is super simple. We simply just fetch the products from the `product_ids` params in case they are present, otherwise we just fetch all of them. Let’s make sure the tests are passing:
+As you can see the implementation is super simple. We simply just fetch the products from the `product_ids` params in case they are present, otherwise we just fetch all of them. Let's make sure the tests are passing:
 
 [source,bash]
 ----
@@ -410,7 +410,7 @@ Finished in 0.35027 seconds (files took 0.65369 seconds to load)
 18 examples, 0 failures
 ----
 
-Let’s commit the changes:
+Let's commit the changes:
 
 [source,bash]
 ----
@@ -419,9 +419,9 @@ $ git commit -am "Embeds the products_ids into the user serialiser and fetches t
 
 == Searching products
 
-In this last section we will keep up the heavy lifting on the `index` action for the products controller by implementing a super simple search mechanism to let any client filter the results. This section is optional as it’s not going to have impact on any of the modules in the app. If you want to practice more with TDD and keep the brain warm I recommend you complete this last step.
+In this last section we will keep up the heavy lifting on the `index` action for the products controller by implementing a super simple search mechanism to let any client filter the results. This section is optional as it's not going to have impact on any of the modules in the app. If you want to practice more with TDD and keep the brain warm I recommend you complete this last step.
 
-I’ve been using https://github.com/activerecord-hackery/ransack[Ransack] to build advance search forms extremely fast, but as this is an education tool (or at least I consider it), and the search we’ll be performing is really simple, I think we can build a simple search engine, we just need to consider the criteria by which we are going to filter the attributes. Hold tight to your seats this is going to be a rough ride.
+I've been using https://github.com/activerecord-hackery/ransack[Ransack] to build advance search forms extremely fast, but as this is an education tool (or at least I consider it), and the search we'll be performing is really simple, I think we can build a simple search engine, we just need to consider the criteria by which we are going to filter the attributes. Hold tight to your seats this is going to be a rough ride.
 
 We will filter the products by the following criteria:
 
@@ -429,11 +429,11 @@ We will filter the products by the following criteria:
 * By price
 * Sort by creation
 
-This may sound short and easy but believe me it will give you a headache if you don’t plan it.
+This may sound short and easy but believe me it will give you a headache if you don't plan it.
 
 === By keyword
 
-We will create a scope to find the records which match a particular pattern of characters, let’s called it `filter_by_title`, let’s add some specs first:
+We will create a scope to find the records which match a particular pattern of characters, let's called it `filter_by_title`, let's add some specs first:
 
 [source,ruby]
 .spec/models/product_spec.rb
@@ -462,7 +462,7 @@ RSpec.describe Product, type: :model do
 end
 ----
 
-The caveat in here is to make sure no matter the case of the title sent we have to sanitize it to any case in order to make the appropriate comparison in this case we’ll use the lower case approach. Let’s implement the necessary code:
+The caveat in here is to make sure no matter the case of the title sent we have to sanitize it to any case in order to make the appropriate comparison in this case we'll use the lower case approach. Let's implement the necessary code:
 
 [source,ruby]
 .app/models/product.rb
@@ -490,7 +490,7 @@ Finished in 0.17178 seconds (files took 3.59 seconds to load)
 
 In order to filter by price things can get a little bit tricky but actually it is very easy. We will break the logic to filter by price into two different methods: one which will fetch the products greater than the price received and the other one to look for the ones under that price. By doing this we keep everything really flexible and we can easily test the scopes.
 
-Let’s start by building the `above_or_equal_to_price` scope specs:
+Let's start by building the `above_or_equal_to_price` scope specs:
 
 [source,ruby]
 .spec/models/product_spec.rb
@@ -526,7 +526,7 @@ class Product < ApplicationRecord
 end
 ----
 
-That should be sufficient. Let’s just verify everything is ok:
+That should be sufficient. Let's just verify everything is ok:
 
 [source,bash]
 ----
@@ -537,7 +537,7 @@ Finished in 0.1566 seconds (files took 0.64782 seconds to load)
 12 examples, 0 failures
 ----
 
-You can now imagine how the opposite method will behave. Let’s add the specs:
+You can now imagine how the opposite method will behave. Let's add the specs:
 
 [source,ruby]
 .spec/models/product_spec.rb
@@ -573,7 +573,7 @@ class Product < ApplicationRecord
 end
 ----
 
-For our sake let’s run the tests and verify everything is nice and green:
+For our sake let's run the tests and verify everything is nice and green:
 
 [source,bash]
 ----
@@ -584,11 +584,11 @@ Finished in 0.18008 seconds (files took 0.6544 seconds to load)
 13 examples, 0 failures
 ----
 
-As you can see we have not gotten in a lot of trouble. Let’s just add another scope to sort the records by date of last update. This is because in case the proprietary of the product decides to update some of the data, the client always fetches the most updated records.
+As you can see we have not gotten in a lot of trouble. Let's just add another scope to sort the records by date of last update. This is because in case the proprietary of the product decides to update some of the data, the client always fetches the most updated records.
 
 === Sort by creation
 
-This scope is super easy, let’s add some specs first:
+This scope is super easy, let's add some specs first:
 
 [source,ruby]
 .spec/models/product_spec.rb
@@ -648,9 +648,9 @@ $ git commit -am "Adds search scopes on the product model"
 
 === Search engine
 
-Now that we have the ground base for the search engine we’ll be using in the app it is time to implement a simple but powerful search method, which will handle all the logic for fetching product records.
+Now that we have the ground base for the search engine we'll be using in the app it is time to implement a simple but powerful search method, which will handle all the logic for fetching product records.
 
-The method will consist on chaining all of the scopes we previously built and return the expected search. Let’s start by adding some tests:
+The method will consist on chaining all of the scopes we previously built and return the expected search. Let's start by adding some tests:
 
 [source,ruby]
 .spec/models/product_spec.rb
@@ -696,7 +696,7 @@ RSpec.describe Product, type: :model do
 end
 ----
 
-We added a bunch of code but the implementation is very easy (you’ll see). You can go further and add some more specs. In my case I did not find it necessary.
+We added a bunch of code but the implementation is very easy (you'll see). You can go further and add some more specs. In my case I did not find it necessary.
 
 [source,ruby]
 .app/models/product.rb
@@ -751,6 +751,6 @@ $ git commit -am "Adds search class method to filter products"
 
 == Conclusion
 
-On chapters to come, we will start building the `Order` model, associate it with users and products, which so far and thanks to the https://github.com/rails-api/active_model_serializers[active_model_serializers] gem, it’s been easy.
+On chapters to come, we will start building the `Order` model, associate it with users and products, which so far and thanks to the https://github.com/rails-api/active_model_serializers[active_model_serializers] gem, it's been easy.
 
 This was a long chapter, you can sit back, rest and look how far we got. I hope you are enjoying what you got until now, it will get better. We still have a lot of topics to cover one of them is optimization and caching.

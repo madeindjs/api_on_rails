@@ -7,7 +7,7 @@ Back in previous chapter we extended our API to place orders and send a confirma
 . Decrement the current product quantity when an order is placed
 . What happens when the products are not available?
 
-We’ll probably need to update a little bit the JSON output for the orders but let’s not spoil things up.
+We'll probably need to update a little bit the JSON output for the orders but let's not spoil things up.
 
 So now that we have everything clear, we can get our hands dirty. You can clone the project up to this point with:
 
@@ -16,7 +16,7 @@ So now that we have everything clear, we can get our hands dirty. You can clone 
 $ git clone https://github.com/madeindjs/market_place_api.git -b chapter8
 ----
 
-Let’s create a branch to start working:
+Let's create a branch to start working:
 
 [source,ruby]
 ----
@@ -25,14 +25,14 @@ $ git checkout -b chapter9
 
 == Decrementing the product quantity
 
-On this first stop we will work on update the product quantity to make sure every order will deliver the actual product. Currently the `product` model doesn’t have a `quantity` attribute, so let’s do that:
+On this first stop we will work on update the product quantity to make sure every order will deliver the actual product. Currently the `product` model doesn't have a `quantity` attribute, so let's do that:
 
 [source,bash]
 ----
 $ rails generate migration add_quantity_to_products quantity:integer
 ----
 
-Wait, don’t run the migrations just yet, we are making a small modification to it. As a good practice I like to add default values for the database just to make sure I don’t mess things up with `null` values. This is a perfect case!
+Wait, don't run the migrations just yet, we are making a small modification to it. As a good practice I like to add default values for the database just to make sure I don't mess things up with `null` values. This is a perfect case!
 
 Your migration file should look like this:
 
@@ -57,7 +57,7 @@ Now it is time to decrement the quantity for the `product` once an `order` is pl
 
 The `Placement` is a better place to handle this as we have access to the order and the product, so we can easily in this case decrement the product stock.
 
-Before we start implementing the code for the decrement, we have to change the way we handle the `order` creation as we now have to accept a quantity for each product. Remember we expecting we are expecting an array of product ids. I’m going to try to keep things simple and I will send an array of arrays where the first position of each inner array will be the product id and the second the quantity.
+Before we start implementing the code for the decrement, we have to change the way we handle the `order` creation as we now have to accept a quantity for each product. Remember we expecting we are expecting an array of product ids. I'm going to try to keep things simple and I will send an array of arrays where the first position of each inner array will be the product id and the second the quantity.
 
 A quick example on this would be something like:
 
@@ -69,7 +69,7 @@ product_ids_and_quantities = [
 ]
 ----
 
-This is going to be tricky so stay with me. Let’s first build some unit tests:
+This is going to be tricky so stay with me. Let's first build some unit tests:
 
 [source,ruby]
 .spec/models/order_spec.rb
@@ -196,7 +196,7 @@ FactoryBot.define do
 end
 ----
 
-Let’s commit this changes and keep moving:
+Let's commit this changes and keep moving:
 
 [source,bash]
 ----
@@ -204,7 +204,7 @@ $ git add .
 $ git commit -m "Allows the order to be placed along with product quantity"
 ----
 
-Did you notice we are not saving the quantity for each product anywhere? There is no way to keep track of that. This can be fix really easy, by just adding a quantity attribute to the `Placement` model, so this way for each product we save its corresponding quantity. Let’s start by creating the migration:
+Did you notice we are not saving the quantity for each product anywhere? There is no way to keep track of that. This can be fix really easy, by just adding a quantity attribute to the `Placement` model, so this way for each product we save its corresponding quantity. Let's start by creating the migration:
 
 [source,bash]
 ----
@@ -230,7 +230,7 @@ Then run the migrations:
 $ rake db:migrate
 ----
 
-Let’s document the `quantity` attribute through a unit test like so:
+Let's document the `quantity` attribute through a unit test like so:
 
 [source,ruby]
 .spec/models/placement_spec.rb
@@ -270,7 +270,7 @@ Finished in 0.09898 seconds (files took 0.74936 seconds to load)
 8 examples, 0 failures
 ----
 
-Let’s commit the changes:
+Let's commit the changes:
 
 [source,bash]
 ----
@@ -282,7 +282,7 @@ $ git commit -m "Adds quantity to placements"
 
 It is time to update the product quantity once the order is saved, or more accurate once the placement is created. In order to achieve this we are going to add a method and then hook it up to an `after_create` callback.
 
-Let’s first update our `placement` factory to make more sense:
+Let's first update our `placement` factory to make more sense:
 
 [source,ruby]
 .spec/factories/placements.rb
@@ -336,7 +336,7 @@ As you remember from the beginning of the chapter we added the `quantity` attrib
 
 In order to make things more interesting and spice things up we will do it through a custom validator, just to keep things cleaner and show you another cool technique to achieve custom validations.
 
-For *custom validators* you can head to the http://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation]. Let’s get our hands dirty.
+For *custom validators* you can head to the http://guides.rubyonrails.org/active_record_validations.html#performing-custom-validations[documentation]. Let's get our hands dirty.
 
 First we need to add a `validators` directory under the `app` directory (Rails will pick it up for so we do not need to load it).
 
@@ -376,7 +376,7 @@ end
 
 As you can see on the spec, we first make sure that `placement_2` is trying to request more products than are available, so in this case the `order` is not supposed to be valid.
 
-The test by now should be failing, let’s turn it into green by adding the code for the validator:
+The test by now should be failing, let's turn it into green by adding the code for the validator:
 
 [source,ruby]
 .app/validators/enough_products_validator.rb
@@ -416,7 +416,7 @@ Finished in 0.19136 seconds (files took 0.74912 seconds to load)
 9 examples, 0 failures
 ----
 
-Let’s commit the changes:
+Let's commit the changes:
 
 [source,bash]
 ----
@@ -442,7 +442,7 @@ class Order < ApplicationRecord
 end
 ----
 
-Now instead of calculating the `total` by just adding the product prices, we need to multiply it by the quantity, so let’s update the spec first:
+Now instead of calculating the `total` by just adding the product prices, we need to multiply it by the quantity, so let's update the spec first:
 
 [source,ruby]
 .spec/models/order_spec.rb
@@ -499,7 +499,7 @@ Finished in 0.20537 seconds (files took 0.74555 seconds to load)
 9 examples, 0 failures
 ----
 
-Let’s commit the changes and wrap up.
+Let's commit the changes and wrap up.
 
 [source,bash]
 ----
@@ -508,6 +508,6 @@ $ git commit -am "Updates the total calculation for order"
 
 == Conclusion
 
-Oh you are here! Let me congratulate you. It’s been a long way since first chapter but you are one step closer. Actually the next chapter would be the last one, so try to take the most out of it.
+Oh you are here! Let me congratulate you. It's been a long way since first chapter but you are one step closer. Actually the next chapter would be the last one, so try to take the most out of it.
 
 The last chapter would be on how to optimize the API by using `pagination` and `caching`. So buckle up, it is going to be a bumpy ride.

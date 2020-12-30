@@ -10,9 +10,9 @@ You can clone the project until this point with:
 $ git clone --branch chapitre_3 https://github.com/madeindjs/market_place_api
 ----
 
-In this chapter we’ll refactor our test specs by adding some helper methods. We'll also remove the `format` param sent on every request and do it through headers. Also we hopefully build more consistent and scalable test suite.
+In this chapter we'll refactor our test specs by adding some helper methods. We'll also remove the `format` param sent on every request and do it through headers. Also we hopefully build more consistent and scalable test suite.
 
-So let’ take a look to the `users_controller_spec.rb` file:
+So let' take a look to the `users_controller_spec.rb` file:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -130,7 +130,7 @@ As you can see there is a lot of duplicated code, two big refactors here are:
 * The `JSON.parse` method can be encapsulated on a method.
 * The `format` param is sent on every request. Although is not a bad practice but it is better if you handle the response type through headers.
 
-So let’s add a method for handling the JSON response. If you have been following the tutorial you may know that we are creating a branch for each chapter. So let’s do that:
+So let's add a method for handling the JSON response. If you have been following the tutorial you may know that we are creating a branch for each chapter. So let's do that:
 
 [source,bash]
 ----
@@ -139,7 +139,7 @@ $ git checkout -b chapter4
 
 == Refactoring the JSON response
 
-Back to the `refactor`, we will add file under the `spec/support` directory. Currently we don’t have this directory. So let’s add it:
+Back to the `refactor`, we will add file under the `spec/support` directory. Currently we don't have this directory. So let's add it:
 
 [source,bash]
 ----
@@ -200,7 +200,7 @@ RSpec.configure do |config|
 end
 ----
 
-After that if we run our tests again, everything should be green again. So let’s commit this before adding more code:
+After that if we run our tests again, everything should be green again. So let's commit this before adding more code:
 
 [source,bash]
 ----
@@ -210,7 +210,7 @@ $ git commit -m "Refactors the json parse method"
 
 == Refactoring the format param
 
-We want to remove the `format` param sent on every request and instead of that let’s handle the response we are expecting through headers. This is extremely easy just by adding one line to our `users_controller_spec.rb` file:
+We want to remove the `format` param sent on every request and instead of that let's handle the response we are expecting through headers. This is extremely easy just by adding one line to our `users_controller_spec.rb` file:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -251,7 +251,7 @@ $ git commit -am "Factorize format for unit tests"
 
 == Refactor before actions
 
-I’m very happy with the code we got so far but we can still improve it a little bit. The first thing that comes to my mind is to group the three custom headers being added before each request:
+I'm very happy with the code we got so far but we can still improve it a little bit. The first thing that comes to my mind is to group the three custom headers being added before each request:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -261,7 +261,7 @@ before(:each) { request.headers['Accept'] = "application/vnd.marketplace.v1, app
 before(:each) { request.headers['Content-Type'] = 'application/json' }
 ----
 
-This is good but not good enough because we will have to add this five lines of code for each file. If for some reason we are changing this (let’s say the response type to `xml`) well you do the math. But don’t worry I provide you a solution which will solve all these problems.
+This is good but not good enough because we will have to add this five lines of code for each file. If for some reason we are changing this (let's say the response type to `xml`) well you do the math. But don't worry I provide you a solution which will solve all these problems.
 
 First of all we have to extend our `request_helpers.rb` file to include another module, which I named `HeadersHelpers` and which will have the necessary methods to handle these custom headers
 
@@ -290,7 +290,7 @@ end
 
 As you can see I broke the calls into two methods: one for setting the API header and the other one for setting the response format. Also and for convenience I wrote a method `include_default_accept_headers` for calling those two.
 
-And now to call this method before each of our test cases we can add the `before` hook footnote:[An hook allow you to run a specific method when a method is called] on the _Rspec.configure_ block at `spec_helper.rb` file, and make sure we specify the type to `:controller`, as we don’t to run this on unit tests.
+And now to call this method before each of our test cases we can add the `before` hook footnote:[An hook allow you to run a specific method when a method is called] on the _Rspec.configure_ block at `spec_helper.rb` file, and make sure we specify the type to `:controller`, as we don't to run this on unit tests.
 
 [source,ruby]
 .spec/rails_helper.rb
@@ -343,7 +343,7 @@ RSpec.configure do |config|
 end
 ----
 
-Well now I do feel satisfied with the code, let’s commit the changes:
+Well now I do feel satisfied with the code, let's commit the changes:
 
 [source,bash]
 ----
@@ -354,4 +354,4 @@ Remember you can review the code up to this point at the https://github.com/made
 
 == Conclusion
 
-Nice job on finishing this chapter. Although it was a short one it was a crucial step as this will help us write better and faster tests. On next chapter we will add the authentication mechanism so we’ll be using across the application as well as limiting the access for certain actions.
+Nice job on finishing this chapter. Although it was a short one it was a crucial step as this will help us write better and faster tests. On next chapter we will add the authentication mechanism so we'll be using across the application as well as limiting the access for certain actions.

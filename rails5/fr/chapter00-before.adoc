@@ -3,17 +3,17 @@
 
 "API on Rails 5" est basé sur http://apionrails.icalialabs.com/book/["APIs on Rails: Building REST APIs with Rails"]. Celui-ci fut initialement publié en 2014 par https://twitter.com/kurenn[Abraham Kuri] sous les licences http://opensource.org/licenses/MIT[MIT] et http://people.freebsd.org/~phk/[Beerware].
 
-L’œuvre originale étant non maintenue, j’ai voulu mettre à jour cet excellent ouvrage et contribuer à la communauté francophone en le traduisant moi-même. Cette mise à jour est aussi disponible dans la langue de Shakespeare footnote:[C'est-à-dire en anglais.].
+L'œuvre originale étant non maintenue, j'ai voulu mettre à jour cet excellent ouvrage et contribuer à la communauté francophone en le traduisant moi-même. Cette mise à jour est aussi disponible dans la langue de Shakespeare footnote:[C'est-à-dire en anglais.].
 
-== A propos de l’auteur original
+== A propos de l'auteur original
 
-https://twitter.com/kurenn[Abraham Kuri] est un développeur Rails avec 5 ans d’expérience (sûrement plus maintenant). Son expérience inclut le travail en tant que _freelance_ dans la construction de produits logiciels et plus récemment dans la collaboration au sein de la communauté open source. Diplômé en informatique d’ITESM, il a fondé deux sociétés au Mexique (http://icalialabs.com/[Icalia Labs] et http://codeandomexico.org/[Codeando Mexico]).
+https://twitter.com/kurenn[Abraham Kuri] est un développeur Rails avec 5 ans d'expérience (sûrement plus maintenant). Son expérience inclut le travail en tant que _freelance_ dans la construction de produits logiciels et plus récemment dans la collaboration au sein de la communauté open source. Diplômé en informatique d'ITESM, il a fondé deux sociétés au Mexique (http://icalialabs.com/[Icalia Labs] et http://codeandomexico.org/[Codeando Mexico]).
 
-De mon côté, je m’appelle http://rousseau-alexandre.fr[Alexandre Rousseau] et je suis un développeur Rails avec plus de 4 ans d’expérience (à l’heure où j’écris ces lignes). Je suis actuellement associé dans une entreprise (https://isignif.fr[iSignif]) ou je construis et maintiens un produit de type SAAS en utilisant Rails. Je contribue aussi à la communauté Ruby en produisant et maintenant quelques gemmes que vous pouvez consulter sur https://rubygems.org/profiles/madeindjs[mon profil Rubygems.org]. La plupart de mes projets sont sur GitHub donc http://github.com/madeindjs/[n’hésitez pas à me suivre].
+De mon côté, je m'appelle http://rousseau-alexandre.fr[Alexandre Rousseau] et je suis un développeur Rails avec plus de 4 ans d'expérience (à l'heure où j'écris ces lignes). Je suis actuellement associé dans une entreprise (https://isignif.fr[iSignif]) ou je construis et maintiens un produit de type SAAS en utilisant Rails. Je contribue aussi à la communauté Ruby en produisant et maintenant quelques gemmes que vous pouvez consulter sur https://rubygems.org/profiles/madeindjs[mon profil Rubygems.org]. La plupart de mes projets sont sur GitHub donc http://github.com/madeindjs/[n'hésitez pas à me suivre].
 
-Tout le code source de ce livre est disponible au format https://asciidoctor.org[Asciidoctor] sur https://github.com/madeindjs/api_on_rails[GitHub]. Ainsi n’hésitez pas à https://github.com/madeindjs/api_on_rails/fork[forker] le projet si vous voulez l’améliorer ou corriger une faute qui m’aurait échappée.
+Tout le code source de ce livre est disponible au format https://asciidoctor.org[Asciidoctor] sur https://github.com/madeindjs/api_on_rails[GitHub]. Ainsi n'hésitez pas à https://github.com/madeindjs/api_on_rails/fork[forker] le projet si vous voulez l'améliorer ou corriger une faute qui m'aurait échappée.
 
-== Droits d’auteur et licence
+== Droits d'auteur et licence
 
 Cette traduction est disponible sous http://opensource.org/licenses/MIT[licence MIT]. Tout le code source de ce livre est disponible au format https://asciidoctor.org[Asciidoctor] sur https://github.com/madeindjs/api_on_rails[GitHub]
 
@@ -21,11 +21,11 @@ Cette traduction est disponible sous http://opensource.org/licenses/MIT[licence 
 ****
 La licence MIT Copyright (c) 2019 Alexandre Rousseau
 
-Permission est accordée, à titre gratuit, à toute personne obtenant une copie de ce logiciel et la documentation associée, pour faire des modification dans le logiciel sans restriction et sans limitation des droits d’utiliser, copier, modifier, fusionner, publier, distribuer, concéder sous licence, et / ou de vendre les copies du Logiciel, et à autoriser les personnes auxquelles le Logiciel est meublé de le faire, sous réserve des conditions suivantes:
+Permission est accordée, à titre gratuit, à toute personne obtenant une copie de ce logiciel et la documentation associée, pour faire des modification dans le logiciel sans restriction et sans limitation des droits d'utiliser, copier, modifier, fusionner, publier, distribuer, concéder sous licence, et / ou de vendre les copies du Logiciel, et à autoriser les personnes auxquelles le Logiciel est meublé de le faire, sous réserve des conditions suivantes:
 
-L’avis de copyright ci-dessus et cette autorisation doit être inclus dans toutes les copies ou parties substantielles du Logiciel.
+L'avis de copyright ci-dessus et cette autorisation doit être inclus dans toutes les copies ou parties substantielles du Logiciel.
 
-LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D’AUCUNE SORTE, EXPLICITE OU IMPLICITE, Y COMPRIS, MAIS SANS S’Y LIMITER, LES GARANTIES DE QUALITÉ MARCHANDE, ADAPTATION À UN USAGE PARTICULIER ET D’ABSENCE DE CONTREFAÇON. EN AUCUN CAS LES AUTEURS OU TITULAIRES DU ETRE TENU RESPONSABLE DE TOUT DOMMAGE, RÉCLAMATION OU AUTRES RESPONSABILITÉ, SOIT DANS UNE ACTION DE CONTRAT, UN TORT OU AUTRE, PROVENANT DE, DE OU EN RELATION AVEC LE LOGICIEL OU L’UTILISATION OU DE TRANSACTIONS AUTRES LE LOGICIEL.
+LE LOGICIEL EST FOURNI «TEL QUEL», SANS GARANTIE D'AUCUNE SORTE, EXPLICITE OU IMPLICITE, Y COMPRIS, MAIS SANS S'Y LIMITER, LES GARANTIES DE QUALITÉ MARCHANDE, ADAPTATION À UN USAGE PARTICULIER ET D'ABSENCE DE CONTREFAÇON. EN AUCUN CAS LES AUTEURS OU TITULAIRES DU ETRE TENU RESPONSABLE DE TOUT DOMMAGE, RÉCLAMATION OU AUTRES RESPONSABILITÉ, SOIT DANS UNE ACTION DE CONTRAT, UN TORT OU AUTRE, PROVENANT DE, DE OU EN RELATION AVEC LE LOGICIEL OU L'UTILISATION OU DE TRANSACTIONS AUTRES LE LOGICIEL.
 ****
 
 "API on Rails 5" de https://github.com/madeindjs/api_on_rails[Alexandre Rousseau] est mis à disposition selon les termes de la licence http://creativecommons.org/licenses/by-sa/4.0/[Creative Commons Attribution - Partage dans les Mêmes Conditions 4.0 International]. Fondé sur une œuvre à http://apionrails.icalialabs.com/book/.

@@ -1,13 +1,13 @@
 [#chapter10-optimization]
 = Optimisations
 
-Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n’êtes qu’à un pas de la fin. Dans le chapitre précédent, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l’optimisation. Les sujets que je vais aborder ici seront:
+Bienvenue dans le dernier chapitre du livre. Le chemin a été long mais vous n'êtes qu'à un pas de la fin. Dans le chapitre précédent, nous avons terminé la modélisation du modèle de commandes. Nous pourrions dire que le projet est maintenant terminé mais je veux couvrir quelques détails importants sur l'optimisation. Les sujets que je vais aborder ici seront:
 
 * La mise en place de la spécification https://jsonapi.org/[JSON:API]
 * la pagination
 * la mise en cache
 
-J’essaierai d’aller aussi loin que possible en essayant de couvrir certains scénarios courants. J’espère que ces scénari vous serons utiles pour certains de vos projets.
+J'essaierai d'aller aussi loin que possible en essayant de couvrir certains scénarios courants. J'espère que ces scénari vous serons utiles pour certains de vos projets.
 
 Si vous commencez à lire à ce stade, vous voudrez probablement que le code fonctionne, vous pouvez le cloner comme ça:
 
@@ -27,7 +27,7 @@ $ git checkout -b chapter10
 
 Comme je vous le dis depuis le début de ce livre, une partie importante et difficile lors de la création de votre API est de décider le format de sortie. Heureusement, certaines organisations ont déjà fait face à ce genre de problème et elles ont ainsi établi certaines conventions.
 
-Une des convention les plus appliquée est très certainement https://jsonapi.org/[JSON:API]. Cette convention nous permettra d’aborder la pagination plus sereinement dans la prochaine section.
+Une des convention les plus appliquée est très certainement https://jsonapi.org/[JSON:API]. Cette convention nous permettra d'aborder la pagination plus sereinement dans la prochaine section.
 
 Ainsi, la https://jsonapi.org/format/#document-structure[documentation de JSON:API] nous donne quelques règles à suivre concernant le formatage du document JSON.
 
@@ -37,19 +37,19 @@ Ainsi, notre document *doit* contenir ces clefs:
 * `errors` qui doit contenir un tableau des erreurs qui sont survenues.
 * `meta` qui contient un https://jsonapi.org/format/#document-meta[objet meta]
 
-NOTE: Les clés `data` et `errors` ne doivent pas être présentes en même temps et c’est logique puisque si une erreur survient nous ne devrions pas être en mesure de rendre des données correctes.
+NOTE: Les clés `data` et `errors` ne doivent pas être présentes en même temps et c'est logique puisque si une erreur survient nous ne devrions pas être en mesure de rendre des données correctes.
 
 Le contenu de la clé `data`est lui aussi assez stricte:
 
-* il doit posséder une clé `type`qui décrit le type du modèle JSON (si c’est un article, un utilisateur, etc..)
-* les propriétés de l’objets doivent être placées dans une clé `attributes` et les undescore (`_`) sont remplacés par des tirets (`-`)
-* les liaisons de l’objets doivent être placées dans une clé `relationships`
+* il doit posséder une clé `type`qui décrit le type du modèle JSON (si c'est un article, un utilisateur, etc..)
+* les propriétés de l'objets doivent être placées dans une clé `attributes` et les undescore (`_`) sont remplacés par des tirets (`-`)
+* les liaisons de l'objets doivent être placées dans une clé `relationships`
 
-Cela risque de nous faire pas mal de changements puisque nous n’avons implémenté aucune de ces règles. Ne vous inquiétez pas, nous avons mis en place des tests unitaires afin de nous assurer qu’il n’y aura pas de régression. Commençons donc par les mettre à jour
+Cela risque de nous faire pas mal de changements puisque nous n'avons implémenté aucune de ces règles. Ne vous inquiétez pas, nous avons mis en place des tests unitaires afin de nous assurer qu'il n'y aura pas de régression. Commençons donc par les mettre à jour
 
 === Les utilisateurs
 
-Commençons donc par le contrôlleur des commandes. Intéressons nous à l’action `show`:
+Commençons donc par le contrôlleur des commandes. Intéressons nous à l'action `show`:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -140,7 +140,7 @@ NOTE: Rappelez vos bien que dans les spécification JSON:API, les undescore (`_`
 
 === Les commandes
 
-Pour les commandes, il y a une petite spécifité car pour récupérer l’utilisateur associé, nous devons passer par la clé `:relationships`. En dehors de ça, le principe reste identique:
+Pour les commandes, il y a une petite spécifité car pour récupérer l'utilisateur associé, nous devons passer par la clé `:relationships`. En dehors de ça, le principe reste identique:
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -291,11 +291,11 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-=== L’implémentation
+=== L'implémentation
 
-Depuis le début, afin de sérialiser nos modèles, nous avons utilisé _Active Model Serializer_. Heureusement pour nous, cette librairie propose plusieurs *adaptateurs*. Les adapateurs sont en quelques sorte des modèles de JSON à appliquer à tous nos sérialiseur. C’est parfait.
+Depuis le début, afin de sérialiser nos modèles, nous avons utilisé _Active Model Serializer_. Heureusement pour nous, cette librairie propose plusieurs *adaptateurs*. Les adapateurs sont en quelques sorte des modèles de JSON à appliquer à tous nos sérialiseur. C'est parfait.
 
-La https://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/general/adapters.md[documentation de _Active Model Serializer_] nous  propose une liste des adaptateurs existants. Et, si vous voyez ou je veux en venir, il en existe une toute prête pour le modèle JSON:API! Pour le mettre en place, il suffit simplement d’activer l’adaptateur en créant le fichier suivant:
+La https://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/general/adapters.md[documentation de _Active Model Serializer_] nous  propose une liste des adaptateurs existants. Et, si vous voyez ou je veux en venir, il en existe une toute prête pour le modèle JSON:API! Pour le mettre en place, il suffit simplement d'activer l'adaptateur en créant le fichier suivant:
 
 [source,ruby]
 .config/initializers/activemodel_serializer.rb
@@ -303,7 +303,7 @@ La https://github.com/rails-api/active_model_serializers/blob/v0.10.6/docs/gener
 ActiveModelSerializers.config.adapter = :json_api
 ----
 
-Nous devons aussi indiquer le type de l’objet du serialiseur. _Active Model Serializer_ propose une méthode toute faite pour cela: `type`. L’implémentation est donc très facile:
+Nous devons aussi indiquer le type de l'objet du serialiseur. _Active Model Serializer_ propose une méthode toute faite pour cela: `type`. L'implémentation est donc très facile:
 
 [source,ruby]
 .app/serializers/order_serializer.rb
@@ -332,7 +332,7 @@ class UserSerializer < ActiveModel::Serializer
 end
 ----
 
-Et c’est tout! Lançons maintenant *tous* nos tests pour voir s’ils passent:
+Et c'est tout! Lançons maintenant *tous* nos tests pour voir s'ils passent:
 
 [source,bash]
 ----
@@ -357,7 +357,7 @@ Finished in 1.35 seconds (files took 1.1 seconds to load)
 103 examples, 3 failures
 ----
 
-Arf… Tous nos tests passent mais on voit que l’utilisateur associé au produit n’est pas intégré dans la réponse. Ceci est en fait tout à fait normal. https://jsonapi.org/format/#fetching-includes[La documentation de JSON:API] préconise l’utilisation d’une clé `include` plutôt que d’imbriquer les modèles entre eux.
+Arf… Tous nos tests passent mais on voit que l'utilisateur associé au produit n'est pas intégré dans la réponse. Ceci est en fait tout à fait normal. https://jsonapi.org/format/#fetching-includes[La documentation de JSON:API] préconise l'utilisation d'une clé `include` plutôt que d'imbriquer les modèles entre eux.
 
 Mettons donc à jour notre test:
 
@@ -395,7 +395,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-Là aussi, l’implémentation est très facile. Il nous suffit d’ajouter l’option `ìnclude` directement dans l’action du controller.
+Là aussi, l'implémentation est très facile. Il nous suffit d'ajouter l'option `ìnclude` directement dans l'action du controller.
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -434,28 +434,28 @@ $ git commit -m "Respect JSON:API response format"
 
 == Pagination
 
-Une stratégie très commune pour optimiser la récupération d’enregistrements dans une base de données est de charger seulement une quantité limitée en les paginant. Si vous êtes familiers avec cette technique, vous savez qu’avec Rails c’est vraiment très facile à mettre en place avec des gemmes telles que https://github.com/mislav/will_paginate[will_paginate] ou https://github.com/kaminari/kaminari[kaminari].
+Une stratégie très commune pour optimiser la récupération d'enregistrements dans une base de données est de charger seulement une quantité limitée en les paginant. Si vous êtes familiers avec cette technique, vous savez qu'avec Rails c'est vraiment très facile à mettre en place avec des gemmes telles que https://github.com/mislav/will_paginate[will_paginate] ou https://github.com/kaminari/kaminari[kaminari].
 
-La seule partie délicate ici est de savoir comment gérer la sortie JSON pour donner assez d’informations au client sur la façon dont le tableau est paginé. Dans la section précédente, j’ai partagé quelques ressources sur les pratiques que j’allais suivre ici. L’une d’entre elles était http://jsonapi.org/ qui est une page incontournable des signets.
+La seule partie délicate ici est de savoir comment gérer la sortie JSON pour donner assez d'informations au client sur la façon dont le tableau est paginé. Dans la section précédente, j'ai partagé quelques ressources sur les pratiques que j'allais suivre ici. L'une d'entre elles était http://jsonapi.org/ qui est une page incontournable des signets.
 
 Si nous lisons la section sur le format, nous arriverons à une sous-section appelée https://jsonapi.org/format/#document-top-level[Top Level]. Pour vous expliquer rapidement, ils mentionnent quelque chose sur la pagination:
 
 > "meta": méta-information sur une ressource, telle que la pagination.
 
-Ce n’est pas très descriptif mais au moins nous avons un indice sur ce qu’il faut regarder ensuite au sujet de l’implémentation de la pagination. Ne vous inquiétez pas, c’est exactement ce que nous allons faire ici.
+Ce n'est pas très descriptif mais au moins nous avons un indice sur ce qu'il faut regarder ensuite au sujet de l'implémentation de la pagination. Ne vous inquiétez pas, c'est exactement ce que nous allons faire ici.
 
 Commençons par la liste des produits.
 
 === Les produits
 
-Nous allons commencer par paginer la liste des produits car nous n’avons aucune restriction d’accès. Cela nous facilitera les tests. Nous devons d’abord ajouter la gemme de kaminari à notre `Gemfile`:
+Nous allons commencer par paginer la liste des produits car nous n'avons aucune restriction d'accès. Cela nous facilitera les tests. Nous devons d'abord ajouter la gemme de kaminari à notre `Gemfile`:
 
 [source,bash]
 ----
 $ bundle add kaminari
 ----
 
-Maintenant nous pouvons aller à l’action `Products#index` et ajouter les méthodes de pagination comme indiqué dans la documentation:
+Maintenant nous pouvons aller à l'action `Products#index` et ajouter les méthodes de pagination comme indiqué dans la documentation:
 
 [source,ruby]
 .app/controllers/api/v1/products_controller.rb
@@ -469,7 +469,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-Jusqu’à présent, la seule chose qui a changé est la requête sur la base de données pour limiter le résultat à 25 par page (ce qui est la valeur par défaut). Mais nous n’avons toujours pas ajouté d’informations supplémentaires à la sortie JSON.
+Jusqu'à présent, la seule chose qui a changé est la requête sur la base de données pour limiter le résultat à 25 par page (ce qui est la valeur par défaut). Mais nous n'avons toujours pas ajouté d'informations supplémentaires à la sortie JSON.
 
 Nous devons fournir les informations de pagination sur la balise meta dans le formulaire suivant:
 
@@ -484,7 +484,7 @@ Nous devons fournir les informations de pagination sur la balise meta dans le fo
 }
 ----
 
-Maintenant que nous avons la structure finale de la balise meta, il ne nous reste plus qu’à la sortir sur la réponse JSON. Ajoutons d’abord quelques tests:
+Maintenant que nous avons la structure finale de la balise meta, il ne nous reste plus qu'à la sortir sur la réponse JSON. Ajoutons d'abord quelques tests:
 
 [source,ruby]
 .spec/controllers/api/v1/products_controller_spec.rb
@@ -512,7 +512,7 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
 end
 ----
 
-Le test que nous venons d’ajouter devrait échouer or, si nous exécutons les tests, deux tests échouent. Cela veut dire que nous avons cassé quelque chose d’autre:
+Le test que nous venons d'ajouter devrait échouer or, si nous exécutons les tests, deux tests échouent. Cela veut dire que nous avons cassé quelque chose d'autre:
 
 [source,bash]
 ----
@@ -536,7 +536,7 @@ Finished in 0.40801 seconds (files took 0.62979 seconds to load)
 20 examples, 2 failures
 ----
 
-L’erreur est en fait sur la méthode `Product.search`. En fait, Kaminari attend une relation d’enregistrement au lieu d’un tableau. C’est très facile à réparer:
+L'erreur est en fait sur la méthode `Product.search`. En fait, Kaminari attend une relation d'enregistrement au lieu d'un tableau. C'est très facile à réparer:
 
 [source,ruby]
 .app/models/product.rb
@@ -550,7 +550,7 @@ class Product < ApplicationRecord
 end
 ----
 
-Vous avez remarqué le changement? Laissez moi vous l’expliquer. Nous avons simplement remplacé la méthode `Product.find` par `Product.where` en utilisant les paramètres `product_ids`. La différence est que la méthode `where` retourne une `ActiveRecord::Relation` et c’est exactement ce dont nous avons besoin.
+Vous avez remarqué le changement? Laissez moi vous l'expliquer. Nous avons simplement remplacé la méthode `Product.find` par `Product.where` en utilisant les paramètres `product_ids`. La différence est que la méthode `where` retourne une `ActiveRecord::Relation` et c'est exactement ce dont nous avons besoin.
 
 Maintenant, si nous relançons les tests, le test que nous avions cassé devrait maintenant passer:
 
@@ -605,7 +605,7 @@ Finished in 0.66813 seconds (files took 2.72 seconds to load)
 20 examples, 0 failures
 ----
 
-Maintenant que nous avons fait une superbe optimisation pour la route de la liste des produits, c’est au client de récupérer la `page` avec le bon paramètre `per_page` pour les enregistrements.
+Maintenant que nous avons fait une superbe optimisation pour la route de la liste des produits, c'est au client de récupérer la `page` avec le bon paramètre `per_page` pour les enregistrements.
 
 _Commitons_ ces changements et continuons avec la liste des commandes.
 
@@ -617,7 +617,7 @@ $ git commit -m "Adds pagination for the products index action to optimize respo
 
 === Liste des commandes
 
-Maintenant, il est temps de faire exactement la même chose pour la route de la liste des commandes. Cela devrait être très facile à mettre en œuvre. Mais d’abord, ajoutons quelques tests au fichier `orders_controller_spec.rb`:
+Maintenant, il est temps de faire exactement la même chose pour la route de la liste des commandes. Cela devrait être très facile à mettre en œuvre. Mais d'abord, ajoutons quelques tests au fichier `orders_controller_spec.rb`:
 
 [source,ruby]
 .spec/controllers/api/v1/orders_controller_spec.rb
@@ -704,7 +704,7 @@ Finished in 0.35201 seconds (files took 0.9404 seconds to load)
 10 examples, 0 failures
 ----
 
-Faisons un _commit_ avant d’avancer
+Faisons un _commit_ avant d'avancer
 
 [source,bash]
 ----
@@ -713,9 +713,9 @@ $ git commit -am "Adds pagination for orders index action"
 
 === Factorisation de la pagination
 
-Si vous avez suivi ce tutoriel ou si vous êtes un développeur Rails expérimenté, vous aimez probablement garder les choses DRY. Vous avez sûrement remarqué que le code que nous venons d’écrire est dupliqué. Je pense que c’est une bonne habitude de nettoyer un peu le code une fois la fonctionnalité implémentée.
+Si vous avez suivi ce tutoriel ou si vous êtes un développeur Rails expérimenté, vous aimez probablement garder les choses DRY. Vous avez sûrement remarqué que le code que nous venons d'écrire est dupliqué. Je pense que c'est une bonne habitude de nettoyer un peu le code une fois la fonctionnalité implémentée.
 
-Nous allons d’abord commencer par nettoyer ces tests qu’on a dupliqué dans le fichier `orders_controller_spec.rb` et `products_controller_spec.rb`:
+Nous allons d'abord commencer par nettoyer ces tests qu'on a dupliqué dans le fichier `orders_controller_spec.rb` et `products_controller_spec.rb`:
 
 [source,ruby]
 ----
@@ -792,7 +792,7 @@ Finished in 0.96778 seconds (files took 1.59 seconds to load)
 49 examples, 0 failures
 ----
 
-Maintenant que nous avons fait cette simple factorisation pour les tests, nous pouvons passer à l’implémentation de la pagination pour les contrôleurs et nettoyer les choses. Si vous vous souvenez de l’action d’indexation pour les deux contrôleurs de produits et de commandes, ils ont tous les deux le même format de pagination. Alors déplaçons cette logique dans une méthode appelée `pagination` sous le fichier `application_controller.rb`, de cette façon nous pouvons y accéder sur tout contrôleur qui aurait besoin de pagination.
+Maintenant que nous avons fait cette simple factorisation pour les tests, nous pouvons passer à l'implémentation de la pagination pour les contrôleurs et nettoyer les choses. Si vous vous souvenez de l'action d'indexation pour les deux contrôleurs de produits et de commandes, ils ont tous les deux le même format de pagination. Alors déplaçons cette logique dans une méthode appelée `pagination` sous le fichier `application_controller.rb`, de cette façon nous pouvons y accéder sur tout contrôleur qui aurait besoin de pagination.
 
 [source,ruby]
 .app/controllers/application_controller.rb
@@ -813,7 +813,7 @@ class ApplicationController < ActionController::API
 end
 ----
 
-Il suffit ensuite d’utiliser cette méthode dans nos deux contrôleurs:
+Il suffit ensuite d'utiliser cette méthode dans nos deux contrôleurs:
 
 [source,ruby]
 .app/controllers/api/v1/orders_controller.rb
@@ -878,7 +878,7 @@ $ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/pr
 Total: 0,174111
 ----
 
-NOTE: L’option `-w` nous permet de récupérer le temps de la requête, `-o` redirige la réponse vers un fichier et `-s` masque l’affichage de cURL
+NOTE: L'option `-w` nous permet de récupérer le temps de la requête, `-o` redirige la réponse vers un fichier et `-s` masque l'affichage de cURL
 
 En ajoutant seulement une ligne à la classe `ProductSerializer`, nous verrons une nette amélioration du temps de réponse!
 
@@ -909,7 +909,7 @@ class UserSerializer < ActiveModel::Serializer
 end
 ----
 
-Et c’est tout! Vérifions l’amélioration:
+Et c'est tout! Vérifions l'amélioration:
 
 [source,bash]
 ----
@@ -919,7 +919,7 @@ $ curl -w 'Total: %{time_total}\n' -o /dev/null -s http://api.marketplace.dev/pr
 Total: 0,021979
 ----
 
-Nous sommes donc passés de 174 ms à 21 ms. L’amélioration est donc énorme! _Comittons_ une dernière fois nos changements.
+Nous sommes donc passés de 174 ms à 21 ms. L'amélioration est donc énorme! _Comittons_ une dernière fois nos changements.
 
 [source,ruby]
 ----
@@ -928,6 +928,6 @@ $ git commit -am "Adds caching for the serializers"
 
 == Conclusion
 
-Si vous arrivez à ce point, cela signifie que vous en avez fini avec le livre. Bon travail! Vous venez de devenir un grand développeur API Rails, c’est sûr.
+Si vous arrivez à ce point, cela signifie que vous en avez fini avec le livre. Bon travail! Vous venez de devenir un grand développeur API Rails, c'est sûr.
 
-Merci d’avoir traversé cette grande aventure avec moi, j’espère que vous avez apprécié le voyage autant que moi. On devrait prendre une bière un de ces jours.
+Merci d'avoir traversé cette grande aventure avec moi, j'espère que vous avez apprécié le voyage autant que moi. On devrait prendre une bière un de ces jours.

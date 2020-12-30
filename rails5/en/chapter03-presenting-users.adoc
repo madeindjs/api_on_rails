@@ -1,7 +1,7 @@
 [#chapter03-presenting-users]
 = Presenting the users
 
-In the last chapter we manage to set up the bare bones for our application endpoints configuration. We even added versioning through headers. In a next chapter we will handle users authentication through authentication tokens as well as setting permissions to limit access for let’s say signed in users. In coming chapters we will relate `products` to users and give them the ability to place orders.
+In the last chapter we manage to set up the bare bones for our application endpoints configuration. We even added versioning through headers. In a next chapter we will handle users authentication through authentication tokens as well as setting permissions to limit access for let's say signed in users. In coming chapters we will relate `products` to users and give them the ability to place orders.
 
 You can clone the project until this point with:
 
@@ -30,7 +30,7 @@ Devise comes with up to 10 modules for handling authentication::
 If you have not work with devise before, I recommend you visit the https://github.com/plataformatec/devise[reposity page] and read the documentation, there are a lot of good examples out there too.
 ****
 
-This is going to be a full-packed chapter. It may be long but I’m trying to cover as many topics along with best practices on the way, so feel free to grab a cup of coffee and let’s get going. By the end of the chapter you will have full user endpoints, along with validations and error server responses.
+This is going to be a full-packed chapter. It may be long but I'm trying to cover as many topics along with best practices on the way, so feel free to grab a cup of coffee and let's get going. By the end of the chapter you will have full user endpoints, along with validations and error server responses.
 
 We want to track this chapter, so it would be a good time to create a new branch for this:
 
@@ -154,7 +154,7 @@ $ rake db:migrate
 $ rake db:test:prepare
 ----
 
-Let’s commit this, just to keep our history points very atomic.
+Let's commit this, just to keep our history points very atomic.
 
 [source,bash]
 ----
@@ -164,7 +164,7 @@ $ git commit -m "Adds devise user model"
 
 == First user tests
 
-We will add some specs to make sure the `user` model responds to the `email`, `password` and `password_confirmation` attributes provided by devise, let’s add them. Also for convenience we will modify the `users` factory file to add the corresponding attributes.
+We will add some specs to make sure the `user` model responds to the `email`, `password` and `password_confirmation` attributes provided by devise, let's add them. Also for convenience we will modify the `users` factory file to add the corresponding attributes.
 
 [source,ruby]
 .spec/factories/users.rb
@@ -178,7 +178,7 @@ FactoryBot.define do
 end
 ----
 
-Once we’d added the attributes it is time to test our `User` model.
+Once we'd added the attributes it is time to test our `User` model.
 
 [source,ruby]
 .spec/models/user_spec.rb
@@ -338,7 +338,7 @@ Finished in 0.01632 seconds (files took 0.47675 seconds to load)
   2 examples, 2 failures
 ....
 
-This kind of error if very common when generating endpoints manually, we totally forgot the `routes`. So let’s add them:
+This kind of error if very common when generating endpoints manually, we totally forgot the `routes`. So let's add them:
 
 [source,ruby]
 .config/routes.rb
@@ -376,7 +376,7 @@ $ git commit -m "Adds show action the users controller"
 
 === Testing endpoints with CURL
 
-So we finally have an endpoint to test. There are plenty of options to start playing with. The first that come to my mind is using http://curl.haxx.se/[cURL] because is built-in on almost any Linux distribution and of course on your Mac OSX. So let’s try it out:
+So we finally have an endpoint to test. There are plenty of options to start playing with. The first that come to my mind is using http://curl.haxx.se/[cURL] because is built-in on almost any Linux distribution and of course on your Mac OSX. So let's try it out:
 
 NOTE: Remember our base URI is `api.market_place_api.dev`.
 
@@ -385,7 +385,7 @@ NOTE: Remember our base URI is `api.market_place_api.dev`.
 $ curl -H 'Accept: application/vnd.marketplace.v1' http://api.market_place_api.dev/users/1
 ----
 
-This will throw us an error. Well you might expect that already because we don’t have a user with `id` equals to 1. Let’s create it first through the terminal:
+This will throw us an error. Well you might expect that already because we don't have a user with `id` equals to 1. Let's create it first through the terminal:
 
 [source,bash]
 ----
@@ -425,13 +425,13 @@ $ git commit -m "Updates application controller to prevent CSRF exception from b
 
 === Creating users
 
-Now that we have a better understanding on how to build endpoints and how they work, it’s time to add more abilities to the API. One of the most important is letting the users actually create a profile on our application. As usual we will write tests before implementing our code extending our testing suite.
+Now that we have a better understanding on how to build endpoints and how they work, it's time to add more abilities to the API. One of the most important is letting the users actually create a profile on our application. As usual we will write tests before implementing our code extending our testing suite.
 
-Creating records in Rails as you may know is really easy, the trick when building an api is which is the best fit for the HTTP codes to send on the response, as well as the actual `json response`. If you don’t totally get this it will probably be more easy on the code:
+Creating records in Rails as you may know is really easy, the trick when building an api is which is the best fit for the HTTP codes to send on the response, as well as the actual `json response`. If you don't totally get this it will probably be more easy on the code:
 
-*Make sure your repository is clean and that you don’t have any commits left, if so place them so we can start fresh.*
+*Make sure your repository is clean and that you don't have any commits left, if so place them so we can start fresh.*
 
-Let’s proceed with our test-driven development by adding a `create` endpoint on the `users_controller_spec.rb` file
+Let's proceed with our test-driven development by adding a `create` endpoint on the `users_controller_spec.rb` file
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -478,7 +478,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ----
 
-There is a lot of code up there but don’t worry I’ll walk you through it:
+There is a lot of code up there but don't worry I'll walk you through it:
 
 * We need to validate to states on which the record can be, valid or invalid. In this case we are using the `context` clause to achieve this scenarios.
 * In case everything goes smooth, we should return a `201` HTTP code which means a record just got `created`, as well as the JSON representation of that object.
@@ -539,7 +539,7 @@ Finished in 0.05967 seconds (files took 0.4673 seconds to load)
 7 examples, 0 failures
 ----
 
-Let’s commit the changes and continue building our application:
+Let's commit the changes and continue building our application:
 
 [source,bash]
 ----
@@ -605,7 +605,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
 end
 ----
 
-Getting the tests to pass requires us to build the `update` action on the `users_controller.rb` file as well as adding it to the `routes.rb`. As you can see we have to much code duplicated, we’ll refactor our tests in next chapter.
+Getting the tests to pass requires us to build the `update` action on the `users_controller.rb` file as well as adding it to the `routes.rb`. As you can see we have to much code duplicated, we'll refactor our tests in next chapter.
 
 First we add the action the `routes.rb` file
 
@@ -660,7 +660,7 @@ $ git commit -m "Adds update action the users controller"
 
 === Destroying users
 
-So far we have built a bunch of actions on the users controller along with their tests but we have not ended yet. We are just missing one more which is the destroy action. So let’s do that:
+So far we have built a bunch of actions on the users controller along with their tests but we have not ended yet. We are just missing one more which is the destroy action. So let's do that:
 
 [source,ruby]
 .spec/controllers/api/v1/users_controller_spec.rb
@@ -731,4 +731,4 @@ $ git commit -m "Adds destroy action to the users controller"
 
 == Conclusion
 
-Oh you are here!, great job! I know it probably was a long way, but don’t give up you are doing it great. Make sure you are understanding every piece of code, things will get better, in next chapter we will refactor our tests to clean our code a bit and make it easy to extend the test suite more. So stay with me guys!
+Oh you are here!, great job! I know it probably was a long way, but don't give up you are doing it great. Make sure you are understanding every piece of code, things will get better, in next chapter we will refactor our tests to clean our code a bit and make it easy to extend the test suite more. So stay with me guys!
