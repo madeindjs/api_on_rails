@@ -36,7 +36,7 @@ include::chapter04-refactoring-tests.adoc[]
 
 <<<
 
-include::chapter05-athentification.adoc[]
+include::chapter05-authentication.adoc[]
 
 <<<
 

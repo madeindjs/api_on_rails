@@ -1,4 +1,4 @@
-[#chapter05-athentification]
+[#chapter05-authentication]
 = Authenticating users
 
 It's been a long way since you started. I hope you are enjoying this trip as much as me. On previous chapter we refactor our test suite and since we did not add much code. If you skipped that chapter I recommend you read it. As we are going to be using some of the methods in the chapters to come.
