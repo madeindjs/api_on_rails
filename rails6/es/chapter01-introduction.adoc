@@ -179,7 +179,7 @@ Como puedes adivinar, los anteriores comandos generaran los huesos desnudos de t
 
 == Versionado
 
-Recuerda que Git te ayuda a dar seguimiento y mantener el historial de tu código. Ten en mente que el codigo fuente de la aplicación es publicado en GitHub. Puedes seguir el proyecto en https://github.com/madeindjs/api_on_rails_6[GitHub].
+Recuerda que Git te ayuda a dar seguimiento y mantener el historial de tu código. Ten en mente que el codigo fuente de la aplicación es publicado en GitHub. Puedes seguir el proyecto en https://github.com/madeindjs/market_place_api_6[GitHub].
 
 Ruby on Rails inicializa el directorio Git por tí cuando usas el comando `rails new`. Esto significa que no necesitas ejecutar el comando `git init`.
 
@@ -191,7 +191,7 @@ $ git config --global user.name "Aquí pon tu nombre"
 $ git config --global user.email "Aquí pon tu email"
 ----
 
-Rails también provee un archivo _.gitignore_ para ignorar algunos archivos a los que no queramos dar seguimiento. El archivo _.gitignore_ por defecto puede lucir como se ve a continuación:
+Rails también provee un archivo `.gitignore` para ignorar algunos archivos a los que no queramos dar seguimiento. El archivo `.gitignore` por defecto puede lucir como se ve a continuación:
 
 ..gitignore
 ----
@@ -217,7 +217,7 @@ Rails también provee un archivo _.gitignore_ para ignorar algunos archivos a lo
 /config/master.key
 ----
 
-Después de modificar el archivo _.gitignore_ únicamente necesitamos añadir los archivos y hacer _commit_ de los cambios, para ello usamos los siguientes comandos:
+Después de modificar el archivo `.gitignore` únicamente necesitamos añadir los archivos y hacer _commit_ de los cambios, para ello usamos los siguientes comandos:
 
 [source,bash]
 ----

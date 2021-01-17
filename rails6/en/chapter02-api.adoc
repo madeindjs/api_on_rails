@@ -160,7 +160,7 @@ To set the version for the API, we first need to add another directory under the
 
 [source,bash]
 ----
-$ mkdir app/controllers/API/v1
+$ mkdir app/controllers/api/v1
 ----
 
 This way we can namespace our api into different versions very easily, now we just need to add the necessary code to the `routes.rb` file:

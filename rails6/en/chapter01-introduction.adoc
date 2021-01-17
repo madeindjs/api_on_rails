@@ -175,7 +175,7 @@ As you may guess, the commands above will generate the bare bones of your Rails 
 
 == Versioning
 
-Remember that Git helps you track and maintain your code history. Keep in mind that the source code of the application is published on GitHub. You can follow the project on https://github.com/madeindjs/api_on_rails_6[GitHub].
+Remember that Git helps you track and maintain your code history. Keep in mind that the source code of the application is published on GitHub. You can follow the project on https://github.com/madeindjs/market_place_api_6[GitHub].
 
 Ruby on Rails initialized the Git directory for you when you used the `rails new` command. This means that you do not need to execute the `git init` command.
 
@@ -187,7 +187,7 @@ $ git config --global user.name "Type in your name"
 $ git config --global user.email "Type in your email"
 ----
 
-Rails also provide a _.gitignore_ file to ignore some files that we don't want to track. The default _.gitignore_ file should look like the one shown below:
+Rails also provide a `.gitignore` file to ignore some files that we don't want to track. The default `.gitignore` file should look like the one shown below:
 
 ..gitignore
 ----
@@ -213,7 +213,7 @@ Rails also provide a _.gitignore_ file to ignore some files that we don't want t
 /config/master.key
 ----
 
-After modifying the _.gitignore_ file, we just need to add the files and commit the changes, the necessary commands are shown below:
+After modifying the `.gitignore` file, we just need to add the files and commit the changes, the necessary commands are shown below:
 
 [source,bash]
 ----

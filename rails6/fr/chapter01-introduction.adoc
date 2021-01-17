@@ -183,7 +183,7 @@ Comme vous pouvez le deviner, les commandes ci-dessus généreront les élément
 
 == Contrôle de version
 
-Rappelez-vous que Git vous aide à suivre et à maintenir l'historique de votre code. Gardez à l'esprit que le code source de l'application est publié sur GitHub. Vous pouvez suivre le projet sur https://github.com/madeindjs/api_on_rails_6[GitHub]
+Rappelez-vous que Git vous aide à suivre et à maintenir l'historique de votre code. Gardez à l'esprit que le code source de l'application est publié sur GitHub. Vous pouvez suivre le projet sur https://github.com/madeindjs/market_place_api_6[GitHub]
 
 Lorsque vous avez utilisé la commande `rails new`, Ruby on Rails a initialisé le répertoire Git pour vous. Cela signifie que vous n'avez pas besoin d'exécuter la commande `git init`.
 
@@ -195,7 +195,7 @@ $ git config user.name "Type in your name"
 $ git config user.email "Type in your email"
 ----
 
-Rails fournit également un fichier _.gitignore_ pour ignorer certains fichiers que nous ne voulons pas suivre. Le fichier _.gitignore_ par défaut devrait ressembler à celui illustré ci-dessous :
+Rails fournit également un fichier `.gitignore` pour ignorer certains fichiers que nous ne voulons pas suivre. Le fichier `.gitignore` par défaut devrait ressembler à celui illustré ci-dessous :
 
 [source,console]
 ..gitignore
