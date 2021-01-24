@@ -416,7 +416,7 @@ Un JSON vale mas que mil palabras:
         },
         "relationships": {
           "user": {
-            "id": 1,
+            "id": 2,
             "type": "user"
           }
         }
@@ -431,7 +431,7 @@ Un JSON vale mas que mil palabras:
         },
         "relationships": {
           "user": {
-            "id": 1,
+            "id": 2,
             "type": "user"
           }
         }
