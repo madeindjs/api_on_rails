@@ -23,7 +23,7 @@ $ git checkout -b chapter04
 
 == Stateless session
 
-Before we go any further, something must be clear: *an API does not handle sessions*. If you don't have experience building this kind of application, it might sound a little crazy but stay with me. An API should be stateless, which means by definition _is one that provides a response after your request and then requires no further attention._. This means no previous or future state is required for the system to work.
+Before we go any further, something must be clear: *an API does not handle sessions*. If you don't have experience building this kind of application, it might sound a little crazy but stay with me. An API should be stateless, which means by definition _is one that provides a response after your request and then requires no further attention_. This means no previous or future state is required for the system to work.
 
 The flow for authenticating the user through an API is effortless:
 
@@ -298,7 +298,7 @@ We will now implement the following logic: we'll find the corresponding user of 
 
 We will use the HTTP header `Authorization`, which is often used for this purpose. We may also use a GET parameter named `apiKey` but I prefer to use an HTTP header because it gives context to the request without polluting the URL with additional parameters.
 
-We will therefore create a `current_user` method to meet our needs. It will find the user thanks his authentication token, which is sent on each request.
+We will therefore create a `current_user` method to meet our needs. It will find the user thanks to his authentication token, which is sent on each request.
 
 When it comes to authentication, I like adding all the associated methods in a separate file. Then simply include the file in the `ApplicationController`. In this way, it's straightforward to test in isolation. Let's create the file in the `controllers/concerns` directory with a `current_user` method that we will implement right after:
 
