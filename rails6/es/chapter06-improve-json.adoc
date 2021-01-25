@@ -393,7 +393,7 @@ El problema con este enfoque es que tenemos duplicados del objeto `User' para ca
 ----
 
 
-=== Incorporar las relaciones incluidas en `include
+=== Incorporar las relaciones incluidas en `include`
 
 LA tercer solución (elegida por JSON:API) es una combinación de las primeras dos.
 
@@ -416,7 +416,7 @@ Un JSON vale mas que mil palabras:
         },
         "relationships": {
           "user": {
-            "id": 1,
+            "id": 2,
             "type": "user"
           }
         }
@@ -431,7 +431,7 @@ Un JSON vale mas que mil palabras:
         },
         "relationships": {
           "user": {
-            "id": 1,
+            "id": 2,
             "type": "user"
           }
         }

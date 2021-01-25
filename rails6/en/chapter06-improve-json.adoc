@@ -392,7 +392,7 @@ The problem with this approach is we have to duplicate the `User' objects for ea
 ----
 
 
-=== Incorporate the relationships into `include
+=== Incorporate the relationships into `include`
 
 The third solution (chosen by the JSON:API) is a mixture of the first two.
 
@@ -415,7 +415,7 @@ A JSON is worth a thousand words:
         },
         "relationships": {
           "user": {
-            "id": 1,
+            "id": 2,
             "type": "user"
           }
         }
@@ -430,7 +430,7 @@ A JSON is worth a thousand words:
         },
         "relationships": {
           "user": {
-            "id": 1,
+            "id": 2,
             "type": "user"
           }
         }
