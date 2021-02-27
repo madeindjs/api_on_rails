@@ -228,7 +228,7 @@ Así que vamos a usar la gema bcrypt para *hashear* la contraseña.
 
 NOTE: Hashear es el proceso de transformar un arreglo de caracteres en un _Hash_. Este _Hash_ no te permite encontrar el arreglo de caracteres original. Pero como sea, podemos fácilmente usarlo para encontrar si un arreglo de caracteres dado coincide con el _hash_ que almacenamos.
 
-Primero debemos agregar la gema Bcrypt al _Gemfile_. Podemos usar el comando `bundle add`. Que hará:
+Primero debemos agregar la gema Bcrypt al `Gemfile`. Podemos usar el comando `bundle add`. Que hará:
 
 1. añadir la gema al Gemfile recuperando la versión más reciente
 2. ejecutar el comando `bundle install` el cual instalará la gema y actualizará el archivo _Gemfile.lock_ "bloqueando" la versión actual de la gema
@@ -240,7 +240,7 @@ Por lo tanto, ejecutamos el siguiente comando:
 $ bundle add bcrypt
 ----
 
-Una vez que el comando es ejecutado, la siguiente línea es añadida al final del _Gemfile_:
+Una vez que el comando es ejecutado, la siguiente línea es añadida al final del `Gemfile`:
 
 [source,ruby]
 .Gemfile
@@ -575,7 +575,7 @@ Entonces implementamos la acción update en el controlador del usuario y corremo
 ----
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[show update]
-  
+
   # GET /users/1
   def show
     render json: @user

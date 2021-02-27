@@ -229,7 +229,7 @@ Nous allons donc utiliser la gemme bcrypt afin de hacher le mot de passe.
 
 NOTE: Le hachage consiste à transformer une chaîne de caractère en _Hash_. Ce _Hash_ ne permet pas de retrouver la chaîne de caractère d'origine. Cependant nous pouvons facilement l'utiliser afin de savoir si une chaîne de caractère donnée correspond au _hash_ que nous avons stocké.
 
-Nous devons d'abord ajouter la gemme Bcrypt au _Gemfile_. Nous pouvons utiliser la commande `bundle add`. Celle-ci va s'occuper:
+Nous devons d'abord ajouter la gemme Bcrypt au `Gemfile`. Nous pouvons utiliser la commande `bundle add`. Celle-ci va s'occuper:
 
 1. d'ajouter la gemme au Gemfile en récupérant la version actuelle
 2. lancer la commande `bundle install` qui va installer la gemme et mettre à jour le fichier _Gemfile.lock_ qui "verrouille" la version actuelle de la gemme
@@ -241,7 +241,7 @@ Lancez donc la commande suivante:
 $ bundle add bcrypt
 ----
 
-Une fois la commande exécutée, la ligne suivante est ajoutée à la fin du _Gemfile_:
+Une fois la commande exécutée, la ligne suivante est ajoutée à la fin du `Gemfile`:
 
 [source,ruby]
 .Gemfile

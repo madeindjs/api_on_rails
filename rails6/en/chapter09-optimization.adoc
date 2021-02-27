@@ -580,7 +580,7 @@ Processing by Api::V1::ProductsController#index as JSON
 
 It is, therefore, unfortunately **very easy** to create an N+1 query. Fortunately, a gem allows us to **alert** when this kind of situation occurs: https://github.com/flyerhzm/bullet[Bullet]. Bullet will notify us (by email, http://growl.info/[growl notification], https://slack.com[Slack], console, etc...) when it finds an N+1 request.
 
-To install it, we add the _gem_ to the _GemFile_
+To install it, we add the _gem_ to the `Gemfile`
 
 [source,bash]
 ----

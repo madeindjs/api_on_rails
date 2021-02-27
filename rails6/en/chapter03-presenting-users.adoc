@@ -37,7 +37,7 @@ We will start by generating our `User` model. This model will be really simple a
 - `email` which will be unique and will allow it to connect to the application
 - `password_digest` which will contain the *hashed* version of the password (we will discuss this later in this chapter)
 
-We generate our `User` model using the _generate model_ command provided by Ruby on Rails. It is very easy to use:
+We generate our `User` model using the `generate model` command provided by Ruby on Rails. It is very easy to use:
 
 [source,bash]
 ----
@@ -227,7 +227,7 @@ So we will use the bcrypt gem to *hash* the password.
 
 NOTE: Hash is the process of transforming a character string into _Hash_. This _Hash_ does not allow you to find the original character string. However, we can easily use it to determine if a given character string matches the _hash_ we have stored.
 
-We must first add the Bcrypt gem to the _Gemfile_. We can use the `bundle add` command. This one will:
+We must first add the Bcrypt gem to the `Gemfile`. We can use the `bundle add` command. This one will:
 
 1. add the gem to the Gemfile by retrieving the current version
 2. launch the command `bundle install` which will install the gem and update the file _Gemfile.lock_ which "locks" the current version of the gem
@@ -239,7 +239,7 @@ Therefore, issue the following command:
 $ bundle add bcrypt
 ----
 
-Once the command is executed, the following line is added at the end of the _Gemfile_:
+Once the command is executed, the following line is added at the end of the `Gemfile`:
 
 [source,ruby]
 .Gemfile
@@ -284,7 +284,7 @@ You can see that when you call the `User#create!` method, the `password` attribu
 ActiveRecord::RecordInvalid (Validation failed: Password confirmation doesn t match Password)
 ----
 
-Everything is working as planned! Let's now make a _committe_ to keep the history concise:
+Everything is working as planned! Let's now make a _commit_ to keep the history concise:
 
 [source,bash]
 ----
@@ -697,3 +697,40 @@ $ git merge chapter03
 == Conclusion
 
 Oh, there you are! Well done! I know it was probably a long time, but don't give up! Make sure you understand each piece of code, things will improve. In the next chapter, we will redesign our tests to make the code more readable and maintainable. Then stay with me!
+
+=== Quiz
+
+To make sure that you understood this chapter, try to answer these questions:
+
+Which code allow you to set an unique constraint on `User#email` in a migration file::
+  . `t.string :email, null: false`
+  . `t.string :email, unique: true`
+  . `t.index :email, unique: true`
+
+How do we create an user in a unit test?::
+  . add a record in `test/fixtures/users.yml`
+  . use `Use.create email: 'toto@toto.fr'` inside test
+
+Which statement is not valid?::
+  . Hash is the process of transforming a character string into _Hash_.
+  . Hash allow you to find the original character string
+  . Hash allow you to determine if a given character string matches
+
+Which feature `has_secure_password` no implement:
+  . The password must be present when creating.
+  . The password length must be less than or equal to 72 bytes.
+  . The password must contains at least on letter and one digit
+
+TODO
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: [:show]
+    end
+  end
+end
+----

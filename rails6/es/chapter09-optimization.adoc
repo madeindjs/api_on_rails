@@ -583,7 +583,7 @@ Processing by Api::V1::ProductsController#index as JSON
 
 Es por lo tanto desafortunadamente **muy fácil** para crear consultas N+1. Afortunadamentes, esta es una gema que nos permite **alertar** cuando este tipo de situación ocurre: https://github.com/flyerhzm/bullet[Bullet]. Bullet nos notificará (por correo, http://growl.info/[growl notification], https://slack.com[Slack], consola, etc...) cuando encuentra una petición N+1.
 
-Para instalarla, vamos añadir la _gema_ al _GemFile_
+Para instalarla, vamos añadir la _gema_ al `Gemfile`
 
 [source,bash]
 ----

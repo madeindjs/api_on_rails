@@ -603,7 +603,7 @@ Processing by Api::V1::ProductsController#index as JSON
 
 Il est donc malheureusement **très facile** de créer une requête N+1. Heureusement, il existe une gemme qui permet de nous **alerter** lorsque ce genre de situation arrive: https://github.com/flyerhzm/bullet[Bullet]. Bullet va nous prévenir (par mail, http://growl.info/[notification growl], https://slack.com[Slack], console, etc..) lorsqu'il trouve une requête N+1.
 
-Pour l'installer, nous ajoutons la _gem_ au _GemFile_
+Pour l'installer, nous ajoutons la _gem_ au `Gemfile`
 
 [source,bash]
 ----

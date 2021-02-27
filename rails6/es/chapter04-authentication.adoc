@@ -84,7 +84,7 @@ Asi que vamos a comenzar instalándola:
 $ bundle add jwt
 ----
 
-Una vez completada la siguiente línea es añadida a tu _Gemfile_:
+Una vez completada la siguiente línea es añadida a tu `Gemfile`:
 
 [source,ruby]
 ----
