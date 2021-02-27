@@ -702,22 +702,22 @@ Oh, there you are! Well done! I know it was probably a long time, but don't give
 
 To make sure that you understood this chapter, try to answer these questions:
 
-Which code allow you to set an unique constraint on `User#email` in a migration file::
+Which code allow you to set an unique constraint on `User#email` in a migration file?::
   . `t.string :email, null: false`
   . `t.string :email, unique: true`
   . `t.index :email, unique: true`
 
 How do we create an user in a unit test?::
   . add a record in `test/fixtures/users.yml`
-  . use `Use.create email: 'toto@toto.fr'` inside test
+  . use `Use.create email: 'toto@toto.fr'` inside a test
 
 Which statement is not valid?::
   . Hash is the process of transforming a character string into _Hash_.
   . Hash allow you to find the original character string
   . Hash allow you to determine if a given character string matches
 
-Which feature `has_secure_password` no implement:
-  . The password must be present when creating.
+Which feature `has_secure_password` no implement?::
+  . The password must be present when creating an enity
   . The password length must be less than or equal to 72 bytes.
   . The password must contains at least on letter and one digit
 
