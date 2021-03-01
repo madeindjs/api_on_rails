@@ -708,20 +708,21 @@ Which code allow you to set an unique constraint on `User#email` in a migration 
   . `t.index :email, unique: true`
 
 How do we create an user in a unit test?::
-  . add a record in `test/fixtures/users.yml`
-  . use `Use.create email: 'toto@toto.fr'` inside a test
+  . add a record in `test/fixtures/users.yml`.
+  . use `Use.create email: 'toto@toto.fr'` inside a test.
 
 Which statement is not valid?::
   . Hash is the process of transforming a character string into _Hash_.
-  . Hash allow you to find the original character string
-  . Hash allow you to determine if a given character string matches
+  . Hash allow you to find the original character string.
+  . Hash allow you to determine if a given character string matches.
 
 Which feature `has_secure_password` no implement?::
-  . The password must be present when creating an enity
+  . The password must be present when creating an entity.
   . The password length must be less than or equal to 72 bytes.
-  . The password must contains at least on letter and one digit
+  . The password must contains at least on letter and one digit.
 
 Which snippet create `GET /api/v1/users/:id` route?::
++
 [source,ruby]
 ----
 Rails.application.routes.draw do
@@ -732,12 +733,14 @@ Rails.application.routes.draw do
   end
 end
 ----
++
 [source,ruby]
 ----
 Rails.application.routes.draw do
   resources :users, only: [:show]
 end
 ----
++
 [source,ruby]
 ----
 Rails.application.routes.draw do
@@ -748,27 +751,22 @@ Rails.application.routes.draw do
   end
 end
 ----
++
 
 <<<
 
 ==== Answers
 
-Which code allow you to set an unique constraint on `User#email` in a migration file?::  `t.index :email, unique: true`
+Which code allow you to set an unique constraint on `User#email` in a migration file?::  `t.index :email, unique: true`. This will create a brand new index with a constraint on `email` property.
 
-How do we create an user in a unit test?:: Add a record in `test/fixtures/users.yml`
-  . use `Use.create email: 'toto@toto.fr'` inside a test
+How do we create an user in a unit test?:: Add a record in `test/fixtures/users.yml`. You could also use `Use.create email: 'toto@toto.fr'` inside a test but with fixture you ensure that this user exists for all you tests suites.
 
-Which statement is not valid?::
-  . Hash is the process of transforming a character string into _Hash_.
-  . Hash allow you to find the original character string
-  . Hash allow you to determine if a given character string matches
+Which statement is not valid?:: Hash allow you to find the original character string. This is the real difference between hashing and encrypt a password.
 
-Which feature `has_secure_password` no implement?::
-  . The password must be present when creating an enity
-  . The password length must be less than or equal to 72 bytes.
-  . The password must contains at least on letter and one digit
+Which feature `has_secure_password` no implement?:: The password must contains at least on letter and one digit. But you can easily add https://guides.rubyonrails.org/active_record_validations.html[an Active Record Validation] to do this.
 
 Which snippet create `GET /api/v1/users/:id` route?::
++
 [source,ruby]
 ----
 Rails.application.routes.draw do
@@ -779,19 +777,4 @@ Rails.application.routes.draw do
   end
 end
 ----
-[source,ruby]
-----
-Rails.application.routes.draw do
-  resources :users, only: [:show]
-end
-----
-[source,ruby]
-----
-Rails.application.routes.draw do
-  namespace :api, defaults: { format: :json } do
-    namespace :v1 do
-      resources :users, only: [:index]
-    end
-  end
-end
-----
++

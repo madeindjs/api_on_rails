@@ -46,7 +46,7 @@ Overall a JWT token is composed of three parts:
 
 - a *header* structured in JSON contains, for example, the validity date of the token.
 - a *payload* structured in JSON can contain *any data*. In our case, it will contain the identifier of the "connected" user.
-A *signature* allows us to verify that our application has encrypted the token and is therefore valid.
+- A *signature* allows us to verify that our application has encrypted the token and is therefore valid.
 
 These three parts are each encoded in base64 and then concatenated using points (`.`). This gives us something like that:
 
@@ -345,7 +345,7 @@ class AuthenticableTest < ActionDispatch::IntegrationTest
 end
 ----
 
-You may be wondering, "Where does the `MockController` come from?". It is a _Mock_, i.e., a class that imitates another's behavior to test a behavior.
+You may be wondering, "Where does the `MockController` come from?". It is a _Mock_, i.e., a class that imitates another behavior to test a behavior.
 
 We can define the `MockController` class just above our test:
 
@@ -367,7 +367,7 @@ end
 
 The `MockController` class simply includes our `Authenticable` module that we will test. It contains a `request` attribute that contains a simple https://ruby-doc.org/core-2.6.3/Struct.html[`Struct`] that mimics the behavior of a Rails request by containing a `headers` attribute of the type `Hash`.
 
-Then we can implement our two tests right after
+Then we can implement our two tests right after:
 
 [source,ruby]
 .test/controllers/concerns/authenticable_test.rb
@@ -553,3 +553,34 @@ $ git merge chapter04
 Yeah! You made it! You are halfway done! Keep up the good work. This chapter was a long and hard one, but it is a great step toward setting a solid mechanism for handling user authentication. We even scratch the surface for simple authorization rules.
 
 In the next chapter, we will be focusing on customizing the JSON output for the user with https://github.com/Netflix/fast_jsonapi[fast_jsonapi] gem and adding a `product` model to the equation by giving the user the ability to create a product and publish it for sale.
+
+=== Quiz
+
+To make sure that you understood this chapter, try to answer these questions:
+
+Which of theses snippet can be a valid JWT header::
++
+[source,json]
+----
+{ "alg": "HS256", "typ": "JWT" }
+----
++
+[source,json]
+----
+{ "sub": "1234567890", "name": "John Doe", "iat": 1516239022 }
+----
++
+[source,json]
+----
+{ "alg": "HS256", "typ": "JWT", "name": "John Doe" }
+----
++
+
+How do you build a valid JWT token with the given payload `payload = {email: 'john@doe.org'}`?::
+  . `JWT.encode(payload, 'my_secret_key')`
+  . `JWT.encode(payload)`
+  . `JWT.encrypt(payload, 'my_secret_key')`
+  . `JWT.encrypt(payload)`
+
+Where does JWT token are stored?::
+  .

@@ -17,9 +17,18 @@ Pour résumer, nous avons simplement généré notre application Rails et réali
 
 Notre application sera assez simple. Elle se composera de cinq modèles. Ne vous inquiétez pas si vous ne comprenez pas bien ce qui se passe, nous reverrons et développerons chacune de ces ressources au fur et à mesure que nous avancerons avec le tutoriel.
 
-image:data_model.png[Schéma des liaisons entre les différents modèles]
+----
++---------+     +---------+
+| User    +---->+Product  |
++---------+     +---------+
+     |               |
+     v               v
++---------+     +---------+
+|Order    +---->+Placement|
++---------+     +---------+
+----
 
-En bref, nous avons l'utilisateur (`User`) qui sera en mesure de passer de nombreuses commandes (`Order`), télécharger de multiples produits (`product`) qui peuvent avoir de nombreuses images (`Image`) ou commentaires (`Comment`) d'autres utilisateurs sur l'application.
+En bref, nous avons l’utilisateur (`User`) qui sera en mesure de créer des commandes (`Order`). Il pourra aussi passer de nombreuses commandes (`Order`) qui vont contenir des éléments (`Placement`) qui désignes des produits.
 
 Nous n'allons pas construire d'interface pour l'interaction avec l'API afin de ne pas surcharger le tutoriel. Si vous voulez construire des vues, il existe de nombreuses options comme des frameworks JavaScript (https://angularjs.org/[Angular], https://vuejs.org/[Vue.JS], https://reactjs.org/[React]) ou des librairies mobiles (https://github.com/AFNetworking/AFNetworking[AFNetworking]).
 

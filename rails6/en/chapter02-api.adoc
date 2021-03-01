@@ -15,11 +15,19 @@ To summarize, we simply generated our Rails application and made our first commi
 
 == Planning the application
 
-As we want to go simple with the application, it consists of five models. Don't worry if you don't fully understand what is going on. We will review and build each of these resources as we move on with the tutorial.
+Our application will be quite simple. It will consist of five models. Don't worry if you don't understand what's going on. We will review and develop each of these resources as we move forward with the tutorial.
 
-image:data_model.png[Schema of links betweens models]
-
-In brief, the `user` will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from other users on the app.
+.Diagram of Market Place API models
+----
++---------+     +---------+
+| User    +---->+Product  |
++---------+     +---------+
+     |               |
+     v               v
++---------+     +---------+
+|Order    +---->+Placement|
++---------+     +---------+
+----
 
 We will not build views for displaying or interacting with the API, so not to make this a huge tutorial, I'll let that to you. There are plenty of options out there like javascript frameworks (https://angularjs.org/[Angular], https://vuejs.org/[Vue.js], https://reactjs.org/[React.js]).
 
@@ -223,8 +231,8 @@ To make sure that you understood this chapter, try to answer these questions:
 
 Which guideline do you must follow in a RESTfull API::
   . Follows the standard HTTP Methods such as GET, POST, PUT, DELETE.
-  . Buy a specific domain which is compliant with RESTFull API
-  . Use JSON format
+  . Buy a specific domain which is compliant with RESTFull API.
+  . Use JSON format.
 
 Which file correspond to routes in a Rails application::
   . `config/routes.rb`
@@ -232,8 +240,8 @@ Which file correspond to routes in a Rails application::
   . `config/application.rb`
 
 Which Rails feature we used to build our API versioning::
-  . a namespace like `namespace :v1`
-  . a new controller
+  . a namespace like `namespace :v1`.
+  . a new controller.
 
 Which HTTP method allow you to updates a collection or member of the resources::
   . `POST`
@@ -241,15 +249,15 @@ Which HTTP method allow you to updates a collection or member of the resources::
   . `PUT`
 
 How did you merge your branch at the end of this chapter::
-  . I `checkout` on `master` branch then I `merge` branch `chapter02`
-  . I `merge` branch `master` into `chapter02`
+  . I `checkout` on `master` branch then I `merge` branch `chapter02`.
+  . I `merge` branch `master` into `chapter02`.
   . `git config --global user.name "John Doe"`
 
 Take your time to answer. Once you resolved these questions, go to the next page to get responses.
 
 <<<
 
-==== Responses
+==== Answers
 
 Which guideline do you must follow in a RESTfull API:: Follows the standard HTTP methods such as GET, POST, PUT, DELETE. If you forgot what these methods mean, go
 

@@ -271,7 +271,7 @@ Take your time to answer. Once you resolved these questions, go to the next page
 
 <<<
 
-==== Responses
+==== Answers
 
 Which one is not an editor?:: iTerm, this is a terminal emulator for MacOS.
 
