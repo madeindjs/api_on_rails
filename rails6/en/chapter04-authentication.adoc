@@ -582,5 +582,37 @@ How do you build a valid JWT token with the given payload `payload = {email: 'jo
   . `JWT.encrypt(payload, 'my_secret_key')`
   . `JWT.encrypt(payload)`
 
-Where does JWT token are stored?::
-  .
+
+What may happen if we try to use `JWT.decode` with an invalid signature? Exemple, we define a token `token = JWT.encode({}, 'bar')` and then decoded like this `JWT.decode(token, 'wrong')`.::
+  . an error `JWT::VerificationError` will be raised
+
+In a previous section, we defined `exp` value in payload. This is a timestamp of maximum token validity. What may happen Exemple, we define a token `token = JWT.encode({exp: 1}, 'bar')` and then decoded like this `JWT.decode(token, 'bar')`.::
+  . an error `JWT::ExpiredSignature` will be raised
+
+Which of theses snippet send a correct HTTP query in a functional test::
++
+[source,ruby]
+----
+delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }, as: :json
+----
++
+
+<<<
+
+==== Answers
+
+=== Go further
+
+If you read carefully quiz's answer, you may notice that if we try to decode an invalid token JWT library raise an exception. At this point, we do not handle this exception in application.
+
+If you want to go further and improve your application at this points, you may want to handle properly this error and return a `403 - Forbidden` HTTP status and a body containing a message like "Given token is invalid because it is perished / malformed.". You can easily implement a functional test like the following:
+
+[source,ruby]
+----
+test "should forbid destroy user because JWT is invalid" do
+  assert_no_difference('User.count') do
+    delete api_v1_user_url(@user), headers: { Authorization: JWT.encode({user_id: @user.id}, 'bad_signature') }, as: :json
+  end
+  assert_response :forbidden
+end
+----
