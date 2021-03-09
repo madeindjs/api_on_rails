@@ -577,23 +577,36 @@ Which of theses snippet can be a valid JWT header::
 +
 
 How do you build a valid JWT token with the given payload `payload = {email: 'john@doe.org'}`?::
-  . `JWT.encode(payload, 'my_secret_key')`
-  . `JWT.encode(payload)`
   . `JWT.encrypt(payload, 'my_secret_key')`
   . `JWT.encrypt(payload)`
+  . `JWT.encode(payload, 'my_secret_key')`
+  . `JWT.encode(payload)`
 
-
-What may happen if we try to use `JWT.decode` with an invalid signature? Exemple, we define a token `token = JWT.encode({}, 'bar')` and then decoded like this `JWT.decode(token, 'wrong')`.::
-  . an error `JWT::VerificationError` will be raised
+What may happen if we try to use `JWT.decode` with an invalid signature? Exemple, we define a token `token = JWT.encode({a: 1}, 'bar')` and then decoded like this `JWT.decode(token, 'wrong')`.::
+  . an error `JWT::VerificationError` will be raised.
+  . `nil` is return.
+  . `{a: 1}` is returns but you get a warning in console.
 
 In a previous section, we defined `exp` value in payload. This is a timestamp of maximum token validity. What may happen Exemple, we define a token `token = JWT.encode({exp: 1}, 'bar')` and then decoded like this `JWT.decode(token, 'bar')`.::
-  . an error `JWT::ExpiredSignature` will be raised
+  . an error `JWT::ExpiredSignature` will be raised.
+  . `nil` is return.
+  . `{exp: 1}` is returns but you get a warning in console.
 
 Which of theses snippet send a correct HTTP query in a functional test::
 +
 [source,ruby]
 ----
-delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }, as: :json
+delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }
+----
++
+[source,ruby]
+----
+delete api_v1_user_url(@user), headers: { Authorization: @user.id }, as: :json
+----
++
+[source,ruby]
+----
+delete api_v1_user_url(@user), headers: JsonWebToken.encode(user_id: @user.id)
 ----
 +
 
@@ -601,6 +614,24 @@ delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(use
 
 ==== Answers
 
+Which of theses snippet can be a valid JWT header:: `{ "alg": "HS256", "typ": "JWT" }`. JWT Header describe the cryptographic operations applied to the JWT
+   and optionally, additional properties of the JWT. https://tools.ietf.org/html/rfc7519#section-5[see RFC 7519].
+
+How do you build a valid JWT token with the given payload `payload = {email: 'john@doe.org'}`?:: `JWT.encode(payload, 'my_secret_key')`. `encode` need at least a secret key to build an JWT token. Also please note that secret key can be an empty string `""`.
+
+What may happen if we try to use `JWT.decode` with an invalid signature?:: an error `JWT::VerificationError` will be raised. You may `rescue` it in your controller to handle it and send a `403 - Forbidden` to user. This may happens if a malicious user try to build a custom JWT token.
+
+In a previous section, we defined `exp` value in payload. This is a timestamp of maximum token validity. What may happen Exemple, we define a token `token = JWT.encode({exp: 1}, 'bar')` and then decoded like this `JWT.decode(token, 'bar')`.:: an error `JWT::ExpiredSignature` will be raised. The `exp` (expiration time) claim identifies the expiration time on or after which the JWT MUST NOT be accepted for processing. https://tools.ietf.org/html/rfc7519#section-4.1.4[see RFC 7519]
+
+Which of theses snippet send a correct HTTP query in a functional test::
++
+[source,ruby]
+----
+delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }
+----
++
+
+<<<
 === Go further
 
 If you read carefully quiz's answer, you may notice that if we try to decode an invalid token JWT library raise an exception. At this point, we do not handle this exception in application.
