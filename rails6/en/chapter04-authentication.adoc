@@ -593,16 +593,21 @@ In a previous section, we defined `exp` value in payload. This is a timestamp of
   . `{exp: 1}` is returns but you get a warning in console.
 
 Which of theses snippet send a correct HTTP query in a functional test::
+  . we build an `Authorization` header containing JWT token
 +
 [source,ruby]
 ----
 delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }
 ----
 +
+  . we build an `Authorization` header containing user ID.
++
 [source,ruby]
 ----
 delete api_v1_user_url(@user), headers: { Authorization: @user.id }, as: :json
 ----
++
+  . we build an HTTP header containing JWT token
 +
 [source,ruby]
 ----

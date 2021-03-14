@@ -982,3 +982,7 @@ $ git merge chapter06
 
 Until now, it was easy thanks to the gem https://github.com/jsonapi-serializer/jsonapi-serializer[jsonapi-serializer]. In the coming chapters, we will start building the `Order` model to involve users in the products.
 
+
+=== Quiz
+
+To make sure that you understood this chapter, try to answer these questions:

@@ -116,7 +116,7 @@ one:
 # ...
 ----
 
-You can see this _fixture_ does not use the attribute `user_id` but `user`. This means that the `one` product will have an `user_id` attribute corresponding to the `one` user ID.
+You can see this fixture does not use the attribute `user_id` but `user`. This means that the `one` product will have an `user_id` attribute corresponding to the `one` user ID.
 
 Therefore, it is necessary to specify a cascading deletion to delete the `one` product when the `one` user is deleted. Let's start with the unit test:
 
@@ -146,15 +146,13 @@ class User < ApplicationRecord
   has_many :products, dependent: :destroy
 end
 ----
-<<<
-And that's it. Now make a _commit_:
+
+And that's it. Now make a commit:
 
 [source,bash]
 ----
 $ git add . && git commit -m "Generate product model"
 ----
-
-
 
 === Product validations
 
@@ -502,7 +500,7 @@ end
 ----
 
 
-NOTE: I have added a _fixture_ corresponding to a second user to verify that the second user cannot modify the first user's product.
+NOTE: I have added a fixture corresponding to a second user to verify that the second user cannot modify the first user's product.
 
 Tests may look complex but take a second peek. They are almost the same we built for users.
 
@@ -760,3 +758,155 @@ $ git merge chapter05
 I hope you have enjoyed this chapter. It's a long one but the code we put together is an excellent base for the core app.
 
 In the next chapter, we will focus on customizing user and product models' output using the gem https://github.com/Netflix/fast_jsonapi[fast_jsonapi]. It will allow us to easily filter the attributes to display and manage associations such as embedded objects.
+
+=== Quiz
+
+To make sure that you understood this chapter, try to answer these questions:
+
+How to generate a brand new model with "products belongs to user"?::
+  . `rails generate model Product user:belongs_to`
+  . `rails generate model Product user:has_many`
+  . `rails generate model Product user:relation`
+
+How to remove all associated user's products when user is removed::
+  . We add `dependent: :destroy` on products association
++
+[source,ruby]
+----
+# ...
+class User < ApplicationRecord
+  # ...
+  has_many :products, dependent: :destroy
+end
+----
++
+  . We add `dependent: :nullify` on products association
++
+[source,ruby]
+----
+# ...
+class User < ApplicationRecord
+  # ...
+  has_many :products, dependent: :nullify
+end
+----
++
+  . We only specify products association, Active Record handle it implicitly
++
+[source,ruby]
+----
+# ...
+class User < ApplicationRecord
+  # ...
+  has_many :products
+end
+----
++
+
+
+How shall we returns error during product creation into controller?::
+  . using `product.errors`
++
+[source,ruby]
+----
+def create
+  # ... we can't save `product` bellow
+  render json: { errors: product.errors }
+end
+----
++
+  . using `product.errors` and HTTP status `unprocessable_entity`
++
+[source,ruby]
+----
+def create
+  # ... we can't save `product` bellow
+  render json: { errors: product.errors }, status: :unprocessable_entity
+end
+----
++
+  . using `product.errors` and HTTP status 500
++
+[source,ruby]
+----
+def create
+  # ... we can't save `product` bellow
+  render json: { errors: product.errors }, status: 500
+end
+----
++
+
+How did we check owner of a product in `ProductsController`?::
+  . we compare `@product.user` and `current_user`
++
+[source,ruby]
+----
+def check_owner
+  head :forbidden unless @product.user == current_user
+end
+----
++
+  . we compare `@product.user_id` and `current_user.id`
++
+[source,ruby]
+----
+def check_owner
+  head :forbidden unless @product.user_id == current_user&.id
+end
+----
++
+  . we compare only check that `current_user` exists
++
+[source,ruby]
+----
+def check_owner
+  head :forbidden unless current_user
+end
+----
++
+
+Which file helps you to populate default data in database::
+  . `db/seeds.rb`
+  . `tests/fixtures/`
+  . `config/database.rb`
+
+
+<<<
+
+==== Answers
+
+How to generate a brand new model with "products belongs to user"?:: `rails generate model Product user:belongs_to`. This command will create an `user_id` column of type `int` and add a foreign key to the `users.id` field. `user_id` will also be defined as an `index`.
+
+How to remove all associated user's products when user is removed:: We add `dependent: :destroy` on products association
++
+[source,ruby]
+----
+# ...
+class User < ApplicationRecord
+  # ...
+  has_many :products, dependent: :destroy
+end
+----
++
+
+How shall we returns error during product creation into controller?:: using `product.errors` and HTTP status `unprocessable_entity`
++
+[source,ruby]
+----
+def create
+  # ... we can't save `product` bellow
+  render json: { errors: product.errors }, status: :unprocessable_entity
+end
+----
++
+`unprocessable_entity` correspond to 422 HTTP status which means:
++
+[quote, MDN Web Docs - https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422[422 Unprocessable Entity]]
+____
+`422 Unprocessable Entity` response status code indicates that the server understands the content type of the request entity (...) but it was unable to process the contained instructions.
+____
++
+
+How did we check owner of a product in `ProductsController`?:: we compare `@product.user_id` and `current_user.id`. We may could compare directly `user` objects but comparing only `User#id` is the safer and more performant.
+
+Which file helps you to populate default data in database:: `db/seeds.rb`. Into this file you can build your own Active Record instances and then run `rake db:seed` to run it.
