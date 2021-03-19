@@ -71,7 +71,7 @@ You should be ready to continue with this tutorial.
 
 == Serialize user
 
-JSON:API Serializer uses *serializers*. Serializers represent Ruby classes responsible for converting a model into an https://ruby-doc.org/core-2.6.3/Hash.html[`Hash`] or a JSON.
+JSON:API Serializer uses *serializer*. Serializer represent Ruby classes responsible for converting a model into an https://ruby-doc.org/core-2.6.3/Hash.html[`Hash`] or a JSON.
 
 So we need to add a `user_serializer.rb` file. We can do it manually, but the gem provides a command-line interface to do it:
 
@@ -92,7 +92,7 @@ class UserSerializer
 end
 ----
 
-This _serializer_ will allow us to convert our `User` object to JSON, which implements all JSON:API specifications. Because we specified `email` as  `attributes` we retrieve it in `data` array.
+This _erializer will allow us to convert our `User` object to JSON, which implements all JSON:API specifications. Because we specified `email` as  `attributes` we retrieve it in `data` array.
 
 Let's try all this in the Rails with `rails console` console:
 
@@ -102,7 +102,7 @@ Let's try all this in the Rails with `rails console` console:
 => {:data=>{:id=>"25", :type=>:user, :attributes=>{:email=>"tova@beatty.org"}}}
 ----
 
-There you go. As you can see, this is easy. Now we can use our new _serializer_ in our _controller_:
+There you go. As you can see, this is easy. Now we can use our new serializer in our controller:
 
 
 .app/controllers/api/v1/users_controller.rb
@@ -299,12 +299,12 @@ Faced with this problem, there are several alternatives.
 
 The first solution (a good one, in my opinion) is to integrate identifiers of linked users to products in a meta attribute. So we obtain a JSON like below:
 
-[source,json]
+[source,jsonc]
 ----
 {
   "meta": { "user_ids": [1,2,3] },
   "data": [
-
+    // ...
   ]
 }
 ----
@@ -318,25 +318,24 @@ Another solution is to incorporate the `user` object into the `product` object. 
 [source,json]
 ----
 {
-  "data":
-  [
+  "data": [
     {
-        "id": 1,
-        "type": "product",
-        "attributes": {
-          "title": "First product",
-          "price": "25.02",
-          "published": false,
-          "user": {
-            "id": 2,
-            "attributes": {
-              "email": "stephany@lind.co.uk",
-              "created_at": "2014-07-29T03:52:07.432Z",
-              "updated_at": "2014-07-29T03:52:07.432Z",
-              "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-            }
+      "id": 1,
+      "type": "product",
+      "attributes": {
+        "title": "First product",
+        "price": "25.02",
+        "published": false,
+        "user": {
+          "id": 2,
+          "attributes": {
+            "email": "stephany@lind.co.uk",
+            "created_at": "2014-07-29T03:52:07.432Z",
+            "updated_at": "2014-07-29T03:52:07.432Z",
+            "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
           }
         }
+      }
     }
   ]
 }
@@ -347,45 +346,44 @@ The problem with this approach is we have to duplicate the `User' objects for ea
 [source,json]
 ----
 {
-  "data":
-  [
+  "data": [
     {
-        "id": 1,
-        "type": "product",
-        "attributes": {
-          "title": "First product",
-          "price": "25.02",
-          "published": false,
-          "user": {
-            "id": 2,
-            "type": "user",
-            "attributes": {
-              "email": "stephany@lind.co.uk",
-              "created_at": "2014-07-29T03:52:07.432Z",
-              "updated_at": "2014-07-29T03:52:07.432Z",
-              "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-            }
+      "id": 1,
+      "type": "product",
+      "attributes": {
+        "title": "First product",
+        "price": "25.02",
+        "published": false,
+        "user": {
+          "id": 2,
+          "type": "user",
+          "attributes": {
+            "email": "stephany@lind.co.uk",
+            "created_at": "2014-07-29T03:52:07.432Z",
+            "updated_at": "2014-07-29T03:52:07.432Z",
+            "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
           }
         }
+      }
     },
     {
-        "id": 2,
-        "type": "product",
-        "attributes": {
-          "title": "Second product",
-          "price": "25.02",
-          "published": false,
-          "user": {
-            "id": 2,
-            "type": "user",
-            "attributes": {
-              "email": "stephany@lind.co.uk",
-              "created_at": "2014-07-29T03:52:07.432Z",
-              "updated_at": "2014-07-29T03:52:07.432Z",
-              "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
-            }
+      "id": 2,
+      "type": "product",
+      "attributes": {
+        "title": "Second product",
+        "price": "25.02",
+        "published": false,
+        "user": {
+          "id": 2,
+          "type": "user",
+          "attributes": {
+            "email": "stephany@lind.co.uk",
+            "created_at": "2014-07-29T03:52:07.432Z",
+            "updated_at": "2014-07-29T03:52:07.432Z",
+            "auth_token": "Xbnzbf3YkquUrF_1bNkZ"
           }
         }
+      }
     }
   ]
 }
@@ -403,37 +401,36 @@ A JSON is worth a thousand words:
 [source,json]
 ----
 {
-  "data":
-  [
+  "data": [
     {
-        "id": 1,
-        "type": "product",
-        "attributes": {
-          "title": "First product",
-          "price": "25.02",
-          "published": false
-        },
-        "relationships": {
-          "user": {
-            "id": 2,
-            "type": "user"
-          }
+      "id": 1,
+      "type": "product",
+      "attributes": {
+        "title": "First product",
+        "price": "25.02",
+        "published": false
+      },
+      "relationships": {
+        "user": {
+          "id": 2,
+          "type": "user"
         }
+      }
     },
     {
-        "id": 2,
-        "type": "product",
-        "attributes": {
-          "title": "Second product",
-          "price": "25.02",
-          "published": false
-        },
-        "relationships": {
-          "user": {
-            "id": 2,
-            "type": "user"
-          }
+      "id": 2,
+      "type": "product",
+      "attributes": {
+        "title": "Second product",
+        "price": "25.02",
+        "published": false
+      },
+      "relationships": {
+        "user": {
+          "id": 2,
+          "type": "user"
         }
+      }
     }
   ],
   "include": [
@@ -458,7 +455,6 @@ Do you see the difference? This solution drastically reduces the size of the JSO
 So we will incorporate the user object into the product. Let's start by adding some tests.
 
 We will simply modify the `Products#show` test to verify that we are recovering:
-
 
 [source,ruby]
 .test/controllers/api/v1/products_controller_test.rb
@@ -505,21 +501,18 @@ This addition will add a `relationship` key containing the user's identifier:
 ----
 {
   "data": {
-      "id": "1",
-      "type": "product",
-      "attributes": {
-          "title": "Durable Marble Lamp",
-          "price": "11.55",
-          "published": true
-      },
-      "relationships": {
-          "user": {
-              "data": {
-                  "id": "1",
-                  "type": "user"
-              }
-          }
+    "id": "1",
+    "type": "product",
+    "attributes": {
+      "title": "Durable Marble Lamp",
+      "price": "11.55",
+      "published": true
+    },
+    "relationships": {
+      "user": {
+        "data": { "id": "1", "type": "user" }
       }
+    }
   }
 }
 ----
@@ -552,7 +545,7 @@ There you go. Now, this is what the JSON should look like:
       "id": "1",
       "type": "user",
       "attributes": {
-          "email": "staceeschultz@hahn.info"
+        "email": "staceeschultz@hahn.info"
       }
     }
   ]
@@ -659,10 +652,7 @@ There you go. We obtain a JSON like the following:
       },
       "relationships": {
         "user": {
-          "data": {
-            "id": "1",
-            "type": "user"
-          }
+          "data": { "id": "1", "type": "user" }
         }
       }
     },
@@ -753,7 +743,7 @@ class Product < ApplicationRecord
 end
 ----
 
-NOTE: _scoping_ allows you to specify commonly-used queries that can be referenced as method calls on models. With these __scopes__ you can also link with Active Record methods like `where`, `joins`, and `includes` because a _scope_ always returns an object https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`]. I invite you to take a look at https://guides.rubyonrails.org/active_record_querying.html#scopes_record_querying.html#scopes[Rails documentation]
+NOTE: _scoping_ allows you to specify commonly-used queries that can be referenced as method calls on models. With these _scopes_ you can also link with Active Record methods like `where`, `joins`, and `includes` because a _scope_ always returns an object https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`]. I invite you to take a look at https://guides.rubyonrails.org/active_record_querying.html#scopes_record_querying.html#scopes[Rails documentation]
 
 Implementation is sufficient for our tests to pass:
 
@@ -982,7 +972,109 @@ $ git merge chapter06
 
 Until now, it was easy thanks to the gem https://github.com/jsonapi-serializer/jsonapi-serializer[jsonapi-serializer]. In the coming chapters, we will start building the `Order` model to involve users in the products.
 
-
 === Quiz
 
 To make sure that you understood this chapter, try to answer these questions:
+
+Which is the main benefit of using JSON:API specification in our API::
+  . this allow us to not think about design JSON output
+  . this allow us to use more libraries to get more productive
+  . the code is more testable
+
+
+Which following snippet is a valid JSON:API response?::
+  . With product's user attributes into product.
++
+[source,json]
+----
+{
+  "data": [
+    {
+      "id": 1, "type": "product",
+      "attributes": {
+        "user": {
+          "id": 2,
+          "attributes": { "email": "stephany@lind.co.uk" }
+        }
+      }
+    }
+  ]
+}
+----
++
+  . With product's user into an include section and product ID as relationship.
++
+[source,json]
+----
+{
+  "data": [
+    {
+      "id": 1, "type": "product",
+      "relationships": {
+        "user": { "id": 2, "type": "user" }
+      }
+    }
+  ],
+  "include": [
+    {
+      "id": 2, "type": "user",
+      "attributes": { "email": "stephany@lind.co.uk" }
+    }
+  ]
+}
+----
++
+  . With product's user into an include section and product ID as attribute.
++
+[source,json]
+----
+{
+  "data": [
+    { "id": 1, "title": "First product", "user_id": 2 }
+  ],
+  "include": [
+    {
+      "id": 2, "type": "user",
+      "attributes": { "email": "stephany@lind.co.uk" }
+    }
+  ]
+}
+----
+
+What is the purpose of `Hash#dish` method?::
+  . It allow
+  . It is a Ruby method allowing you to retrieve elements in a nested _Hash_ by avoiding errors if an element is not present.
+
+How do you include user information in a JSON:API output of a product?::
++
+[source,rb]
+----
+options = { include: [:user] }
+render json: ProductSerializer.new(@product, options).serializable_hash.to_json
+----
++
+[source,rb]
+----
+options = { include: [:user] }
+render json: ProductSerializer.new(@product, options).serializable_hash.to_json
+----
++
+[source,rb]
+----
+options = { include: [:user] }
+render json: ProductSerializer.new(@product, options).serializable_hash.to_json
+----
++
+
+Which statement is not correct about scope with Active Record?::
+  . this is a shorter way to write a query
+  . this may improve performances
+  . this allow us to chain conditions
+
+Instead of returning an array of all the movies that match this criteria, using a scope actually returns an ActiveRecord Relation.
+
+NOTE: _scoping_ allows you to specify commonly-used queries that can be referenced as method calls on models. With these _scopes_ you can also link with Active Record methods like `where`, `joins`, and `includes` because a _scope_ always returns an object https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`]. I invite you to take a look at https://guides.rubyonrails.org/active_record_querying.html#scopes_record_querying.html#scopes[Rails documentation]
+
+<<<
+
+==== Answers
