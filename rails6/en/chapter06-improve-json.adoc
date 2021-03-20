@@ -251,7 +251,7 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
 end
 ----
 
-You can check that tests pass but they should. Let's _commit_ these small changes:
+You can check that tests pass but they should. Let's commit these small changes:
 
 [source, bash]
 ----
@@ -481,7 +481,7 @@ We are now checking three things on the JSON that has been returned:
 . it contains the user ID of the user linked to the product
 . the user data is included in the `include` key
 
-NOTE: You may have noticed that I have chosen to use the method https://ruby-doc.org/core-2.6.3/Hash.html#method-i-dig[`Hash#dig`]. It is a Ruby method allowing you to retrieve elements in a nested _Hash_ by avoiding errors if an element is not present.
+NOTE: You may have noticed that I have chosen to use the method https://ruby-doc.org/core-2.6.3/Hash.html#method-i-dig[`Hash#dig`]. It is a Ruby method allowing you to retrieve elements in a nested `Hash` by avoiding errors if an element is not present.
 
 To pass this test we will start by including the relationship in the _serializer_:
 
@@ -560,7 +560,7 @@ $ rake test
 ........................
 ----
 
-Let's make a _commit_ to celebrate:
+Let's make a commit to celebrate:
 
 [source,bash]
 ----
@@ -663,7 +663,7 @@ There you go. We obtain a JSON like the following:
 }
 ----
 
-It was straightforward. Let's make a _commit_:
+It was straightforward. Let's make a commit:
 
 [source,bash]
 ----
@@ -977,10 +977,9 @@ Until now, it was easy thanks to the gem https://github.com/jsonapi-serializer/j
 To make sure that you understood this chapter, try to answer these questions:
 
 Which is the main benefit of using JSON:API specification in our API::
-  . this allow us to not think about design JSON output
-  . this allow us to use more libraries to get more productive
-  . the code is more testable
-
+  . This allow us to not think about design JSON output.
+  . This allow us to use more libraries to get more productive.
+  . The code is more testable.
 
 Which following snippet is a valid JSON:API response?::
   . With product's user attributes into product.
@@ -1041,40 +1040,76 @@ Which following snippet is a valid JSON:API response?::
 }
 ----
 
-What is the purpose of `Hash#dish` method?::
-  . It allow
-  . It is a Ruby method allowing you to retrieve elements in a nested _Hash_ by avoiding errors if an element is not present.
+What is the purpose of `Hash#dig` method?::
+  . Get a nested element safer.
+  . Get a nested element and load Active Record relations if needed.
+  . Add a nested element safer.
 
 How do you include user information in a JSON:API output of a product?::
 +
 [source,rb]
 ----
-options = { include: [:user] }
-render json: ProductSerializer.new(@product, options).serializable_hash.to_json
+ProductSerializer.new(@product, { include: [:user] }).serializable_hash
 ----
 +
 [source,rb]
 ----
-options = { include: [:user] }
-render json: ProductSerializer.new(@product, options).serializable_hash.to_json
+ProductSerializer.new(@product).includes(:user).serializable_hash
 ----
 +
 [source,rb]
 ----
-options = { include: [:user] }
-render json: ProductSerializer.new(@product, options).serializable_hash.to_json
+ProductSerializer.new(@product, { join: [:user] }).serializable_hash
 ----
 +
 
 Which statement is not correct about scope with Active Record?::
-  . this is a shorter way to write a query
-  . this may improve performances
-  . this allow us to chain conditions
-
-Instead of returning an array of all the movies that match this criteria, using a scope actually returns an ActiveRecord Relation.
-
-NOTE: _scoping_ allows you to specify commonly-used queries that can be referenced as method calls on models. With these _scopes_ you can also link with Active Record methods like `where`, `joins`, and `includes` because a _scope_ always returns an object https://api.rubyonrails.org/classes/ActiveRecord/Relation.html[`ActiveRecord::Relation`]. I invite you to take a look at https://guides.rubyonrails.org/active_record_querying.html#scopes_record_querying.html#scopes[Rails documentation]
+  . This is a shorter way to write some query.
+  . This may improve performances.
+  . This allow us to chain conditions.
 
 <<<
 
 ==== Answers
+
+Which is the main benefit of using JSON:API specification in our API:: This allow us to not think about design JSON output. JSON:API is a complete specification about how a JSON response should be.
+
+Which following snippet is a valid JSON:API response?:: With product's user into an include section and product ID as relationship.
++
+[source,json]
+----
+{
+  "data": [
+    {
+      "id": 1, "type": "product",
+      "relationships": {
+        "user": { "id": 2, "type": "user" }
+      }
+    }
+  ],
+  "include": [
+    {
+      "id": 2, "type": "user",
+      "attributes": { "email": "stephany@lind.co.uk" }
+    }
+  ]
+}
+----
++
+
+What is the purpose of `Hash#dig` method?::
+  . Get a nested element safer.
+  . Get a nested element and load Active Record relations if needed.
+  . Add a nested element safer.
+
+What is the purpose of `Hash#dig` method?:: Get a nested element safer. It is a Ruby method allowing you to retrieve elements in a nested `Hash` by avoiding errors if an element is not present.
+
+How do you include user information in a JSON:API output of a product?::
++
+[source,rb]
+----
+ProductSerializer.new(@product, { include: [:user] }).serializable_hash
+----
++
+
+Which statement is not correct about scope with Active Record?:: This may improve performances. Keep in mind that scope not returns an array of records but returns an ActiveRecord Relation. This allow you to chain conditions.

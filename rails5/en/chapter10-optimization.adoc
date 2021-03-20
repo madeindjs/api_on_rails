@@ -863,7 +863,7 @@ Finished in 0.92996 seconds (files took 0.95615 seconds to load)
 49 examples, 0 failures
 ----
 
-This would be a good time to _commit_ the changes and move on to the next section on caching.
+This would be a good time to commit the changes and move on to the next section on caching.
 
 [source,bash]
 ----

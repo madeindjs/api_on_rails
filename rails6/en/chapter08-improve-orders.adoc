@@ -333,7 +333,7 @@ end
 ----
 
 
-Let's _commit_ our changes:
+Let's commit our changes:
 
 [source,bash]
 ----

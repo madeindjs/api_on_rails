@@ -738,7 +738,7 @@ Created a brand new product: Incredible Paper Hat
 Created a brand new product: Sleek Concrete Pants
 ----
 
-Let's _commit_ changes:
+Let's commit changes:
 
 [source,bash]
 ----

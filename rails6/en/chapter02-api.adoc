@@ -200,7 +200,7 @@ You can find many approaches to set up the _base_uri_ when building an API follo
 There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he's using. For simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
 ****
 
-It is time to _commit_:
+It is time to commit:
 
 [source,bash]
 ----

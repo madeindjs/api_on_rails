@@ -433,7 +433,7 @@ class ApplicationController < ActionController::API
 end
 ----
 
-And now it is time to _commit_ our changes:
+And now it is time to commit our changes:
 
 [source,bash]
 ----
@@ -539,7 +539,7 @@ class Api::V1::UsersController < ApplicationController
 end
 ----
 
-There you go! The implementation is straightforward. It is, therefore, time to _commit_:
+There you go! The implementation is straightforward. It is, therefore, time to commit:
 
 [source,bash]
 ----

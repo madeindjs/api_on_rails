@@ -89,7 +89,7 @@ $ rake test
 ..................................
 ----
 
-And _commit_ all this:
+And commit all this:
 
 [source,bash]
 ----
@@ -692,3 +692,8 @@ In the next chapters, we will continue working on the order template to add vali
 * Decrease the quantity of the product in progress when placing an order
 
 The next chapter will be short, but it is essential for the health of the application. So don't skip it.
+
+=== Quizz
+
+
+  validates :total, numericality: { greater_than_or_equal_to: 0 }

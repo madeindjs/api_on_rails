@@ -210,7 +210,7 @@ $ rake test
 3 runs, 3 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-I think it's time to do a little _commit_ to validate our progress:
+I think it's time to do a little commit to validate our progress:
 
 [source,bash]
 ----
@@ -284,7 +284,7 @@ You can see that when you call the `User#create!` method, the `password` attribu
 ActiveRecord::RecordInvalid (Validation failed: Password confirmation doesn t match Password)
 ----
 
-Everything is working as planned! Let's now make a _commit_ to keep the history concise:
+Everything is working as planned! Let's now make a commit to keep the history concise:
 
 [source,bash]
 ----
@@ -400,7 +400,7 @@ $ rails test
 4 runs, 5 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-As usual, after adding one of the features we are satisfied with, we make a _commit_:
+As usual, after adding one of the features we are satisfied with, we make a commit:
 
 [source,bash]
 ----
@@ -431,7 +431,7 @@ We find the user we created with the Rails console in the previous section. You 
 
 Now that we have a better understanding of building entry points, it is time to extend our API. One of the most important features is to let users create a profile on our application. As usual, we will write tests before implementing our code to extend our test suite.
 
-Ensure that your Git directory is clean and that you do not have a file in _staging_. If so _commit_ them so that we can start over.
+Ensure that your Git directory is clean and that you do not have a file in _staging_. If so commit them so that we can start over.
 
 So let's start by writing our test by adding an entry to create a user on the file `users_controller_test.rb`:
 
@@ -521,7 +521,7 @@ $ rails test
 6 runs, 9 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Yeah! Let's _commit_ changes and continue to build our application:
+Yeah! Let's commit changes and continue to build our application:
 
 [source,bash]
 ----
@@ -610,7 +610,7 @@ $ rails test
 8 runs, 11 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-We do a _commit_ Since everything works:
+We do a commit Since everything works:
 
 [source,bash]
 ----
@@ -679,7 +679,7 @@ $ rails test
 9 runs, 13 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-Remember that after making some changes to our code, it is good practice to _commit_ them to keep a well-cut history.
+Remember that after making some changes to our code, it is good practice to commit them to keep a well-cut history.
 
 [source,bash]
 ----
