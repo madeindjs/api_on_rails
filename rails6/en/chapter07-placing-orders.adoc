@@ -695,43 +695,40 @@ The next chapter will be short, but it is essential for the health of the applic
 
 === Quizz
 
-
 How can we ensure than an Active Record field is greater than 0::
   . `validates :total, numericality: { greater_than_or_equal_to: 0 }`
-
+  . `validates :total, numericality: true`
+  . `validates :total, length: { minimum: 0 }`
 
 Why did you put `inverse_of` option in `Placement#product` relation?::
-  . this help Rails to determine `Product#placements` relation
-  . we need to
+  . This help Active Record to determine `Product#placements` relation.
+  . This is needed for Active Record to determine association.
 
 How do we allow multiples HTTP parameters for `order[product_ids]`?::
   . `params.require(:order).permit(product_ids: [])`
   . `params.require(:order).permit(:product_ids)`
   . `params.require(:order).permit(:product_ids)`
 
-How can we add a `product` to an `order`::
+Which snippet will NOT append a product can we add a `product` to an `order`::
   . `order.products << product`
-  .
+  . `order.products.push << product`
+  . `order.products = product`
 
 What is the best Active Record callback to compute order's total?::
   . `before_validation`
   . `before_save`
   . `after_save`
 
-
 <<<
 
 ==== Answers
 
-How can we ensure than an Active Record field is greater than 0:: `validates :total, numericality: { greater_than_or_equal_to: 0 }`
+How can we ensure than an Active Record field is greater than 0:: `validates :total, numericality: { greater_than_or_equal_to: 0 }`. You can take a look at https://edgeguides.rubyonrails.org/active_record_validations.html[official documentation].
 
-
-Why did you put `inverse_of` option in `Placement#product` relation?:: this help Rails to determine `Product#placements` relation. This can be omited and our application would continue to works. This option could help you to defines relations when relation name is different than class name.
+Why did you put `inverse_of` option in `Placement#product` relation?:: this help Rails to determine `Product#placements` relation. This can be omitted and our application would continue to works. This option could help you to defines relations when the relation name is different from than class name.
 
 How do we allow multiples HTTP parameters for `order[product_ids]`?:: `params.require(:order).permit(product_ids: [])`
 
-How can we add a `product` to an `order`::
-  . `order.products << product`
-  .
+Which snippet will NOT append a product can we add a `product` to an `order`:: `order.products = product`. `products.push` and `products <<` have the same behavior because https://apidock.com/rails/ActiveRecord/Associations/CollectionProxy/push[`push` is an alias for `<<`].
 
-What is the best Active Record callback to compute order's total?:: `before_validation`. We need to do so because we set a validation on total so `before_save` would not works. Also you can take a look at https://guides.rubyonrails.org/active_record_callbacks.html#available-callbacks[available Active Record callback].
+What is the best Active Record callback to compute order's total?:: `before_validation`. We need to do so because we set validation on total so `before_save` would not works. Also, you can take a look at https://guides.rubyonrails.org/active_record_callbacks.html#available-callbacks[available Active Record callback].

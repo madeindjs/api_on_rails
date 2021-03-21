@@ -383,7 +383,7 @@ class EnoughProductsValidator < ActiveModel::Validator
     record.placements.each do |placement|
       product = placement.product
       if placement.quantity > product.quantity
-        record.errors.add product.title,  "Is out of stock, just #{product.quantity} left"
+        record.errors.add product.title, "Is out of stock, just #{product.quantity} left"
       end
     end
   end
@@ -495,3 +495,28 @@ $ git merge chapter08
 Oh, you're here! Allow me to congratulate you! That's a long way from the first chapter. But you're one step closer. In fact, the next chapter will be the last. So try to make the most of it.
 
 The last chapter will focus on optimizing the API using paging, caching, and background tasks. So buckle up, it's going to be a hectic ride.
+
+=== Quizz
+
+
+How should you add a default value `0` for an Active Record field?::
+  . With a database migration.
+  . With a `before_validation` Active Record callback.
+  . Both.
+
+How can we set a validation error in an Active Record validator?::
+  . `raise 'not valid'`
+  . `record.errors.add record.field, 'not valid'`
+  . `raise ActiveModel::ValidationError, 'not valid'`
+
+Which syntax is not valid to add `EnoughProductsValidator` to our model?::
+  . `validates_with EnoughProductsValidator`
+  . `validates EnoughProductsValidator`
+  . `validate { |order| EnoughProductsValidator.new(order).validate`
+
+
+    self.total = products.map(&:price).sum
+
+<<<
+
+==== Answers
