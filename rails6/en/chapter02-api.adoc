@@ -240,8 +240,8 @@ Which file correspond to routes in a Rails application::
   . `config/application.rb`
 
 Which Rails feature we used to build our API versioning::
-  . a namespace like `namespace :v1`.
-  . a new controller.
+  . A namespace like `namespace :v1`.
+  . A new controller.
 
 Which HTTP method allow you to updates a collection or member of the resources::
   . `POST`

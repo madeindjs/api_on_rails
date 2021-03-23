@@ -422,7 +422,7 @@ Currently, in the `order` model we have this method to calculate the amount to p
 class Order < ApplicationRecord
   # ...
   def set_total!
-    self.total = products.map(&:price).sum
+    self.total = products.sum :price
   end
   # ...
 end
@@ -496,13 +496,18 @@ Oh, you're here! Allow me to congratulate you! That's a long way from the first 
 
 The last chapter will focus on optimizing the API using paging, caching, and background tasks. So buckle up, it's going to be a hectic ride.
 
-=== Quizz
+=== Quiz
 
 
 How should you add a default value `0` for an Active Record field?::
   . With a database migration.
   . With a `before_validation` Active Record callback.
   . Both.
+
+How do we permit HTTP params like this: `{foo: [{bar: 1}, {bar: 2}] }`::
+  . `params.permit(foo: [])`
+  . `params.permit(foo: [:bar])`
+  . `params.require(:foo).permit(:bar)`
 
 How can we set a validation error in an Active Record validator?::
   . `raise 'not valid'`
@@ -514,9 +519,23 @@ Which syntax is not valid to add `EnoughProductsValidator` to our model?::
   . `validates EnoughProductsValidator`
   . `validate { |order| EnoughProductsValidator.new(order).validate`
 
+How should you make the sum of products price?::
+  . `products.map(&:price).sum`
+  . `products.sum :price`
+  . `products.map{|p| p.price}.sum`
 
-    self.total = products.map(&:price).sum
+Take your time to answer. Once you resolved these questions, go to the next page to get responses.
 
 <<<
 
 ==== Answers
+
+How should you add a default value `0` for an Active Record field?:: Both. But if you keep only one way, you should prefer a database migration because you are sur that default will be applied outside than Rails application.
+
+How do we permit HTTP params like this: `{foo: [{bar: 1}, {bar: 2}] }`:: `params.permit(foo: [:bar])`
+
+How can we set a validation error in an Active Record validator?:: `record.errors.add record.field, 'not valid'`. This is the cleaner way because this can help you to display a complete error for user.
+
+Which syntax is not valid to add `EnoughProductsValidator` to our model?:: `validates EnoughProductsValidator`. You may want to read https://edgeguides.rubyonrails.org/active_record_validations.html#performing-custom-validations[Rails documentation "Performing Custom Validations"].
+
+How should you make the sum of products price?:: `products.sum :price`. All solutions worked but using `sum` method will generate a more perforant SQL command and also avoid to load many Active Record instances in memory.

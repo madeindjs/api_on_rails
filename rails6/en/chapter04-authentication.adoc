@@ -615,6 +615,8 @@ delete api_v1_user_url(@user), headers: JsonWebToken.encode(user_id: @user.id)
 ----
 +
 
+Take your time to answer. Once you resolved these questions, go to the next page to get responses.
+
 <<<
 
 ==== Answers
@@ -635,6 +637,7 @@ Which of theses snippet send a correct HTTP query in a functional test::
 delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }
 ----
 +
+
 
 <<<
 === Go further

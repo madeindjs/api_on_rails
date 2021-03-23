@@ -1068,6 +1068,8 @@ Which statement is not correct about scope with Active Record?::
   . This may improve performances.
   . This allow us to chain conditions.
 
+Take your time to answer. Once you resolved these questions, go to the next page to get responses.
+
 <<<
 
 ==== Answers

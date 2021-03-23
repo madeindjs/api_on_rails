@@ -253,9 +253,9 @@ Which one is not an editor?::
   . VIM
 
 Why we choose SQLite database?::
-  . for performances, it is the best one
-  . for simplicity, it only require a library
-  . for his beautiful name
+  . For performances, it is the best one.
+  . For simplicity, it only require a library.
+  . For his beautiful name.
 
 How to setup Git author informations?::
   . `git commit -m "John Doe"`

@@ -548,7 +548,7 @@ We can now add the implementation:
 class Order < ApplicationRecord
   # ...
   def set_total!
-    self.total = products.map(&:price).sum
+    self.total = products.sum :price
   end
 end
 ----

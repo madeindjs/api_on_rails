@@ -436,7 +436,7 @@ Currently in the `order` model we have this method to calculate the amount to pa
 class Order < ApplicationRecord
   # ...
   def set_total!
-    self.total = products.map(&:price).sum
+    self.total = products.sum :price
   end
   # ...
 end

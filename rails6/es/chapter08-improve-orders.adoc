@@ -421,7 +421,7 @@ Actualmente en el modelo `order` tenemos este método para calcular el monto a p
 class Order < ApplicationRecord
   # ...
   def set_total!
-    self.total = products.map(&:price).sum
+    self.total = products.sum :price
   end
   # ...
 end
