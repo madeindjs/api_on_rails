@@ -185,7 +185,7 @@ end
 ----
 # ...
 test 'user with unvalid email should be unvalid' do
-  user = User.new(email: 'test', password_digest: 'test')
+  user = User.new(email: 'test', password: 'test')
   assert_not user.valid?
 end
 ----
