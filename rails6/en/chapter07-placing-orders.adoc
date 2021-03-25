@@ -34,7 +34,7 @@ Let’s start by creating the older model with a special form:
 $ rails generate model order user:belongs_to total:decimal
 ----
 
-The command above will generate the order model, but I’m taking advantage of the `references` method to create the corresponding foreign key for the order to belong to a user. It also adds the `belongs_to` directive into the order model. Let’s migrate the database.
+The command above will generate the order model, but I’m taking advantage of the `belongs_to` column type to create the corresponding foreign key for the order to belong to a user. It also adds the `belongs_to` association into the order model. Let’s migrate the database.
 
 [source,bash]
 ----
@@ -139,7 +139,7 @@ end
 ----
 
 
-If you have been following the tutorial so far, the implementation is already there because of the `references` type we pass on the model command generator. We should add `inverse_of` option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
+If you have been following the tutorial so far, the implementation is already there because of the `belongs_to` column type we pass on the model command generator. We should add `inverse_of` option to the `placement` model for each `belongs_to` call. This gives a little boost when referencing the parent object.
 
 [source,ruby]
 .app/models/placement.rb
