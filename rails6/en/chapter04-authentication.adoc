@@ -558,7 +558,7 @@ In the next chapter, we will be focusing on customizing the JSON output for the 
 
 To make sure that you understood this chapter, try to answer these questions:
 
-Which of theses snippet can be a valid JWT header::
+Which of these snippets can be a valid JWT header::
 +
 [source,json]
 ----
@@ -592,7 +592,7 @@ In a previous section, we defined `exp` value in payload. This is a timestamp of
   . `nil` is return.
   . `{exp: 1}` is returns but you get a warning in console.
 
-Which of theses snippet send a correct HTTP query in a functional test::
+Which of these snippet send a correct HTTP query in a functional test::
   . we build an `Authorization` header containing JWT token
 +
 [source,ruby]
@@ -621,16 +621,15 @@ Take your time to answer. Once you resolved these questions, go to the next page
 
 ==== Answers
 
-Which of theses snippet can be a valid JWT header:: `{ "alg": "HS256", "typ": "JWT" }`. JWT Header describe the cryptographic operations applied to the JWT
-   and optionally, additional properties of the JWT. https://tools.ietf.org/html/rfc7519#section-5[see RFC 7519].
+Which of theses snippet can be a valid JWT header:: `{ "alg": "HS256", "typ": "JWT" }`. JWT Header describes the cryptographic operations applied to the JWT and optionally, additional properties of the JWT. https://tools.ietf.org/html/rfc7519#section-5[see RFC 7519].
 
-How do you build a valid JWT token with the given payload `payload = {email: 'john@doe.org'}`?:: `JWT.encode(payload, 'my_secret_key')`. `encode` need at least a secret key to build an JWT token. Also please note that secret key can be an empty string `""`.
+How do you build a valid JWT token with the given payload `payload = {email: 'john@doe.org'}`?:: `JWT.encode(payload, 'my_secret_key')`. `encode` need at least a secret key to build a JWT token. Also please note that the secret key can be an empty string `""`.
 
-What may happen if we try to use `JWT.decode` with an invalid signature?:: an error `JWT::VerificationError` will be raised. You may `rescue` it in your controller to handle it and send a `403 - Forbidden` to user. This may happens if a malicious user try to build a custom JWT token.
+What may happen if we try to use `JWT.decode` with an invalid signature?:: an error `JWT::VerificationError` will be raised. You may `rescue` it in your controller to handle it and send a `403 - Forbidden` to the user. This may happen if a malicious user tries to build a custom JWT token.
 
 In a previous section, we defined `exp` value in payload. This is a timestamp of maximum token validity. What may happen Exemple, we define a token `token = JWT.encode({exp: 1}, 'bar')` and then decoded like this `JWT.decode(token, 'bar')`.:: an error `JWT::ExpiredSignature` will be raised. The `exp` (expiration time) claim identifies the expiration time on or after which the JWT MUST NOT be accepted for processing. https://tools.ietf.org/html/rfc7519#section-4.1.4[see RFC 7519]
 
-Which of theses snippet send a correct HTTP query in a functional test::
+Which of these snippet send a correct HTTP query in a functional test::
 +
 [source,ruby]
 ----
@@ -638,13 +637,13 @@ delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(use
 ----
 +
 
-
 <<<
+
 === Go further
 
-If you read carefully quiz's answer, you may notice that if we try to decode an invalid token JWT library raise an exception. At this point, we do not handle this exception in application.
+If you read carefully quiz's answer, you may notice that if we try to decode an invalid token JWT library raises an exception. At this point, we do not handle this exception in the application.
 
-If you want to go further and improve your application at this points, you may want to handle properly this error and return a `403 - Forbidden` HTTP status and a body containing a message like "Given token is invalid because it is perished / malformed.". You can easily implement a functional test like the following:
+If you want to go further and improve your application at this point, you may want to handle properly this error and return a `403 - Forbidden` HTTP status and a body containing a message like "Given token is invalid because it has perished / malformed.". You can easily implement a functional test like the following:
 
 [source,ruby]
 ----

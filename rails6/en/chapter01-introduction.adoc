@@ -254,10 +254,10 @@ Which one is not an editor?::
 
 Why we choose SQLite database?::
   . For performances, it is the best one.
-  . For simplicity, it only require a library.
+  . For simplicity, it only requires a library.
   . For his beautiful name.
 
-How to setup Git author informations?::
+How to setup Git author information?::
   . `git commit -m "John Doe"`
   . `git push -u john doe`
   . `git config --global user.name "John Doe"`
@@ -275,11 +275,11 @@ Take your time to answer. Once you resolved these questions, go to the next page
 
 Which one is not an editor?:: iTerm, this is a terminal emulator for MacOS.
 
-Why we choose SQLite database?:: for simplicity, it only require a library. We could choose PostgreSQL but this require more configuration to make it work with Ruby on Rails.
+Why we choose SQLite database?:: for simplicity, it only requires a library. We could choose PostgreSQL but this requires more configuration to make it work with Ruby on Rails.
 
 How to setup Git author informations?:: `git config --global user.name "John Doe"`. You can also omit `--global` to set configuration only for your current projet.
 
-How ignore versioning file with Git?:: with a `.gitignore` file. This is a plain text file with one path or file to ignore per line.
+How to ignore versioning file with Git?:: with a `.gitignore` file. This is a plain text file with one path or file to ignore per line.
 
 === Go further
 

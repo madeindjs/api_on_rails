@@ -695,6 +695,8 @@ The next chapter will be short, but it is essential for the health of the applic
 
 === Quiz
 
+To make sure that you understood this chapter, try to answer these questions:
+
 How can we ensure than an Active Record field is greater than 0::
   . `validates :total, numericality: { greater_than_or_equal_to: 0 }`
   . `validates :total, numericality: true`
@@ -733,4 +735,4 @@ How do we allow multiples HTTP parameters for `order[product_ids]`?:: `params.re
 
 Which snippet will NOT append a product can we add a `product` to an `order`:: `order.products = product`. `products.push` and `products <<` have the same behavior because https://apidock.com/rails/ActiveRecord/Associations/CollectionProxy/push[`push` is an alias for `<<`].
 
-What is the best Active Record callback to compute order's total?:: `before_validation`. We need to do so because we set validation on total so `before_save` would not works. Also, you can take a look at https://guides.rubyonrails.org/active_record_callbacks.html#available-callbacks[available Active Record callback].
+What is the best Active Record callback to compute the order's total?:: `before_validation`. We need to do so because we set validation on total so `before_save` would not works. Also, you can take a look at https://guides.rubyonrails.org/active_record_callbacks.html#available-callbacks[available Active Record callback].

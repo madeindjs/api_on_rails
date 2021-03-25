@@ -977,12 +977,12 @@ Until now, it was easy thanks to the gem https://github.com/jsonapi-serializer/j
 To make sure that you understood this chapter, try to answer these questions:
 
 Which is the main benefit of using JSON:API specification in our API::
-  . This allow us to not think about design JSON output.
-  . This allow us to use more libraries to get more productive.
+  . This allows us to not think about design JSON output.
+  . This allows us to use more libraries to get more productive.
   . The code is more testable.
 
 Which following snippet is a valid JSON:API response?::
-  . With product's user attributes into product.
+  . With product's user attributes into the product.
 +
 [source,json]
 ----
@@ -1001,7 +1001,7 @@ Which following snippet is a valid JSON:API response?::
 }
 ----
 +
-  . With product's user into an include section and product ID as relationship.
+  . With product's user into an include section and product ID as a relationship.
 +
 [source,json]
 ----
@@ -1023,7 +1023,7 @@ Which following snippet is a valid JSON:API response?::
 }
 ----
 +
-  . With product's user into an include section and product ID as attribute.
+  . With product's user into an include section and product ID as an attribute.
 +
 [source,json]
 ----
@@ -1064,9 +1064,9 @@ ProductSerializer.new(@product, { join: [:user] }).serializable_hash
 +
 
 Which statement is not correct about scope with Active Record?::
-  . This is a shorter way to write some query.
-  . This may improve performances.
-  . This allow us to chain conditions.
+  . This is a shorter way to write some queries.
+  . This may improve performance.
+  . This allows us to chain conditions.
 
 Take your time to answer. Once you resolved these questions, go to the next page to get responses.
 
@@ -1074,9 +1074,9 @@ Take your time to answer. Once you resolved these questions, go to the next page
 
 ==== Answers
 
-Which is the main benefit of using JSON:API specification in our API:: This allow us to not think about design JSON output. JSON:API is a complete specification about how a JSON response should be.
+Which is the main benefit of using JSON:API specification in our API:: This allows us to not think about design JSON output. JSON:API is a complete specification about how a JSON response should be.
 
-Which following snippet is a valid JSON:API response?:: With product's user into an include section and product ID as relationship.
+Which following snippet is a valid JSON:API response?:: With product's user into an include section and product ID as a relationship.
 +
 [source,json]
 ----
@@ -1114,4 +1114,4 @@ ProductSerializer.new(@product, { include: [:user] }).serializable_hash
 ----
 +
 
-Which statement is not correct about scope with Active Record?:: This may improve performances. Keep in mind that scope not returns an array of records but returns an ActiveRecord Relation. This allow you to chain conditions.
+Which statement is not correct about scope with Active Record?:: This may improve performances. Keep in mind that scope not returns an array of records but returns an ActiveRecord Relation. This allows you to chain conditions.

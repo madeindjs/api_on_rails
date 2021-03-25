@@ -498,6 +498,7 @@ The last chapter will focus on optimizing the API using paging, caching, and bac
 
 === Quiz
 
+To make sure that you understood this chapter, try to answer these questions:
 
 How should you add a default value `0` for an Active Record field?::
   . With a database migration.
@@ -530,12 +531,12 @@ Take your time to answer. Once you resolved these questions, go to the next page
 
 ==== Answers
 
-How should you add a default value `0` for an Active Record field?:: Both. But if you keep only one way, you should prefer a database migration because you are sur that default will be applied outside than Rails application.
+How should you add a default value `0` for an Active Record field?:: Both. But if you keep only one way, you should prefer a database migration because you are sure that default will be applied outside than Rails application.
 
 How do we permit HTTP params like this: `{foo: [{bar: 1}, {bar: 2}] }`:: `params.permit(foo: [:bar])`
 
-How can we set a validation error in an Active Record validator?:: `record.errors.add record.field, 'not valid'`. This is the cleaner way because this can help you to display a complete error for user.
+How can we set a validation error in an Active Record validator?:: `record.errors.add record.field, 'not valid'`. This is the cleaner way because this can help you to display a complete error for the user.
 
 Which syntax is not valid to add `EnoughProductsValidator` to our model?:: `validates EnoughProductsValidator`. You may want to read https://edgeguides.rubyonrails.org/active_record_validations.html#performing-custom-validations[Rails documentation "Performing Custom Validations"].
 
-How should you make the sum of products price?:: `products.sum :price`. All solutions worked but using `sum` method will generate a more perforant SQL command and also avoid to load many Active Record instances in memory.
+How should you make the sum of products price?:: `products.sum :price`. All solutions worked but using `sum` method will generate a more perforant SQL command and also avoid loading many Active Record instances in memory.

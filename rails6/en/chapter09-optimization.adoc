@@ -745,11 +745,11 @@ Which is the most common way to correct an N+1 query problem::
   . Nothing, this is not important.
 
 How do CORS prevent HTTP request?::
-  . It check domain.
+  . It checks the domain.
   . It check protocol?
   . Both.
 
-Do you liked the book?::
+Do you like the book?::
   . Yes, I do!
 
 Take your time to answer. Once you resolved these questions, go to the next page to get responses.
@@ -758,13 +758,13 @@ Take your time to answer. Once you resolved these questions, go to the next page
 
 === Answers
 
-Where do we need to put pagination informations in JSON:API response?:: `links`. You can read again https://jsonapi.org/format/#fetching-pagination[official documentation].
+Where do we need to put pagination information in JSON:API response?:: `links`. You can read again https://jsonapi.org/format/#fetching-pagination[official documentation].
 
-How do we setup caching of 'jsonapi-serializer'?:: Use `cache_options` in serializer. The cache engine is defined with https://guides.rubyonrails.org/caching_with_rails.html#cache-stores[Rails cache store configuration].
+How do we set up caching of 'jsonapi-serializer'?:: Use `cache_options` in serializer. The cache engine is defined with https://guides.rubyonrails.org/caching_with_rails.html#cache-stores[Rails cache store configuration].
 
 Which is the most common way to correct an N+1 query problem:: Using `includes` in an Active Record call.
 
-How do CORS prevent HTTP request?:: Both.
+How do CORS prevent HTTP requests?:: Both.
 
 Do you liked the book?:: If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer :).
 

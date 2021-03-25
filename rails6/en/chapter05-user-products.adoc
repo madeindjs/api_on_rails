@@ -804,7 +804,7 @@ end
 +
 
 
-How shall we returns error during product creation into controller?::
+How shall we return an error during product creation into the controller?::
   . using `product.errors`
 +
 [source,ruby]
@@ -836,7 +836,7 @@ end
 ----
 +
 
-How did we check owner of a product in `ProductsController`?::
+How did we check the owner of a product in `ProductsController`?::
   . we compare `@product.user` and `current_user`
 +
 [source,ruby]
@@ -879,7 +879,7 @@ Take your time to answer. Once you resolved these questions, go to the next page
 
 How to generate a brand new model with "products belongs to user"?:: `rails generate model Product user:belongs_to`. This command will create an `user_id` column of type `int` and add a foreign key to the `users.id` field. `user_id` will also be defined as an `index`.
 
-How to remove all associated user's products when user is removed:: We add `dependent: :destroy` on products association
+How to remove all associated user's products when a user is removed:: We add `dependent: :destroy` on products association
 +
 [source,ruby]
 ----
@@ -891,7 +891,7 @@ end
 ----
 +
 
-How shall we returns error during product creation into controller?:: using `product.errors` and HTTP status `unprocessable_entity`
+How shall we return an error during product creation into the controller?:: using `product.errors` and HTTP status `unprocessable_entity`
 +
 [source,ruby]
 ----
@@ -909,6 +909,6 @@ ____
 ____
 +
 
-How did we check owner of a product in `ProductsController`?:: we compare `@product.user_id` and `current_user.id`. We may could compare directly `user` objects but comparing only `User#id` is the safer and more performant.
+How did we check the owner of a product in `ProductsController`?:: we compare `@product.user_id` and `current_user.id`. We may compare directly `user` objects but comparing only `User#id` is safer and more performant.
 
-Which file helps you to populate default data in database:: `db/seeds.rb`. Into this file you can build your own Active Record instances and then run `rake db:seed` to run it.
+Which file helps you to populate default data in the database:: `db/seeds.rb`. Into this file, you can build your own Active Record instances and then run `rake db:seed` to run it.
