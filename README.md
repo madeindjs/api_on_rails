@@ -23,7 +23,7 @@ As you may know this project take me some times. So if you want to support me yo
 - Rails 6
   - [English version](https://leanpub.com/apionrails6/)
   - [French version](https://leanpub.com/apionrails6-fr)
-  - [Spanish version](https://leanpub.com/apionrails6-es)
+  - [Spanish version](https://leanpub.com/apionrails6-es) (thanks to [Oscar Téllez](https://github.com/oscartzgz))
 
 Or you can support me with Liberapay: <noscript><a href="https://liberapay.com/alexandre_rousseau/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
@@ -50,7 +50,3 @@ rake "build:pdf[version,lang]"   # Build a PDF version
 ## License
 
 This book is under [MIT license](https://opensource.org/licenses/MIT) and [Creative Common BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-
-## Contributors
-
-- [Oscar Téllez](https://github.com/oscartzgz) (spanish translation)

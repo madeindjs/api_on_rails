@@ -15,11 +15,19 @@ To summarize, we simply generated our Rails application and made our first commi
 
 == Planning the application
 
-As we want to go simple with the application, it consists of five models. Don't worry if you don't fully understand what is going on. We will review and build each of these resources as we move on with the tutorial.
+Our application will be quite simple. It will consist of five models. Don't worry if you don't understand what's going on. We will review and develop each of these resources as we move forward with the tutorial.
 
-image:data_model.png[Schema of links betweens models]
-
-In brief, the `user` will be able to place many `orders`, upload multiple `products` which can have many `images` or `comments` from other users on the app.
+.Diagram of Market Place API models
+----
++---------+     +---------+
+| User    +---->+Product  |
++---------+     +---------+
+     |               |
+     v               v
++---------+     +---------+
+|Order    +---->+Placement|
++---------+     +---------+
+----
 
 We will not build views for displaying or interacting with the API, so not to make this a huge tutorial, I'll let that to you. There are plenty of options out there like javascript frameworks (https://angularjs.org/[Angular], https://vuejs.org/[Vue.js], https://reactjs.org/[React.js]).
 
@@ -91,7 +99,7 @@ We are going to isolate the API controllers under a namespace. With Rails, this 
 $ mkdir app/controllers/api
 ----
 
-Then we add that namespace into our _routes.rb_ file:
+Then we add that namespace into our `routes.rb` file:
 
 [source,ruby]
 .config/routes.rb
@@ -192,7 +200,7 @@ You can find many approaches to set up the _base_uri_ when building an API follo
 There are some practices in API building that recommend not to version the API via the URL. That's true. The developer should not be aware of the version he's using. For simplicity, I have chosen to set aside this convention, which we will be able to apply in a second phase.
 ****
 
-It is time to _commit_:
+It is time to commit:
 
 [source,bash]
 ----
@@ -216,3 +224,51 @@ I know it's been a long way, but you made it, don't give up this is just our sma
 
 I'm not covering those in this book since we are trying to learn how to implement this kind of functionality, but it is good to know. By the way, the code up to this point is https://github.com/madeindjs/market_place_api_6/releases/tag/checkpoint_chapter03[here].
 
+
+=== Quiz
+
+To make sure that you understood this chapter, try to answer these questions:
+
+Which guideline do you must follow in a RESTfull API::
+  . Follows the standard HTTP Methods such as GET, POST, PUT, DELETE.
+  . Buy a specific domain which is compliant with RESTFull API.
+  . Use JSON format.
+
+Which file correspond to routes in a Rails application::
+  . `config/routes.rb`
+  . `app/controller`
+  . `config/application.rb`
+
+Which Rails feature we used to build our API versioning::
+  . A namespace like `namespace :v1`.
+  . A new controller.
+
+Which HTTP method allow you to updates a collection or member of the resources::
+  . `POST`
+  . `GET`
+  . `PUT`
+
+How did you merge your branch at the end of this chapter::
+  . I `checkout` on `master` branch then I `merge` branch `chapter02`.
+  . I `merge` branch `master` into `chapter02`.
+  . `git config --global user.name "John Doe"`
+
+Take your time to answer. Once you resolved these questions, go to the next page to get responses.
+
+<<<
+
+==== Answers
+
+Which guideline do you must follow in a RESTfull API:: Follows the standard HTTP methods such as GET, POST, PUT, DELETE. If you forgot what these methods mean, go
+
+Which file correspond to routes in a Rails application:: `config/routes.rb`. This file contains all application's route.
+
+Which Rails feature we used to build our API versioning:: a namespace like `namespace :v1`. Keep in mind that a namespace is a sort of route prefix which allows you to order some endpoint in the same "folder".
+
+Which HTTP method allows you to updates a collection or member of the resources:: `PUT`. `GET` allow you to access a resource and `POST` to create a new resource.
+
+How did you merge your branch at the end of this chapter:: I `checkout` on `master` branch then I `merge` branch `chapter02`.
+
+=== Go further
+
+To go further, I recommend you to use Github or Gitlab to open a Pull Request with your `chapter02` branch. This will allow you to keep a clean history of what you did and modification. You can add a pretty description of why you did these modifications and how you organized your code. Once the pull request seems good, you can merge it.

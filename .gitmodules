@@ -1,6 +1,6 @@
 [submodule "rails6/code"]
 	path = rails6/code
-	url = https://github.com/madeindjs/market_place_api_6.git
+	url = git@github.com:madeindjs/market_place_api_6.git
 [submodule "rails5/code"]
 	path = rails5/code
-	url = https://github.com/madeindjs/market_place_api.git
+	url = git@github.com:madeindjs/market_place_api.git

@@ -427,7 +427,7 @@ Actuellement, dans le modèle de commande, nous avons cette méthode pour calcul
 class Order < ApplicationRecord
   # ...
   def set_total!
-    self.total = products.map(&:price).sum
+    self.total = products.sum :price
   end
   # ...
 end

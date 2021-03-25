@@ -276,7 +276,7 @@ end
 # ...
 ----
 
-Ceci, comme vous vous en souvenez peut-être, empêchera l'installation ou l'utilisation de Sqlite lorsque vous déployez votre application chez un fournisseur de serveurs comme Herokufootnote:[Heroku facilite le déploiement de votre application en installant les dépendances sur un serveur en analysant votre _Gemfile_].
+Ceci, comme vous vous en souvenez peut-être, empêchera l'installation ou l'utilisation de Sqlite lorsque vous déployez votre application chez un fournisseur de serveurs comme Herokufootnote:[Heroku facilite le déploiement de votre application en installant les dépendances sur un serveur en analysant votre `Gemfile`].
 
 Une fois cette configuration effectuée, il est temps d'exécuter la commande d'installation du paquet pour intégrer les dépendances correspondantes:
 

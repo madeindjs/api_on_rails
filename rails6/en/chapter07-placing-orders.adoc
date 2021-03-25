@@ -89,7 +89,7 @@ $ rake test
 ..................................
 ----
 
-And _commit_ all this:
+And commit all this:
 
 [source,bash]
 ----
@@ -168,7 +168,7 @@ $ git add . && git commit -m "Associates products and orders with a placements m
 
 == Expose the user model
 
-It is now time to prepare the order controller to expose the right orders. If you remember the previous chapters where https://github.com/Netflix/fast_jsonapi_jsonapi[fast_jsonapi] was used, you should remember that it was straightforward.
+It is now time to prepare the order controller to expose the right orders. If you remember the previous chapters where https://github.com/jsonapi-serializer/jsonapi-serializer[jsonapi-serializer] was used, you should remember that it was straightforward.
 
 Let us first define what actions we will take:
 
@@ -504,7 +504,7 @@ We can now add the implementation:
 class Order < ApplicationRecord
   # ...
   def set_total!
-    self.total = products.map(&:price).sum
+    self.total = products.sum :price
   end
 end
 ----
@@ -692,3 +692,47 @@ In the next chapters, we will continue working on the order template to add vali
 * Decrease the quantity of the product in progress when placing an order
 
 The next chapter will be short, but it is essential for the health of the application. So don't skip it.
+
+=== Quiz
+
+To make sure that you understood this chapter, try to answer these questions:
+
+How can we ensure than an Active Record field is greater than 0::
+  . `validates :total, numericality: { greater_than_or_equal_to: 0 }`
+  . `validates :total, numericality: true`
+  . `validates :total, length: { minimum: 0 }`
+
+Why did you put `inverse_of` option in `Placement#product` relation?::
+  . This help Active Record to determine `Product#placements` relation.
+  . This is needed for Active Record to determine association.
+
+How do we allow multiples HTTP parameters for `order[product_ids]`?::
+  . `params.require(:order).permit(product_ids: [])`
+  . `params.require(:order).permit(:product_ids)`
+  . `params.require(:order).permit(:product_ids)`
+
+Which snippet will NOT append a product can we add a `product` to an `order`::
+  . `order.products << product`
+  . `order.products.push << product`
+  . `order.products = product`
+
+What is the best Active Record callback to compute order's total?::
+  . `before_validation`
+  . `before_save`
+  . `after_save`
+
+Take your time to answer. Once you resolved these questions, go to the next page to get responses.
+
+<<<
+
+==== Answers
+
+How can we ensure than an Active Record field is greater than 0:: `validates :total, numericality: { greater_than_or_equal_to: 0 }`. You can take a look at https://edgeguides.rubyonrails.org/active_record_validations.html[official documentation].
+
+Why did you put `inverse_of` option in `Placement#product` relation?:: this help Rails to determine `Product#placements` relation. This can be omitted and our application would continue to works. This option could help you to defines relations when the relation name is different from than class name.
+
+How do we allow multiples HTTP parameters for `order[product_ids]`?:: `params.require(:order).permit(product_ids: [])`
+
+Which snippet will NOT append a product can we add a `product` to an `order`:: `order.products = product`. `products.push` and `products <<` have the same behavior because https://apidock.com/rails/ActiveRecord/Associations/CollectionProxy/push[`push` is an alias for `<<`].
+
+What is the best Active Record callback to compute the order's total?:: `before_validation`. We need to do so because we set validation on total so `before_save` would not works. Also, you can take a look at https://guides.rubyonrails.org/active_record_callbacks.html#available-callbacks[available Active Record callback].

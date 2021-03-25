@@ -242,3 +242,54 @@ As we move forward with the tutorial, I'll be using the practices I follow daily
 == Conclusion
 
 It's been a long way through this chapter. If you reach here, let me congratulate you and be sure that things will get better from this point. So let's get our hands dirty and start typing some code!
+
+=== Quiz
+
+To make sure that you understood this chapter, try to answer these questions:
+
+Which one is not an editor?::
+  . iTerm
+  . VSCode
+  . VIM
+
+Why we choose SQLite database?::
+  . For performances, it is the best one.
+  . For simplicity, it only requires a library.
+  . For his beautiful name.
+
+How to setup Git author information?::
+  . `git commit -m "John Doe"`
+  . `git push -u john doe`
+  . `git config --global user.name "John Doe"`
+
+How ignore versioning file with Git?::
+  . with a `.gitignore` file
+  . `git ignore <file>`
+  . `git commit -m <file>`
+
+Take your time to answer. Once you resolved these questions, go to the next page to get responses.
+
+<<<
+
+==== Answers
+
+Which one is not an editor?:: iTerm, this is a terminal emulator for MacOS.
+
+Why we choose SQLite database?:: for simplicity, it only requires a library. We could choose PostgreSQL but this requires more configuration to make it work with Ruby on Rails.
+
+How to setup Git author informations?:: `git config --global user.name "John Doe"`. You can also omit `--global` to set configuration only for your current projet.
+
+How to ignore versioning file with Git?:: with a `.gitignore` file. This is a plain text file with one path or file to ignore per line.
+
+=== Go further
+
+If you understood well this chapter and you want to go further I recommend you to try to set up PostgreSQL database and regenerate a brand new project using a new Database:
+
+[source,bash]
+----
+$ rails new market_place_api --api --database=postgresql
+----
+
+This may be a good idea because on production environment you may prefer to have a database server instead of a single file. If you use PostgreSQL in your development workflow, this will allow you to have a more similar environment than your production.
+
+Also, https://guides.rubyonrails.org/active_record_postgresql.html#datatypes[PostgreSQL offers a number of specific datatypes] who may be fit you better.

@@ -1,3 +1,6 @@
+[#chapter09-optimization]
+= Optimizations
+
 Welcome to the last chapter of the book. It has been a long way, but you are only a step away from the end. In the previous chapter, we completed the modeling of the order model. We could say that the project is now finished, but I want to cover some important details about optimization. The topics I will discuss here will be:
 
 * pagination
@@ -28,9 +31,9 @@ A very common strategy to optimize an array of records from the database is to l
 
 Only tricky part in here is how we are supposed to handle the JSON output now to give enough information to the client on how the array is paginated. If you recall the first chapter I shared some resources on the practices I would be following in here. One of them was http://jsonapi.org/, which is a must-bookmark page.
 
-If we read the format section, we will reach a sub-section called http://jsonapi.org/format/#document-structure-top-level[Top Level] and in very few words they mention something about pagination:
+If we read the format section, we will reach a sub-section called https://jsonapi.org/format/#fetching-pagination[pagination] and in very few words they mention something about pagination:
 
-> "meta": meta-information about a resource, such as pagination.
+> Pagination links MUST appear in the links object that corresponds to a collection. To paginate the primary data, supply pagination links in the top-level `links` object.
 
 It is not very descriptive, but we have a hint on what to look next about the pagination implementation, but don't worry, that is exactly what we are going to do here.
 
@@ -415,7 +418,7 @@ $ rake test
 42 runs, 71 assertions, 0 failures, 0 errors, 0 skips
 ----
 
-This would be a good time to _commit_ the changes and move on to the next section on caching.
+This would be a good time to commit the changes and move on to the next section on caching.
 
 [source,bash]
 ----
@@ -580,7 +583,7 @@ Processing by Api::V1::ProductsController#index as JSON
 
 It is, therefore, unfortunately **very easy** to create an N+1 query. Fortunately, a gem allows us to **alert** when this kind of situation occurs: https://github.com/flyerhzm/bullet[Bullet]. Bullet will notify us (by email, http://growl.info/[growl notification], https://slack.com[Slack], console, etc...) when it finds an N+1 request.
 
-To install it, we add the _gem_ to the _GemFile_
+To install it, we add the _gem_ to the `Gemfile`
 
 [source,bash]
 ----
@@ -645,7 +648,7 @@ class Api::V1::ProductsController < ApplicationController
 end
 ----
 
-There you go! It is now time to do our _commit_.
+There you go! It is now time to do our commit.
 
 [source,bash]
 ----
@@ -724,6 +727,47 @@ $ git checkout master
 $ git merge chapter09
 ----
 
+== Last Quiz
+
+Where do we need to put pagination informations in JSON:API response?::
+  . `meta`
+  . `page`
+  . `links`
+
+How do we setup caching of 'jsonapi-serializer'?::
+  . Use  `cache_options` in serializer.
+  . Configure `Rails.cache` engine.
+  . Nothing, this is enabled by default.
+
+Which is the most common way to correct an N+1 query problem::
+  . Use `bullet` library.
+  . Using `includes` in an Active Record call.
+  . Nothing, this is not important.
+
+How do CORS prevent HTTP request?::
+  . It checks the domain.
+  . It check protocol?
+  . Both.
+
+Do you like the book?::
+  . Yes, I do!
+
+Take your time to answer. Once you resolved these questions, go to the next page to get responses.
+
+<<<
+
+=== Answers
+
+Where do we need to put pagination information in JSON:API response?:: `links`. You can read again https://jsonapi.org/format/#fetching-pagination[official documentation].
+
+How do we set up caching of 'jsonapi-serializer'?:: Use `cache_options` in serializer. The cache engine is defined with https://guides.rubyonrails.org/caching_with_rails.html#cache-stores[Rails cache store configuration].
+
+Which is the most common way to correct an N+1 query problem:: Using `includes` in an Active Record call.
+
+How do CORS prevent HTTP requests?:: Both.
+
+Do you liked the book?:: If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer :).
+
 == Conclusion
 
 If you get to that point, it means you're done with the book. Good work! You have just become a great API Rails developer, that's for sure.
@@ -732,4 +776,3 @@ So together we have built a solid and complete API. This one has all the qualiti
 
 I would like to remind you that this book's source code is available in the format https://asciidoctor.org[Asciidoctor] on https://github.com/asciidoctor/asciidoctor[GitHub]. So do not hesitate to https://github.com/madeindjs/api_on_rails/fork[fork] the project if you want to improve it or correct a mistake that I missed.
 
-If you like this book, don't hesitate to let me know by email mailto:contact@rousseau-alexandre.fr[contact@rousseau-alexandre.fr]. I am open to any criticism, good or bad, over a good beer :).
