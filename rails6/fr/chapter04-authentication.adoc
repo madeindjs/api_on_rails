@@ -129,7 +129,7 @@ Cela fait beaucoup de code, je sais, mais nous allons le revoir ensemble.
 
 Et voilà. Afin de charger le fichier dans notre application, il faut spécifier le dossier `lib` dans la liste des _autoload_ de Ruby on Rails. Pour cela, rajoutez la configuration suivante dans le fichier `application.rb`:
 
-.lib/json_web_token.rb
+.config/application.rb
 [source,ruby]
 ----
 # ...
