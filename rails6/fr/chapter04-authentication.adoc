@@ -378,7 +378,7 @@ Ensuite nous pouvons implémenter nos deux tests juste après
 class AuthenticableTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
-    @authentication = Authentication.new
+    @authentication = MockController.new
   end
 
   test 'should get user from Authorization token' do
