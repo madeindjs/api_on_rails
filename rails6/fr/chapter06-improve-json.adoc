@@ -924,7 +924,7 @@ class ProductTest < ActiveSupport::TestCase
     assert Product.search(search_hash).empty?
   end
 
-  test 'search should fin cheap TV' do
+  test 'search should find cheap TV' do
     search_hash = { keyword: 'tv', min_price: 50, max_price: 150 }
     assert_equal [products(:another_tv)], Product.search(search_hash)
   end
