@@ -563,17 +563,6 @@ Et voilà. Maintenant voilà à quoi le JSON devrait ressembler:
 }
 ----
 
-L'implémentation est très simple: il suffit d'ajouter une ligne au sérialiseur du produit:
-
-[source,ruby]
-.app/serializers/product_serializer.rb
-----
-class ProductSerializer < ActiveModel::Serializer
-  attributes :id, :title, :price, :published
-  has_one :user
-end
-----
-
 Maintenant, tous les tests devraient passer:
 
 [source,bash]
