@@ -126,7 +126,7 @@ end
 
 Il suffit de modifier le modèle `User` et lui spécifier la relation `has_many` avec l'option `dependent: :destroy`. Nous verrons plus tard ce que cette méthode fait plus en détails.
 
-.test/models/user_test.rb
+.app/models/user.rb
 [source,ruby]
 ----
 # ...
