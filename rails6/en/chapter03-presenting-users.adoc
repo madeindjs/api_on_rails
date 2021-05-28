@@ -183,7 +183,7 @@ end
 ----
 # ...
 test 'user with invalid email should be invalid' do
-  user = User.new(email: 'test', password: 'test')
+  user = User.new(email: 'test', password_digest: 'test')
   assert_not user.valid?
 end
 ----
@@ -249,7 +249,7 @@ gem "bcrypt", "~> 3.1"
 
 NOTE: Version 3.1 of bcrypt is the current version at the time of writing. It may therefore vary for your case.
 
-Active Record offers us a method https://github.com/rails/rails/blob/6-0-stable/activemodel/lib/active_model/secure_password.rb#L61[`ActiveModel::SecurePassword::has_secure_password`] that will interface with Bcrypt and hack the password for us very easily.
+Active Record offers us a method https://github.com/rails/rails/blob/6-0-stable/activemodel/lib/active_model/secure_password.rb#L61[`ActiveModel::SecurePassword::has_secure_password`] that will interface with Bcrypt and hash the password for us very easily.
 
 [source,ruby]
 .app/models/user.rb
