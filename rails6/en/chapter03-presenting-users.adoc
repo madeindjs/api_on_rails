@@ -614,7 +614,7 @@ We do a commit Since everything works:
 
 [source,bash]
 ----
-$ git commit -am "Adds update action the users controller"
+$ git commit -am "Adds update action to the users controller"
 ----
 
 === Delete the user
