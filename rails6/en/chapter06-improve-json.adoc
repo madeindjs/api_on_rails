@@ -1099,11 +1099,6 @@ Which following snippet is a valid JSON:API response?:: With product's user into
 ----
 +
 
-What is the purpose of `Hash#dig` method?::
-  . Get a nested element safer.
-  . Get a nested element and load Active Record relations if needed.
-  . Add a nested element safer.
-
 What is the purpose of `Hash#dig` method?:: Get a nested element safer. It is a Ruby method allowing you to retrieve elements in a nested `Hash` by avoiding errors if an element is not present.
 
 How do you include user information in a JSON:API output of a product?::
