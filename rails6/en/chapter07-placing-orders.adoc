@@ -31,7 +31,7 @@ Let’s start by creating the older model with a special form:
 
 [source,bash]
 ----
-$ rails generate model order user:belongs_to total:decimal
+$ rails generate model Order user:belongs_to total:decimal
 ----
 
 The command above will generate the order model, but I’m taking advantage of the `belongs_to` column type to create the corresponding foreign key for the order to belong to a user. It also adds the `belongs_to` association into the order model. Let’s migrate the database.
