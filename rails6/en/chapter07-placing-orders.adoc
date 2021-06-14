@@ -166,7 +166,7 @@ $ git add . && git commit -m "Associates products and orders with a placements m
 ----
 
 
-== Expose the user model
+== Expose the order model
 
 It is now time to prepare the order controller to expose the right orders. If you remember the previous chapters where https://github.com/jsonapi-serializer/jsonapi-serializer[jsonapi-serializer] was used, you should remember that it was straightforward.
 
