@@ -2,6 +2,8 @@
   <img src="rails6/fr/img/logo.svg" alt="Api on Rails 6" />
 </h1>
 
+![List of sponsors](https://the-godfather.tech/api/v1/badge?repository=https%3A%2F%2Fgithub.com%2Fmadeindjs%2Fapi_on_rails&style=flat&version=1&maxAge=60)
+
 Learn **best practices** to build an **API** using **Ruby on Rails** 5/6. The intention with this book it's not only to teach you how to build an API with Rails. The purpose is also to teach you how to build **scalable** and **maintainable** API with Rails which means **improve** your current Rails knowledge. In this book you will learn to:
 
 - Build JSON responses
