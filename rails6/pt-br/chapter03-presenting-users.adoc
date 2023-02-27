@@ -1,0 +1,782 @@
+[#chapter03-presenting-users]
+= Apresentando os usuários
+
+No último capítulo, nós preparamos os alicerces para a configuração dos endpoints da nossa aplicação.
+
+No próximo capítulo, nós iremos lidar com a autenticação de usuários por meio de autenticação de tokens e definição de permissões para limitar o acesso para, digamos, usuários logados. Nos próximos capítulos, nós iremos relacionar `produtos` aos usuários e daremos a eles a habilidade de fazer pedidos.
+
+Você pode clonar o projeto até este ponto com:
+
+[source,bash]
+----
+$ git checkout tags/checkpoint_chapter03
+----
+
+
+Como você já pode imaginar, existem várias soluções de autenticação para o Rails, https://github.com/binarylogic/authlogic[AuthLogic], https://github.com/thoughtbot/clearance[Clearance], e https://github.com/plataformatec/devise[Devise].
+
+Essas soluções são bibliotecas prontas para uso, isto é, elas permitem que você gerencie muitas coisas como autenticação, senhas esquecidas, validação, etc... No entanto, nós iremos usar a gem https://github.com/codahale/bcrypt-ruby[bcrypt] para fazer o hash da senha do usuário.
+
+Este capítulo será completo. Ele pode ser longo, mas eu tentarei cobrir quantos tópicos forem possíveis. Sinta-se livre para tomar um café, e vamos lá. Ao fim deste capítulo, você terá construído a lógica do usuário, validação e gerenciamento de erros.
+
+É um bom momento para criar uma nova branch:
+
+[source,bash]
+----
+$ git checkout -b chapter03
+----
+
+NOTE: Apenas certifique-se de que você está na branch `master` antes de fazer o checkout
+
+== Modelo de usuário
+
+Geração do modelo `User`
+
+Nós começaremos gerando o modelo `User`. Este modelo será realmente simples e irá conter apenas dois campos:
+
+- `email` que será único e permitirá a conexão com a aplicação
+- `password_digest` que irá conter a *versão com hash* da senha (nós iremos discutir isso mais tarde neste capítulo)
+
+Nós iremos gerar o nosso modelo `User` utilizando o comando `generate model` fornecido pelo Ruby on Rails. Ele é muito fácil de usar:
+
+[source,bash]
+----
+$ rails generate model User email:string password_digest:string
+invoke  active_record
+      create    db/migrate/20190603195146_create_users.rb
+      create    app/models/user.rb
+      invoke    test_unit
+      create      test/models/user_test.rb
+      create      test/fixtures/users.yml
+----
+
+NOTE: O _modelo_ é o elemento que contém os dados e a lógica relacionada a esses dados: validação, leitura e gravação.
+
+Este comando gera muitos arquivos! Não se preocupe, nós iremos revisá-los um a um.
+
+O arquivo de migração na pasta `db/migrate` contém a *migration* que descreve as mudanças que irão acontecer no banco de dados. Este arquivo deve ser parecido com isso:
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+class CreateUsers < ActiveRecord::Migration[6.0]
+  def change
+    create_table :users do |t|
+      t.string :email
+      t.string :password_digest
+
+      t.timestamps
+    end
+  end
+end
+----
+
+NOTE: A data inserida no começo do nome do arquivo de migração deve ser diferente para você uma vez que ele corresponde a data de criação do arquivo de migração.
+
+Nós iremos fazer uma pequena mudança no arquivo de migração para adicionar algumas validações de banco de dados. Com o Rails, é uma prática comum fazer essas verificações diretamente no modelo do Ruby. É uma boa prática também fazer isso no esquema(schema) do banco de dados.
+
+Nós iremos contudo, adicionar duas restrições adicionais:
+
+- o campo email é mandatório: nós usamos a propriedade `null: false`.
+- o campo email deve ser único: nós adicionamos um índice para a coluna email com a propriedade `unique: true`.
+- o campo password é mandatório: nós usamos a propriedade `null: false`.
+
+A migração ficaria assim:
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+# ...
+create_table :users do |t|
+  t.string :email, null: false
+  t.index :email, unique: true
+  t.string :password_digest, null: false
+  # ...
+end
+----
+
+Nós podemos executar as mudanças uma vez que a migração está completa com o seguinte comando:
+
+.db/migrate/20190603195146_create_users.rb
+[source,ruby]
+----
+$ rake db:migrate
+== 20190603195146 CreateUsers: migrating ======================================
+-- create_table(:users)
+   -> 0.0027s
+== 20190603195146 CreateUsers: migrated (0.0028s) =============================
+----
+
+NOTE: Este comando irá converter a nossa migração em uma consulta SQL que irá atualizar o banco de dados SQlite3 na pasta _db_.
+
+=== Modelo
+
+Então nós definimos o esquema do nosso banco de dados. O próximo passo é atualizar o nosso modelo para definir as *regras de validação*. Essas regras são definidas no template localizado na pasta `app/models`.
+
+O Ruby on Rails provê um mecanismo completo de validação que podemos encontrar na https://guides.rubyonrails.org/active_record_validations.html[documentação oficial]. No nosso caso, nós queremos validar apenas três coisas:
+
+. o campo email deve ter formato válido
+. o campo email deve ser único
+. o campo password deve estar preenchido
+
+Essas três regras são definidas pelo código abaixo:
+
+.app/models/user.rb
+[source,ruby]
+----
+class User < ApplicationRecord
+  validates :email, uniqueness: true
+  validates_format_of :email, with: /@/
+  validates :password_digest, presence: true
+end
+----
+
+Pronto. O Rails usa uma sintaxe direta, e o código é bastante legível.
+
+.Validação de E-mail
+****
+Você pode ter notado que a validação do campo email usa uma validação simplista por apenas checar pela presença de um `@`
+
+Isso é normal.
+
+Existem infinitas exceções para o endereço de e-mail https://davidcel.is/posts/stop-validating-email-addresses-with-regex/[que até `Olhe para todos esses espaços !@exemplo.com` é um endereço válido].
+****
+
+==== Testes unitários
+
+Nós terminamos com testes unitários. Nós utilizamos aqui o framework Minitest, que é disponibilizado por padrão com o Rails.
+
+O Minitest é baseado em _Fixtures_, que permite que você preencha o seu banco de dados com dados *pré-definidos*. _Fixtures_ são definidos em arquivos YAML na pasta`tests/fixtures`. Há um arquivo por template.
+
+Nós precisamos contudo começar atualizando os nossos `tests/fixtures`.
+
+NOTE: _fixtures_ não são projetados para criar todos os dados que os seus testes precisam. Eles apenas permitem que você defina os dados básicos que a sua aplicação precisa.
+
+Então nós iremos começar criando um _fixture_ definindo um  usuário:
+
+.test/fixtures/users.yml
+[source,yaml]
+----
+one:
+  email: one@one.org
+  password_digest: hashed_password
+----
+
+Assim nós podemos criar três testes:
+
+- 1. Verificar ser um usuário com dados válidos é válido:
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+test 'user with a valid email should be valid' do
+  user = User.new(email: 'test@test.org', password_digest: 'test')
+  assert user.valid?
+end
+----
+
+- 2. Verificar se um usuário com um e-mail inválido não é válido:
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+test 'user with invalid email should be invalid' do
+  user = User.new(email: 'test', password_digest: 'test')
+  assert_not user.valid?
+end
+----
+
+- 3. Verificar se um novo usuário com um e-mail duplicado não é válido. Então nós usamos o mesmo e-mail como o _fixture_ que acabamos de criar.
+
+.test/models/user_test.rb
+[source,ruby]
+----
+# ...
+test 'user with taken email should be invalid' do
+  other_user = users(:one)
+  user = User.new(email: other_user.email, password_digest: 'test')
+  assert_not user.valid?
+end
+----
+
+Pronto. Nós podemos verificar se a nossa implementação está correta simplesmente executando os testes unitários que acabamos de criar:
+
+[source,bash]
+----
+$ rake test
+...
+3 runs, 3 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Eu acho que é a hora de um pequeno commit para validar o nosso progresso:
+
+[source,bash]
+----
+$ git add . && git commit -m "Create user model"
+----
+
+=== Hash de senha
+
+Nós implementamos anteriormente o armazenamento dos dados do usuário. Nós ainda temos um problema para resolver: *o armazenamento de senhas está em texto simples*.
+
+> Se você armazenar as senhas de usuário em texto simples, então alguém com más intenções que roube uma cópia do seu banco de dados terá uma lista gigante de e-mails e senhas. Alguns dos seus usuários terão apenas uma senha -- para suas contas de e-mail, para suas contas bancárias, para a sua aplicação. Uma simples invasão poderia escalar em furto massivo de identidades. - https://github.com/codahale/bcrypt-ruby#why-you-should-use-bcrypt[Porque você deveria usar bcrypt (em inglês)]
+
+Então nós iremos utilizar a gem bcrypt para fazer o *hash* da senha.
+
+NOTE: Fazer o hash é o processo de transformar um caractere string em _Hash_. Este _Hash_ não permite que você encontre o caractere original da string. Contudo, nós podemos facilmente usá-lo se um caractere de string corresponder com o _hash_ que nós tivermos armazenado.
+
+Nós precisamos primeiro adicionar a gem Bcrypt para o arquivo `Gemfile`. Nós podemos usar o comando `bundle add`. Ele irá:
+
+1. adicionar a versão mais recente da gem ao arquivo Gemfile 
+2. executar o comando `bundle install` que iré instalar a gem e atualizar o arquivo _Gemfile.lock_ que "bloqueia" a versão atual da gem
+
+Portanto, executamos o seguinte comando:
+
+[source,bash]
+----
+$ bundle add bcrypt
+----
+
+Uma vez que o comando é executado, a seguinte linha é adicionada ao fim do arquivo `Gemdile`:
+
+[source,ruby]
+.Gemfile
+----
+gem "bcrypt", "~> 3.1"
+----
+
+NOTE: A versão 3.1 do bcrypt é a versão atual até o momento que escrevo. Ela pode variar no seu caso.
+
+O Active Record nos oferece um método https://github.com/rails/rails/blob/6-0-stable/activemodel/lib/active_model/secure_password.rb#L61[`ActiveModel::SecurePassword::has_secure_password`] que irá servir de interface com o Bcrypt e irá facilmente gerar o hash da senha para nós.
+
+[source,ruby]
+.app/models/user.rb
+----
+class User < ApplicationRecord
+  # ...
+  has_secure_password
+end
+----
+
+`has_secure_password` adiciona as seguintes validações:
+
+* A senha deve estar presente quando o usuário estiver sendo criado
+* O tamanho da senha deve ser menor ou igual a 72 bytes.
+* A confirmação da senha utilizando o atributo `password_confirmation` (se enviada)
+
+Este método irá também adicionar um atributo `User#password` que irá gerar um hash automaticamente e salvar no atributo `User#password_digest`.
+
+Vamos tentar isso agora no console do Rails. Abra um console com `rails console`:
+
+[source,ruby]
+----
+2.6.3 :001 > User.create! email: 'toto@toto.org', password: '123456'
+ =>#<User id: 1, email: "toto@toto.org", password_digest: [FILTERED], created_at: "2019-06-04 10:51:44", updated_at: "2019-06-04 10:51:44">
+----
+
+Você pode ver que quando você faz a chamada do método `User#create!`, o hash do atributo `password` é feito e armazenado em `password_digest`. Nós podemos também enviar um atributo `password_confirmation` que o ActiveRecord irá comparar ao `password`.
+
+[source,ruby]
+----
+2.6.3 :002 > User.create! email: 'tata@tata.org', password: '123456', password_confirmation: 'azerty'
+ActiveRecord::RecordInvalid (Validation failed: Password confirmation doesn t match Password)
+----
+
+Tudo está funcionando conforme o planejado! Vamos agora fazer um commit para manter o histórico conciso:
+
+[source,bash]
+----
+$ git commit -am "Setup Bcrypt"
+----
+
+== Construindo usuários
+
+Está na hora de fazer o nosso primeiro "entry point". Nós iremos começar construindo a action `show`, que responderá com um usuário único no formato JSON. Os passos são:
+
+1. gerar o `users_controller`.
+2. adicionar os testes correspondentes.
+3. construir o código real.
+
+Vamos primeiro focar em gerar o controller e os testes funcionais.
+
+Para respeitar a apresentação da nossa API, nós iremos dividir a nossa aplicação utilizando *modules* (módulos). A sintaxe é, portanto, a seguinte:
+
+[source,bash]
+----
+$ rails generate controller api::v1::users
+----
+
+Este comando irá criar o arquivo `users_controller_test.rb`. Antes de seguirmos, há duas coisas que nós precisamos testar na nossa API:
+
+* A estrutura do JSON retornada pelo servidor
+* O código HTTP retornado pelo servidor
+
+.Códigos HTTP comuns
+****
+O primeiro dígito do status code especifica uma das cinco classes de resposta. O mínimo para um cliente HTTP é que ele utiliza uma dessas cinco classes. Esta é uma lista dos códigos HTTP mais usados:
+
+* `200`: Resposta padrão para uma requisição HTTP bem sucedida. Usualmente em requisições `GET`
+* `201`: A requisição foi recebida e resultou na criação de um novo recurso. Depois de requisições `POST`.
+* `204`: O servidor processou com sucesso a requisição mas não retornou nenhum conteúdo. Esta é normalmente uma requisição `DELETE` bem sucedida.
+* `400`: A requisição não pôde ser executada devido a uma sintaxe "ruim" ou incorreta. Isso pode acontecer em qualquer tipo de requisição.
+* `401`: Similar a 403, mas usada especificamente para quando uma autenticação é necessária e ela falha ou ainda ão foi provida. Pode acontecer em qualquer tipo de requisição.
+* `404`: A recurso solicitado não pode ser encontrado mas pode estar disponível novamente no futuro. Normalmente se refere a requisições `GET`.
+* `500`: Uma mensagem de erro genérica, devolvida quando uma condição inesperada é encontrada, e nenhuma outra mensagem específica é adequada.
+
+Para uma lista completa de códigos HTTP, veja https://en.wikipedia.org/wiki/List_of_HTTP_status_codes[este artigo na Wikipedia].
+****
+
+Nós iremos portanto implementar o teste funcional que verifica o acesso ao método `Users#show`,
+
+[source,ruby]
+.test/controllers/api/v1/users_controller_test.rb
+----
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+  end
+
+  test "should show user" do
+    get api_v1_user_url(@user), as: :json
+    assert_response :success
+    # Teste para garantir que a resposta contém o email correto
+    json_response = JSON.parse(self.response.body)
+    assert_equal @user.email, json_response['email']
+  end
+end
+----
+
+
+Então simplesmente adicione a action ao nosso controller. É extremamente simples:
+
+[source,ruby]
+.app/controllers/api/v1/users_controller.rb
+----
+class  Api::V1::UsersController < ApplicationController
+  # GET /users/1
+  def show
+    render json: User.find(params[:id])
+  end
+end
+----
+
+Se você executar os testes com `rails test` você terá o seguinte erro:
+
+[source,bash]
+----
+$ rails test
+
+...E
+
+Error:
+UsersControllerTest#test_should_show_user:
+DRb::DRbRemoteError: undefined method `api_v1_user_url` for #<UsersControllerTest:0x000055ce32f00bd0> (NoMethodError)
+    test/controllers/users_controller_test.rb:9:in `block in <class:UsersControllerTest>`
+----
+
+Este tipo de erro é muito comum quando você gera os seus recursos manualmente! De fato, nós nos esquecemos completamente das *rotas*. Então, vamos adicioná-las:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: [:show]
+    end
+  end
+end
+----
+
+Os testes devem passar agora:
+
+----
+$ rails test
+....
+4 runs, 5 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Como de costume, depois de adicionar uma das características com as quais estejamos satisfeitos, nós fazemos um commit:
+
+[source,bash]
+----
+$ git add . && git commit -m "Adds show action to the users controller"
+----
+
+=== Testando o nosso recurso com cURL
+
+Então finalmente temos um recurso para testar. Nós temos várias soluções para testá-lo. A primeira que vem à mente é o cURL, que é integrado em quase todas as distribuições Linux. Então, vamos tentar:
+
+Primeiro, inicialize o servidor do Rails em um novo terminal.
+[source,bash]
+----
+$ rails s
+----
+
+Então, volte para o seu outro terminal e execute:
+
+[source,bash]
+----
+$ curl http://localhost:3000/api/v1/users/1
+{"id":1,"email":"toto@toto.org", ...
+----
+
+Nós veremos que o usuário que nós criamos com o console do Rails na seção anterior. Você agora tem uma entrada de API registrada.
+
+=== Criar usuários
+
+Agora que nós temos um entendimento melhor da construção de `entry points`, é hora de ampliar a nossa API. Uma das características mais importantes é permitir que usuários criem um perfil na nossa aplicação. Normalmente, nós iremos escrever testes antes de implementar o nosso código para ampliar a nossa suíte de testes.
+
+Garanta que o seu diretório Git esteja limpo e que você não tenha um arquivo em _staging_. Se sim, faça o commit deles para o caso de precisarmos começar de novo.
+
+Então vamos começar escrevendo nosso teste adicionando uma entrada para criar um usuário no arquivo `users_controller_test.rb`:
+
+[source,ruby]
+.test/controllers/users_controller_test.rb
+----
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test "should create user" do
+    assert_difference('User.count') do
+      post api_v1_users_url, params: { user: { email: 'test@test.org', password: '123456' } }, as: :json
+    end
+    assert_response :created
+  end
+
+  test "should not create user with taken email" do
+    assert_no_difference('User.count') do
+      post api_v1_users_url, params: { user: { email: @user.email, password: '123456' } }, as: :json
+    end
+    assert_response :unprocessable_entity
+  end
+end
+----
+
+É um bocado código. Não se preocupe, eu irei explicar tudo:
+
+* No primeiro teste, nós verificamos a criação do usuário enviando uma requisição POST válida. Então, nós verificamos se um usuário adicional existe no banco de dados e se o código HTTP da resposta é `created` (código de status 201)
+* No segundo teste, nós verificamos se o usuário não foi criado utilizando um email já utilizado. Então, nós verificamos se o código HTTP da resposta é `unprocessable_entity` (código de status 422)
+
+Até este ponto, os testes devem falhar (como esperado):
+
+[source,bash]
+----
+$ rails test
+...E
+----
+
+Então é o momento de implementar o código para que os nossos testes sejam bem sucedidos.
+
+[source,ruby]
+.app/controllers/api/v1/users_controller.rb
+----
+class Api::V1::UsersController < ApplicationController
+  # ...
+
+  # POST /users
+  def create
+    @user = User.new(user_params)
+
+    if @user.save
+      render json: @user, status: :created
+    else
+      render json: @user.errors, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  # Only allow a trusted parameter "white list" through.
+  def user_params
+    params.require(:user).permit(:email, :password)
+  end
+end
+----
+
+Lembre-se que cada vez que adicionarmos uma entrada à nossa API, nós devemos adicionar esta action no nosso arquivo `routes.rb`
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: %i[show create]
+    end
+  end
+end
+----
+
+Como você pode observar, a implementação é bem simples. Nós também adicionamos o método privado `user_params` para proteger o envio de atributos em massa. Agora nossos testes devem passar:
+
+[source,bash]
+----
+$ rails test
+......
+6 runs, 9 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Ótimo! Vamos fazer o commit das mudanças e continuar a construir a nossa aplicação:
+
+[source,bash]
+----
+$ git commit -am "Adds the user create endpoint"
+----
+
+=== Atualizar usuários
+
+O esquema de atualização dos usuários é muito similar ao da criação. Se você for um desenvolvedor Rails experiente, você pode já saber das diferenças entre essas duas actions.
+
+* A action update responde a uma requisição PUT/PATCH.
+* Apenas um usuário conectado deve ser capaz de atualizar a sua informação. Isso significa que nós iremos forçar um usuário a se autenticar. Nós iremos discutir isso no capítulo 5.
+
+Como de costume, nós começamos escrevendo os nossos testes:
+
+[source,ruby]
+.test/controllers/users_controller_test.rb
+----
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test "should update user" do
+    patch api_v1_user_url(@user), params: { user: { email: @user.email, password: '123456' } }, as: :json
+    assert_response :success
+  end
+
+  test "should not update user when invalid params are sent" do
+    patch api_v1_user_url(@user), params: { user: { email: 'bad_email', password: '123456' } }, as: :json
+    assert_response :unprocessable_entity
+  end
+end
+----
+
+Para que os testes sejam bem sucedidos, nós devemos construir a action `update` no arquivo `users_controller.rb` e adicionar a rota ao arquivo `routes.rb`. Como você pode ver, nós temos muito código duplicado. Nós iremos redesenhar (refatorar) os nossos testes no capítulo 4. Primeiro, nós adicionamos a action ao arquivo `routes.rb`:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # ...
+  resources :users, only: %i[show create update]
+  # ...
+end
+----
+
+Então nós implementamos a action update no `user_controller` e executamos os nossos testes:
+
+[source,ruby]
+.app/controllers/api/v1/users_controller.rb
+----
+class Api::V1::UsersController < ApplicationController
+  before_action :set_user, only: %i[show update]
+
+  # GET /users/1
+  def show
+    render json: @user
+  end
+
+  # ...
+
+  # PATCH/PUT /users/1
+  def update
+    if @user.update(user_params)
+      render json: @user, status: :ok
+    else
+      render json: @user.errors, status: :unprocessable_entity
+    end
+  end
+
+  private
+  # ...
+
+  def set_user
+    @user = User.find(params[:id])
+  end
+end
+
+----
+
+Todos os nossos teste devem passar agora:
+
+[source,bash]
+----
+$ rails test
+........
+8 runs, 11 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Nós fazemos um commit já que tudo está funcionando:
+
+[source,bash]
+----
+$ git commit -am "Adds update action to the users controller"
+----
+
+=== Excluir um usuário
+
+Até agora, nós construímos muitas actions no controller do usuário com os seus testes, mas ele não está finalizado. Nós apenas precisamos de mais um, que é a action de destruição. Então vamos criar o teste:
+
+[source,ruby]
+.test/controllers/users_controller_test.rb
+----
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+
+  test "should destroy user" do
+    assert_difference('User.count', -1) do
+      delete api_v1_user_url(@user), as: :json
+    end
+    assert_response :no_content
+  end
+end
+----
+
+Como você pode ver, o teste é bem direto. Nós apenas respondemos com um status de *204*, que significa `Sem conteúdo`. Nós poderíamos retornar o código de status *200*, mas eu acho mais natural responder `Sem conteúdo` neste caso porque nós excluímos um recurso, e uma resposta bem sucedida pode ser o suficiente.
+
+A implementação da action de destruição é também muito simples:
+
+[source,ruby]
+.app/controllers/api/v1/users_controller.rb
+----
+class Api::V1::UsersController < ApplicationController
+  before_action :set_user, only: %i[show update destroy]
+  # ...
+
+  # DELETE /users/1
+  def destroy
+    @user.destroy
+    head 204
+  end
+
+  # ...
+end
+----
+
+Não se esqueça de adicionar a action `destroy` no arquivo `routes.rb`:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # ...
+  resources :users, only: %i[show create update destroy]
+  # ...
+end
+----
+
+Os testes devem passar se tudo estiver correto:
+
+[source,bash]
+----
+$ rails test
+.........
+9 runs, 13 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Lembre-se que depois de fazer algumas mudanças no nosso código, é uma boa prática fazer o commit delas para manter um histórico bem segmentado.
+
+[source,bash]
+----
+$ git commit -am "Adds destroy action to the users controller"
+----
+
+E a medida que chegamos ao final do nosso capítulo, é o momento de aplicar todas as nossas modificações à branch master fazendo um _merge_:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter03
+----
+
+== Conclusão
+
+Opa, aí está você! Muito bem! Eu sei que provavelmente faz um bom tempo, mas não desista! Certifique-se de que você entendeu cada parte do código, as coisas vão melhorar. No próximo capítulo, nós iremos refatorar os nossos testes para tornar o código mais legível e sustentável. Então me acompanhe!
+
+=== Quiz
+
+Para ter certeza de que você entendeu este capítulo, tente responder essas questões:
+
+Qual código abaixo permite que você defina a restrição `único` ao campo `User#email` em um arquivo de migração?::
+  . `t.string :email, null: false`
+  . `t.string :email, unique: true`
+  . `t.index :email, unique: true`
+
+Como nós criamos um usuário em um teste unitário?::
+  . adicionando um registro em `test/fixtures/users.yml`.
+  . utilizando `Use.create email: 'toto@toto.fr'` dentro de um teste.
+
+
+Qual das afirmações não é válida?::
+  . Hash é o processo de transformar um caractere string em _Hash_. 
+  . O Hash permite que você encontre o caractere string original.
+  . O Hash permite que você determine se um dado caractere string corresponde ao original.
+
+Qual característica `has_secure_password` não implementa?::
+  . A senha deve estar presente quando uma entidade é criada.
+  . O tamanho da senha deve ser menor ou igual a 72 bytes.
+  . A senha deve conter pelo menos uma letra e um número.
+
+Qual trecho cria a rota `GET /api/v1/users/:id`?::
++
+[source,ruby]
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: [:show]
+    end
+  end
+end
+----
++
+[source,ruby]
+----
+Rails.application.routes.draw do
+  resources :users, only: [:show]
+end
+----
++
+[source,ruby]
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: [:index]
+    end
+  end
+end
+----
++
+
+Não tenha pressa para responder Quando resolver essas questões, vá para a próxima página para ver as respostas.
+
+<<<
+
+==== Respostas
+
+Qual código abaixo permite que você defina a restrição `único` ao campo `User#email` em um arquivo de migração?:: `t.index :email, unique: true`. Isso irá criar um novo índice com uma restrição na propriedade `email`.
+
+Como nós criamos um usuário em um teste unitário?:: Adicionando um registro em `test/fixtures/users.yml`. Você também pode utilizar por exemplo `Use.create email: 'toto@toto.fr'` dentro de um teste, mas com fixtures, você garante que o usuário existe para todas as suas suítes de testes.
+
+Qual das afirmações não é válida?:: O Hash permite que você encontre o caractere string original. Essa é a diferença real entre fazer o hash e encriptar uma senha.
+
+Qual característica `has_secure_password` não implementa?:: A senha deve conter pelo menos uma letra e um número. Mas você pode facilmente adicionar https://guides.rubyonrails.org/active_record_validations.html[uma validação no Active Record] para fazer isso.
+
+Qual trecho cria a rota `GET /api/v1/users/:id`?::
++
+[source,ruby]
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :users, only: [:show]
+    end
+  end
+end
+----
++

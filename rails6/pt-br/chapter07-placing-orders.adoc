@@ -1,0 +1,736 @@
+[#chapter07-placing-orders]
+= Fazendo Pedidos
+
+No capítulo anterior, nós manipulamos associações entre produtos e usuários e os serializamos para que fosse possível escalar com rapidez e facilidade. Agora é o momento de começar a fazer pedidos, o que será uma situação mais complexa. Nós iremos manipular associações entre esses três modelos. Nós temos que ser espertos o suficiente para manipular a saída JSON que estivermos entregando.
+
+Neste capítulo, nós iremos fazer várias coisas, que estão listadas abaixo:
+
+* Criar um modelo `Order` com as suas especificações correspondentes
+* Manipular a saída de associação JSON entre os modelos `Order`, `User` e `Product`
+* Enviar um email de confirmação com o resumo do pedido
+
+Então agora que tudo está claro, nós podemos colocar a mão na massa. Você pode clonar o projeto até este ponto com:
+
+[source,bash]
+----
+$ git checkout tags/checkpoint_chapter07
+----
+
+Vamos criar uma branch para começar a trabalhar:
+
+[source,bash]
+----
+$ git checkout -b chapter07
+----
+
+== Modelando pedidos
+
+Se você se lembra das associações de modelo, o modelo `Order` é associado a usuários e produtos simultaneamente. Na verdade, é bem simples fazer isso no Rails. A parte complicada é quando é necessário serializar este objeto. Eu falarei mais osbre isso na próxima seção.
+
+Vamos começar criado o modelo de pedidos de uma forma especial:
+
+[source,bash]
+----
+$ rails generate model Order user:belongs_to total:decimal
+----
+
+O comando acima irá geral o modelo de pedido, mas eu estou tirando vantagem do tipo de coluna `belongs_to` para criar uma chave extrangeira correspondente para que o pedido pertença a um usuário. Isso também adiciona a associação `belongs_to` no modelo pedido. Vamos migrar o banco de dados.
+
+[source,bash]
+----
+$ rake db:migrate
+----
+
+Agora é o momento de escrever alguns testes no arquivo `order_test.rb`:
+
+[source,ruby]
+.test/models/order_test.rb
+----
+# ...
+class OrderTest < ActiveSupport::TestCase
+  test 'Should have a positive total' do
+    order = orders(:one)
+    order.total = -1
+    assert_not order.valid?
+  end
+end
+----
+
+A implementação é bem simples:
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  belongs_to :user
+  validates :total, numericality: { greater_than_or_equal_to: 0 }
+  validates :total, presence: true
+end
+----
+
+Não se esqueça de adicionar o relacionamento `orders` para os nossos usuários especificando a exclusão em cascata:
+
+[source,ruby]
+.app/models/user.rb
+----
+class User < ApplicationRecord
+  # ...
+  has_many :products, dependent: :destroy
+  has_many :orders, dependent: :destroy
+  # ...
+end
+----
+
+Os testes devem passar:
+
+[source,bash]
+----
+$ rake test
+..................................
+----
+
+Vamos fazer um commit:
+
+[source,bash]
+----
+$ git add . && git commit -m "Generate orders"
+----
+
+
+=== Pedidos e Produtos
+
+Nós precisamos configurar a associação entre `order` e `product`, construída com uma associação *has-many-to-many*. Muitos produtos serão colocados em muitos pedidos e os pedidos terão múltiplos produtos. Então, neste caso, nós precisamos de um modelo intermediário que irá "juntar" esses dois outros objetos e mapear a associação apropriada.
+
+Vamos gerar este modelo:
+
+[source,bash]
+----
+$ rails generate model placement order:belongs_to product:belongs_to
+----
+
+Vamos executar a migração no banco de dados:
+
+[source,bash]
+----
+$ rake db:migrate
+----
+
+A implementação é a seguinte:
+
+[source,ruby]
+.app/models/product.rb
+----
+class Product < ApplicationRecord
+  belongs_to :user
+  has_many :placements, dependent: :destroy
+  has_many :orders, through: :placements
+  # ...
+end
+----
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  has_many :placements, dependent: :destroy
+  has_many :products, through: :placements
+  # ...
+end
+----
+
+Se você tem seguindo o tutorial até agora, a implementação já está lá por causa do tipo de coluna `belongs_to` que nós passamos no comando para gerar o modelo. Nós devemos adicionar a opção `inverse_of` ao modelo `placement` para cada chamada `belongs_to`. Isso dá um pequeno empurrão quando o objeto pai é refenciado.
+
+[source,ruby]
+.app/models/placement.rb
+----
+class Placement < ApplicationRecord
+  belongs_to :order
+  belongs_to :product, inverse_of: :placements
+end
+----
+
+Vamos rodar o spec de _models_ e ter certeza de que tudo está verde:
+
+[source,bash]
+----
+$ rake test
+..................................
+----
+
+Agora que tudo está funcionando, vamos fazer um commit das mudanças e continuar.
+
+[source,bash]
+----
+$ git add . && git commit -m "Associates products and orders with a placements model"
+----
+
+
+== Expor o modelo de pedidos
+
+Agora é o momento de preparar o controller de pedidos para expor os pedidos certos. Se você se lembra dos capítulos anteriores onde utilizamos https://github.com/jsonapi-serializer/jsonapi-serializer[jsonapi-serializer], você deve se lembrar que foi bem direto ao ponto.
+
+Vamos primeiro definir que ações vamos precisar:
+
+. Uma action index para recuperar os pedidos recentes
+. Uma action show para recuperar um pedido em particular do usuário recenete
+. Uma action create para fazermos um pedido
+
+Vamos começar com a action `index`. Primeiro, nós temos que criar o controller de pedidos:
+
+[source,bash]
+----
+$ rails generate controller api::v1::orders
+----
+
+Até este ponto e antes de começar a digitar algum código, nós tempos que nos perguntar:
+
+> Devo deixar o meu endpoint de pedidos aninhado no `UsersController` ou devo isolá-lo?
+
+A resposta é bem simples: depende da quantidade de informação que você quer expor ao desenvolvedor.
+
+No nosso caso, nós não vamos fazer isso porque nós iremos recuperar os pedidos do usuário da rota `/orders`. Vamos começar com alguns testes:
+
+[source,ruby]
+.test/controllers/api/v1/orders_controller_test.rb
+----
+# ...
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @order = orders(:one)
+  end
+
+  test 'should forbid orders for unlogged' do
+    get api_v1_orders_url, as: :json
+    assert_response :forbidden
+  end
+
+  test 'should show orders' do
+    get api_v1_orders_url,
+      headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
+      as: :json
+    assert_response :success
+
+    json_response = JSON.parse(response.body)
+    assert_equal @order.user.orders.count, json_response['data'].count
+  end
+end
+----
+
+Se nós executarmos a suite de testes agora, ambos os testes devem falhar como você pode prever. Isto é porque as rotas e action corretas sequer foram configuradas. Então vamos começar adicionando as rotas:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :orders, only: [:index]
+      # ...
+    end
+  end
+end
+----
+
+Agora é o momento de implementar o serializer de pedidos:
+
+
+[source,bash]
+----
+$ rails generate serializer Order
+----
+
+E vamos adicionar relacionamentos:
+
+.app/serializers/order_serializer.rb
+[source,ruby]
+----
+class OrderSerializer
+  include JSONAPI::Serializer
+  belongs_to :user
+  has_many :products
+end
+----
+
+Agora é o momento de implementar o controller:
+
+[source,ruby]
+.app/controllers/api/v1/orders_controller.rb
+----
+class Api::V1::OrdersController < ApplicationController
+  before_action :check_login, only: %i[index]
+
+  def index
+    render json: OrderSerializer.new(current_user.orders).serializable_hash.to_json
+  end
+end
+----
+
+E agora todos os nossos testes devem passar:
+
+[source,bash]
+----
+$ rake test
+....................................
+36 runs, 53 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Nós gostamos dos nossos commits bem atômicos, vamos fazer um commit dessas mudanças:
+
+[source,bash]
+----
+$ git add . && git commit -m "Adds the index action for order"
+----
+
+=== Renderizando um único pedido
+
+Como você já pode imaginar, esta rota é bem direto ao ponto. Nós apenas temos que definir algumas configurações (rotas, ações), e esta seção estará terminada. Nós iremos também incluir produtos relacionados a este pedido na resposta JSON.
+
+Vamos começar adicionando alguns testes:
+
+[source,ruby]
+.test/controllers/api/v1/orders_controller_test.rb
+----
+# ...
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test 'should show order' do
+    get api_v1_order_url(@order),
+        headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
+        as: :json
+    assert_response :success
+
+    json_response = JSON.parse(response.body)
+    include_product_attr = json_response['included'][0]['attributes']
+    assert_equal @order.products.first.title, include_product_attr['title']
+  end
+end
+----
+
+Como você pode ver, a segunda parte do teste verifica se o produto está incluído no JSON.
+
+Vamos adicionar a implementação para executar os nossos testes. No arquivo `routes.rb`, adicione a action `show` para a rota de pedidos:
+
+[source,ruby]
+.config/routes.rb
+----
+# ...
+Rails.application.routes.draw do
+  # ...
+  resources :orders, only: %i[index show]
+  # ...
+end
+----
+
+E a implementação deve se parecer como a que segue:
+
+[source,ruby]
+.app/controllers/api/v1/orders_controller.rb
+----
+class Api::V1::OrdersController < ApplicationController
+  before_action :check_login, only: %i[index show]
+  # ...
+  def show
+    order = current_user.orders.find(params[:id])
+
+    if order
+      options = { include: [:products] }
+      render json: OrderSerializer.new(order, options).serializable_hash.to_json
+    else
+      head 404
+    end
+  end
+end
+----
+
+Os nossos testes devem estar todos verdes:
+
+[source,bash]
+----
+$ rake test
+.....................................
+37 runs, 55 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Vamos fazer um commit das mudanças e seguir para a criação da action de criação de pedidos:
+
+[source,bash]
+----
+$ git commit -am "Adds the show action for order"
+----
+
+=== Fazendo um pedido
+
+Agora é o momento de permitir que o usuário faça alguns pedidos. Isso irá adicionar complexidade para a aplicação mas não se preocupe, nós faremos isso um passo de cada vez.
+
+Antes de lançarmos este recurso, vamos parar para pensar sobre as implicações de criar um pedido na aplicação. Eu não estou falando sobre configurar um serviço de transação como https://stripe.com/[Stripe] ou https://www.braintreepayments.com/[Braintree], mas coisas como:
+
+* gerenciamento de produtos fora de estoque
+* reduzir inventário
+* adicionar algumas validações para quando os pedidos forem feitos e garantir que há produtos o suficiente no momento em que o pedido está sendo feito.
+
+Parece que ainda há muito o que fazer, mas acredite: você está ainda mais perto do que imagina, e não é difícil como parece. Por enquanto, vamos manter isso simples e assumir que nós ainda temos produtos o suficiente para fazer qualquer número de pedidos. Nós estamos preocupados apenas com a resposta do servidor no momento.
+
+Se você se lembra do modelo de pedidos, nós precisamos de três coisas:
+
+* um total para o pedido
+* o usuário que faz o pedido
+* produtos para o pedido
+
+Baseado nessas informações, nós podemos adicionar alguns testes:
+
+[source,ruby]
+.test/controllers/api/v1/orders_controller_test.rb
+----
+# ...
+class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    # ...
+    @order_params = { order: {
+      product_ids: [products(:one).id, products(:two).id],
+      total: 50
+    } }
+  end
+
+  # ...
+
+  test 'should forbid create order for unlogged' do
+    assert_no_difference('Order.count') do
+      post api_v1_orders_url, params: @order_params, as: :json
+    end
+    assert_response :forbidden
+  end
+
+  test 'should create order with two products' do
+    assert_difference('Order.count', 1) do
+      post api_v1_orders_url,
+        params: @order_params,
+        headers: { Authorization: JsonWebToken.encode(user_id: @order.user_id) },
+        as: :json
+    end
+    assert_response :created
+  end
+end
+----
+
+Como você pode observar, não estamos criando uma variável `order_params` com a data do pedido. Consegue ver o problema aqui? Se não, eu explicarei mais tarde. Vamos apenas adicionar o código necessário para fazer estes testes passarem.
+
+Primeiro, nós precisamos adicionar a action para os recursos no arquivo de rotas:
+
+[source,ruby]
+.config/routes.rb
+----
+# ...
+Rails.application.routes.draw do
+  # ...
+  resources :orders, only: %i[index show create]
+  # ...
+end
+----
+
+Em seguida a implementação que é fácil:
+
+[source,ruby]
+.app/controllers/api/v1/orders_controller.rb
+----
+class Api::V1::OrdersController < ApplicationController
+  before_action :check_login, only: %i[index show create]
+  # ...
+
+  def create
+    order = current_user.orders.build(order_params)
+
+    if order.save
+      render json: order, status: 201
+    else
+      render json: { errors: order.errors }, status: 422
+    end
+  end
+
+  private
+
+  def order_params
+    params.require(:order).permit(:total, product_ids: [])
+  end
+end
+----
+
+E agora todos os nossos testes devem estar verdes:
+
+[source,bash]
+----
+$ rake test
+.......................................
+39 runs, 59 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Ok, então nós temos tudo ótimo e verde. Agora nós deveríamos seguir para o próximo capítulo, certo? Deixe-me interrompê-lo agora. Nós temos alguns erros sérios na aplicação, e eles não estão relacionados ao código em si, mas à lógica de negócio.
+
+Não é porque os testes estão verdes, que quer dizer que a aplicação corresponde à lógica de negócio da aplicação. Eu quis trazer isso para reflexão porque em muitos casos é super fácil apenas receber parâmetros e construir objetos a partir desses parâmetros, pensando que nós estamos sempre recebendo os dados corretos. Neste caso em particular, não podemos confiar nisso, e o caminho mais fácil para observar isso é deixando o cliente definir o total de pedidos. Loucura não?!
+
+Nós temos que adicionar algumas validações ou callback para calcular o total do pedido e configurá-lo através do modelo. Desta forma nós não iremos mais receber aquele atributo total e teremos controle completo sobre este atributo. Então vamos fazer isso.
+
+Nós primeiro precisamos adicionar algumas especificações no modelo de pedidos:
+
+[source,ruby]
+.test/models/order_test.rb
+----
+# ...
+class OrderTest < ActiveSupport::TestCase
+
+  setup do
+    @order = orders(:one)
+    @product1 = products(:one)
+    @product2 = products(:two)
+  end
+
+  test 'Should set total' do
+    order = Order.new user_id: @order.user_id
+    order.products << products(:one)
+    order.products << products(:two)
+    order.save
+
+    assert_equal (@product1.price + @product2.price), order.total
+  end
+end
+----
+
+Nós podemos agora adicionar a implementação:
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  # ...
+  def set_total!
+    self.total = self.products.map(&:price).sum
+  end
+end
+----
+
+Nós podemos agora encaixar o método `set_total` para uma callback `before_validation` para garantir que ele contém o total correto antes de ser validado.
+
+[source,ruby]
+.app/models/order.rb
+----
+class Order < ApplicationRecord
+  before_validation :set_total!
+  # ...
+end
+----
+
+Nós estamos garantindo que o total é sempre presente e maior ou igual a zero. Isso significa que nós podemos remover aquelas validações e remover as especificações. Eu te espero. Os nossos testes devem passar agora:
+
+[source,bash]
+----
+$ rake test
+
+...........F
+
+Failure:
+OrderTest#test_Should_have_a_positive_total [/home/arousseau/github/madeindjs/market_place_api/test/models/order_test.rb:14]:
+Expected true to be nil or false
+
+
+rails test test/models/order_test.rb:11
+
+............................
+
+Finished in 0.542600s, 73.7191 runs/s, 110.5786 assertions/s.
+----
+
+
+Opa! Nós temos uma _falha_ no nosso teste _Should have a positive total_. Isso é lógico uma vez que o total do pedido é calculado dinamicamente. Então nós podemos simplesmente remover este teste que se tornou obsoleto.
+
+Os nossos testes devem passar agora. Vamos fazer um commit das nossas mudanças:
+
+[source,bash]
+----
+$ git commit -am "Adds the create method for the orders controller"
+----
+
+
+== Enviando a confirmação de um pedido por e-mail
+
+A última seção para este caítulo será enviar um e-mail de confirmação para o usuário que acabou de enviá-lo. Se você quiser pular isso e seguir para o próximo capítulo, vá em frente. Esta seção é mais como um aquecimento.
+
+Você pode estar familiarizado com a manipulação de e-mail com o Rails, então eu tentarei fazer isso do modo rápido e simples. Nós primeiro criamos o `order_mailer` com um e-mail nomeado `send_confirmation`:
+
+[source,bash]
+----
+$ rails generate mailer order_mailer send_confirmation
+----
+
+Agora nós podemos adicionar alguns testes para os e-mails de pedido que nós acabamos de criar:
+
+[source,ruby]
+.test/mailers/order_mailer_test.rb
+----
+# ...
+class OrderMailerTest < ActionMailer::TestCase
+
+  setup do
+    @order = orders(:one)
+  end
+
+  test "should be set to be delivered to the user from the order passed in" do
+    mail = OrderMailer.send_confirmation(@order)
+    assert_equal "Order Confirmation", mail.subject
+    assert_equal [@order.user.email], mail.to
+    assert_equal ['no-reply@marketplace.com'], mail.from
+    assert_match "Order: ##{@order.id}", mail.body.encoded
+    assert_match "You ordered #{@order.products.count} products", mail.body.encoded
+  end
+
+end
+----
+
+Eu simplesmente copiei/colei os testes da documentação e os adaptei para as nossas necessidades. Nós precisamos agora assegurar que estes testes passem.
+
+Primeiro, nós adicionamos o método `OrderMailer#send_confirmation`:
+
+[source,ruby]
+.app/mailers/order_mailer.rb
+----
+class OrderMailer < ApplicationMailer
+  default from: 'no-reply@marketplace.com'
+  def send_confirmation(order)
+    @order = order
+    @user = @order.user
+    mail to: @user.email, subject: 'Order Confirmation'
+  end
+end
+----
+
+Depois de adicionar este código nós precisamos adicionar as views correspondentes. É uma boa prática incluir a versão de texto além da verão em HTML.
+
+
+[source,erb]
+----
+<%# app/views/order_mailer/send_confirmation.text.erb %>
+Order: #<%= @order.id %>
+You ordered <%= @order.products.count %> products:
+<% @order.products.each do |product| %>
+  <%= product.title %> - <%= number_to_currency product.price %>
+<% end %>
+----
+
+[source,erb]
+----
+<!-- app/views/order_mailer/send_confirmation.html.erb -->
+<h1>Order: #<%= @order.id %></h1>
+<p>You ordered <%= @order.products.count %> products:</p>
+<ul>
+  <% @order.products.each do |product| %>
+    <li><%= product.title %> - <%= number_to_currency product.price %></li>
+  <% end %>
+</ul>
+----
+
+Agora, os nossos testes devem passar:
+
+[source,bash]
+----
+$ rake test
+........................................
+40 runs, 66 assertions, 0 failures, 0 errors, 0 skips
+----
+
+E agora, apenas chame o método `OrderMailer#send_confirmation` na action de criação do controller de pedidos:
+
+[source,ruby]
+.app/controllers/api/v1/orders_controller.rb
+----
+class Api::V1::OrdersController < ApplicationController
+  # ...
+  def create
+    order = current_user.orders.build(order_params)
+
+    if order.save
+      OrderMailer.send_confirmation(order).deliver
+      render json: order, status: 201
+    else
+      render json: { errors: order.errors }, status: 422
+    end
+  end
+  # ...
+end
+----
+
+Para ter certeza que nós não quebramos nada, vamos executar todos os testes:
+
+[source,bash]
+----
+$ rake test
+........................................
+40 runs, 66 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Vamos fazer o commit de tudo o que acabamos de fazer para completar esta seção:
+
+[source,bash]
+----
+$ git add . && git commit -m "Adds order confirmation mailer"
+----
+
+E ao passo que chegamos ao fim do nosso capítulo, é o momento de aplicar todas as nossas modificações para a branch master fazendo um `merge`:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter07
+----
+
+== Conclusão
+
+Isso é tudo! Você conseguiu! Você pode aplaudir a si mesmo. Eu sei que faz muito tempo, mas confie em mim, estamos quase no fim.
+
+Nos próximos capítulos, nós iremos continuar trabalhando no template de pedidos para adicionar validações quando enviarmos um pedido. Alguns cenários são:
+
+* O que acontece quando produtos não estão disponíveis?
+* Diminuir a quantidade do produto em progresso quando enviamos um pedido
+
+O próximo capítulo será curto, mas ele é essencial para a saúde da aplicação. Então não o pule.
+
+=== Quiz
+
+Para ter certeza que você entendeu este capítulo, tente responder essas perguntas:
+
+Como nós podemos assegurar que um campo do Active Record é maior que 0::
+  . `validates :total, numericality: { greater_than_or_equal_to: 0 }`
+  . `validates :total, numericality: true`
+  . `validates :total, length: { minimum: 0 }`
+
+Por quê se coloca a opção `inverse_of` na relação `Placement#product`?::
+  . Isso ajuda o Active Record a determinar a relação `Product#placements`.
+  . Isso é necessário para o Active Record determinar a associação.
+
+Como nós permitimos múltiplos parâmetros HTTP para `order[product_ids]`?::
+  . `params.require(:order).permit(product_ids: [])`
+  . `params.require(:order).permit(:product_ids)`
+  . `params.require(:order).permit(:product_ids)`
+
+Qual fragmento NÃO irá adicionar um produto que podemos adicionar a um pedido?::
+  . `order.products << product`
+  . `order.products.push << product`
+  . `order.products = product`
+
+Qual é o melhor callback do Active Record para calcular o total dos pedidos?::
+  . `before_validation`
+  . `before_save`
+  . `after_save`
+
+Não tenha pressa para responder Quando resolver essas questões, vá para a próxima página para ver as respostas.
+
+<<<
+
+==== Respostas
+
+Como nós podemos assegurar que um campo do Active Record é maior que 0:: `validates :total, numericality: { greater_than_or_equal_to: 0 }`. Você pode dar uma olhada na https://edgeguides.rubyonrails.org/active_record_validations.html[documentação oficial].
+
+Por quê se coloca a opção `inverse_of` na relação `Placement#product`?:: isso ajuda o Rails a determinar a relação `Product#placements`. Isso pode ser omitido que a nossa aplicação continuaria a funcionar. Essa opção pode te ajudar a definir relação quando o nome da relação é diferente do nome da classe
+
+Como nós permitimos múltiplos parâmetros HTTP para `order[product_ids]`?:: `params.require(:order).permit(product_ids: [])`
+
+Qual fragmento NÃO irá adicionar um produto que podemos adicionar a um pedido?:: `order.products = product`. `products.push` e `products <<` tem o mesmo comportamento porque https://apidock.com/rails/ActiveRecord/Associations/CollectionProxy/push[`push` é uma alias para `<<`].
+
+Qual é o melhor callback do Active Record para calcular o total dos pedidos?:: `before_validation` Nós precisamos fazer isso porque nós definimos uma validação no total, senão `before_save` não funcionaria. Você também pode dar uma olhada em https://guides.rubyonrails.org/active_record_callbacks.html#available-callbacks[available Active Record callback].

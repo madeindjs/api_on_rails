@@ -1,0 +1,272 @@
+[#chapter02-api]
+= A API
+
+Nesta seção, eu irei esboçar a aplicação. Até o momento, você deve ter lido o capítulo anterior. Se você não o leu, eu recomendo que o faça.
+
+Você pode clonar o projeto até este ponto com:
+
+[source,bash]
+----
+$ git checkout tags/checkpoint_chapter02
+----
+
+Resumindo, nós simplesmente geramos a nossa aplicação Rails e fizemos o nosso primeiro commit.
+
+
+== Planejando a aplicação
+
+A nossa aplicação é bem simples. Ela consistirá de cinco modelos. Não se preocupe se você não entende o que está acontecendo. Nós iremos revisar e desenvolver cada um desses recursos a medida que avançamos com o tutorial.
+
+.Diagrama dos modelos de uma API de Mercado
+----
++---------+     +---------+
+| User    +---->+Product  |
++---------+     +---------+
+     |               |
+     v               v
++---------+     +---------+
+|Order    +---->+Placement|
++---------+     +---------+
+----
+
+Nós não iremos construir views para a exibição ou interação com a API, para que não seja um tutorial muito grande, eu irei deixar isso para você. Existe uma grande variedade de opções lá fora, como frameworks javascript (https://angularjs.org/[Angular], https://vuejs.org/[Vue.js], https://reactjs.org/[React.js]).
+
+Até este ponto, você deve estar se perguntando:
+
+> tudo bem, mas eu preciso explorar ou visualizar a API que nós iremos construir?
+
+É justo. Provavelmente se você pesquisar algo relacionado à exploração de API, uma aplicação chamada https://www.getpostman.com/[Postman] irá aparecer. É um ótimo software, mas nós não iremos utilizá-lo porque nós iremos utilizar *cURL*, permitindo que qualquer um reproduza requisições em qualquer computador.
+
+== Configurando a API
+
+Uma API é definida na http://en.wikipedia.org/wiki/Application_programming_interface[wikipedia] como _uma interface de programação de aplicações (do inglês application programming interface - API) que especifica como alguns componentes de software devem interagir entre si._ Em outras palavras, o modo que sistemas interagem uns com os outros por meio de uma interface em comum, no nosso caso, um serviço web construído com JSON. Existem outros tipos de protocolos de comunicação como SOAP, mas nós não vamos abordar isso aqui.
+
+Como padrão de tipo de mídia da internet, o JSON é amplamente aceito, legível, extensível e fácil de implementar. Muito dos frameworks atuais consumem APIs JSON por padrão (https://angularjs.org/[Angular] ou https://vuejs.org/[Vue.js] por exemplo). Existem também ótimas bibliotecas para Objective-C como https://github.com/AFNetworking/AFNetworking[AFNetworking] ou http://restkit.org/[RESTKit]. Existem provavelmente boas soluções para Android, mas eu posso não ser a pessoa certa para recomendar algo por conta da minha falta de experiência nesta plataforma de desenvolvimento.
+
+Tudo bem. Então nós estamos construindo nossa API com JSON. Existem muitas formas de atingir isso. A primeira coisa que vem à mente seria apenas começar a adicionar rotas definindo os endpoints. Isto pode ser ruim porque elas podem não ter um http://www.w3.org/2005/Incubator/wcl/matching.html[padrão URI] claro o suficiente para saber qual recurso está sendo exposto. O protocolo ou estrutura da qual eu estou falando é o http://en.wikipedia.org/wiki/Representational_state_transfer[REST] que significa Transferência de Estado Representacional pela definição da Wikipedia
+
+[source,soap]
+----
+aService.getUser("1")
+----
+
+E em REST vocẽ pode chamar uma URL com uma requisição HTTP específica, neste caso com uma requisição GET: <http://domain.com/resources_name/uri_pattern>
+
+APIs RESTful devem seguir ao menos três diretrizes simples:
+
+* Uma base, http://en.wikipedia.org/wiki/Uniform_resource_identifier[URI], como `http://example.com/resources/`.
+* Um tipo de mídia de internet para representar os dados é comumente o JSON e é comumente definido por uma troca de header.
+* Seguir o padrão de http://en.wikipedia.org/wiki/HTTP_method#Request_methods[Métodos HTTP] como GET, POST, PUT, DELETE.
+** *GET*: Lê o recurso ou recursos definidos pelo padrão URI
+** *POST*: Cria uma nova entrada na coleção dos recursos
+** *PUT*: Atualiza uma coleção ou membro de coleções
+** *DELETE*: Destrói uma coleção ou membro de recursos
+
+Isso pode não ser claro o suficiente ou pode parecer muita informação para digerir, mas espero que fique mais fácil de entender à medida que nós avançamos com o tutorial.
+
+=== Rotas, Restrições e Namespaces
+
+Antes de começar a digitar qualquer código, nós preparamos o código com o git. Nós iremos utilizar uma branch para cada capítulo, enviá-la para para o Github e então fazer o merge dela na branch `master`. Então vamos começar. Abra o terminal, `cd` para o diretório `market_place_api` e digite o seguinte:
+
+[source,bash]
+----
+$ git checkout -b chapter02
+Switched to a new branch 'chapter02'
+----
+
+Nós iremos apenas trabalhar em `config/routes.rb`, como nós vamos somente definir as restrições e o `formato` de resposta padrão para cada requisição.
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # ...
+end
+----
+
+Antes de tudo, apague todo o código comentado que vem no arquivo. Nós não vamos precisar dele. Então faça o commit dele, apenas um aquecimento:
+
+[source,bash]
+----
+$ git add config/routes.rb
+$ git commit -m "Removes comments from the routes file"
+----
+
+Nós iremos isolar os controllers da API sob um namespace. Com o Rails, isso é bem simples: você precisa apenas criar uma pasta sob `app/controllers` de nome `API`. O nome é importante porque este é o namespace que nós iremos utilizar para gerenciar os controllers para os endpoints da API.
+
+[source,bash]
+----
+$ mkdir app/controllers/api
+----
+
+Então nós adicionamos esse namespace nos nosso arquivo `roustes.rb`:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # API definition
+  namespace :api do
+    # We are going to list our resources here
+  end
+end
+----
+
+Ao definir um namespace no arquivo `routes.rb`, o Rails irá mapear automaticamente aquele namespace para um diretório correspondente com o nome sob a pasta _controllers_, no nosso caso o diretório `api/``.
+
+.Tipos de mídia suportados pelo Rails
+****
+O Rails pode lidar com até 35 tipos de mídia diferentes, você pode listá-los acessando a classe SET no módulo Mime:
+
+[source,bash]
+----
+$ rails c
+2.6.3 :001 > Mime::SET.collect(&:to_s)
+ => ["text/html", "text/plain", "text/javascript", "text/css", "text/calendar", "text/csv", "text/vcard", "text/vtt", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff", "image/svg+xml", "video/mpeg", "audio/mpeg", "audio/ogg", "audio/aac", "video/webm", "video/mp4", "font/otf", "font/ttf", "font/woff", "font/woff2", "application/xml", "application/rss+xml", "application/atom+xml", "application/x-yaml", "multipart/form-data", "application/x-www-form-urlencoded", "application/json", "application/pdf", "application/zip", "application/gzip"]
+----
+****
+
+Isto é importante porque nós iremos trabalhar com JSON, um dos http://en.wikipedia.org/wiki/Internet_media_type[MIME types] embutidos aceitos pelo Rails, então nós apenas precisamos especificar este formato como o padrão:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # API definition
+  namespace :api, defaults: { format: :json }  do
+    # We are going to list our resources here
+  end
+end
+----
+
+Até este ponto, nós não fizemos nada de louco. O que nós queremos gerar é uma _base_uri_ que inclua a versão da API. Mas vamos fazer o commit das mudanças antes de ir para a próxima seção:
+
+[source,bash]
+----
+$ git add config/routes.rb
+$ git commit -m "Set the routes constraints for the API"
+----
+
+== Versionamento de API
+
+Até este ponto, nós deveríamos ter um bom mapeamento usando um namespace. O seu arquivo `routes.rb` deve se parecer com isso:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # API definition
+  namespace :api, defaults: { format: :json }  do
+    # We are going to list our resources here
+  end
+end
+----
+
+Agora é a hora de configurar algumas restrições para propósitos de versionamento. Você deve se importar com o versionamento da sua aplicação uma vez que isto dará uma estrutura melhor para a sua API. Quando mudanças precisarem ser feitas, você pode dar aos desenvolvedores que estiverem consumindo a sua API a oportunidade de se adaptar ás novas características enquanto as mais antigas são descontinuadas. Existe um excelente http://railscasts.com/episodes/350-rest-api-versioning[railscast] explicando isso.
+
+Pada definir a versão para a API, nós primeiro precisamos adicionar outro diretório sob o `API` que nós criamos:
+
+[source,bash]
+----
+$ mkdir app/controllers/api/v1
+----
+
+Desta forma nós podemos ter um namespace para cada versão diferente muito facilmente. Agora nós precisamos adicionar o código necessário ao arquivo `routes.rb`:
+
+[source,ruby]
+.config/routes.rb
+----
+Rails.application.routes.draw do
+  # Api definition
+  namespace :api, defaults: { format: :json }  do
+    namespace :v1 do
+      # We are going to list our resources here
+    end
+  end
+end
+----
+
+Até este ponto, a API está delimitada pela URL. Por exemplo, com a configuração atual, um endpoint para recuperar um produto seria algo como <http://localhost:3000/v1/products/1>.
+
+.Padrões API comuns
+****
+Você pode encontrar muitas abordagens para configurar a _base_uri_ quando estiver construindo uma API seguindo padrões diferentes, assumindo que nós estejamos versionando a nossa API:
+
+* `api.example.com/`: Na minha opinião, este é o melhor caminho, pois te dá uma interface melhor e isolamento, e no longo prazo pode te ajudar a http://www.makeuseof.com/tag/optimize-your-dns-for-faster-internet/[escalar rapidamente]
+* `example.com/api/`: Este padrão é muito comum, e é atualmente um bom caminho quando você não quer delimitar a sua API sob um subdomínio
+* `example.com/api/v1`: parece uma boa ideia definir a versão da API na URL, parece um padrão mais descritivo, mas deste modo impõe que a versão seja incluída na URL em cada requisição, então se você decidir mudar este padrão, ele se torna um problema de manutenção no longo prazo
+
+Existem algumas práticas na construção de uma API que recomendam não versionar a API pela URL. É verdade. O desenvolvedor não deveria estar ciente da versão que ele está utilizando. Pela simplicidade, eu escolhi deixar de lado esta convenção, que nós seremos capazes de aplicar na segunda fase.
+****
+
+Está na hora de fazer o commit:
+
+[source,bash]
+----
+$ git commit -am "Set the versioning namespaces for API"
+----
+
+Nós estamos no final do nosso capítulo. Contudo, é a hora de aplicar todas as nossas modificações para a branch master fazendo um _merge_. Para fazer isso, nós mudamos para a branch `master` e fazemos o _merge_ do `chapter02`:
+
+[source,bash]
+----
+$ git checkout master
+$ git merge chapter02
+----
+
+== Conclusão
+
+Eu sei que tem sido um longo caminho, mas você conseguiu, não desista; este é apenas o nosso pequeno andaime para algo maior, então continue assim. Enquanto isso, e se você tiver a curiosidade, algumas gems lidam com este tipo de configuração:
+
+* https://github.com/Sutto/rocket_pants[RocketPants]
+* https://github.com/bploetz/versionist[Versionist]
+
+Eu não vou cobrir elas neste livro uma vez que nós estamos tentando aprender como implementar este tipo de funcionalidade, mas é bom saber a respeito. A propósito, o código até este ponto está https://github.com/madeindjs/market_place_api_6/releases/tag/checkpoint_chapter03[aqui].
+
+=== Quiz
+
+Para ter a certeza de que você entendeu este capítulo, tente responde essas perguntas:
+
+Quais diretrizes você deve seguir em uma API RESTfull::
+  . Seguir o padrão de métodos HTTP como GET, POST, PUT e DELETE.
+  . Comprar um domínio específico que é compatível com uma API RESTfull.
+  . Use o formato JSON.
+
+Que arquivo corresponde às rotas em uma aplicação Rails::
+  . `config/routes.rb`
+  . `app/controller`
+  . `config/application.rb`
+
+Que característica do Rails nós usamos para construir o versionamento da nossa API::
+  . Um namespace como `namespace :v1`.
+  . Um novo controller.
+
+
+Qual método HTTP permite que você atualize uma coleção ou membro dos recursos::
+  . `POST`
+  . `GET`
+  . `PUT`
+
+Como você fez o merge da sua branch no final deste capítulo::
+  . Eu fiz o `checkout` na branch `master` e então eu fiz o `merge` da branch `chapter02`.
+  . Eu fiz o `merge` da branch `master` na branch `chapter02`.
+  . `git config --global user.name "John Doe"`
+Não tenha pressa para responder. Quando resolver essas questões, vá para a próxima página para ver as respostas.
+
+<<<
+
+==== Respostas
+
+Quais diretrizes você deve seguir em uma API RESTfull:: Seguir o padrão de métodos HTTP como GET, POST, PUT e DELETE.
+
+Que arquivo corresponde às rotas em uma aplicação Rails:: `config/routes.rb`. Este arquivo contém todas as rotas da aplicação.
+
+Que característica do Rails nós usamos para construir o versionamento da nossa API:: um namespace como `namespace :v1`. Tenha em mente que um namespace é um tipo de prefixo de rota que permite que você organize um endpoint na mesma "pasta"
+
+Qual método HTTP permite que você atualize uma coleção ou membro dos recursos:: `PUT`. `GET` permite que você acesse um recurso e `POST` que um novo recurso seja criado.
+
+Como você fez o merge da sua branch no final deste capítulo:: Eu fiz o `checkout` na branch `master` e então eu fiz o `merge` da branch `chapter02`.
+
+=== Vá além
+
+Para ir além, eu recomendo que você utilize o Github ou Gitlab para abrir um Pull Request com a sua branch `chapter02`. Isto irá permitir que você mantenha um histórico limpo do que você fez e modificou. Você pode adicionar uma bela descrição do porque você fez essas modificações e como organizou o seu código. Uma vez que o pull request pareça bom, você pode fazer o merge dele.
