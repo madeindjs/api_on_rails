@@ -2,7 +2,7 @@ require 'asciidoctor'
 require 'asciidoctor-pdf'
 require 'yaml'
 
-LANGS = %w[en fr es].freeze
+LANGS = %w[en fr es pt-br].freeze
 VERSIONS = %w[5 6].freeze
 OUTPUT_DIR = File.join __dir__, 'build'
 THEMES_DIR = File.join __dir__, 'themes'

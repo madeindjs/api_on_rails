@@ -1,0 +1,654 @@
+[#chapter04-authentication]
+= Autenticando o usuário
+
+Faz um bom tempo desde que você começou. Eu espero que você aprecie esta viagem tanto quanto eu.
+
+No capítulo anterior, nós configuramos as entradas do recurso do usuário. Se você pulou este capítulo ou não entendeu tudo, eu recomendo fortemente que você dê uma olhada nele antes. Ele cobre as primeiras bases de testes e é uma introdução a repostas em JSON.
+
+Você pode clonar o projeto até este ponto:
+
+[source,bash]
+----
+$ git checkout tags/checkpoint_chapter04
+----
+
+Neste capítulo, as coisas vão ficar bastante interessantes porque nós iremos configurar o nosso mecanismo de autenticação. Na minha opinião, este é um dos capítulos mais interessantes. Nós iremos apresentar muitos termos novos, e você irá terminar com um sistema de autenticação simples, mas poderoso. Não entre em pânico. Nós chegaremos lá.
+
+Antes de tudo (e como de costume quando começamos um novo capítulo), nós iremos criar uma nova branch:
+
+[source,bash]
+----
+$ git checkout -b chapter04
+----
+
+== Sessão sem estado
+
+Antes de irmos além, uma coisa deve ficar clara: *uma API não lida com sessões*. Se você não tem experiência construindo esse tipo de aplicação, pode parecer um pouco louco, mas me acompanhe. Uma API deveria ser sem estado, o que significa por definição que _é aquela que provê uma resposta depois da sua requisição e então não requer qualquer atenção futura_. Isto significa nenhum estado passado ou futuro é necessário para o sistema funcionar.
+
+O fluxo para autenticar o usuário por uma API é fácil:
+
+. O cliente faz uma requisição para o recurso `sessions` com as credenciais correspondentes (normalmente email e senha)
+. O servidor retorna o recurso `user` com o seu token de autenticação correspondente.
+. Para cada página que requer autenticação, o cliente deve enviar aquele `authentication token` (token de autenticação)
+
+É claro, estes não são apenas os três passos a serem seguidos, e mesmo no segundo passo, você pode pensar, bem, eu realmente preciso responder com todos os dados do usuário ou apenas o `authentication token`? Isso realmente depende de você, mas eu gosto de retornar todos os dados do usuário. Desta forma, eu posso mapear isso diretamente no meu cliente e salvar outra requisição possível que tenha sido feita.
+
+Esta sessão e a próxima serão focadas em construir um Sessions controller e suas actions correspondentes. Nós iremos então completar o fluxo de requisição adicionando o acesso de autorização necessário.
+
+=== A apresentação JWT
+
+Quando tratamos de autenticação por tokens, há um padrão: o JSON Web Token (JWT).
+
+> JWT é um padrão aberto definido no RFC 75191. Ele permite a troca segura de tokens entre várias partes. - https://wikipedia.org/wiki/JSON_Web_Token_Web_Token[Wikipedia]
+
+Em geral, um token JWT é composto de três partes:
+
+- um *header* (cabeçalho) estruturado em JSON contém, por exemplo, a data de validade do token.
+- uma *payload* (carga) estruturada em JSON pode conter *quaisquer dados*. No nosso caso, ela irá conter o identificador do usuário "conectado".
+- uma *signature* (assinatura) que nos permite verificar que a nossa aplicação criptografou o token e que portanto, é válido.
+
+Essas três partes são cada uma codificadas em *base64* e então concatenadas utilizando pontos (`.`). Isto nos dá algo do tipo:
+
+.Um token JWT válido
+----
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+----
+
+Uma vez decodificado, este token nos dá a seguinte informação:
+
+.O cabeçalho do token JWT
+[source,json]
+----
+{ "alg": "HS256", "typ": "JWT" }
+----
+
+.A carga do token JWT
+[source,json]
+----
+{ "sub": "1234567890", "name": "John Doe", "iat": 1516239022 }
+----
+
+NOTE: Para mais informações sobre tokens JWT eu te convido a visitar https://jwt.io[jwt.io]
+
+Isso possui muitas vantagens, como enviar informação na carga do token. Por exemplo, nós podemos escolher integrar as informações do usuário na _carga_.
+
+=== Configurando o token de autenticação
+
+O padrão JWT tem muitas implementações em várias linguagens e bibliotecas. É claro, há uma Ruby gem para esse caso: https://github.com/jwt/ruby-jwt[ruby-jwt].
+
+Então vamos começar instalando ela:
+
+[source,bash]
+----
+$ bundle add jwt
+----
+
+Uma vez completa a instalação, a seguinte linha é adicionada ano nosso `Gemfile`:
+
+[source,ruby]
+----
+gem "jwt", "~> 2.2"
+----
+
+A biblioteca é muito simples. Existem dois métodos: `JWT.encode` e `JWT.decode`. Vamos abrir um terminal com `console rails` e executar alguns testes:
+
+[source,ruby]
+----
+2.6.3 :001 > token = JWT.encode({message: 'Hello World'}, 'my_secret_key')
+2.6.3 :002 > JWT.decode(token, 'my_secret_key')
+ => [{"message"=>"Hello World"}, {"alg"=>"HS256"}]
+----
+
+Na primeira linha, nós codificamos uma _carga_ com a chave secreta `my_secret_key`. Então nós obtemos um token que podemos simplesmente decodificar. A segunda linha decodifica o token, e nós vemos que nós encontramos a nossa _carga_ sem problemas.
+
+Nós iremos agora incluir toda essa lógica em uma classe `JsonWebToken` em um arquivo novo localizado em `lib/`. Isto irá evitar que tenhamos duplicações no código. Esta classe irá apenas codificar e decodificar os tokens JWT. Então aqui está a implementação.
+
+.lib/json_web_token.rb
+[source,ruby]
+----
+class JsonWebToken
+  SECRET_KEY = Rails.application.credentials.secret_key_base.to_s
+
+  def self.encode(payload, exp = 24.hours.from_now)
+    payload[:exp] = exp.to_i
+    JWT.encode(payload, SECRET_KEY)
+  end
+
+  def self.decode(token)
+    decoded = JWT.decode(token, SECRET_KEY).first
+    HashWithIndifferentAccess.new decoded
+  end
+end
+----
+
+Eu sei que é muito código, mas nós vamos revisá-lo justos.
+
+- O método `JsonWebToken.encode` cuida da codificação da _carga_ adicionando a data de expiração de 24 horas por padrão. Nós também utilizamos a mesma chave de encriptação configurada com o Rails
+- O método `JsonWebToken.decode` decodifica o token JWT e pega a _carga_. Então nós usamos a classe https://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html[`HashWithIndifferentAccess`] provida pelo Rails, que nos permite obter o valor de um `Hash` com um `Symbol` ou `String`.
+
+Aí está. Para carregar o arquivo na sua aplicação, você deve especificar a pasta `lib` na lista de _autoload_ do Ruby on Rails. Para fazer isso, adicione a seguinte configuração ao arquivo `application.rb`:
+
+.config/application.rb
+[source,ruby]
+----
+# ...
+module MarketPlaceApi
+  class Application < Rails::Application
+    # ...
+    config.eager_load_paths << Rails.root.join('lib')
+  end
+end
+----
+
+E isso é tudo. Agora é a hora de fazer um commit:
+
+[source,bash]
+----
+$ git add . && git commit -m "Setup JWT gem"
+----
+
+
+=== O controller do Token
+
+Nós então configuramos o sistema para gerar um token JWT. Agora é a hora de criar um rota que irá gerar este token. As actions que iremos implementar serão gerenciadas como serviços _RESTful_: A conexão será gerenciada por uma requisição POST para a action `create`.
+
+Nós começamos criando o controller e o método `create` no _namespace_ `/API/v1`. Com o Rails, um comando é suficiente:
+
+[source,bash]
+----
+$ rails generate controller api::v1::tokens create
+----
+
+Nós iremos modificar a rota um pouco para respeitar as convenções _REST_:
+
+.config/routes.rb
+[source,ruby]
+----
+Rails.application.routes.draw do
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      # ...
+      resources :tokens, only: [:create]
+    end
+  end
+end
+----
+
+
+Nós iremos construir testes funcionais antes de ir adiante. O comportamento desejado é o seguinte:
+
+- Eu recebo um token se eu enviar um par válido usuário/senha
+- Do contrário, o servidor responde com uma resposta `forbidden`
+
+Os testes portanto se materializam da seguinte forma:
+
+.test/controllers/api/v1/tokens_controller_test.rb
+[source,ruby]
+----
+require 'test_helper'
+
+class Api::V1::TokensControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+  end
+
+  test 'should get JWT token' do
+    post api_v1_tokens_url, params: { user: { email: @user.email, password: 'g00d_pa$$' } }, as: :json
+    assert_response :success
+
+    json_response = JSON.parse(response.body)
+    assert_not_nil json_response['token']
+  end
+
+  test 'should not get JWT token' do
+    post api_v1_tokens_url, params: { user: { email: @user.email, password: 'b@d_pa$$' } }, as: :json
+    assert_response :unauthorized
+  end
+end
+----
+
+Você deve estar pensando: "mas como você pode saber a senha do usuário?". Simplesmente usando método `BCrypt::Password.create` nas _fixtures_ de usuários:
+
+.test/fixtures/users.yml
+[source,yaml]
+----
+one:
+  email: one@one.org
+  password_digest: <%= BCrypt::Password.create('g00d_pa$$') %>
+----
+
+Neste momento precisamente, se você executar os testes, você tem dois erros:
+
+[source,bash]
+----
+$ rake test
+
+........E
+
+Error:
+Api::V1::TokensControllerTest#test_should_get_JWT_token:
+JSON::ParserError: 767: unexpected token at ''
+
+
+Failure:
+Expected response to be a <401: unauthorized>, but was a <204: No Content>
+----
+
+Isso é normal. Agora é a hora de implementar a lógica para criar o token JWT. É fácil.
+
+.app/controllers/api/v1/tokens_controller.rb
+[source,ruby]
+----
+class Api::V1::TokensController < ApplicationController
+  def create
+    @user = User.find_by_email(user_params[:email])
+    if @user&.authenticate(user_params[:password])
+      render json: {
+        token: JsonWebToken.encode(user_id: @user.id),
+        email: @user.email
+      }
+    else
+      head :unauthorized
+    end
+  end
+
+  private
+
+  # Only allow a trusted parameter "white list" through.
+  def user_params
+    params.require(:user).permit(:email, :password)
+  end
+end
+----
+
+É bastante código, mas é bem direto ao ponto:
+
+. Nós sempre filtramos parâmetros com o método `user_params`.
+. Nós obtemos o usuário com o método `User.find_by_email` (que é um método "mágico" do _Active Record_ uma vez que o campo `email` está presente no banco de dados), e nós obtemos o usuário.
+. Nós usamos o método `User#authenticate` (que existe graças à gem `bcrypt`) com a senha como parâmetro. O Bcrypt fará um _hash_ da senha e verificará se ela bate com o atributo `password_digest`. A função retorna `true` se tudo correr bem, `false` caso o contrário.
+. Se a senha corresponde ao _hash_, um JSON contendo o _token_ gerado com a class `JsonWebToken` é retornado. Caso contrário, uma resposta vazia é retornada com um cabeçalho `unauthorized`.
+
+Ainda está aqui? Não se preocupe, acabou! Agora os seus testes devem passar.
+
+[source,bash]
+----
+$ rake test
+
+...........
+
+Finished in 0.226196s, 48.6304 runs/s, 70.7351 assertions/s.
+11 runs, 16 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Muito bem! É hora de fazer um commit que irá conter todas as suas mudanças:
+
+[source,bash]
+----
+$ git add . && git commit -m "Setup tokens controller"
+----
+
+
+== Usuário logado
+
+Nós implementamos a seguinte lógica: a API retorna o token de autenticação para o cliente se as credenciais estiverem corretas.
+
+Nós iremos agora implementar a seguinte lógica: nós iremos encontrar o usuário correspondente ao token de autenticação dado no cabeçalho no HTTP. Nós vamos precisar fazer isso toda vez que este cliente fizer uma requisição como um ponto de entrada que requer permissão.
+
+Nós iremos usar o cabeçalho HTTP `Authorization`, que é muitas vezes usado para este propósito. Nós podemos também usar um parâmetro GET chamado `apiKey` mas eu prefiro usar um cabeçalho HTTP porque ele nos dá o contexto para a requisição sem poluir a URL com parâmetros adicionais.
+
+Nós iremos portanto criar um método `current_user` para satisfazer as nossas necessidades. Ele irá encontrar o usuário graças ao token de autenticação, que é enviado em cada requisição.
+
+Quando se trata de autenticação, eu gostaria de adicionar todos os métodos associados em um arquivo separado. Então simplesmente inclua o arquivo no `ApplicationController`. Dessa forma, é direto ao ponto testar de forma isolada. Vamos criar o arquivo na pasta `controllers/concerns` com um método `current_user` que nós iremos implementar logo depois:
+
+[source,ruby]
+.app/controllers/concerns/authenticable.rb
+----
+module Authenticable
+  def current_user
+    # TODO
+  end
+end
+----
+
+Então vamos criar uma pasta `concern` sob `test/controllers/` e um arquivo `authenticable_test.rb` para os nossos testes de autenticação:
+
+
+[source,bash]
+----
+$ mkdir test/controllers/concerns
+$ touch test/controllers/concerns/authenticable_test.rb
+----
+
+Como de costume, nós começamos escrevendo os nossos testes. Neste caso, nosso método `current_user` irá buscar por um usuário pelo token de autenticação no cabeçalho HTTP `Authorization`. O teste é bem básico:
+
+[source,ruby]
+.test/controllers/concerns/authenticable_test.rb
+----
+# ...
+class AuthenticableTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+    @authentication = MockController.new
+  end
+
+  test 'should get user from Authorization token' do
+    @authentication.request.headers['Authorization'] = JsonWebToken.encode(user_id: @user.id)
+    assert_equal @user.id, @authentication.current_user.id
+  end
+
+  test 'should not get user from empty Authorization token' do
+    @authentication.request.headers['Authorization'] = nil
+    assert_nil @authentication.current_user
+  end
+end
+----
+
+Você pode estar pensando. "de onde veio o `MockController`?". Ele é um _Mock_, isto é, uma classe que imita outro comportamento para um comportamento de teste.
+
+Nós podemos definir a classe `MockController` logo acima do nosso teste:
+
+[source,ruby]
+.test/controllers/concerns/authenticable_test.rb
+----
+# ...
+class MockController
+  include Authenticable
+  attr_accessor :request
+
+  def initialize
+    mock_request = Struct.new(:headers)
+    self.request = mock_request.new({})
+  end
+end
+# ...
+----
+
+A classe `MockController` simplesmente inclui o nosso módulo `Authenticable` que nós iremos testar. Ele contém um atributo de requisição que contém uma https://ruby-doc.org/core-2.6.3/Struct.html[`Struct`] simples que imita o comportamento de uma requisição Rails contendo um atributo de cabeçalho  do tipo `Hash`.
+
+Então nós podemos implementar dois testes logo depois:
+
+[source,ruby]
+.test/controllers/concerns/authenticable_test.rb
+----
+# ...
+class AuthenticableTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:one)
+    @authentication = MockController.new
+  end
+
+  test 'should get user from Authorization token' do
+    @authentication.request.headers['Authorization'] = JsonWebToken.encode(user_id: @user.id)
+    assert_not_nil @authentication.current_user
+    assert_equal @user.id, @authentication.current_user.id
+  end
+
+  test 'should not get user from empty Authorization token' do
+    @authentication.request.headers['Authorization'] = nil
+    assert_nil @authentication.current_user
+  end
+end
+----
+
+Os nossos testes devem falhar. Então vamos implementar o código para que eles possam passar:
+
+[source,ruby]
+.app/controllers/concerns/authenticable.rb
+----
+module Authenticable
+  def current_user
+    return @current_user if @current_user
+
+    header = request.headers['Authorization']
+    return nil if header.nil?
+
+    decoded = JsonWebToken.decode(header)
+
+    @current_user = User.find(decoded[:user_id]) rescue ActiveRecord::RecordNotFound
+  end
+end
+----
+
+Pronto! Nós obtemos o token do cabeçalho `Authorization` e nós buscamos o usuário correspondente. Nenhuma bruxaria.
+
+Agora os nossos testes devem passar:
+
+[source,bash]
+----
+$ rake test
+.............
+13 runs, 18 assertions, 0 failures, 0 errors, 0 skips
+----
+
+Tudo o que temos que fazer é incluir o módulo `Authenticable` na classe `ApplicationController`:
+
+[source,ruby]
+.app/controllers/application_controller.rb
+----
+class ApplicationController < ActionController::API
+  # ...
+  include Authenticable
+end
+----
+
+Agora é a hora de fazer o commit das nossas mudanças:
+
+[source,bash]
+----
+$ git add . && git commit -m "Adds authenticable module for managing authentication methods"
+----
+
+== Autenticação com o token
+
+A autorização executa um papel importante na construção de aplicações porque ela nos ajuda a definir o que é permitido ao usuário fazer.
+
+Nós temos uma rota para atualizar o usuário, mas há um problema: ninguém pode atualizar qualquer usuário. Esta seção irá implementar um método que irá solicitar que o usuário esteja logado para evitar acessos não autorizados.
+
+=== Ações de autorização
+
+Agora é o momento de atualizar o nosso arquivo `users_controller.rb` para recursar o acesso a certas actions. Nós iremos também implementar o método `current_user` nas actions `update` e `destroy` para assegurar que o usuário que está logado será capaz de atualizar apenas os seus dados e excluir (somente) a sua conta.
+
+Portanto, nós iremos dividir os nossos testes _should update user_ e _should destroy user_ em dois testes.
+
+Vamos começar atualizando o teste _should update user_.
+
+.test/controllers/api/v1/users_controller_test.rb
+[source,ruby]
+----
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test "should update user" do
+    patch api_v1_user_url(@user),
+      params: { user: { email: @user.email } },
+      headers: { Authorization: JsonWebToken.encode(user_id: @user.id) },
+      as: :json
+    assert_response :success
+  end
+
+  test "should forbid update user" do
+    patch api_v1_user_url(@user), params: { user: { email: @user.email } }, as: :json
+    assert_response :forbidden
+  end
+end
+----
+
+Você pode ver como nós tivemos que adicionar o cabeçalho _Authorization_ para a action de modificação do usuário. Nós queremos receber uma resposta _forbidden_ (proibido) se ele não existir.
+
+Nós podemos imaginar a mesma coisa para o teste _should forbid destroy user_:
+
+.test/controllers/api/v1/users_controller_test.rb
+[source,ruby]
+----
+# ...
+class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
+  # ...
+  test "should destroy user" do
+    assert_difference('User.count', -1) do
+      delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }, as: :json
+    end
+    assert_response :no_content
+  end
+
+  test "should forbid destroy user" do
+    assert_no_difference('User.count') do
+      delete api_v1_user_url(@user), as: :json
+    end
+    assert_response :forbidden
+  end
+end
+----
+
+Esses testes devem falhar no momento, como você pode esperar:
+
+[source,bash]
+----
+$ rails test test/controllers/api/v1/users_controller_test.rb
+..F
+
+Failure:
+Expected response to be a <2XX: success>, but was a <403: Forbidden>
+
+..F
+
+Failure:
+"User.count" didn t change by -1.
+Expected: 0
+  Actual: 1
+----
+
+A solução é bem simples. Nós iremos adicionar um `before_action`, que irá chamar o método `check_owner` para as actions `update` e `destroy`. Deste modo, nós iremos verificar se o usuário correspondente ao token JWT é o mesmo que o usuário que precisa ser atualizado.
+
+Segue a implementação:
+
+[source,ruby]
+.app/controllers/api/v1/users_controller.rb
+----
+class Api::V1::UsersController < ApplicationController
+  before_action :set_user, only: %i[show update destroy]
+  before_action :check_owner, only: %i[update destroy]
+  # ...
+
+  private
+  # ...
+  def check_owner
+    head :forbidden unless @user.id == current_user&.id
+  end
+end
+----
+
+Pronto! A implementação é direto ao ponto. É, portanto, hora de fazer um commit:
+
+[source,bash]
+----
+$ git commit -am "Restrict actions for unauthorized users"
+$ git checkout master
+$ git merge chapter04
+----
+
+== Conclusão
+
+Isso! Você conseguiu! Você está na metade do caminho! Continue com o bom trabalho. Esse capítulo foi longo e difícil, mas é um grande passo para configurar um mecanismo sólido para o tratamento de autenticação de usuário. Nós apenas arranhamos a superfície para regras de autorização simples.
+
+No próximo capítulo, nós iremos focar na customização da saída do JSON para o usuário com a gem https://github.com/Netflix/fast_jsonapi[fast_jsonapi] e na adição de um modelo `product` à equação para dar ao usuário a habilidade de criar um produto e publicá-lo para venda.
+
+=== Quiz
+
+Para ter certeza que você entendeu este capítulo, tente responder essas questões:
+
+Qual desses trechos pode ser um cabeçalho JWT válido::
++
+[source,json]
+----
+{ "alg": "HS256", "typ": "JWT" }
+----
++
+[source,json]
+----
+{ "sub": "1234567890", "name": "John Doe", "iat": 1516239022 }
+----
++
+[source,json]
+----
+{ "alg": "HS256", "typ": "JWT", "name": "John Doe" }
+----
++
+
+Como você constrói um token JWT válido com a seguinte carga `payload = {email: 'john@doe.org'}`?::
+  . `JWT.encrypt(payload, 'my_secret_key')`
+  . `JWT.encrypt(payload)`
+  . `JWT.encode(payload, 'my_secret_key')`
+  . `JWT.encode(payload)`
+
+O pode acontecer se nós tentarmo usar `JWT.decode` com uma assinatura inválida? Por exemplo, se nós definirmos um token `token = JWT.encode({a: 1}, 'bar')` e então o decodificarmos assim `JWT.decode(token, 'wrong')`.::
+  . um erro `JWT::VerificationError` será disparado.
+  . `nil` é retornado.
+  . `{a: 1}` é retornado mas você tem um alerta no console.
+
+Na seção anterior, nós definimos o valor `exp` na carga. Este é um "prazo de validade" do token. O que pode acontecer por exemplo, se nós definirmos um token `token = JWT.encode({exp: 1}, 'bar')` e então o decodificarmos assim `JWT.decode(token, 'bar')`.::
+  . um erro `JWT::ExpiredSignature` será disparado.
+  . `nil` será retornado.
+  . `{exp: 1}` é retornado mas você tem um alerta no console.
+
+Qual desses trechos enviam um consulta HTTP correta um teste funcional::
+  . nós construímos um cabeçalho `Authorization` contendo um token JWT
++
+[source,ruby]
+----
+delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }
+----
++
+  . we build an `Authorization` header containing user ID.
++
+[source,ruby]
+----
+delete api_v1_user_url(@user), headers: { Authorization: @user.id }, as: :json
+----
++
+  . we build an HTTP header containing JWT token
++
+[source,ruby]
+----
+delete api_v1_user_url(@user), headers: JsonWebToken.encode(user_id: @user.id)
+----
++
+
+Não tenha pressa para responder Quando resolver essas questões, vá para a próxima página para ver as respostas.
+
+<<<
+
+=== Respostas
+
+Qual desses trechos pode ser um cabeçalho JWT válido:: `{ "alg": "HS256", "typ": "JWT" }`. O cabeçalho JWT descreve as operações criptográficas applicadas ao JWT e opcionalmente, propriedades adicionais do JWT. https://tools.ietf.org/html/rfc7519#section-5[see RFC 7519].
+
+Como você constrói um token JWT válido com a seguinte carga `payload = {email: 'john@doe.org'}`?:: `JWT.encode(payload, 'my_secret_key')`. O `encode` precisa ao menos de uma chave secreta para construir um token JWT. Também, por favor note que a chave secreta pode ser uma string vazia `""`.
+
+O pode acontecer se nós tentarmo usar `JWT.decode` com uma assinatura inválida? Por exemplo, se nós definirmos um token `token = JWT.encode({a: 1}, 'bar')` e então o decodificarmos assim `JWT.decode(token, 'wrong')`.:: um erro `JWT::VerificationError` será disparado. Você pode fazer uma `rescue` no seu controller para lidar com isso e enviar uma resposta `403 - Forbidden` para o usuário. Isso pode acontecer se um usuário malicioso tentar construir um token JWT customizado.
+
+Na seção anterior, nós definimos o valor `exp` na carga. Este é um "prazo de validade" do token. O que pode acontecer por exemplo, se nós definirmos um token `token = JWT.encode({exp: 1}, 'bar')` e então o decodificarmos assim `JWT.decode(token, 'bar')`.:: um erro `JWT::ExpiredSignature` será disparado. A reivindicação `exp` (tempo de expiração) identifica o tempo de expiração a partir do qual o JWT NÃO DEVE ser aceito para processamento. https://tools.ietf.org/html/rfc7519#section-4.1.4[see RFC 7519]
+
+Qual desses trechos enviam um consulta HTTP correta um teste funcional::
++
+[source,ruby]
+----
+delete api_v1_user_url(@user), headers: { Authorization: JsonWebToken.encode(user_id: @user.id) }
+----
++
+
+<<<
+
+=== Vá além
+
+Se você leu atentamente a resposta do quiz, você pode ter notado que se nós tentarmos decodificar um token inválido, a biblioteca JWT dispara uma exceção, nós não lidamos com esta exceção na aplicação.
+
+Se você quer ir além e melhorar a sua aplicação até este ponto, você pode querer lidar adequadamente com este erro e retornar o status HTTP `403 - Forbidden` e um corpo contendo uma mensagem como "O token enviado é inválido porque não existe / ou está mal formado.". Você pode facilmente implementar um teste funcional como o seguinte:
+
+[source,ruby]
+----
+test "should forbid destroy user because JWT is invalid" do
+  assert_no_difference('User.count') do
+    delete api_v1_user_url(@user), headers: { Authorization: JWT.encode({user_id: @user.id}, 'bad_signature') }, as: :json
+  end
+  assert_response :forbidden
+end
+----
