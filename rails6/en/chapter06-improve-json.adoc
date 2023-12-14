@@ -698,18 +698,21 @@ one:
   price: 9999.99
   published: false
   user: one
-
+  updated_at: <%= 5.day.ago.to_s :db %>
+  
 two:
   title: Azos Zeenbok
   price: 499.99
   published: false
   user: two
-
+  updated_at: <%= 4.day.ago.to_s :db %>
+  
 another_tv:
   title: Cheap TV
   price: 99.99
   published: false
   user: two
+  updated_at: <%= 3.day.ago.to_s :db %>
 ----
 
 And now we can build some tests:
@@ -842,7 +845,7 @@ class ProductTest < ActiveSupport::TestCase
   test 'should sort product by most recent' do
     # we will touch some products to update them
     products(:two).touch
-    assert_equal [products(:another_tv), products(:one), products(:two)], Product.recent.to_a
+    assert_equal [products(:one), products(:another_tv), products(:two)], Product.recent.to_a
   end
 end
 ----
