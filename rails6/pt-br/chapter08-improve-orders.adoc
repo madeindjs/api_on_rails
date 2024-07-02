@@ -220,7 +220,7 @@ Você notou que nós não estamos salvando a quantidade para cada produto em qua
 
 [source,bash]
 ----
-$ rails generate  add_quantity_to_placements quantity:integer
+$ rails generate migration add_quantity_to_placements quantity:integer
 ----
 
 Do mesmo modo que com o atributo de migração quantidade para produto, nós devemos adicionar o valor padrão igual a 0. Lembre-se que isso é opcional mas eu gosto desta abordagem. O arquivo de migração deve se parecer com o seguinte:
