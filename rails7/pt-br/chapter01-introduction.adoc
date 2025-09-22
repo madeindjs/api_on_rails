@@ -45,7 +45,7 @@ Se por qualquer razão você encontrar alguns erros quando estiver executando um
 
 == Ambientes de desenvolvimento
 
-Uma das partes mais doloridas para quase todo desenvolvedor é configurar tudo, mas contanto que você consiga fazer isso, os próximos passos devem ser muito fáceis recompensadores. Então eu irei guiar você para mantê-lo motivado.
+Uma das partes mais doloridas para quase todo desenvolvedor é configurar tudo, mas contanto que você consiga fazer isso, os próximos passos devem ser muito fáceis e recompensadores. Então eu irei guiar você para mantê-lo motivado.
 
 === Editores de texto e o Terminal
 
